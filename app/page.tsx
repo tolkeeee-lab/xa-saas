@@ -1,10 +1,16 @@
+'use client';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
 export default function HomePage() {
+  const router = useRouter();
+  useEffect(() => {
+    const auth = document.cookie.split(';').some(c => c.trim() === 'xa_authenticated=true');
+    router.replace(auth ? '/dashboard' : '/auth/boutique');
+  }, [router]);
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8">
-      <h1 className="text-4xl font-bold text-xa-primary">xà</h1>
-      <p className="mt-2 text-gray-500">
-        Gestion de caisse &amp; inventaire multi-boutiques
-      </p>
+    <main className="min-h-screen bg-xa-bg flex items-center justify-center">
+      <p className="text-gray-400">Chargement...</p>
     </main>
   );
 }
