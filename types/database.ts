@@ -28,7 +28,7 @@ export type TransactionStatut = 'en_attente' | 'validee' | 'annulee';
 
 // ── Boutique ──────────────────────────────────────────────────────────────────
 
-export interface Boutique {
+export type Boutique = {
   id: string;
   nom: string;
   adresse: string | null;
@@ -47,7 +47,7 @@ export type BoutiqueUpdate = Partial<BoutiqueInsert>;
 
 export type EmployeRole = 'caissier' | 'gerant' | 'admin';
 
-export interface Employe {
+export type Employe = {
   id: string;
   boutique_id: string;
   nom: string;
@@ -66,7 +66,7 @@ export type EmployeUpdate = Partial<EmployeInsert>;
 
 // ── ClientDebiteur ────────────────────────────────────────────────────────────
 
-export interface ClientDebiteur {
+export type ClientDebiteur = {
   id: string;
   boutique_id: string;
   nom: string;
@@ -90,7 +90,7 @@ export type ClientDebiteurUpdate = Partial<ClientDebiteurInsert>;
 
 // ── Transaction ───────────────────────────────────────────────────────────────
 
-export interface Transaction {
+export type Transaction = {
   id: string;
   /** UUID généré côté client avant synchronisation (mode offline) */
   local_id: string | null;
@@ -133,21 +133,21 @@ export type TransactionInsert = Omit<
   created_at?: string;
 };
 
-export type TransactionUpdate = Pick<Transaction, 'id'> &
-  Partial<
-    Pick<
-      Transaction,
-      | 'statut'
-      | 'notes'
-      | 'reference'
-      | 'sync_statut'
-      | 'synced_at'
-    >
-  >;
+export type TransactionUpdate = Partial<
+  Pick<
+    Transaction,
+    | 'id'
+    | 'statut'
+    | 'notes'
+    | 'reference'
+    | 'sync_statut'
+    | 'synced_at'
+  >
+>;
 
 // ── Relations (pour les jointures courantes) ──────────────────────────────────
 
-export interface TransactionAvecRelations extends Transaction {
+export type TransactionAvecRelations = Transaction & {
   boutique: Pick<Boutique, 'id' | 'nom'>;
   employe: Pick<Employe, 'id' | 'nom' | 'prenom' | 'role'>;
   client_debiteur: Pick<
@@ -158,7 +158,7 @@ export interface TransactionAvecRelations extends Transaction {
 
 // ── Database (compatible avec le client Supabase généré) ──────────────────────
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       boutiques: {
