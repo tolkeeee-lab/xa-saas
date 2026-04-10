@@ -1,7 +1,8 @@
-import { supabase } from '../supabase';
+import { createClient } from '../supabase-browser';
 import type { Boutique, BoutiqueInsert, BoutiqueUpdate } from '../../types/database';
 
 export async function getBoutiques(proprietaireId: string): Promise<Boutique[]> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('boutiques')
     .select('*')
@@ -13,6 +14,7 @@ export async function getBoutiques(proprietaireId: string): Promise<Boutique[]> 
 }
 
 export async function getBoutiqueById(id: string): Promise<Boutique | null> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('boutiques')
     .select('*')
@@ -23,6 +25,7 @@ export async function getBoutiqueById(id: string): Promise<Boutique | null> {
 }
 
 export async function createBoutique(payload: BoutiqueInsert): Promise<Boutique> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('boutiques')
     .insert(payload)
@@ -33,6 +36,7 @@ export async function createBoutique(payload: BoutiqueInsert): Promise<Boutique>
 }
 
 export async function updateBoutique(id: string, payload: BoutiqueUpdate): Promise<Boutique> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('boutiques')
     .update(payload)
@@ -44,6 +48,7 @@ export async function updateBoutique(id: string, payload: BoutiqueUpdate): Promi
 }
 
 export async function deleteBoutique(id: string): Promise<void> {
+  const supabase = createClient();
   const { error } = await supabase
     .from('boutiques')
     .update({ actif: false })

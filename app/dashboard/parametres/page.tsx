@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '../../../lib/supabase-browser';
+import { hashPin } from '../../../lib/pinHash';
 import type { Boutique, Employe, EmployeRole } from '../../../types/database';
 
 export default function ParametresPage() {
@@ -74,7 +75,8 @@ export default function ParametresPage() {
     const { error } = await supabase
       .from('boutiques')
       .update({ code_unique: codeUnique.toUpperCase().trim() })
-      .eq('proprietaire_id', userId!);
+      .eq('proprietaire_id', userId!)
+      .eq('id', boutiques[0].id);
     setCodeLoading(false);
     if (error) {
       const msg = error.message.includes('unique') || error.code === '23505'
@@ -94,11 +96,13 @@ export default function ParametresPage() {
       return;
     }
     setPinLoading(true);
+    const pinHash = await hashPin(pinCaisse);
     const supabase = createClient();
     const { error } = await supabase
       .from('boutiques')
-      .update({ pin_caisse: pinCaisse })
-      .eq('proprietaire_id', userId!);
+      .update({ pin_caisse: pinHash })
+      .eq('proprietaire_id', userId!)
+      .eq('id', boutiques[0].id);
     setPinLoading(false);
     setPinMsg(error ? `Erreur : ${error.message}` : 'PIN mis à jour ✓');
     if (!error) setPinCaisse('');
@@ -130,6 +134,7 @@ export default function ParametresPage() {
       return;
     }
     const supabase = createClient();
+    const pinHash = form.pin ? await hashPin(form.pin) : null;
     const { data, error } = await supabase
       .from('employes')
       .insert({
@@ -137,7 +142,7 @@ export default function ParametresPage() {
         nom: form.nom.trim(),
         prenom: form.prenom.trim() || null,
         telephone: null,
-        pin: form.pin || null,
+        pin: pinHash,
         role: form.role,
         actif: true,
       })
@@ -171,7 +176,7 @@ export default function ParametresPage() {
         {/* Section 1 — Code unique */}
         <div className="bg-white rounded-2xl shadow p-5">
           <h2 className="font-semibold text-gray-700 mb-1">Code unique</h2>
-          <p className="text-xs text-gray-400 mb-4">Partagez ce code avec vos employés pour qu'ils accèdent à la caisse.</p>
+          <p className="text-xs text-gray-400 mb-4">Partagez ce code avec vos employés pour qu&apos;ils accèdent à la caisse.</p>
           <form onSubmit={handleCodeUpdate} className="space-y-3">
             <input
               type="text"

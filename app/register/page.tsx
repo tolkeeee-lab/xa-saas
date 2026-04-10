@@ -1,11 +1,10 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '../../lib/supabase-browser';
+import { hashPin } from '../../lib/pinHash';
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nomBoutique, setNomBoutique] = useState('');
@@ -27,6 +26,7 @@ export default function RegisterPage() {
       return;
     }
     setLoading(true);
+    const pinHash = await hashPin(pinCaisse);
     const supabase = createClient();
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
@@ -35,7 +35,7 @@ export default function RegisterPage() {
         data: {
           nom_boutique: nomBoutique,
           code_unique: codeUnique.toUpperCase().trim(),
-          pin_caisse: pinCaisse,
+          pin_caisse: pinHash,
         },
       },
     });
@@ -91,7 +91,7 @@ export default function RegisterPage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">PIN caisse (4 chiffres)</label>
             <input type="password" inputMode="numeric" value={pinCaisse} onChange={e => setPinCaisse(e.target.value.replace(/\D/g, '').slice(0, 4))} required maxLength={4}
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-xa-primary bg-white" placeholder="••••" />
-            <p className="text-xs text-gray-400 mt-1">Votre code d'accès à la caisse</p>
+            <p className="text-xs text-gray-400 mt-1">Votre code d&apos;accès à la caisse</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>

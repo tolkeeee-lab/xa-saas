@@ -3,121 +3,38 @@
 **xà** — Solution de gestion de caisse et d'inventaire multi-boutiques optimisée pour le marché béninois.  
 Gérez (xà) vos stocks et vos employés simplement pour mieux vendre (sà).
 
-Stack : **Next.js** · **Supabase** · mode **offline-first**
+Stack : **Next.js 15** · **Supabase** · **PWA offline-first**
+
+---
+
+## Architecture
+
+### Flux d'authentification
+
+Deux flux distincts, clairement séparés :
+
+| Flux | Chemin | Mécanisme |
+|---|---|---|
+| **Admin (patron)** | `/login` → `/dashboard` | Email + mot de passe Supabase |
+| **Caisse (employé/patron)** | `/caisse` | Code boutique + PIN (API routes sécurisées) |
+
+Le flux caisse n'utilise **pas** de session Supabase — il est entièrement public et sécurisé via des API routes côté serveur qui utilisent la clé service-role.
 
 ---
 
 ## Schéma de base de données
 
-### Vue d'ensemble
-
 ```
 boutiques ──< employes
 boutiques ──< clients_debiteurs
-boutiques ──< transactions
+boutiques ──< transactions ──< transaction_lignes
+boutiques ──< produits
 employes  ──< transactions
-clients_debiteurs ──< transactions (optionnel, ventes à crédit)
+clients_debiteurs ──< transactions (ventes à crédit)
+auth.users ──< push_subscriptions
 ```
 
-### Tables
-
-#### `boutiques`
-Point de vente physique appartenant à un propriétaire (lié à `auth.users`).
-
-| Colonne | Type | Description |
-|---|---|---|
-| `id` | UUID PK | Identifiant unique |
-| `nom` | TEXT | Nom de la boutique |
-| `adresse` | TEXT | Adresse physique |
-| `telephone` | TEXT | Numéro de contact |
-| `ville` | TEXT | Ville (ex. Cotonou, Porto-Novo) |
-| `proprietaire_id` | UUID | Lié à `auth.users` |
-| `actif` | BOOLEAN | Boutique active |
-
----
-
-#### `employes`
-Membres du personnel habilités à réaliser des transactions.
-
-| Colonne | Type | Description |
-|---|---|---|
-| `id` | UUID PK | Identifiant unique |
-| `boutique_id` | UUID FK | Boutique d'appartenance |
-| `nom` / `prenom` | TEXT | Identité |
-| `telephone` | TEXT | Numéro de contact |
-| `pin` | TEXT | Code PIN haché (accès rapide caisse) |
-| `role` | ENUM | `caissier` · `gerant` · `admin` |
-
----
-
-#### `clients_debiteurs`
-Clients ayant un compte courant (ventes à crédit).
-
-| Colonne | Type | Description |
-|---|---|---|
-| `id` | UUID PK | Identifiant unique |
-| `boutique_id` | UUID FK | Boutique concernée |
-| `nom` / `prenom` | TEXT | Identité |
-| `telephone` | TEXT | Numéro de contact |
-| `solde_du` | NUMERIC(15,2) | Montant total dû en XOF |
-| `plafond_credit` | NUMERIC(15,2) | Limite de crédit (NULL = illimité) |
-
----
-
-#### `transactions` ⭐
-Table centrale qui lie un **employé**, une **boutique** et un **client débiteur** optionnel.
-
-| Colonne | Type | Description |
-|---|---|---|
-| `id` | UUID PK | Identifiant Supabase |
-| `local_id` | UUID | UUID client (offline, unique) |
-| `boutique_id` | UUID FK | Boutique |
-| `employe_id` | UUID FK | Employé ayant réalisé la transaction |
-| `client_debiteur_id` | UUID FK nullable | Client débiteur (vente à crédit) |
-| `type` | ENUM | `vente` · `credit` · `remboursement` · `avoir` · `depense` |
-| `statut` | ENUM | `en_attente` · `validee` · `annulee` |
-| `mode_paiement` | ENUM | `especes` · `mobile_money` · `virement` · `carte` · `credit` |
-| `montant_total` | NUMERIC(15,2) | Total de la transaction (XOF) |
-| `montant_recu` | NUMERIC(15,2) | Montant remis par le client |
-| `monnaie_rendue` | NUMERIC(15,2) | Monnaie rendue |
-| `montant_credit` | NUMERIC(15,2) | Montant imputé sur la dette |
-| `reference` | TEXT | Référence externe (ticket, facture…) |
-| `notes` | TEXT | Observations libres |
-| `sync_statut` | ENUM | `local` · `synced` · `conflict` |
-| `synced_at` | TIMESTAMPTZ | Dernière synchronisation réussie |
-| `created_at` | TIMESTAMPTZ | Horodatage réel de la transaction |
-
-**Contraintes métier intégrées :**
-- Une transaction de type `credit` ou `remboursement` **doit** référencer un `client_debiteur_id`.
-- La monnaie rendue ne peut pas dépasser le montant reçu.
-- Les transactions ne sont **jamais supprimées** (soft delete via `statut = 'annulee'`).
-- Un trigger met à jour automatiquement le `solde_du` du client débiteur.
-
----
-
-## Mode offline
-
-Le mode offline repose sur `localStorage` et le champ `sync_statut` :
-
-1. **Hors ligne** → `createTransaction()` stocke localement (`sync_statut = 'local'`).
-2. **Retour en ligne** → `syncPendingTransactions()` envoie les transactions en attente.
-3. **Idempotence** garantie via l'index unique sur `local_id`.
-
-```ts
-import { createTransaction, registerOnlineSync } from '@/lib/offlineSync';
-
-// Crée une transaction (online ou offline automatiquement)
-const { data, offline } = await createTransaction({ ... });
-
-// Synchronisation automatique au retour en ligne
-useEffect(() => registerOnlineSync((result) => {
-  console.log(`${result.synced} transactions synchronisées`);
-}), []);
-```
-
----
-
-## Migrations Supabase
+### Migrations
 
 ```
 supabase/migrations/
@@ -125,17 +42,42 @@ supabase/migrations/
   20260410000002_create_employes.sql
   20260410000003_create_clients_debiteurs.sql
   20260410000004_create_transactions.sql
+  20260410000005_on_auth_user_created.sql
+  20260410000006_add_code_and_pin_to_boutiques.sql
+  20260410000007_update_trigger_with_code_pin.sql
+  20260410000008_caisse_public_read.sql
+  20260410000009_create_produits.sql
+  20260410000010_create_transaction_lignes.sql
+  20260410000011_create_push_subscriptions.sql
+  20260410000012_stock_decrement_trigger.sql
+  20260410000013_fix_rls_caisse.sql          ← supprime les politiques RLS trop permissives
+  20260410000014_fix_trigger_code_unique.sql  ← corrige le bug chaîne vide dans code_unique
+  20260410000015_updated_at_produits.sql     ← trigger updated_at pour produits
+  20260410000016_make_employe_id_nullable.sql ← employe_id nullable (transactions patron)
 ```
 
-Pour appliquer les migrations localement :
+Pour appliquer les migrations :
 ```bash
-supabase db reset
+supabase db reset        # en local
+supabase db push         # en production
 ```
 
-Pour appliquer en production :
-```bash
-supabase db push
-```
+---
+
+## Sécurité des PINs
+
+Les PINs (caissier et propriétaire) sont **hachés SHA-256 côté client** avant toute écriture en base.  
+La vérification se fait côté serveur via `/api/caisse/verify-pin` (jamais exposé dans le navigateur).
+
+---
+
+## Mode offline (PWA)
+
+Le mode offline repose sur **IndexedDB** et le Background Sync du Service Worker :
+
+1. **Hors ligne** → la vente est stockée dans IndexedDB (`xa-offline` / `pending_transactions`).
+2. **Background Sync** → le SW envoie automatiquement les transactions via `POST /api/transactions/sync`.
+3. **Idempotence** garantie via l'index unique sur `local_id`.
 
 ---
 
@@ -144,6 +86,28 @@ supabase db push
 Créer un fichier `.env.local` à la racine du projet :
 
 ```env
+# Obligatoires
 NEXT_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
+
+# Requis pour les API routes caisse (service-role, jamais exposé au browser)
+SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 ```
+
+---
+
+## Structure des routes
+
+| Route | Accès | Description |
+|---|---|---|
+| `/` | Public | Page d'accueil |
+| `/login` | Public | Connexion admin |
+| `/register` | Public | Inscription patron |
+| `/caisse` | Public | Caisse (flux employé/patron) |
+| `/dashboard` | Authentifié | Tableau de bord patron |
+| `/dashboard/boutiques/new` | Authentifié | Créer une boutique |
+| `/dashboard/employes` | Authentifié | Gestion employés |
+| `/dashboard/produits` | Authentifié | Gestion produits |
+| `/dashboard/parametres` | Authentifié | Paramètres (code, PIN, employés) |
+| `/api/caisse/*` | Public (service-role) | API routes caisse sécurisées |
+| `/api/transactions/sync` | Public (service-role) | Sync offline transactions |

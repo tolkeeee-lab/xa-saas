@@ -98,7 +98,7 @@ export type Transaction = {
   local_id: string | null;
 
   boutique_id: string;
-  employe_id: string;
+  employe_id: string | null;
   /** Null pour les ventes comptant ; obligatoire pour type 'credit' ou 'remboursement' */
   client_debiteur_id: string | null;
 
@@ -147,6 +147,53 @@ export type TransactionUpdate = Partial<
   >
 >;
 
+// ── Produit ───────────────────────────────────────────────────────────────────
+
+export type Produit = {
+  id: string;
+  boutique_id: string;
+  nom: string;
+  prix_unitaire: number;
+  stock_actuel: number;
+  stock_minimum: number;
+  unite: string | null;
+  actif: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ProduitInsert = Omit<Produit, 'id' | 'created_at' | 'updated_at'>;
+export type ProduitUpdate = Partial<ProduitInsert>;
+
+// ── TransactionLigne ──────────────────────────────────────────────────────────
+
+export type TransactionLigne = {
+  id: string;
+  transaction_id: string;
+  produit_id: string | null;
+  nom_produit: string;
+  quantite: number;
+  prix_unitaire: number;
+  /** Généré automatiquement : quantite * prix_unitaire */
+  sous_total: number;
+  created_at: string;
+}
+
+export type TransactionLigneInsert = Omit<TransactionLigne, 'id' | 'sous_total' | 'created_at'>;
+
+// ── PushSubscription ──────────────────────────────────────────────────────────
+
+export type PushSubscriptionRecord = {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  created_at: string;
+}
+
+export type PushSubscriptionInsert = Omit<PushSubscriptionRecord, 'id' | 'created_at'>;
+
 // ── Relations (pour les jointures courantes) ──────────────────────────────────
 
 export type TransactionAvecRelations = Transaction & {
@@ -185,6 +232,24 @@ export type Database = {
         Row: Transaction;
         Insert: TransactionInsert;
         Update: TransactionUpdate;
+        Relationships: [];
+      };
+      produits: {
+        Row: Produit;
+        Insert: ProduitInsert;
+        Update: ProduitUpdate;
+        Relationships: [];
+      };
+      transaction_lignes: {
+        Row: TransactionLigne;
+        Insert: TransactionLigneInsert;
+        Update: Partial<TransactionLigneInsert>;
+        Relationships: [];
+      };
+      push_subscriptions: {
+        Row: PushSubscriptionRecord;
+        Insert: PushSubscriptionInsert;
+        Update: Partial<PushSubscriptionInsert>;
         Relationships: [];
       };
     };
