@@ -15,8 +15,8 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Variables d\'environnement Supabase manquantes : ' +
+  console.warn(
+    '[supabase] Variables d\'environnement manquantes : ' +
       'NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY sont requises.'
   );
 }
@@ -25,4 +25,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
  * Client Supabase partagé, typé via le schéma Database.
  * À utiliser côté client (browser) et dans les Server Components Next.js.
  */
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient<Database>(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-anon-key'
+);
