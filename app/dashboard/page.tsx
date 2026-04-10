@@ -33,6 +33,9 @@ export default async function DashboardPage() {
             <Link href="/caisse" className="text-sm bg-xa-accent text-white rounded-lg px-3 py-1.5 font-medium hover:bg-xa-accent/90 transition">
               Caisse
             </Link>
+            <Link href="/dashboard/parametres" className="text-sm text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50 transition">
+              ⚙️ Paramètres
+            </Link>
             <form action={signOut}>
               <button type="submit" className="text-sm text-red-500 border border-red-200 rounded-lg px-3 py-1.5 hover:bg-red-50 transition">
                 Déconnexion

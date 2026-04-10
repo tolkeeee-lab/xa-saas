@@ -35,6 +35,8 @@ export type Boutique = {
   telephone: string | null;
   ville: string | null;
   proprietaire_id: string | null;
+  code_unique: string | null;
+  pin_caisse: string | null;
   actif: boolean;
   created_at: string;
   updated_at: string;
