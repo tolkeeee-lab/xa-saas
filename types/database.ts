@@ -53,7 +53,6 @@ export interface Employe {
   nom: string;
   prenom: string | null;
   telephone: string | null;
-  /** Code PIN haché côté application (ne jamais stocker en clair) */
   pin: string | null;
   role: EmployeRole;
   actif: boolean;
@@ -73,7 +72,6 @@ export interface ClientDebiteur {
   prenom: string | null;
   telephone: string | null;
   adresse: string | null;
-  /** Montant total dû (en XOF). Positif = le client doit de l'argent. */
   solde_du: number;
   plafond_credit: number | null;
   actif: boolean;
@@ -92,73 +90,44 @@ export type ClientDebiteurUpdate = Partial<ClientDebiteurInsert>;
 
 export interface Transaction {
   id: string;
-  /** UUID généré côté client avant synchronisation (mode offline) */
   local_id: string | null;
-
   boutique_id: string;
   employe_id: string;
-  /** Null pour les ventes comptant ; obligatoire pour type 'credit' ou 'remboursement' */
   client_debiteur_id: string | null;
-
   type: TransactionType;
   statut: TransactionStatut;
   mode_paiement: ModePaiement;
-
-  /** Montant total de la transaction (XOF) */
   montant_total: number;
-  /** Montant effectivement remis par le client */
   montant_recu: number;
-  /** Monnaie rendue au client */
   monnaie_rendue: number;
-  /** Montant imputé sur la dette (pour 'credit' et 'remboursement') */
   montant_credit: number;
-
   reference: string | null;
   notes: string | null;
-
   sync_statut: SyncStatut;
   synced_at: string | null;
-
   created_at: string;
   updated_at: string;
 }
 
-export type TransactionInsert = Omit<
-  Transaction,
-  'id' | 'updated_at'
-> & {
-  /** Généré automatiquement par la base si absent */
+export type TransactionInsert = Omit<Transaction, 'id' | 'updated_at'> & {
   id?: string;
-  /** Par défaut NOW() si absent */
   created_at?: string;
 };
 
 export type TransactionUpdate = Pick<Transaction, 'id'> &
-  Partial<
-    Pick<
-      Transaction,
-      | 'statut'
-      | 'notes'
-      | 'reference'
-      | 'sync_statut'
-      | 'synced_at'
-    >
-  >;
+  Partial<Pick<Transaction, 'statut' | 'notes' | 'reference' | 'sync_statut' | 'synced_at'>>;
 
 // ── Relations (pour les jointures courantes) ──────────────────────────────────
 
 export interface TransactionAvecRelations extends Transaction {
   boutique: Pick<Boutique, 'id' | 'nom'>;
   employe: Pick<Employe, 'id' | 'nom' | 'prenom' | 'role'>;
-  client_debiteur: Pick<
-    ClientDebiteur,
-    'id' | 'nom' | 'prenom' | 'telephone' | 'solde_du'
-  > | null;
+  client_debiteur: Pick<ClientDebiteur, 'id' | 'nom' | 'prenom' | 'telephone' | 'solde_du'> | null;
 }
 
 // ── Database (compatible avec le client Supabase généré) ──────────────────────
-// IMPORTANT : la clé `Relationships` est requise par @supabase/supabase-js v2
-// pour que les types Insert/Update soient résolus correctement (sinon → never).
+// IMPORTANT : Relationships est requis par @supabase/supabase-js v2
+// Sans cette clé, les types Insert/Update sont résolus comme never.
 
 export interface Database {
   public: {
