@@ -18,24 +18,23 @@ export default function RegisterPage() {
     setLoading(true);
     const supabase = createClient();
 
-    const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { nom_boutique: nomBoutique },
+      },
+    });
+
     if (signUpError || !data.user) {
-      setError(signUpError?.message ?? 'Erreur inscription');
+      setError(signUpError?.message ?? "Erreur lors de l'inscription");
       setLoading(false);
       return;
     }
 
-    const { error: boutiqueError } = await supabase
-      .from('boutiques')
-      .insert({ nom: nomBoutique, proprietaire_id: data.user.id, actif: true, adresse: null, telephone: null, ville: null });
-
-    if (boutiqueError) {
-      setError(boutiqueError.message);
-      setLoading(false);
-      return;
-    }
-
+    // Boutique created automatically by SQL trigger on_auth_user_created
     router.push('/dashboard');
+    router.refresh();
   };
 
   return (
