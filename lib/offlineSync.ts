@@ -82,13 +82,14 @@ async function dbClear(): Promise<void> {
  * Enregistre une transaction localement (mode offline).
  */
 export async function saveTransactionLocally(
-  transaction: Omit<TransactionInsert, 'local_id' | 'sync_statut'>
+  transaction: Omit<TransactionInsert, 'local_id' | 'sync_statut' | 'synced_at' | 'created_at'>
 ): Promise<TransactionInsert> {
   const entry: TransactionInsert = {
     ...transaction,
     local_id: crypto.randomUUID(),
     sync_statut: 'local',
-    created_at: transaction.created_at ?? new Date().toISOString(),
+    synced_at: null,
+    created_at: new Date().toISOString(),
   };
   await dbPut(entry);
   return entry;
@@ -167,7 +168,7 @@ export function registerOnlineSync(
  * Crée une transaction en ligne ou hors ligne selon la connectivité.
  */
 export async function createTransaction(
-  transaction: Omit<TransactionInsert, 'local_id' | 'sync_statut'>
+  transaction: Omit<TransactionInsert, 'local_id' | 'sync_statut' | 'synced_at' | 'created_at'>
 ): Promise<{ offline: boolean }> {
   if (typeof navigator !== 'undefined' && navigator.onLine) {
     const res = await fetch('/api/caisse/transaction', {

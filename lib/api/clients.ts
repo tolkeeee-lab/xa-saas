@@ -24,7 +24,7 @@ export async function getClientById(id: string): Promise<ClientDebiteur | null> 
   return data;
 }
 
-export async function createClient_(payload: ClientDebiteurInsert): Promise<ClientDebiteur> {
+export async function createClientDebiteur(payload: ClientDebiteurInsert): Promise<ClientDebiteur> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from('clients_debiteurs')

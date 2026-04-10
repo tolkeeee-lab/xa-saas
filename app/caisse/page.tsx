@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { saveTransactionLocally } from '../../lib/offlineSync';
 
 // ── Types légers (sans données sensibles) ────────────────────────────────────
 
@@ -198,7 +199,20 @@ export default function CaissePage() {
     }
 
     if (!saved) {
-      await saveOffline(body);
+      await saveTransactionLocally({
+        boutique_id: session.boutiqueId,
+        employe_id: session.employeId,
+        type: 'vente',
+        mode_paiement: modePaiement as import('../../types/database').ModePaiement,
+        montant_total: totalVente,
+        montant_recu: montantRecuNum,
+        monnaie_rendue: monnaieRendue,
+        montant_credit: 0,
+        statut: 'validee',
+        client_debiteur_id: null,
+        reference: null,
+        notes: null,
+      });
     }
 
     setSuccessMsg(`Vente de ${totalVente.toLocaleString('fr-FR')} FCFA enregistrée ${saved ? '✓' : '(hors ligne — sera synchronisée)'}`);
@@ -457,25 +471,3 @@ export default function CaissePage() {
   );
 }
 
-// ── Helper IndexedDB pour offline ────────────────────────────────────────────
-
-async function saveOffline(data: Record<string, unknown>): Promise<void> {
-  if (typeof window === 'undefined') return;
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open('xa-offline', 1);
-    req.onupgradeneeded = e => {
-      const db = (e.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains('pending_transactions')) {
-        db.createObjectStore('pending_transactions', { keyPath: 'local_id' });
-      }
-    };
-    req.onsuccess = e => {
-      const db = (e.target as IDBOpenDBRequest).result;
-      const tx = db.transaction('pending_transactions', 'readwrite');
-      tx.objectStore('pending_transactions').put(data);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
-    };
-    req.onerror = () => reject(req.error);
-  });
-}
