@@ -32,7 +32,7 @@ export default function RegisterPage() {
       return;
     }
 
-    // Boutique created automatically by SQL trigger on_auth_user_created
+    // Boutique créée automatiquement par le trigger SQL on_auth_user_created
     router.push('/dashboard');
     router.refresh();
   };
