@@ -1,7 +1,8 @@
-import { supabase } from '../supabase';
+import { createClient } from '../supabase-browser';
 import type { Transaction, TransactionAvecRelations, TransactionUpdate } from '../../types/database';
 
 export async function getTransactions(boutiqueId: string, limit = 50): Promise<Transaction[]> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('transactions')
     .select('*')
@@ -16,6 +17,7 @@ export async function getTransactionsAvecRelations(
   boutiqueId: string,
   limit = 50
 ): Promise<TransactionAvecRelations[]> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('transactions')
     .select(`
@@ -35,6 +37,7 @@ export async function updateTransaction(
   id: string,
   payload: TransactionUpdate
 ): Promise<Transaction> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('transactions')
     .update(payload)
@@ -46,6 +49,7 @@ export async function updateTransaction(
 }
 
 export async function annulerTransaction(id: string): Promise<void> {
+  const supabase = createClient();
   const { error } = await supabase
     .from('transactions')
     .update({ statut: 'annulee' })

@@ -67,6 +67,10 @@ export default async function DashboardPage() {
                     className="text-sm text-xa-primary border border-xa-primary/30 rounded-lg px-3 py-1 hover:bg-xa-primary/5 transition">
                     Employés
                   </Link>
+                  <Link href={`/dashboard/produits?boutique_id=${b.id}`}
+                    className="text-sm text-xa-primary border border-xa-primary/30 rounded-lg px-3 py-1 hover:bg-xa-primary/5 transition">
+                    Produits
+                  </Link>
                 </div>
               </div>
             ))}

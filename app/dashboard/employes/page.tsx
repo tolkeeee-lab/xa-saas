@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '../../../lib/supabase-browser';
+import { hashPin } from '../../../lib/pinHash';
 import type { Employe, EmployeRole } from '../../../types/database';
 
 export const dynamic = 'force-dynamic';
@@ -53,6 +54,7 @@ function EmployesPageInner() {
       return;
     }
     setSubmitting(true);
+    const pinHash = await hashPin(pin);
     const supabase = createClient();
     const { error: insertError } = await supabase
       .from('employes')
@@ -61,7 +63,7 @@ function EmployesPageInner() {
         nom,
         prenom: prenom || null,
         role,
-        pin,
+        pin: pinHash,
         actif: true,
         telephone: null,
       });

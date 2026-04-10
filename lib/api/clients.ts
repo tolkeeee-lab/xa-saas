@@ -1,7 +1,8 @@
-import { supabase } from '../supabase';
+import { createClient } from '../supabase-browser';
 import type { ClientDebiteur, ClientDebiteurInsert, ClientDebiteurUpdate } from '../../types/database';
 
 export async function getClients(boutiqueId: string): Promise<ClientDebiteur[]> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('clients_debiteurs')
     .select('*')
@@ -13,6 +14,7 @@ export async function getClients(boutiqueId: string): Promise<ClientDebiteur[]> 
 }
 
 export async function getClientById(id: string): Promise<ClientDebiteur | null> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('clients_debiteurs')
     .select('*')
@@ -22,7 +24,8 @@ export async function getClientById(id: string): Promise<ClientDebiteur | null> 
   return data;
 }
 
-export async function createClient(payload: ClientDebiteurInsert): Promise<ClientDebiteur> {
+export async function createClient_(payload: ClientDebiteurInsert): Promise<ClientDebiteur> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('clients_debiteurs')
     .insert(payload)
@@ -33,6 +36,7 @@ export async function createClient(payload: ClientDebiteurInsert): Promise<Clien
 }
 
 export async function updateClient(id: string, payload: ClientDebiteurUpdate): Promise<ClientDebiteur> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('clients_debiteurs')
     .update(payload)
@@ -44,6 +48,7 @@ export async function updateClient(id: string, payload: ClientDebiteurUpdate): P
 }
 
 export async function deleteClient(id: string): Promise<void> {
+  const supabase = createClient();
   const { error } = await supabase
     .from('clients_debiteurs')
     .update({ actif: false })
