@@ -2,24 +2,15 @@
  * lib/offlineSync.ts
  *
  * Utilitaires de synchronisation offline pour xà.
- *
- * Principe :
- *  1. Toute transaction créée hors ligne est stockée avec sync_statut = 'local'
- *     et un local_id généré par le client (crypto.randomUUID).
- *  2. Lors du retour en ligne, syncPendingTransactions() envoie les transactions
- *     locales vers Supabase via upsert (idempotent grâce à local_id).
- *  3. En cas de conflit, la transaction est marquée sync_statut = 'conflict'
- *     pour résolution manuelle.
  */
 
 import { supabase } from './supabase';
 import type { Transaction, TransactionInsert } from '../types/database';
 
-// ── Clé de stockage local ─────────────────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as any;
 
 const STORAGE_KEY = 'xa_pending_transactions';
-
-// ── Lecture / écriture dans localStorage ─────────────────────────────────────
 
 function readPending(): TransactionInsert[] {
   if (typeof window === 'undefined') return [];
@@ -36,12 +27,6 @@ function writePending(transactions: TransactionInsert[]): void {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
 }
 
-// ── API publique ──────────────────────────────────────────────────────────────
-
-/**
- * Enregistre une transaction localement (mode offline).
- * Génère un local_id et marque sync_statut = 'local'.
- */
 export function saveTransactionLocally(
   transaction: Omit<TransactionInsert, 'local_id' | 'sync_statut'>
 ): TransactionInsert {
@@ -57,18 +42,10 @@ export function saveTransactionLocally(
   return entry;
 }
 
-/**
- * Renvoie le nombre de transactions en attente de synchronisation.
- */
 export function countPendingTransactions(): number {
   return readPending().length;
 }
 
-/**
- * Synchronise toutes les transactions locales avec Supabase.
- *
- * @returns Un objet résumant les succès, échecs et conflits.
- */
 export async function syncPendingTransactions(): Promise<{
   synced: number;
   failed: number;
@@ -83,8 +60,7 @@ export async function syncPendingTransactions(): Promise<{
   const remaining: TransactionInsert[] = [];
 
   for (const tx of pending) {
-    // Vérifier si un enregistrement avec ce local_id existe déjà (conflit potentiel)
-    const { data: existing, error: fetchError } = await supabase
+    const { data: existing, error: fetchError } = await db
       .from('transactions')
       .select('id, statut')
       .eq('local_id', tx.local_id as string)
@@ -97,14 +73,11 @@ export async function syncPendingTransactions(): Promise<{
     }
 
     if (existing) {
-      // Enregistrement déjà présent → conflit ou doublon idempotent
       conflicts++;
-      // Ne pas garder dans la file : déjà dans Supabase
       continue;
     }
 
-    // Insérer la transaction
-    const { error: insertError } = await supabase
+    const { error: insertError } = await db
       .from('transactions')
       .insert({ ...tx, sync_statut: 'synced', synced_at: new Date().toISOString() });
 
@@ -120,20 +93,10 @@ export async function syncPendingTransactions(): Promise<{
   return { synced, failed, conflicts };
 }
 
-/**
- * Supprime toutes les transactions locales (ex. après déconnexion).
- */
 export function clearPendingTransactions(): void {
   writePending([]);
 }
 
-/**
- * Hook utilitaire : écoute les événements réseau et déclenche la sync
- * automatiquement dès le retour en ligne.
- *
- * Usage dans un composant React :
- *   useEffect(() => registerOnlineSync(), []);
- */
 export function registerOnlineSync(
   onResult?: (result: { synced: number; failed: number; conflicts: number }) => void
 ): () => void {
@@ -148,22 +111,12 @@ export function registerOnlineSync(
   return () => window.removeEventListener('online', handler);
 }
 
-// ── Helpers de création de transaction ───────────────────────────────────────
-
-/**
- * Crée une transaction en ligne ou hors ligne selon la connectivité.
- *
- * - En ligne  : insère directement dans Supabase (sync_statut = 'synced').
- * - Hors ligne : stocke localement (sync_statut = 'local').
- *
- * @returns La transaction créée (avec son id Supabase ou son local_id).
- */
 export async function createTransaction(
   transaction: Omit<TransactionInsert, 'local_id' | 'sync_statut'>
 ): Promise<{ data: Transaction | TransactionInsert | null; offline: boolean }> {
   if (navigator.onLine) {
     const localId = crypto.randomUUID();
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('transactions')
       .insert({
         ...transaction,
@@ -175,15 +128,13 @@ export async function createTransaction(
       .single();
 
     if (error) {
-      // Repli sur le stockage local en cas d'erreur réseau
       const local = saveTransactionLocally(transaction);
       return { data: local, offline: true };
     }
 
-    return { data, offline: false };
+    return { data: data as Transaction, offline: false };
   }
 
-  // Mode offline
   const local = saveTransactionLocally(transaction);
   return { data: local, offline: true };
 }
