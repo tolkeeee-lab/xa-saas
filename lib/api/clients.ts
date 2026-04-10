@@ -58,3 +58,12 @@ export async function updateClient(
   if (error) throw new Error(error.message);
   return data;
 }
+
+export async function deleteClient(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('clients_debiteurs')
+    .update({ actif: false })
+    .eq('id', id);
+
+  if (error) throw new Error(error.message);
+}
