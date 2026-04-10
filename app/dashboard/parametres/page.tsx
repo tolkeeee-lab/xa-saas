@@ -76,7 +76,14 @@ export default function ParametresPage() {
       .update({ code_unique: codeUnique.toUpperCase().trim() })
       .eq('proprietaire_id', userId!);
     setCodeLoading(false);
-    setCodeMsg(error ? `Erreur : ${error.message}` : 'Code mis à jour ✓');
+    if (error) {
+      const msg = error.message.includes('unique') || error.code === '23505'
+        ? 'Ce code est déjà utilisé, veuillez en choisir un autre'
+        : `Erreur : ${error.message}`;
+      setCodeMsg(msg);
+    } else {
+      setCodeMsg('Code mis à jour ✓');
+    }
   };
 
   const handlePinUpdate = async (e: React.FormEvent) => {
