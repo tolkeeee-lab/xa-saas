@@ -157,6 +157,8 @@ export interface TransactionAvecRelations extends Transaction {
 }
 
 // ── Database (compatible avec le client Supabase généré) ──────────────────────
+// IMPORTANT : la clé `Relationships` est requise par @supabase/supabase-js v2
+// pour que les types Insert/Update soient résolus correctement (sinon → never).
 
 export interface Database {
   public: {
@@ -165,28 +167,35 @@ export interface Database {
         Row: Boutique;
         Insert: BoutiqueInsert;
         Update: BoutiqueUpdate;
+        Relationships: [];
       };
       employes: {
         Row: Employe;
         Insert: EmployeInsert;
         Update: EmployeUpdate;
+        Relationships: [];
       };
       clients_debiteurs: {
         Row: ClientDebiteur;
         Insert: ClientDebiteurInsert;
         Update: ClientDebiteurUpdate;
+        Relationships: [];
       };
       transactions: {
         Row: Transaction;
         Insert: TransactionInsert;
         Update: TransactionUpdate;
+        Relationships: [];
       };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
     Enums: {
       transaction_type: TransactionType;
       mode_paiement: ModePaiement;
       sync_statut: SyncStatut;
       transaction_statut: TransactionStatut;
     };
+    CompositeTypes: Record<string, never>;
   };
 }
