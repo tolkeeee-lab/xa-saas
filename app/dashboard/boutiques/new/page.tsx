@@ -22,6 +22,8 @@ async function addBoutique(formData: FormData) {
     telephone,
     proprietaire_id: user.id,
     actif: true,
+    code_unique: null,
+    pin_caisse: null,
   });
 
   if (error) throw new Error(error.message);
