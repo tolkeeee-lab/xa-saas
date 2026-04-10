@@ -1,16 +1,9 @@
-'use client';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
+import { createClient } from '../lib/supabase-server';
 
-export default function HomePage() {
-  const router = useRouter();
-  useEffect(() => {
-    const auth = document.cookie.split(';').some(c => c.trim() === 'xa_authenticated=true');
-    router.replace(auth ? '/dashboard' : '/auth/boutique');
-  }, [router]);
-  return (
-    <main className="min-h-screen bg-xa-bg flex items-center justify-center">
-      <p className="text-gray-400">Chargement...</p>
-    </main>
-  );
+export default async function HomePage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) redirect('/dashboard');
+  else redirect('/login');
 }
