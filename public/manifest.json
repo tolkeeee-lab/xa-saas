@@ -1,0 +1,17 @@
+{
+  "name": "xà - Caisse",
+  "short_name": "xà",
+  "description": "Caisse et gestion boutique xà",
+  "start_url": "/caisse",
+  "display": "standalone",
+  "background_color": "#F8F7F4",
+  "theme_color": "#1B4332",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Ouvrir la caisse", "url": "/caisse", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
