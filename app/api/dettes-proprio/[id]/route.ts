@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 import { createAdminClient } from '@/lib/supabase-admin';
-import type { DetteProprio } from '@/types/database';
+import type { DetteProprio, Database } from '@/types/database';
 
 type PatchBody = {
   statut?: DetteProprio['statut'];
   montant_rembourse?: number;
   notes?: string | null;
 };
+
+type DetteProprioPatch = Database['public']['Tables']['dettes_proprio']['Update'];
 
 /**
  * PATCH /api/dettes-proprio/[id]
@@ -37,7 +39,7 @@ export async function PATCH(
 
   const VALID_STATUTS: DetteProprio['statut'][] = ['en_cours', 'rembourse', 'en_retard'];
 
-  const update: Partial<Pick<DetteProprio, 'statut' | 'montant_rembourse' | 'notes'>> = {};
+  const update: DetteProprioPatch = {};
 
   if (body.statut !== undefined) {
     if (!VALID_STATUTS.includes(body.statut)) {
