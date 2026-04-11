@@ -19,9 +19,9 @@ export async function getWeeklyStats(proprietaireId: string): Promise<DayStat[]>
 
   const boutiqueIds = boutiques.map((b) => b.id);
 
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-  const startDate = sevenDaysAgo.toISOString().split('T')[0];
+  const windowStart = new Date();
+  windowStart.setDate(windowStart.getDate() - 6);
+  const startDate = windowStart.toISOString().split('T')[0];
 
   const { data, error } = await supabase
     .from('transactions')
