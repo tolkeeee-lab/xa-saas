@@ -39,6 +39,7 @@ export type Produit = {
   id: string;
   boutique_id: string;
   nom: string;
+  categorie: string;
   description: string | null;
   prix_achat: number;
   prix_vente: number;
@@ -62,7 +63,7 @@ export type Transaction = {
   benefice_total: number;
   montant_recu: number;
   monnaie_rendue: number;
-  mode_paiement: 'cash' | 'momo' | 'dette';
+  mode_paiement: 'cash' | 'especes' | 'momo' | 'carte' | 'credit' | 'dette';
   client_nom: string | null;
   statut: 'validee' | 'annulee';
   sync_statut: 'local' | 'synced' | 'conflict';
@@ -122,15 +123,15 @@ export type Database = {
       };
       produits: {
         Row: Produit;
-        Insert: Omit<Produit, 'id' | 'created_at' | 'updated_at'> &
-          Partial<Pick<Produit, 'id' | 'created_at' | 'updated_at'>>;
+        Insert: Omit<Produit, 'id' | 'created_at' | 'updated_at' | 'categorie'> &
+          Partial<Pick<Produit, 'id' | 'created_at' | 'updated_at' | 'categorie'>>;
         Update: Partial<Omit<Produit, 'id'>>;
         Relationships: [];
       };
       transactions: {
         Row: Transaction;
-        Insert: Omit<Transaction, 'id' | 'created_at' | 'updated_at'> &
-          Partial<Pick<Transaction, 'id' | 'created_at' | 'updated_at'>>;
+        Insert: Omit<Transaction, 'id' | 'created_at' | 'updated_at' | 'local_id' | 'employe_id' | 'client_nom'> &
+          Partial<Pick<Transaction, 'id' | 'created_at' | 'updated_at' | 'local_id' | 'employe_id' | 'client_nom'>>;
         Update: Partial<Omit<Transaction, 'id'>>;
         Relationships: [];
       };
