@@ -3,6 +3,11 @@ import { createAdminClient } from '@/lib/supabase-admin';
 
 type DetteStatut = 'en_attente' | 'paye' | 'en_retard';
 
+type DetteUpdatePayload = {
+  statut?: DetteStatut;
+  montant_rembourse?: number;
+};
+
 /**
  * PATCH /api/dettes/[id] → mettre à jour statut / montant_rembourse
  */
@@ -12,7 +17,7 @@ export async function PATCH(
 ) {
   const { id } = await params;
 
-  let body: { statut?: DetteStatut; montant_rembourse?: number };
+  let body: { statut?: unknown; montant_rembourse?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -22,26 +27,22 @@ export async function PATCH(
   const admin = createAdminClient();
 
   const validStatuts: DetteStatut[] = ['en_attente', 'paye', 'en_retard'];
-  const statut =
-    body.statut && validStatuts.includes(body.statut) ? body.statut : undefined;
-  const montant_rembourse =
-    typeof body.montant_rembourse === 'number'
-      ? body.montant_rembourse
-      : undefined;
+  const payload: DetteUpdatePayload = {};
 
-  if (statut === undefined && montant_rembourse === undefined) {
-    return NextResponse.json(
-      { error: 'Aucun champ à mettre à jour' },
-      { status: 400 },
-    );
+  if (typeof body.statut === 'string' && validStatuts.includes(body.statut as DetteStatut)) {
+    payload.statut = body.statut as DetteStatut;
+  }
+  if (typeof body.montant_rembourse === 'number') {
+    payload.montant_rembourse = body.montant_rembourse;
+  }
+
+  if (Object.keys(payload).length === 0) {
+    return NextResponse.json({ error: 'Aucun champ à mettre à jour' }, { status: 400 });
   }
 
   const { data, error } = await admin
     .from('dettes')
-    .update({
-      ...(statut !== undefined ? { statut } : {}),
-      ...(montant_rembourse !== undefined ? { montant_rembourse } : {}),
-    })
+    .update(payload)
     .eq('id', id)
     .select(
       'id, boutique_id, client_nom, client_telephone, montant, montant_rembourse, description, statut, date_echeance, created_at',
