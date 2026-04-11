@@ -208,7 +208,7 @@ export default function TransfertsPage({
                   className={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${
                     t.statut === 'livre'
                       ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-                      : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20'
+                      : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
                   }`}
                 >
                   {t.statut === 'livre' ? 'Livré' : 'En transit'}
@@ -294,7 +294,7 @@ export default function TransfertsPage({
                             Livré
                           </span>
                         ) : (
-                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20">
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400">
                             En transit
                           </span>
                         )}

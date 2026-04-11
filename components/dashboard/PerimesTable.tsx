@@ -343,13 +343,12 @@ export default function PerimesTable({ produits: initialProduits }: PerimesTable
               </tbody>
               <tfoot>
                 <tr className="border-t border-xa-border bg-xa-bg">
-                  <td colSpan={7} className="px-4 py-3 text-xs font-semibold text-xa-muted uppercase tracking-wider text-right">
+                  <td colSpan={8} className="px-4 py-3 text-xs font-semibold text-xa-muted uppercase tracking-wider text-right">
                     Total valeur perdue
                   </td>
                   <td className="px-4 py-3 font-bold text-xa-danger">
                     {formatFCFA(totalValeurPerdue)}
                   </td>
-                  <td />
                 </tr>
               </tfoot>
             </table>

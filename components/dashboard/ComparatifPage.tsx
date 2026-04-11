@@ -34,6 +34,7 @@ function getPerformanceBadge(marge: number) {
 }
 
 const PODIUM_MEDALS = ['🥇', '🥈', '🥉'];
+const PODIUM_ARIA_LABELS = ['1ère place', '2ème place', '3ème place'];
 
 const PERIODE_LABELS: Record<ComparatifPeriode, string> = {
   ce_mois: 'Ce mois',
@@ -181,7 +182,12 @@ export default function ComparatifPage({
             {boutiques.map((b, i) => (
               <div key={b.id} className="flex items-center gap-3">
                 {i < 3 ? (
-                  <span className="text-lg w-7 shrink-0 text-center">{PODIUM_MEDALS[i]}</span>
+                  <span
+                    className="text-lg w-7 shrink-0 text-center"
+                    aria-label={PODIUM_ARIA_LABELS[i]}
+                  >
+                    {PODIUM_MEDALS[i]}
+                  </span>
                 ) : (
                   <span className="text-xs font-bold text-xa-muted w-7 shrink-0 text-center">
                     {i + 1}.
