@@ -20,6 +20,9 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <script dangerouslySetInnerHTML={{
           __html: `
             (function() {
@@ -30,6 +33,11 @@ export default function RootLayout({
                 }
               } catch(e) {}
             })();
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js');
+              });
+            }
           `
         }} />
       </head>

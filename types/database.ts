@@ -98,15 +98,35 @@ export type TransactionLigne = {
 export type Dette = {
   id: string;
   boutique_id: string;
-  type: 'fournisseur' | 'client';
-  nom_entite: string;
+  client_nom: string;
+  client_telephone: string | null;
   montant: number;
-  montant_paye: number;
-  statut: 'non_paye' | 'partiel' | 'paye';
+  montant_rembourse: number;
+  description: string | null;
+  statut: 'en_attente' | 'paye' | 'en_retard';
   date_echeance: string | null;
-  notes: string | null;
   created_at: string;
-  updated_at: string;
+};
+
+export type Fournisseur = {
+  id: string;
+  proprietaire_id: string;
+  nom: string;
+  specialite: string | null;
+  delai_livraison: string | null;
+  note: number;
+  telephone: string | null;
+  created_at: string;
+};
+
+export type CommandeFournisseur = {
+  id: string;
+  fournisseur_id: string;
+  boutique_id: string;
+  montant: number;
+  statut: 'en_attente' | 'en_cours' | 'recu';
+  note: string | null;
+  created_at: string;
 };
 
 export type Database = {
@@ -156,9 +176,23 @@ export type Database = {
       };
       dettes: {
         Row: Dette;
-        Insert: Omit<Dette, 'id' | 'created_at' | 'updated_at'> &
-          Partial<Pick<Dette, 'id' | 'created_at' | 'updated_at'>>;
+        Insert: Omit<Dette, 'id' | 'created_at'> &
+          Partial<Pick<Dette, 'id' | 'created_at'>>;
         Update: Partial<Omit<Dette, 'id'>>;
+        Relationships: [];
+      };
+      fournisseurs: {
+        Row: Fournisseur;
+        Insert: Omit<Fournisseur, 'id' | 'created_at'> &
+          Partial<Pick<Fournisseur, 'id' | 'created_at'>>;
+        Update: Partial<Omit<Fournisseur, 'id'>>;
+        Relationships: [];
+      };
+      commandes_fournisseur: {
+        Row: CommandeFournisseur;
+        Insert: Omit<CommandeFournisseur, 'id' | 'created_at'> &
+          Partial<Pick<CommandeFournisseur, 'id' | 'created_at'>>;
+        Update: Partial<Omit<CommandeFournisseur, 'id'>>;
         Relationships: [];
       };
       transferts: {
