@@ -1,34 +1,125 @@
 'use client';
 
-import type { RapportsData } from '@/lib/supabase/getRapports';
-import { formatFCFA } from '@/lib/format';
+import { useState, useCallback } from 'react';
+import type { RapportsData, RapportsPeriodeData } from '@/lib/supabase/getRapports';
+import { formatFCFA, formatDate } from '@/lib/format';
 import StatCard from './StatCard';
 
 interface RapportsPageProps {
   data: RapportsData;
+  periodeData: RapportsPeriodeData;
+  initialDateDebut: string;
+  initialDateFin: string;
 }
 
-export default function RapportsPage({ data }: RapportsPageProps) {
-  const { moisStats, boutiques, ca_mois, benefice_net, cout_achats, marge_nette } = data;
+type Raccourci = 'aujourd_hui' | 'cette_semaine' | 'ce_mois' | '30_jours' | 'personnalise';
+
+function toDateInput(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+export default function RapportsPage({
+  data,
+  periodeData: initialPeriodeData,
+  initialDateDebut,
+  initialDateFin,
+}: RapportsPageProps) {
+  const { moisStats } = data;
+
+  const [dateDebut, setDateDebut] = useState(initialDateDebut);
+  const [dateFin, setDateFin] = useState(initialDateFin);
+  const [raccourci, setRaccourci] = useState<Raccourci>('ce_mois');
+  const [periodeData, setPeriodeData] = useState<RapportsPeriodeData>(initialPeriodeData);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const maxCA = Math.max(...moisStats.map((m) => m.ca), 1);
-  const totalBoutiquesCA = boutiques.reduce((s, b) => s + b.ca, 0);
+  const totalBoutiquesCA = periodeData.boutiques.reduce((s, b) => s + b.ca, 0);
+
+  const appliquerPeriode = useCallback(
+    async (debut: string, fin: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`/api/rapports?dateDebut=${debut}&dateFin=${fin}`);
+        if (!res.ok) {
+          const json = (await res.json()) as { error?: string };
+          throw new Error(json.error ?? 'Erreur serveur');
+        }
+        const json = (await res.json()) as RapportsPeriodeData;
+        setPeriodeData(json);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Erreur inconnue');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  function applyRaccourci(r: Raccourci) {
+    const now = new Date();
+    let debut = dateDebut;
+    let fin = dateFin;
+
+    if (r === 'aujourd_hui') {
+      debut = toDateInput(now);
+      fin = toDateInput(now);
+    } else if (r === 'cette_semaine') {
+      const day = now.getDay(); // 0=Sun
+      const diff = day === 0 ? -6 : 1 - day;
+      const lundi = new Date(now);
+      lundi.setDate(now.getDate() + diff);
+      const dimanche = new Date(lundi);
+      dimanche.setDate(lundi.getDate() + 6);
+      debut = toDateInput(lundi);
+      fin = toDateInput(dimanche);
+    } else if (r === 'ce_mois') {
+      debut = toDateInput(new Date(now.getFullYear(), now.getMonth(), 1));
+      fin = toDateInput(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+    } else if (r === '30_jours') {
+      const il_y_a_30 = new Date(now);
+      il_y_a_30.setDate(now.getDate() - 29);
+      debut = toDateInput(il_y_a_30);
+      fin = toDateInput(now);
+    }
+
+    setRaccourci(r);
+    setDateDebut(debut);
+    setDateFin(fin);
+
+    if (r !== 'personnalise') {
+      void appliquerPeriode(debut, fin);
+    }
+  }
+
+  function handleAppliquer() {
+    void appliquerPeriode(dateDebut, dateFin);
+  }
 
   function handleExport() {
     window.print();
   }
 
+  const raccourcis: { label: string; value: Raccourci }[] = [
+    { label: "Aujourd'hui", value: 'aujourd_hui' },
+    { label: 'Cette semaine', value: 'cette_semaine' },
+    { label: 'Ce mois', value: 'ce_mois' },
+    { label: '30 derniers jours', value: '30_jours' },
+    { label: 'Personnalisé', value: 'personnalise' },
+  ];
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 print:space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between print:pb-2 print:border-b print:border-xa-border">
         <div>
           <h1 className="text-2xl font-bold text-xa-text">Rapports</h1>
           <p className="text-xa-muted text-sm mt-1">Tableau de bord financier réseau</p>
         </div>
         <button
           onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-xa-border text-xa-text text-sm hover:bg-xa-bg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-xa-border text-xa-text text-sm hover:bg-xa-bg transition-colors print:hidden"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -37,27 +128,83 @@ export default function RapportsPage({ data }: RapportsPageProps) {
         </button>
       </div>
 
-      {/* Stat cards */}
+      {/* Sélecteur de période */}
+      <div className="bg-xa-surface border border-xa-border rounded-xl p-4 space-y-3 print:hidden">
+        <h2 className="text-sm font-semibold text-xa-text">Période</h2>
+        {/* Raccourcis */}
+        <div className="flex flex-wrap gap-2">
+          {raccourcis.map((r) => (
+            <button
+              key={r.value}
+              onClick={() => applyRaccourci(r.value)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                raccourci === r.value
+                  ? 'bg-xa-primary text-white'
+                  : 'border border-xa-border text-xa-muted hover:bg-xa-bg'
+              }`}
+            >
+              {r.label}
+            </button>
+          ))}
+        </div>
+        {/* Date inputs */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <label className="text-xs text-xa-muted">Du</label>
+            <input
+              type="date"
+              value={dateDebut}
+              onChange={(e) => {
+                setDateDebut(e.target.value);
+                setRaccourci('personnalise');
+              }}
+              className="bg-xa-bg border border-xa-border rounded-lg px-3 py-1.5 text-sm text-xa-text focus:outline-none focus:ring-2 focus:ring-xa-primary"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-xs text-xa-muted">Au</label>
+            <input
+              type="date"
+              value={dateFin}
+              onChange={(e) => {
+                setDateFin(e.target.value);
+                setRaccourci('personnalise');
+              }}
+              className="bg-xa-bg border border-xa-border rounded-lg px-3 py-1.5 text-sm text-xa-text focus:outline-none focus:ring-2 focus:ring-xa-primary"
+            />
+          </div>
+          <button
+            onClick={handleAppliquer}
+            disabled={loading}
+            className="px-4 py-1.5 rounded-lg bg-xa-primary text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+          >
+            {loading ? 'Chargement…' : 'Appliquer'}
+          </button>
+        </div>
+        {error && <p className="text-xa-danger text-xs">{error}</p>}
+      </div>
+
+      {/* Stats cards de la période */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="CA réseau ce mois"
-          value={formatFCFA(ca_mois)}
-          subtitle="Toutes boutiques"
+          title="CA de la période"
+          value={loading ? '—' : formatFCFA(periodeData.ca_total)}
+          subtitle={`${formatDate(dateDebut)} – ${formatDate(dateFin)}`}
           accent
         />
         <StatCard
-          title="Bénéfice net réseau"
-          value={formatFCFA(benefice_net)}
+          title="Bénéfice net"
+          value={loading ? '—' : formatFCFA(periodeData.benefice_net)}
           subtitle="Après charges"
         />
         <StatCard
           title="Coût achats"
-          value={formatFCFA(cout_achats)}
+          value={loading ? '—' : formatFCFA(periodeData.cout_achats)}
           subtitle="Prix d'achat total"
         />
         <StatCard
           title="Marge nette"
-          value={`${marge_nette}%`}
+          value={loading ? '—' : `${periodeData.marge_nette}%`}
           subtitle="Sur le CA"
         />
       </div>
@@ -93,12 +240,80 @@ export default function RapportsPage({ data }: RapportsPageProps) {
         </div>
       </div>
 
+      {/* Historique journalier */}
+      {periodeData.historiqueJournalier.length > 0 && (
+        <div className="bg-xa-surface border border-xa-border rounded-xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-xa-border">
+            <h2 className="text-sm font-semibold text-xa-text">Historique journalier</h2>
+          </div>
+          {loading ? (
+            <p className="text-xa-muted text-sm p-6">Chargement…</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-xa-border text-xs text-xa-muted uppercase tracking-wider">
+                    <th className="text-left px-4 py-3">Date</th>
+                    <th className="text-right px-4 py-3">CA du jour</th>
+                    <th className="text-right px-4 py-3">Transactions</th>
+                    <th className="text-right px-4 py-3">Évolution</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {periodeData.historiqueJournalier.map((jour, idx) => {
+                    const hasCA = jour.ca > 0;
+                    // Previous entry in sorted-desc array = next chronological day
+                    const prevJour = periodeData.historiqueJournalier[idx + 1];
+                    const prevCA = prevJour?.ca ?? 0;
+                    const evo = prevCA > 0 ? Math.round(((jour.ca - prevCA) / prevCA) * 100) : null;
+
+                    return (
+                      <tr
+                        key={jour.date}
+                        className={`border-b border-xa-border last:border-0 transition-colors ${
+                          hasCA ? 'hover:bg-xa-bg/50' : 'opacity-50'
+                        }`}
+                      >
+                        <td className="px-4 py-3 text-xa-text font-medium">
+                          <div className="flex items-center gap-2">
+                            {hasCA && (
+                              <span className="inline-block w-2 h-2 rounded-full bg-xa-primary shrink-0" />
+                            )}
+                            {formatDate(jour.date)}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <span className={hasCA ? 'font-semibold text-xa-text' : 'text-xa-muted'}>
+                            {formatFCFA(jour.ca)}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-right text-xa-muted">{jour.transactions}</td>
+                        <td className="px-4 py-3 text-right text-xs font-semibold">
+                          {evo !== null ? (
+                            <span className={evo >= 0 ? 'text-green-500' : 'text-xa-danger'}>
+                              {evo >= 0 ? '+' : ''}
+                              {evo}%
+                            </span>
+                          ) : (
+                            <span className="text-xa-muted">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Répartition par boutique */}
-      {boutiques.length > 0 && (
+      {periodeData.boutiques.length > 0 && (
         <div className="bg-xa-surface border border-xa-border rounded-xl p-6">
           <h2 className="text-sm font-semibold text-xa-text mb-4">Répartition par boutique</h2>
           <div className="space-y-3">
-            {boutiques.map((b) => {
+            {periodeData.boutiques.map((b) => {
               const pct = totalBoutiquesCA > 0 ? Math.round((b.ca / totalBoutiquesCA) * 100) : 0;
               return (
                 <div key={b.id}>
@@ -127,9 +342,9 @@ export default function RapportsPage({ data }: RapportsPageProps) {
       {/* Tableau rapport consolidé */}
       <div className="bg-xa-surface border border-xa-border rounded-xl overflow-hidden">
         <div className="px-6 py-4 border-b border-xa-border">
-          <h2 className="text-sm font-semibold text-xa-text">Rapport mensuel consolidé</h2>
+          <h2 className="text-sm font-semibold text-xa-text">Rapport consolidé — période</h2>
         </div>
-        {boutiques.length === 0 ? (
+        {periodeData.boutiques.length === 0 ? (
           <p className="text-xa-muted text-sm p-6">Aucune donnée disponible.</p>
         ) : (
           <div className="overflow-x-auto">
@@ -142,11 +357,10 @@ export default function RapportsPage({ data }: RapportsPageProps) {
                   <th className="text-right px-4 py-3">Marge brute</th>
                   <th className="text-right px-4 py-3">Charges</th>
                   <th className="text-right px-4 py-3">Bénéfice net</th>
-                  <th className="text-right px-4 py-3">Évol.</th>
                 </tr>
               </thead>
               <tbody>
-                {boutiques.map((b) => (
+                {periodeData.boutiques.map((b) => (
                   <tr key={b.id} className="border-b border-xa-border last:border-0 hover:bg-xa-bg/50 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
@@ -162,9 +376,6 @@ export default function RapportsPage({ data }: RapportsPageProps) {
                     <td className="px-4 py-3 text-right text-xa-text">{formatFCFA(b.marge_brute)}</td>
                     <td className="px-4 py-3 text-right text-xa-muted">{formatFCFA(b.charges)}</td>
                     <td className="px-4 py-3 text-right font-semibold text-xa-text">{formatFCFA(b.benefice_net)}</td>
-                    <td className={`px-4 py-3 text-right text-xs font-semibold ${b.evolution >= 0 ? 'text-green-400' : 'text-xa-danger'}`}>
-                      {b.evolution >= 0 ? '+' : ''}{b.evolution}%
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -175,3 +386,4 @@ export default function RapportsPage({ data }: RapportsPageProps) {
     </div>
   );
 }
+
