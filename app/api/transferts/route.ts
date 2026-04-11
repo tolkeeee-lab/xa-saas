@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Verify destination boutique has this product
+  // Verify destination boutique has this product (may not exist there yet)
   const { data: produitDest } = await supabase
     .from('produits')
     .select('id, stock_actuel')

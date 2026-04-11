@@ -48,15 +48,27 @@ export default function TransfertsPage({
     e.preventDefault();
     setFormError(null);
 
-    if (!form.produit_id) { setFormError('Sélectionnez un produit.'); return; }
-    if (!form.boutique_source_id) { setFormError('Sélectionnez la boutique source.'); return; }
-    if (!form.boutique_destination_id) { setFormError('Sélectionnez la boutique destination.'); return; }
+    if (!form.produit_id) {
+      setFormError('Sélectionnez un produit.');
+      return;
+    }
+    if (!form.boutique_source_id) {
+      setFormError('Sélectionnez la boutique source.');
+      return;
+    }
+    if (!form.boutique_destination_id) {
+      setFormError('Sélectionnez la boutique destination.');
+      return;
+    }
     if (form.boutique_source_id === form.boutique_destination_id) {
       setFormError('La source et la destination doivent être différentes.');
       return;
     }
     const qty = parseInt(form.quantite, 10);
-    if (!qty || qty <= 0) { setFormError('Quantité invalide.'); return; }
+    if (!qty || qty <= 0) {
+      setFormError('Quantité invalide.');
+      return;
+    }
 
     setSubmitting(true);
 

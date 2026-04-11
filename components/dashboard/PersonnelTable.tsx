@@ -47,9 +47,18 @@ export default function PersonnelTable({
     e.preventDefault();
     setFormError(null);
 
-    if (!form.boutique_id) { setFormError('Sélectionnez une boutique.'); return; }
-    if (!form.nom.trim()) { setFormError('Le nom est obligatoire.'); return; }
-    if (!form.prenom.trim()) { setFormError('Le prénom est obligatoire.'); return; }
+    if (!form.boutique_id) {
+      setFormError('Sélectionnez une boutique.');
+      return;
+    }
+    if (!form.nom.trim()) {
+      setFormError('Le nom est obligatoire.');
+      return;
+    }
+    if (!form.prenom.trim()) {
+      setFormError('Le prénom est obligatoire.');
+      return;
+    }
     if (!/^\d{4}$/.test(form.pin)) {
       setFormError('Le PIN doit contenir exactement 4 chiffres.');
       return;

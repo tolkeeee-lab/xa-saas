@@ -44,7 +44,6 @@ export async function getPeremptions(userId: string): Promise<ProduitPeremption[
 
     return {
       ...p,
-      date_peremption: p.date_peremption,
       boutique_nom: boutiqueNomMap.get(p.boutique_id) ?? '',
       jours_restants,
     } as ProduitPeremption;
