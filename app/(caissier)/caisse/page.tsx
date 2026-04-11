@@ -93,7 +93,7 @@ export default function CaissePage() {
     if (!boutique || cart.length === 0) return;
     setProcessing(true);
 
-    const localId = `local_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const localId = `local_${crypto.randomUUID()}`;
     const transactionData = {
       local_id: localId,
       boutique_id: boutique.id,

@@ -11,11 +11,10 @@ export async function hashPin(pin: string): Promise<string> {
 }
 
 /**
- * Hache un PIN côté serveur (Node.js crypto).
- * Utilisé uniquement dans les API routes.
+ * Hache un PIN côté serveur (Node.js).
+ * Utilisé uniquement dans les API routes — ne jamais importer côté client.
  */
-export function hashPinServer(pin: string): string {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const crypto = require('crypto') as typeof import('crypto');
-  return crypto.createHash('sha256').update(pin).digest('hex');
+export async function hashPinServer(pin: string): Promise<string> {
+  const { createHash } = await import('node:crypto');
+  return createHash('sha256').update(pin).digest('hex');
 }

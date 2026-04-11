@@ -34,7 +34,8 @@ export default function RegisterPage() {
     setLoading(true);
     const supabase = createClient();
     const pinHash = await hashPin(form.pinCaisse);
-    const codeUnique = Math.random().toString(36).slice(2, 8).toUpperCase();
+    const codeUnique = Array.from(crypto.getRandomValues(new Uint8Array(4)))
+      .map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase().slice(0, 6);
 
     const { error: authError } = await supabase.auth.signUp({
       email: form.email,

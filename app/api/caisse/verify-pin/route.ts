@@ -23,6 +23,8 @@ export async function POST(request: NextRequest) {
     .eq('id', boutique_id)
     .single();
 
+  // Le client envoie toujours le PIN déjà hashé côté client (SHA-256).
+  // On compare hash-to-hash. Voir lib/pinHash.ts → hashPin().
   if (boutique?.pin_caisse === pin) {
     return NextResponse.json({ ok: true, employe: null });
   }
@@ -42,7 +44,7 @@ export async function POST(request: NextRequest) {
       });
     }
     // Vérification secondaire : hash server-side au cas où le PIN serait stocké en clair (transition)
-    if (emp.pin && emp.pin.length < 64 && hashPinServer(emp.pin) === pin) {
+    if (emp.pin && emp.pin.length < 64 && await hashPinServer(emp.pin) === pin) {
       return NextResponse.json({
         ok: true,
         employe: { id: emp.id, nom: [emp.nom, emp.prenom].filter(Boolean).join(' ') },
