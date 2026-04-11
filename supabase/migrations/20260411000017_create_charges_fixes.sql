@@ -12,6 +12,20 @@ CREATE TABLE IF NOT EXISTS charges_fixes (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- Auto-update updated_at on row changes
+CREATE OR REPLACE FUNCTION update_charges_fixes_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER charges_fixes_updated_at
+  BEFORE UPDATE ON charges_fixes
+  FOR EACH ROW
+  EXECUTE FUNCTION update_charges_fixes_updated_at();
+
 ALTER TABLE charges_fixes ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "proprio_charges" ON charges_fixes
   FOR ALL USING (proprietaire_id = auth.uid());

@@ -1,6 +1,10 @@
 import { createClient } from '@/lib/supabase-server';
 import type { Produit } from '@/types/database';
 
+/**
+ * ProduitPeremption includes all Produit fields (including prix_achat)
+ * so that the "Valeur perdue" column can be computed as stock_actuel * prix_achat.
+ */
 export type ProduitPeremption = Produit & {
   boutique_nom: string;
   jours_restants: number;

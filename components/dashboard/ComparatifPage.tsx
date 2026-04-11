@@ -180,9 +180,13 @@ export default function ComparatifPage({
           <div className="space-y-3">
             {boutiques.map((b, i) => (
               <div key={b.id} className="flex items-center gap-3">
-                <span className="text-lg w-7 shrink-0 text-center">
-                  {i < 3 ? PODIUM_MEDALS[i] : <span className="text-xs font-bold text-xa-muted">{i + 1}.</span>}
-                </span>
+                {i < 3 ? (
+                  <span className="text-lg w-7 shrink-0 text-center">{PODIUM_MEDALS[i]}</span>
+                ) : (
+                  <span className="text-xs font-bold text-xa-muted w-7 shrink-0 text-center">
+                    {i + 1}.
+                  </span>
+                )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm font-medium text-xa-text truncate">{b.nom}</span>

@@ -83,7 +83,7 @@ export async function PATCH(
 
   const { data, error } = await admin
     .from('charges_fixes')
-    .update({ ...update, updated_at: new Date().toISOString() })
+    .update(update)
     .eq('id', id)
     .select('*')
     .single();

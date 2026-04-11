@@ -125,16 +125,15 @@ export default function ChargesFixesPage({ data: initialData, boutiques }: Charg
 
     const saved: ChargeFixe = await res.json();
 
-    if (isEdit) {
-      setCharges((prev) => prev.map((c) => (c.id === editingId ? saved : c)));
-      showToast('Charge mise à jour.', 'success');
-    } else {
-      setCharges((prev) => [saved, ...prev]);
-      showToast('Charge créée.', 'success');
-    }
+    const updatedCharges = isEdit
+      ? charges.map((c) => (c.id === editingId ? saved : c))
+      : [saved, ...charges];
 
-    // Recalculate totals
-    refreshTotals([...charges.filter((c) => c.id !== saved.id), saved]);
+    setCharges(updatedCharges);
+    showToast(isEdit ? 'Charge mise à jour.' : 'Charge créée.', 'success');
+
+    // Recalculate totals with the updated array
+    refreshTotals(updatedCharges);
     setShowModal(false);
   }
 
