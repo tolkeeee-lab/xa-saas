@@ -30,6 +30,9 @@ export default function TransfertsPage({
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState>(null);
+  const [markingLivre, setMarkingLivre] = useState<Record<string, boolean>>({});
+  const [filterSource, setFilterSource] = useState('');
+  const [filterDest, setFilterDest] = useState('');
 
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -38,6 +41,14 @@ export default function TransfertsPage({
   const ceMois = transferts.filter(
     (t) => new Date(t.created_at) >= startOfMonth,
   ).length;
+
+  const filteredTransferts = transferts.filter((t) => {
+    if (filterSource && t.boutique_source_id !== filterSource) return false;
+    if (filterDest && t.boutique_destination_id !== filterDest) return false;
+    return true;
+  });
+
+  const recentTimeline = transferts.slice(0, 10);
 
   function showToast(message: string, type: 'success' | 'error') {
     setToast({ message, type });
@@ -98,6 +109,25 @@ export default function TransfertsPage({
     showToast('Transfert créé avec succès.', 'success');
   }
 
+  async function handleMarquerLivre(id: string) {
+    setMarkingLivre((m) => ({ ...m, [id]: true }));
+    const res = await fetch(`/api/transferts/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ statut: 'livre' }),
+    });
+    setMarkingLivre((m) => ({ ...m, [id]: false }));
+
+    if (res.ok) {
+      const updated: Transfert = await res.json();
+      setTransferts((prev) => prev.map((t) => (t.id === id ? updated : t)));
+      showToast('Transfert marqué comme livré.', 'success');
+    } else {
+      const err = await res.json();
+      showToast(err.error ?? 'Erreur lors de la mise à jour.', 'error');
+    }
+  }
+
   function getBoutiqueName(id: string | null) {
     return boutiques.find((b) => b.id === id)?.nom ?? id ?? '—';
   }
@@ -132,8 +162,8 @@ export default function TransfertsPage({
         <StatCard
           label="En transit"
           value={String(enTransit)}
-          color="text-orange-500"
-          bg="bg-orange-100 dark:bg-orange-900/20"
+          color="text-yellow-600"
+          bg="bg-yellow-100 dark:bg-yellow-900/20"
         />
         <StatCard
           label="Ce mois"
@@ -149,21 +179,87 @@ export default function TransfertsPage({
         />
       </div>
 
+      {/* Timeline des 10 derniers */}
+      {recentTimeline.length > 0 && (
+        <div className="bg-xa-surface border border-xa-border rounded-xl p-4">
+          <h2 className="font-semibold text-xa-text text-sm mb-3">
+            Timeline — 10 derniers transferts
+          </h2>
+          <div className="space-y-2">
+            {recentTimeline.map((t) => (
+              <div key={t.id} className="flex items-center gap-3 min-w-0">
+                <span
+                  className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                    t.statut === 'livre' ? 'bg-green-500' : 'bg-yellow-400'
+                  }`}
+                />
+                <span className="text-xs text-xa-muted whitespace-nowrap shrink-0">
+                  {formatDate(t.created_at)}
+                </span>
+                <span className="text-sm text-xa-text font-medium truncate">
+                  {getProduitName(t.produit_id)}
+                </span>
+                <span className="text-xs text-xa-muted shrink-0">×{t.quantite}</span>
+                <span className="text-xs text-xa-muted truncate flex-1">
+                  {getBoutiqueName(t.boutique_source_id)} →{' '}
+                  {getBoutiqueName(t.boutique_destination_id)}
+                </span>
+                <span
+                  className={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${
+                    t.statut === 'livre'
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                      : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
+                  }`}
+                >
+                  {t.statut === 'livre' ? 'Livré' : 'En transit'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Grid: table + form */}
       <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-4">
         {/* Historique */}
         <div className="bg-xa-surface border border-xa-border rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-xa-border">
+          <div className="px-4 py-3 border-b border-xa-border flex items-center justify-between gap-3 flex-wrap">
             <h2 className="font-semibold text-xa-text text-sm">Historique des transferts</h2>
+            <div className="flex items-center gap-2 flex-wrap">
+              <select
+                value={filterSource}
+                onChange={(e) => setFilterSource(e.target.value)}
+                className="px-2 py-1 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-xs focus:outline-none focus:ring-1 focus:ring-xa-primary"
+              >
+                <option value="">Toutes sources</option>
+                {boutiques.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.nom}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={filterDest}
+                onChange={(e) => setFilterDest(e.target.value)}
+                className="px-2 py-1 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-xs focus:outline-none focus:ring-1 focus:ring-xa-primary"
+              >
+                <option value="">Toutes destinations</option>
+                {boutiques.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.nom}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          {transferts.length === 0 ? (
+          {filteredTransferts.length === 0 ? (
             <p className="text-xa-muted text-sm p-6 text-center">Aucun transfert enregistré.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-xa-border bg-xa-bg">
-                    {['Date', 'Produit', 'De', 'Vers', 'Qté', 'Statut'].map((h) => (
+                    {['Date', 'Produit', 'De', 'Vers', 'Qté', 'Statut', 'Action'].map((h) => (
                       <th
                         key={h}
                         className="text-left px-4 py-2.5 text-xs font-semibold text-xa-muted uppercase tracking-wider"
@@ -174,7 +270,7 @@ export default function TransfertsPage({
                   </tr>
                 </thead>
                 <tbody>
-                  {transferts.map((t) => (
+                  {filteredTransferts.map((t) => (
                     <tr
                       key={t.id}
                       className="border-b border-xa-border last:border-0 hover:bg-xa-bg transition-colors"
@@ -198,9 +294,20 @@ export default function TransfertsPage({
                             Livré
                           </span>
                         ) : (
-                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 dark:bg-orange-900/20">
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400">
                             En transit
                           </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-2.5">
+                        {t.statut === 'en_transit' && (
+                          <button
+                            onClick={() => handleMarquerLivre(t.id)}
+                            disabled={markingLivre[t.id]}
+                            className="px-3 py-1 rounded-lg bg-green-600 text-white text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 whitespace-nowrap"
+                          >
+                            {markingLivre[t.id] ? '…' : 'Marquer livré'}
+                          </button>
                         )}
                       </td>
                     </tr>
