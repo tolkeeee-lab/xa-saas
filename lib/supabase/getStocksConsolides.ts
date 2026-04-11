@@ -98,8 +98,8 @@ export async function getStocksConsolides(userId: string): Promise<StocksConsoli
     }
 
     // Strip prix_achat before returning to client
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { prix_achat: _pa, ...publicRow } = row;
-    void _pa;
     produits.push({ ...publicRow, statut });
   }
 

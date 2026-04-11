@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
 
   const lignesInsertFull = lignesInsert.map((l) => ({
     ...l,
-    nom_produit: nomsMap.get(l.produit_id ?? '') ?? 'Produit',
+    nom_produit: nomsMap.get(l.produit_id) ?? 'Produit',
   }));
 
   const { error: lignesError } = await supabase

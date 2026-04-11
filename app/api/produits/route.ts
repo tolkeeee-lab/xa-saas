@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (prix_vente <= prix_achat) {
-    return NextResponse.json({ error: 'Le prix de vente doit être supérieur au prix achat' }, { status: 422 });
+    return NextResponse.json({ error: "Le prix de vente doit être supérieur au prix d'achat" }, { status: 422 });
   }
 
   const supabase = createAdminClient();
