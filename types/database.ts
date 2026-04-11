@@ -142,6 +142,21 @@ export type ChargeFixe = {
   updated_at: string;
 };
 
+export type DetteProprio = {
+  id: string;
+  proprietaire_id: string;
+  libelle: string;
+  creancier: string;
+  montant: number;
+  montant_rembourse: number;
+  date_echeance: string | null;
+  statut: 'en_cours' | 'rembourse' | 'en_retard';
+  notes: string | null;
+  actif: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -220,6 +235,13 @@ export type Database = {
         Insert: Omit<ChargeFixe, 'id' | 'created_at' | 'updated_at'> &
           Partial<Pick<ChargeFixe, 'id' | 'created_at' | 'updated_at'>>;
         Update: Partial<Omit<ChargeFixe, 'id'>>;
+        Relationships: [];
+      };
+      dettes_proprio: {
+        Row: DetteProprio;
+        Insert: Omit<DetteProprio, 'id' | 'created_at' | 'updated_at'> &
+          Partial<Pick<DetteProprio, 'id' | 'created_at' | 'updated_at'>>;
+        Update: Partial<Omit<DetteProprio, 'id'>>;
         Relationships: [];
       };
     };

@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase-server';
-import type { ChargeFixe } from '@/types/database';
+import type { ChargeFixe, DetteProprio } from '@/types/database';
 
 export type { ChargeFixe };
 
@@ -12,6 +12,8 @@ export type ChargesFixesData = {
   benefice_brut: number;
   benefice_net_reel: number;
   reste_proprio: number;
+  dettes_proprio: DetteProprio[];
+  total_dettes_en_cours: number;
 };
 
 /**
@@ -81,7 +83,22 @@ export async function getChargesFixes(userId: string): Promise<ChargesFixesData>
 
   const benefice_brut = ca_mois - cout_achats_mois;
   const benefice_net_reel = benefice_brut - total_mensuel;
-  const reste_proprio = benefice_net_reel;
+
+  // Fetch dettes proprio
+  const { data: dettesData } = await supabase
+    .from('dettes_proprio')
+    .select('*')
+    .eq('proprietaire_id', userId)
+    .eq('actif', true)
+    .order('created_at', { ascending: false });
+
+  const dettes_proprio: DetteProprio[] = (dettesData ?? []) as DetteProprio[];
+
+  const total_dettes_en_cours = dettes_proprio
+    .filter((d) => d.statut === 'en_cours' || d.statut === 'en_retard')
+    .reduce((s, d) => s + Math.max(0, d.montant - d.montant_rembourse), 0);
+
+  const reste_proprio = benefice_net_reel - total_dettes_en_cours;
 
   return {
     charges: allCharges,
@@ -92,5 +109,7 @@ export async function getChargesFixes(userId: string): Promise<ChargesFixesData>
     benefice_brut,
     benefice_net_reel,
     reste_proprio,
+    dettes_proprio,
+    total_dettes_en_cours,
   };
 }
