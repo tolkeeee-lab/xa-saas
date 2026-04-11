@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
+import type { Database } from '@/types/database';
+
+type DetteUpdate = Database['public']['Tables']['dettes']['Update'];
 
 /**
  * PATCH /api/dettes/[id] → mettre à jour statut / montant_rembourse
@@ -10,7 +13,7 @@ export async function PATCH(
 ) {
   const { id } = await params;
 
-  let body: Record<string, unknown>;
+  let body: { statut?: string; montant_rembourse?: number };
   try {
     body = await request.json();
   } catch {
@@ -19,9 +22,13 @@ export async function PATCH(
 
   const admin = createAdminClient();
 
-  const update: Record<string, unknown> = {};
-  if (body.statut !== undefined) update.statut = body.statut;
-  if (body.montant_rembourse !== undefined) update.montant_rembourse = body.montant_rembourse;
+  const update: DetteUpdate = {};
+  if (body.statut === 'en_attente' || body.statut === 'paye' || body.statut === 'en_retard') {
+    update.statut = body.statut;
+  }
+  if (typeof body.montant_rembourse === 'number') {
+    update.montant_rembourse = body.montant_rembourse;
+  }
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: 'Aucun champ à mettre à jour' }, { status: 400 });
