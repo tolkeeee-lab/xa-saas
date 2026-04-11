@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#1B4332',
+  themeColor: '#1c5d7d',
 };
 
 export default function RootLayout({
@@ -19,6 +19,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
+      <head>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              try {
+                var theme = localStorage.getItem('xa-theme');
+                if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  document.documentElement.classList.add('dark');
+                }
+              } catch(e) {}
+            })();
+          `
+        }} />
+      </head>
       <body>{children}</body>
     </html>
   );

@@ -4,17 +4,37 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===== MODE CLAIR (défaut) ===== */
 :root {
-  --xa-primary: #1b4332;
-  --xa-accent: #d4a017;
-  --xa-bg: #f8f7f4;
-  --xa-danger: #dc2626;
+  --xa-primary:       #1c5d7d;
+  --xa-primary-light: #2e9bd1;
+  --xa-accent:        #f7cf08;
+  --xa-bg:            #eaf5fa;
+  --xa-surface:       #ffffff;
+  --xa-text:          #06161d;
+  --xa-muted:         #4a7a8a;
+  --xa-border:        #abd7ed;
+  --xa-danger:        #DC2626;
+}
+
+/* ===== MODE SOMBRE ===== */
+.dark {
+  --xa-primary:       #2e9bd1;
+  --xa-primary-light: #58afda;
+  --xa-accent:        #f7cf08;
+  --xa-bg:            #06161d;
+  --xa-surface:       #091f2a;
+  --xa-text:          #eaf5fa;
+  --xa-muted:         #82c3e3;
+  --xa-border:        #1c5d7d;
+  --xa-danger:        #EF4444;
 }
 
 body {
   background-color: var(--xa-bg);
-  color: #1a1a1a;
+  color: var(--xa-text);
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
