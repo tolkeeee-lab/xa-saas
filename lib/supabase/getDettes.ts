@@ -54,7 +54,7 @@ export async function getDettes(userId: string): Promise<DettesData> {
   const en_retard = dettesAvecBoutique.filter((d) => d.statut === 'en_retard').length;
 
   const recuperees_ce_mois = dettesAvecBoutique
-    .filter((d) => d.statut === 'paye')
+    .filter((d) => d.statut === 'paye' && d.created_at >= startOfMonth)
     .reduce((s, d) => s + d.montant, 0);
 
   return { dettes: dettesAvecBoutique, total_du, en_retard, recuperees_ce_mois };
