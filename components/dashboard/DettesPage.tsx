@@ -203,8 +203,11 @@ export default function DettesPage({ data: initialData, boutiques }: DettesPageP
   }
 
   async function refresh() {
-    // Re-fetch from server via navigation would be ideal; for now optimistic reload
-    window.location.reload();
+    const res = await fetch('/api/dettes');
+    if (res.ok) {
+      const updated: DetteAvecBoutique[] = await res.json();
+      setDettes(updated);
+    }
   }
 
   return (

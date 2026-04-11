@@ -136,10 +136,11 @@ export async function POST(request: NextRequest) {
       .eq('id', ligne.produit_id);
   }
 
-  // If mode credit → create a dette automatically
+  // If mode credit → create a dette automatically (J+30 by default)
   if (mode_paiement === 'credit') {
+    const DEFAULT_CREDIT_DAYS = 30;
     const dateEcheance = new Date();
-    dateEcheance.setDate(dateEcheance.getDate() + 30);
+    dateEcheance.setDate(dateEcheance.getDate() + DEFAULT_CREDIT_DAYS);
     await supabase.from('dettes').insert({
       boutique_id,
       client_nom: body.client_nom ?? 'Client anonyme',
