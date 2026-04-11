@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase-browser';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 function XaLogo() {
   return (
@@ -23,7 +24,7 @@ function XaLogo() {
           fontFamily="Inter, sans-serif"
           fontWeight="700"
           fontSize="48"
-          fill="#333333"
+          fill="currentColor"
         >
           x
         </text>
@@ -34,12 +35,12 @@ function XaLogo() {
           fontFamily="Inter, sans-serif"
           fontWeight="700"
           fontSize="48"
-          fill="#333333"
+          fill="currentColor"
         >
           à
         </text>
       </svg>
-      <span className="text-xs font-medium tracking-widest text-gray-500 uppercase mt-1">
+      <span className="text-xs font-medium tracking-widest text-xa-muted uppercase mt-1">
         Solution de Gestion
       </span>
     </div>
@@ -96,15 +97,18 @@ export default function RegisterPage() {
     return (
       <main className="min-h-screen bg-xa-bg flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-sm md:max-w-md">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+          <div className="relative bg-xa-surface rounded-2xl shadow-sm border border-xa-border p-8 text-center">
+            <div className="absolute top-4 right-4">
+              <ThemeToggle />
+            </div>
             <XaLogo />
             <div className="text-5xl mb-4">📧</div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-xl font-semibold text-xa-text mb-2">
               Vérifiez votre email
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-xa-muted">
               Un lien de confirmation a été envoyé à{' '}
-              <span className="font-medium text-gray-700">{email}</span>.
+              <span className="font-medium text-xa-text">{email}</span>.
               Cliquez sur ce lien pour activer votre compte.
             </p>
             <Link
@@ -122,10 +126,14 @@ export default function RegisterPage() {
   return (
     <main className="min-h-screen bg-xa-bg flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm md:max-w-md">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div className="relative bg-xa-surface rounded-2xl shadow-sm border border-xa-border p-8">
+          <div className="absolute top-4 right-4">
+            <ThemeToggle />
+          </div>
+
           <XaLogo />
 
-          <h1 className="text-xl font-semibold text-gray-900 text-center mb-6">
+          <h1 className="text-xl font-semibold text-xa-text text-center mb-6">
             Créer un compte
           </h1>
 
@@ -133,7 +141,7 @@ export default function RegisterPage() {
             <div>
               <label
                 htmlFor="nomComplet"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-xa-text mb-1"
               >
                 Nom complet
               </label>
@@ -144,7 +152,7 @@ export default function RegisterPage() {
                 required
                 value={nomComplet}
                 onChange={(e) => setNomComplet(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary focus:border-transparent transition"
+                className="w-full px-4 py-2.5 border border-xa-border rounded-xl text-sm bg-xa-bg text-xa-text focus:outline-none focus:ring-2 focus:ring-xa-primary focus:border-transparent transition"
                 placeholder="Jean Dupont"
               />
             </div>
@@ -152,7 +160,7 @@ export default function RegisterPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-xa-text mb-1"
               >
                 Email
               </label>
@@ -163,7 +171,7 @@ export default function RegisterPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary focus:border-transparent transition"
+                className="w-full px-4 py-2.5 border border-xa-border rounded-xl text-sm bg-xa-bg text-xa-text focus:outline-none focus:ring-2 focus:ring-xa-primary focus:border-transparent transition"
                 placeholder="vous@exemple.com"
               />
             </div>
@@ -171,7 +179,7 @@ export default function RegisterPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-xa-text mb-1"
               >
                 Mot de passe
               </label>
@@ -182,7 +190,7 @@ export default function RegisterPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary focus:border-transparent transition"
+                className="w-full px-4 py-2.5 border border-xa-border rounded-xl text-sm bg-xa-bg text-xa-text focus:outline-none focus:ring-2 focus:ring-xa-primary focus:border-transparent transition"
                 placeholder="Minimum 8 caractères"
               />
             </div>
@@ -190,7 +198,7 @@ export default function RegisterPage() {
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-xa-text mb-1"
               >
                 Confirmer le mot de passe
               </label>
@@ -201,13 +209,13 @@ export default function RegisterPage() {
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary focus:border-transparent transition"
+                className="w-full px-4 py-2.5 border border-xa-border rounded-xl text-sm bg-xa-bg text-xa-text focus:outline-none focus:ring-2 focus:ring-xa-primary focus:border-transparent transition"
                 placeholder="••••••••"
               />
             </div>
 
             {error && (
-              <p className="text-sm text-xa-danger bg-red-50 rounded-xl px-4 py-3">
+              <p className="text-sm text-xa-danger bg-red-50 dark:bg-red-950 rounded-xl px-4 py-3">
                 {error}
               </p>
             )}
@@ -215,7 +223,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-xa-primary text-white font-semibold py-3 rounded-xl hover:bg-opacity-90 transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-xa-primary text-white font-semibold py-3 rounded-xl hover:bg-xa-primary-light transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -228,7 +236,7 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-500">
+          <p className="mt-6 text-center text-sm text-xa-muted">
             Déjà un compte ?{' '}
             <Link
               href="/login"
