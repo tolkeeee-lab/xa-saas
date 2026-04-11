@@ -94,6 +94,33 @@ const NAV_ITEMS = [
     ),
   },
   {
+    href: '/dashboard/dettes',
+    label: 'Dettes clients',
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
+  {
+    href: '/dashboard/fournisseurs',
+    label: 'Fournisseurs',
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h8m0 0V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m8 0v10a2 2 0 01-2 2H8a2 2 0 01-2-2V7m2 4h4" />
+      </svg>
+    ),
+  },
+  {
+    href: '/dashboard/rapports',
+    label: 'Rapports',
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    ),
+  },
+  {
     href: '/dashboard/personnel',
     label: 'Personnel',
     icon: (

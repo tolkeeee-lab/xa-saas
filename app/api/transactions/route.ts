@@ -14,12 +14,15 @@ type TransactionBody = {
   lignes: LigneInput[];
   mode_paiement: PayMode;
   montant_total: number;
+  client_nom?: string;
+  client_telephone?: string;
 };
 
 /**
  * POST /api/transactions
  * Creates a transaction with its lines, updates stock, and returns a ticket.
  * prix_achat is fetched server-side only — never returned to client.
+ * If mode_paiement === 'credit', a dette is automatically created.
  */
 export async function POST(request: NextRequest) {
   let body: TransactionBody;
@@ -78,6 +81,7 @@ export async function POST(request: NextRequest) {
       montant_recu: montant_total,
       monnaie_rendue: 0,
       mode_paiement,
+      client_nom: body.client_nom ?? null,
       statut: 'validee',
       sync_statut: 'synced',
     })
@@ -130,6 +134,23 @@ export async function POST(request: NextRequest) {
       .from('produits')
       .update({ stock_actuel: produit.stock_actuel - ligne.quantite })
       .eq('id', ligne.produit_id);
+  }
+
+  // If mode credit → create a dette automatically (J+30 by default)
+  if (mode_paiement === 'credit') {
+    const DEFAULT_CREDIT_DAYS = 30;
+    const dateEcheance = new Date();
+    dateEcheance.setDate(dateEcheance.getDate() + DEFAULT_CREDIT_DAYS);
+    await supabase.from('dettes').insert({
+      boutique_id,
+      client_nom: body.client_nom ?? 'Client anonyme',
+      client_telephone: body.client_telephone ?? null,
+      montant: montant_total,
+      montant_rembourse: 0,
+      description: `Vente crédit - ${lignes.length} article(s)`,
+      statut: 'en_attente',
+      date_echeance: dateEcheance.toISOString().split('T')[0],
+    });
   }
 
   // Build ticket (no prix_achat returned)

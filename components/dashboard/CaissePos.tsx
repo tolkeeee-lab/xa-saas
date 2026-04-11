@@ -19,6 +19,8 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
   const [produits, setProduits] = useState<ProduitPublic[]>(initialProduits);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [payMode, setPayMode] = useState<PayMode>('especes');
+  const [clientNom, setClientNom] = useState('');
+  const [clientTelephone, setClientTelephone] = useState('');
   const [categorie, setCategorie] = useState('Tous');
   const [recherche, setRecherche] = useState('');
   const [ticket, setTicket] = useState<TicketData | null>(null);
@@ -101,6 +103,10 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
           })),
           mode_paiement: payMode,
           montant_total,
+          ...(payMode === 'credit' && {
+            client_nom: clientNom || 'Client anonyme',
+            client_telephone: clientTelephone || undefined,
+          }),
         }),
       });
 
@@ -215,10 +221,20 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
           items={cart}
           onUpdate={updateCart}
           payMode={payMode}
-          onPayModeChange={setPayMode}
+          onPayModeChange={(mode) => {
+            setPayMode(mode);
+            if (mode !== 'credit') {
+              setClientNom('');
+              setClientTelephone('');
+            }
+          }}
           onValider={validerVente}
           loading={loading}
           boutiqueName={activeBoutique?.nom ?? ''}
+          clientNom={clientNom}
+          onClientNomChange={setClientNom}
+          clientTelephone={clientTelephone}
+          onClientTelephoneChange={setClientTelephone}
         />
       </div>
     </div>

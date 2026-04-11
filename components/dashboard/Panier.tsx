@@ -26,6 +26,10 @@ interface PanierProps {
   onValider: () => void;
   loading: boolean;
   boutiqueName: string;
+  clientNom?: string;
+  onClientNomChange?: (v: string) => void;
+  clientTelephone?: string;
+  onClientTelephoneChange?: (v: string) => void;
 }
 
 export default function Panier({
@@ -36,6 +40,10 @@ export default function Panier({
   onValider,
   loading,
   boutiqueName,
+  clientNom,
+  onClientNomChange,
+  clientTelephone,
+  onClientTelephoneChange,
 }: PanierProps) {
   const sousTotal = items.reduce((s, i) => s + i.prix_vente * i.qty, 0);
   const remise = sousTotal >= 50000 ? Math.round(sousTotal * 0.05) : 0;
@@ -123,6 +131,26 @@ export default function Panier({
             </button>
           ))}
         </div>
+
+        {/* Credit client fields */}
+        {payMode === 'credit' && (
+          <div className="space-y-1.5">
+            <input
+              type="text"
+              placeholder="Nom du client *"
+              value={clientNom ?? ''}
+              onChange={(e) => onClientNomChange?.(e.target.value)}
+              className="w-full px-3 py-1.5 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-xs focus:outline-none focus:ring-2 focus:ring-xa-primary"
+            />
+            <input
+              type="text"
+              placeholder="Téléphone client"
+              value={clientTelephone ?? ''}
+              onChange={(e) => onClientTelephoneChange?.(e.target.value)}
+              className="w-full px-3 py-1.5 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-xs focus:outline-none focus:ring-2 focus:ring-xa-primary"
+            />
+          </div>
+        )}
 
         {/* Validate button */}
         <button
