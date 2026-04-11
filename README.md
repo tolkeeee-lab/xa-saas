@@ -111,3 +111,32 @@ SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 | `/dashboard/parametres` | Authentifié | Paramètres (code, PIN, employés) |
 | `/api/caisse/*` | Public (service-role) | API routes caisse sécurisées |
 | `/api/transactions/sync` | Public (service-role) | Sync offline transactions |
+| `/dashboard/transferts` | Authentifié | Transferts inter-sites |
+| `/dashboard/perimes` | Authentifié | Péremptions produits |
+| `/dashboard/comparatif` | Authentifié | Comparatif boutiques |
+| `/dashboard/personnel` | Authentifié | Personnel avancé |
+| `/api/transferts` | Authentifié (service-role) | Historique + création transferts |
+| `/api/produits/[id]` | Authentifié (service-role) | PATCH stock/prix produit |
+
+---
+
+## Migration SQL — table `transferts`
+
+```sql
+CREATE TABLE IF NOT EXISTS transferts (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  produit_id UUID REFERENCES produits(id),
+  boutique_source_id UUID REFERENCES boutiques(id),
+  boutique_destination_id UUID REFERENCES boutiques(id),
+  quantite INTEGER NOT NULL,
+  note TEXT,
+  statut TEXT DEFAULT 'en_transit' CHECK (statut IN ('en_transit', 'livre')),
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+```
+
+La colonne `date_peremption` doit être ajoutée à la table `produits` si elle n'existe pas :
+
+```sql
+ALTER TABLE produits ADD COLUMN IF NOT EXISTS date_peremption TIMESTAMPTZ;
+```

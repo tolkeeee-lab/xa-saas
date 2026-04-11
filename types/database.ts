@@ -47,8 +47,20 @@ export type Produit = {
   seuil_alerte: number;
   unite: string;
   actif: boolean;
+  date_peremption: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type Transfert = {
+  id: string;
+  produit_id: string | null;
+  boutique_source_id: string | null;
+  boutique_destination_id: string | null;
+  quantite: number;
+  note: string | null;
+  statut: 'en_transit' | 'livre';
+  created_at: string;
 };
 
 // ProduitPublic — sans prix_achat, pour la caisse
@@ -123,8 +135,8 @@ export type Database = {
       };
       produits: {
         Row: Produit;
-        Insert: Omit<Produit, 'id' | 'created_at' | 'updated_at' | 'categorie'> &
-          Partial<Pick<Produit, 'id' | 'created_at' | 'updated_at' | 'categorie'>>;
+        Insert: Omit<Produit, 'id' | 'created_at' | 'updated_at' | 'categorie' | 'date_peremption'> &
+          Partial<Pick<Produit, 'id' | 'created_at' | 'updated_at' | 'categorie' | 'date_peremption'>>;
         Update: Partial<Omit<Produit, 'id'>>;
         Relationships: [];
       };
@@ -147,6 +159,13 @@ export type Database = {
         Insert: Omit<Dette, 'id' | 'created_at' | 'updated_at'> &
           Partial<Pick<Dette, 'id' | 'created_at' | 'updated_at'>>;
         Update: Partial<Omit<Dette, 'id'>>;
+        Relationships: [];
+      };
+      transferts: {
+        Row: Transfert;
+        Insert: Omit<Transfert, 'id' | 'created_at'> &
+          Partial<Pick<Transfert, 'id' | 'created_at'>>;
+        Update: Partial<Omit<Transfert, 'id'>>;
         Relationships: [];
       };
     };
