@@ -55,20 +55,24 @@ export async function POST(request: NextRequest) {
   const admin = createAdminClient();
 
   if (action === 'commande') {
-    const { fournisseur_id, boutique_id, montant, note } = body as {
-      fournisseur_id: string;
-      boutique_id: string;
-      montant: number;
-      note?: string;
-    };
+    const fournisseur_id = typeof body.fournisseur_id === 'string' ? body.fournisseur_id : '';
+    const boutique_id = typeof body.boutique_id === 'string' ? body.boutique_id : '';
+    const montant = typeof body.montant === 'number' ? body.montant : 0;
+    const note = typeof body.note === 'string' ? body.note : null;
 
-    if (!fournisseur_id || !boutique_id || montant == null) {
+    if (!fournisseur_id || !boutique_id || !montant) {
       return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 });
     }
 
     const { data, error } = await admin
       .from('commandes_fournisseur')
-      .insert({ fournisseur_id, boutique_id, montant, note: note ?? null })
+      .insert({
+        fournisseur_id,
+        boutique_id,
+        montant,
+        note,
+        statut: 'en_attente' as const,
+      })
       .select()
       .single();
 
@@ -80,13 +84,11 @@ export async function POST(request: NextRequest) {
   }
 
   // Create fournisseur
-  const { nom, specialite, delai_livraison, note, telephone } = body as {
-    nom: string;
-    specialite?: string;
-    delai_livraison?: string;
-    note?: number;
-    telephone?: string;
-  };
+  const nom = typeof body.nom === 'string' ? body.nom : '';
+  const specialite = typeof body.specialite === 'string' ? body.specialite : null;
+  const delai_livraison = typeof body.delai_livraison === 'string' ? body.delai_livraison : null;
+  const noteVal = typeof body.note === 'number' ? body.note : 0;
+  const telephone = typeof body.telephone === 'string' ? body.telephone : null;
 
   if (!nom) {
     return NextResponse.json({ error: 'Le nom est obligatoire' }, { status: 400 });
@@ -97,10 +99,10 @@ export async function POST(request: NextRequest) {
     .insert({
       proprietaire_id: user.id,
       nom,
-      specialite: specialite ?? null,
-      delai_livraison: delai_livraison ?? null,
-      note: note ?? 0,
-      telephone: telephone ?? null,
+      specialite,
+      delai_livraison,
+      note: noteVal,
+      telephone,
     })
     .select()
     .single();
