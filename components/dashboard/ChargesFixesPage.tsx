@@ -51,7 +51,7 @@ const STATUT_LABELS: Record<DetteProprio['statut'], string> = {
 const STATUT_COLORS: Record<DetteProprio['statut'], string> = {
   en_cours: 'bg-orange-100 text-orange-700 dark:bg-orange-900/20',
   rembourse: 'bg-green-100 text-green-700 dark:bg-green-900/20',
-  en_retard: 'bg-red-100 text-xa-danger dark:bg-red-900/20',
+  en_retard: 'bg-red-100 text-red-700 dark:bg-red-900/20',
 };
 
 const EMPTY_DETTE_FORM = {
