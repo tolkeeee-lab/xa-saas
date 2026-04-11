@@ -12,6 +12,8 @@ const PAGE_TITLES: Record<string, string> = {
   '/dashboard/produits': 'Produits',
   '/dashboard/employes': 'Employés',
   '/dashboard/parametres': 'Paramètres',
+  '/dashboard/caisse': 'Caisse POS',
+  '/dashboard/stocks': 'Stocks consolidés',
 };
 
 function getPageTitle(pathname: string): string {
