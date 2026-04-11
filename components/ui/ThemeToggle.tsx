@@ -5,14 +5,22 @@ import { getInitialTheme, toggleTheme } from '@/lib/theme';
 
 export default function ThemeToggle() {
   const [isDark, setIsDark] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     setIsDark(getInitialTheme() === 'dark');
   }, []);
 
   function handleToggle() {
     const next = toggleTheme();
     setIsDark(next === 'dark');
+  }
+
+  if (!mounted) {
+    return (
+      <div className="p-2 rounded-lg border border-xa-border bg-xa-surface w-[34px] h-[34px]" />
+    );
   }
 
   return (

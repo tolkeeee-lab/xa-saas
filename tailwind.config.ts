@@ -10,15 +10,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        'xa-primary':       '#1c5d7d',
-        'xa-primary-light': '#2e9bd1',
-        'xa-accent':        '#f7cf08',
-        'xa-bg':            '#eaf5fa',
-        'xa-surface':       '#ffffff',
-        'xa-text':          '#06161d',
-        'xa-muted':         '#4a7a8a',
-        'xa-border':        '#abd7ed',
-        'xa-danger':        '#DC2626',
+        'xa-primary':       'var(--xa-primary)',
+        'xa-primary-light': 'var(--xa-primary-light)',
+        'xa-accent':        'var(--xa-accent)',
+        'xa-bg':            'var(--xa-bg)',
+        'xa-surface':       'var(--xa-surface)',
+        'xa-text':          'var(--xa-text)',
+        'xa-muted':         'var(--xa-muted)',
+        'xa-border':        'var(--xa-border)',
+        'xa-danger':        'var(--xa-danger)',
         // palette complète pour usage direct
         'pale-sky': {
           '50':  '#eaf5fa',
