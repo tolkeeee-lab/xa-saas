@@ -223,7 +223,10 @@ export default function PerimesTable({ produits: initialProduits }: PerimesTable
           {FILTER_OPTIONS.map((opt) => (
             <button
               key={opt.key}
-              onClick={() => { setFilter(opt.key); setSelected(new Set()); }}
+              onClick={() => {
+                setFilter(opt.key);
+                setSelected(new Set());
+              }}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 filter === opt.key
                   ? 'bg-xa-primary text-white'

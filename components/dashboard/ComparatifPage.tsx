@@ -60,7 +60,7 @@ export default function ComparatifPage({
   const bestBoutique = boutiques[0];
   const maxCA = bestBoutique?.ca ?? 1;
   const maxBenef = Math.max(...boutiques.map((b) => b.benefice), 1);
-  const maxCharges = Math.max(...boutiques.map((b) => b.charges), 1);
+  const maxCoutAchats = Math.max(...boutiques.map((b) => b.cout_achats), 1);
 
   // Progression / recul indicators vs last period
   const lastPeriodMap = new Map(boutiquesLastPeriod.map((b) => [b.id, b]));
@@ -70,8 +70,8 @@ export default function ComparatifPage({
     const diff = prevCA > 0 ? ((b.ca - prevCA) / prevCA) * 100 : 0;
     return { ...b, prevCA, diffPct: Math.round(diff) };
   });
-  const enProgression = withTrend.filter((b) => b.diffPct > 0).sort((a, x) => x.diffPct - a.diffPct)[0];
-  const enRecul = withTrend.filter((b) => b.diffPct < 0).sort((a, x) => a.diffPct - x.diffPct)[0];
+  const enProgression = withTrend.filter((b) => b.diffPct > 0).sort((a, b) => b.diffPct - a.diffPct)[0];
+  const enRecul = withTrend.filter((b) => b.diffPct < 0).sort((a, b) => a.diffPct - b.diffPct)[0];
 
   function setPeriode(p: ComparatifPeriode) {
     router.push(`${pathname}?periode=${p}`);
@@ -236,7 +236,7 @@ export default function ComparatifPage({
                 <div className="space-y-1.5">
                   <BarRow label="CA" value={b.ca} max={maxCA} color="bg-xa-primary" />
                   <BarRow label="Bénéfice" value={b.benefice} max={maxBenef} color="bg-green-500" />
-                  <BarRow label="Charges" value={b.charges} max={maxCharges} color="bg-orange-400" />
+                  <BarRow label="Coût achats" value={b.cout_achats} max={maxCoutAchats} color="bg-orange-400" />
                 </div>
               </div>
             ))}
@@ -295,7 +295,7 @@ export default function ComparatifPage({
                       {formatFCFA(b.benefice)}
                     </td>
                     <td className="px-4 py-3 text-orange-500">
-                      {formatFCFA(b.charges)}
+                      {formatFCFA(b.cout_achats)}
                     </td>
                     <td className="px-4 py-3 text-xa-text">{b.nbTx}</td>
                     <td className="px-4 py-3 text-xa-text">{formatFCFA(b.panierMoyen)}</td>

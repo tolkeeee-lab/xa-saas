@@ -26,15 +26,15 @@ function toMensuel(montant: number, periodicite: ChargeFixe['periodicite']): num
 export async function getChargesFixes(userId: string): Promise<ChargesFixesData> {
   const supabase = await createClient();
 
-  // Fetch active charges
+  // Fetch all charges (including inactive) for management display
   const { data: charges } = await supabase
     .from('charges_fixes')
     .select('*')
     .eq('proprietaire_id', userId)
-    .eq('actif', true)
     .order('created_at', { ascending: false });
 
-  const activeCharges: ChargeFixe[] = (charges ?? []) as ChargeFixe[];
+  const allCharges: ChargeFixe[] = (charges ?? []) as ChargeFixe[];
+  const activeCharges = allCharges.filter((c) => c.actif);
 
   // Total mensuel normalisé
   const total_mensuel = activeCharges.reduce(
@@ -84,7 +84,7 @@ export async function getChargesFixes(userId: string): Promise<ChargesFixesData>
   const reste_proprio = benefice_net_reel;
 
   return {
-    charges: (charges ?? []) as ChargeFixe[], // return all (including inactive) for management
+    charges: allCharges,
     total_mensuel,
     par_categorie,
     ca_mois,

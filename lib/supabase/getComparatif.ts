@@ -4,10 +4,10 @@ import type { Boutique } from '@/types/database';
 export type BoutiqueComparatif = Boutique & {
   ca: number;
   benefice: number;
+  cout_achats: number;
   nbTx: number;
   panierMoyen: number;
   marge: number;
-  charges: number;
 };
 
 export type RuptureItem = {
@@ -72,7 +72,7 @@ async function computeBoutiqueStats(
         ...b,
         ca,
         benefice,
-        charges: ca - benefice,
+        cout_achats: ca - benefice,
         nbTx,
         panierMoyen,
         marge,

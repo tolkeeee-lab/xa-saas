@@ -267,14 +267,14 @@ export default function ChargesFixesPage({ data: initialData, boutiques }: Charg
       {/* Par catégorie */}
       {Object.keys(data.par_categorie).length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {Object.entries(data.par_categorie).map(([cat, val]) => (
+          {(Object.entries(data.par_categorie) as [string, number][]).map(([cat, val]) => (
             <div key={cat} className="bg-xa-surface border border-xa-border rounded-xl p-3">
               <span
                 className={`text-xs font-semibold px-2 py-0.5 rounded-full ${CATEGORIE_COLORS[cat as ChargeFixe['categorie']]}`}
               >
                 {CATEGORIE_LABELS[cat as ChargeFixe['categorie']] ?? cat}
               </span>
-              <p className="text-lg font-bold text-xa-text mt-2">{formatFCFA(Math.round(val as number))}</p>
+              <p className="text-lg font-bold text-xa-text mt-2">{formatFCFA(Math.round(val))}</p>
               <p className="text-xs text-xa-muted">/mois</p>
             </div>
           ))}
