@@ -1,58 +1,26 @@
-/**
- * POST /api/caisse/transaction
- *
- * Crée une transaction depuis la caisse (accès public, sans session Supabase).
- * Utilise la clé service-role pour bypasser les RLS.
- *
- * Body JSON : TransactionInsert (sans id, updated_at)
- * Réponse   : { data: Transaction }
- */
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { processSale } from '@/lib/supabase/processSale';
+import type { TransactionInsert, TransactionLigneInsert } from '@/types/database';
 
-import { NextRequest, NextResponse } from 'next/server';
-import { createAdminClient } from '../../../../lib/supabase-admin';
-import type { TransactionInsert } from '../../../../types/database';
+interface TransactionBody {
+  transaction: TransactionInsert;
+  lignes: TransactionLigneInsert[];
+}
 
 export async function POST(request: NextRequest) {
-  let body: Partial<TransactionInsert>;
+  const body = await request.json() as TransactionBody;
+  const { transaction, lignes } = body;
+
+  if (!transaction || !lignes || !Array.isArray(lignes) || lignes.length === 0) {
+    return NextResponse.json({ error: 'Données invalides' }, { status: 400 });
+  }
+
   try {
-    body = await request.json() as Partial<TransactionInsert>;
-  } catch {
-    return NextResponse.json({ error: 'Corps JSON invalide' }, { status: 400 });
+    const result = await processSale(transaction, lignes);
+    return NextResponse.json({ ok: true, transactionId: result.transactionId });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Erreur inconnue';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  const { boutique_id, type, mode_paiement, montant_total, montant_recu, monnaie_rendue } = body;
-
-  if (!boutique_id || !type || !mode_paiement || montant_total === undefined) {
-    return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 });
-  }
-
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from('transactions')
-    .insert({
-      boutique_id,
-      employe_id: body.employe_id ?? null,
-      client_debiteur_id: body.client_debiteur_id ?? null,
-      type,
-      mode_paiement,
-      montant_total,
-      montant_recu: montant_recu ?? 0,
-      monnaie_rendue: monnaie_rendue ?? 0,
-      montant_credit: body.montant_credit ?? 0,
-      statut: 'validee',
-      sync_statut: 'synced',
-      synced_at: new Date().toISOString(),
-      local_id: body.local_id ?? crypto.randomUUID(),
-      created_at: body.created_at ?? new Date().toISOString(),
-      reference: body.reference ?? null,
-      notes: body.notes ?? null,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  return NextResponse.json({ data });
 }

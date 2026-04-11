@@ -1,13 +1,6 @@
 /**
- * lib/pinHash.ts
- *
- * Utilitaire de hachage des PINs (SHA-256) pour xà.
- * Utilise l'API Web Crypto (disponible dans les navigateurs modernes et Node.js 18+).
- */
-
-/**
- * Hache un PIN en hexadécimal SHA-256.
- * À utiliser côté client avant tout insert/update de PIN.
+ * Hache un PIN en SHA-256 (hex).
+ * Utilisé côté client avant tout envoi/stockage.
  */
 export async function hashPin(pin: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -15,4 +8,14 @@ export async function hashPin(pin: string): Promise<string> {
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Hache un PIN côté serveur (Node.js crypto).
+ * Utilisé uniquement dans les API routes.
+ */
+export function hashPinServer(pin: string): string {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const crypto = require('crypto') as typeof import('crypto');
+  return crypto.createHash('sha256').update(pin).digest('hex');
 }

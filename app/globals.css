@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html {
+  background-color: #F8F7F4;
+}
+
+body {
+  @apply bg-xa-bg text-gray-900 antialiased;
+}
