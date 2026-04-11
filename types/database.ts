@@ -104,46 +104,53 @@ export type Database = {
         Insert: Omit<Profile, 'created_at' | 'updated_at'> &
           Partial<Pick<Profile, 'created_at' | 'updated_at'>>;
         Update: Partial<Omit<Profile, 'id'>>;
+        Relationships: [];
       };
       boutiques: {
         Row: Boutique;
         Insert: Omit<Boutique, 'id' | 'created_at' | 'updated_at'> &
           Partial<Pick<Boutique, 'id' | 'created_at' | 'updated_at'>>;
         Update: Partial<Omit<Boutique, 'id'>>;
+        Relationships: [];
       };
       employes: {
         Row: Employe;
         Insert: Omit<Employe, 'id' | 'created_at' | 'updated_at'> &
           Partial<Pick<Employe, 'id' | 'created_at' | 'updated_at'>>;
         Update: Partial<Omit<Employe, 'id'>>;
+        Relationships: [];
       };
       produits: {
         Row: Produit;
         Insert: Omit<Produit, 'id' | 'created_at' | 'updated_at'> &
           Partial<Pick<Produit, 'id' | 'created_at' | 'updated_at'>>;
         Update: Partial<Omit<Produit, 'id'>>;
+        Relationships: [];
       };
       transactions: {
         Row: Transaction;
         Insert: Omit<Transaction, 'id' | 'created_at' | 'updated_at'> &
           Partial<Pick<Transaction, 'id' | 'created_at' | 'updated_at'>>;
         Update: Partial<Omit<Transaction, 'id'>>;
+        Relationships: [];
       };
       transaction_lignes: {
         Row: TransactionLigne;
         Insert: Omit<TransactionLigne, 'id' | 'created_at'> &
           Partial<Pick<TransactionLigne, 'id' | 'created_at'>>;
         Update: Partial<Omit<TransactionLigne, 'id'>>;
+        Relationships: [];
       };
       dettes: {
         Row: Dette;
         Insert: Omit<Dette, 'id' | 'created_at' | 'updated_at'> &
           Partial<Pick<Dette, 'id' | 'created_at' | 'updated_at'>>;
         Update: Partial<Omit<Dette, 'id'>>;
+        Relationships: [];
       };
     };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
-    Enums: Record<string, never>;
+    Views: { [_ in never]: never };
+    Functions: { [_ in never]: never };
+    Enums: { [_ in never]: never };
   };
 };
