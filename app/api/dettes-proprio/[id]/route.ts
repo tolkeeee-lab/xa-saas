@@ -37,7 +37,7 @@ export async function PATCH(
 
   const VALID_STATUTS: DetteProprio['statut'][] = ['en_cours', 'rembourse', 'en_retard'];
 
-  const update: Record<string, unknown> = {};
+  const update: Partial<Pick<DetteProprio, 'statut' | 'montant_rembourse' | 'notes'>> = {};
 
   if (body.statut !== undefined) {
     if (!VALID_STATUTS.includes(body.statut)) {
