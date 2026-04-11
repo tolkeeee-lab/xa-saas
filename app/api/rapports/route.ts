@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (dateDebut > dateFin) {
+    // ISO 8601 YYYY-MM-DD strings compare correctly as lexicographic strings
     return NextResponse.json({ error: 'dateDebut doit être antérieure ou égale à dateFin' }, { status: 400 });
   }
 

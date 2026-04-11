@@ -78,9 +78,9 @@ export default function RapportsPage({
       debut = toDateInput(new Date(now.getFullYear(), now.getMonth(), 1));
       fin = toDateInput(new Date(now.getFullYear(), now.getMonth() + 1, 0));
     } else if (r === '30_jours') {
-      const il_y_a_30 = new Date(now);
-      il_y_a_30.setDate(now.getDate() - 29);
-      debut = toDateInput(il_y_a_30);
+      const trentJoursAvant = new Date(now);
+      trentJoursAvant.setDate(now.getDate() - 29);
+      debut = toDateInput(trentJoursAvant);
       fin = toDateInput(now);
     }
 
@@ -262,9 +262,9 @@ export default function RapportsPage({
                 <tbody>
                   {periodeData.historiqueJournalier.map((jour, idx) => {
                     const hasCA = jour.ca > 0;
-                    // Previous entry in sorted-desc array = next chronological day
-                    const prevJour = periodeData.historiqueJournalier[idx + 1];
-                    const prevCA = prevJour?.ca ?? 0;
+                    // Array is sorted desc, so idx+1 is the previous chronological day
+                    const jourPrecedent = periodeData.historiqueJournalier[idx + 1];
+                    const prevCA = jourPrecedent?.ca ?? 0;
                     const evo = prevCA > 0 ? Math.round(((jour.ca - prevCA) / prevCA) * 100) : null;
 
                     return (
