@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { formatDate } from '@/lib/format';
+import { formatDate, formatFCFA } from '@/lib/format';
 import type { ProduitPeremption } from '@/lib/supabase/getPeremptions';
 
 type PerimesTableProps = {
   produits: ProduitPeremption[];
 };
 
+type FilterType = 'tous' | 'expires' | 'lt7' | 'lt30';
 type ToastState = { message: string; type: 'success' | 'error' } | null;
 
 function getStatusBadge(jours: number) {
@@ -43,6 +44,9 @@ export default function PerimesTable({ produits: initialProduits }: PerimesTable
   const [produits, setProduits] = useState<ProduitPeremption[]>(initialProduits);
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [toast, setToast] = useState<ToastState>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [batchLoading, setBatchLoading] = useState(false);
+  const [filter, setFilter] = useState<FilterType>('tous');
 
   const expires = produits.filter((p) => p.jours_restants < 0).length;
   const expiresSoon7 = produits.filter(
@@ -51,6 +55,39 @@ export default function PerimesTable({ produits: initialProduits }: PerimesTable
   const expiresSoon30 = produits.filter(
     (p) => p.jours_restants > 7 && p.jours_restants <= 30,
   ).length;
+
+  const filteredProduits = produits.filter((p) => {
+    if (filter === 'expires') return p.jours_restants < 0;
+    if (filter === 'lt7') return p.jours_restants >= 0 && p.jours_restants <= 7;
+    if (filter === 'lt30') return p.jours_restants <= 30;
+    return true;
+  });
+
+  const totalValeurPerdue = filteredProduits.reduce(
+    (sum, p) => sum + p.stock_actuel * p.prix_achat,
+    0,
+  );
+
+  const allSelected =
+    filteredProduits.length > 0 &&
+    filteredProduits.every((p) => selected.has(p.id));
+
+  function toggleAll() {
+    if (allSelected) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(filteredProduits.map((p) => p.id)));
+    }
+  }
+
+  function toggleOne(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   function showToast(message: string, type: 'success' | 'error') {
     setToast({ message, type });
@@ -77,6 +114,38 @@ export default function PerimesTable({ produits: initialProduits }: PerimesTable
     }
   }
 
+  async function handleRetirerBatch() {
+    if (selected.size === 0) return;
+    setBatchLoading(true);
+
+    const ids = [...selected];
+    const results = await Promise.all(
+      ids.map((id) =>
+        fetch(`/api/produits/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stock_actuel: 0 }),
+        }),
+      ),
+    );
+
+    setBatchLoading(false);
+
+    const failed = results.filter((r) => !r.ok).length;
+    const succeeded = results.length - failed;
+
+    setProduits((prev) =>
+      prev.map((p) => (selected.has(p.id) ? { ...p, stock_actuel: 0 } : p)),
+    );
+    setSelected(new Set());
+
+    if (failed === 0) {
+      showToast(`${succeeded} produit${succeeded > 1 ? 's' : ''} retiré${succeeded > 1 ? 's' : ''} du stock.`, 'success');
+    } else {
+      showToast(`${succeeded} retiré(s), ${failed} erreur(s).`, 'error');
+    }
+  }
+
   async function handlePromoFlash(id: string, prix_vente: number) {
     const newPrice = Math.round(prix_vente * 0.7);
     setLoading((l) => ({ ...l, [id]: true }));
@@ -97,6 +166,13 @@ export default function PerimesTable({ produits: initialProduits }: PerimesTable
       showToast(err.error ?? 'Erreur lors de la promotion.', 'error');
     }
   }
+
+  const FILTER_OPTIONS: { key: FilterType; label: string }[] = [
+    { key: 'tous', label: 'Tous' },
+    { key: 'expires', label: "Périmés aujourd'hui" },
+    { key: 'lt7', label: '< 7 jours' },
+    { key: 'lt30', label: '< 30 jours' },
+  ];
 
   return (
     <div className="space-y-5">
@@ -141,10 +217,40 @@ export default function PerimesTable({ produits: initialProduits }: PerimesTable
         </div>
       </div>
 
+      {/* Filters + batch actions */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          {FILTER_OPTIONS.map((opt) => (
+            <button
+              key={opt.key}
+              onClick={() => { setFilter(opt.key); setSelected(new Set()); }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                filter === opt.key
+                  ? 'bg-xa-primary text-white'
+                  : 'bg-xa-surface border border-xa-border text-xa-text hover:bg-xa-bg'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+        {selected.size > 0 && (
+          <button
+            onClick={handleRetirerBatch}
+            disabled={batchLoading}
+            className="px-4 py-1.5 rounded-lg bg-xa-danger text-white text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-40"
+          >
+            {batchLoading
+              ? '…'
+              : `Retirer du stock (${selected.size})`}
+          </button>
+        )}
+      </div>
+
       {/* Table */}
-      {produits.length === 0 ? (
+      {filteredProduits.length === 0 ? (
         <div className="bg-xa-surface border border-xa-border rounded-xl p-12 text-center">
-          <p className="text-xa-muted">Aucun produit avec date de péremption.</p>
+          <p className="text-xa-muted">Aucun produit correspondant.</p>
         </div>
       ) : (
         <div className="bg-xa-surface border border-xa-border rounded-xl overflow-hidden">
@@ -152,24 +258,49 @@ export default function PerimesTable({ produits: initialProduits }: PerimesTable
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-xa-border bg-xa-bg">
-                  {['Produit', 'Boutique', 'Stock', 'Date expiration', 'Jours restants', 'Statut', 'Action'].map(
-                    (h) => (
-                      <th
-                        key={h}
-                        className="text-left px-4 py-2.5 text-xs font-semibold text-xa-muted uppercase tracking-wider"
-                      >
-                        {h}
-                      </th>
-                    ),
-                  )}
+                  <th className="px-4 py-2.5">
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      onChange={toggleAll}
+                      className="rounded"
+                    />
+                  </th>
+                  {[
+                    'Produit',
+                    'Boutique',
+                    'Stock',
+                    'Date expiration',
+                    'Jours restants',
+                    'Statut',
+                    'Valeur perdue',
+                    'Action',
+                  ].map((h) => (
+                    <th
+                      key={h}
+                      className="text-left px-4 py-2.5 text-xs font-semibold text-xa-muted uppercase tracking-wider"
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {produits.map((p) => (
+                {filteredProduits.map((p) => (
                   <tr
                     key={p.id}
-                    className="border-b border-xa-border last:border-0 hover:bg-xa-bg transition-colors"
+                    className={`border-b border-xa-border last:border-0 hover:bg-xa-bg transition-colors ${
+                      selected.has(p.id) ? 'bg-xa-primary/5' : ''
+                    }`}
                   >
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        checked={selected.has(p.id)}
+                        onChange={() => toggleOne(p.id)}
+                        className="rounded"
+                      />
+                    </td>
                     <td className="px-4 py-3 font-medium text-xa-text">{p.nom}</td>
                     <td className="px-4 py-3 text-xa-muted">{p.boutique_nom}</td>
                     <td className="px-4 py-3 text-xa-text">
@@ -180,6 +311,9 @@ export default function PerimesTable({ produits: initialProduits }: PerimesTable
                     </td>
                     <td className="px-4 py-3 text-xa-text">{p.jours_restants}</td>
                     <td className="px-4 py-3">{getStatusBadge(p.jours_restants)}</td>
+                    <td className="px-4 py-3 text-xa-text font-medium">
+                      {formatFCFA(p.stock_actuel * p.prix_achat)}
+                    </td>
                     <td className="px-4 py-3">
                       {p.jours_restants < 0 ? (
                         <button
@@ -204,6 +338,17 @@ export default function PerimesTable({ produits: initialProduits }: PerimesTable
                   </tr>
                 ))}
               </tbody>
+              <tfoot>
+                <tr className="border-t border-xa-border bg-xa-bg">
+                  <td colSpan={7} className="px-4 py-3 text-xs font-semibold text-xa-muted uppercase tracking-wider text-right">
+                    Total valeur perdue
+                  </td>
+                  <td className="px-4 py-3 font-bold text-xa-danger">
+                    {formatFCFA(totalValeurPerdue)}
+                  </td>
+                  <td />
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>

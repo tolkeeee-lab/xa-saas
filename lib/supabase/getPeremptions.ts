@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase-server';
 import type { Produit } from '@/types/database';
 
-export type ProduitPeremption = Omit<Produit, 'prix_achat'> & {
+export type ProduitPeremption = Produit & {
   boutique_nom: string;
   jours_restants: number;
 };
@@ -24,7 +24,7 @@ export async function getPeremptions(userId: string): Promise<ProduitPeremption[
   const { data: produits } = await supabase
     .from('produits')
     .select(
-      'id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, created_at, updated_at',
+      'id, boutique_id, nom, categorie, description, prix_achat, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, created_at, updated_at',
     )
     .in('boutique_id', boutiqueIds)
     .not('date_peremption', 'is', null)

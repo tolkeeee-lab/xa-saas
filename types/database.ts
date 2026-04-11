@@ -129,6 +129,19 @@ export type CommandeFournisseur = {
   created_at: string;
 };
 
+export type ChargeFixe = {
+  id: string;
+  proprietaire_id: string;
+  boutique_id: string | null;
+  libelle: string;
+  categorie: 'loyer' | 'salaire' | 'fournisseur' | 'autre';
+  montant: number;
+  periodicite: 'mensuel' | 'hebdo' | 'annuel';
+  actif: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -200,6 +213,13 @@ export type Database = {
         Insert: Omit<Transfert, 'id' | 'created_at'> &
           Partial<Pick<Transfert, 'id' | 'created_at'>>;
         Update: Partial<Omit<Transfert, 'id'>>;
+        Relationships: [];
+      };
+      charges_fixes: {
+        Row: ChargeFixe;
+        Insert: Omit<ChargeFixe, 'id' | 'created_at' | 'updated_at'> &
+          Partial<Pick<ChargeFixe, 'id' | 'created_at' | 'updated_at'>>;
+        Update: Partial<Omit<ChargeFixe, 'id'>>;
         Relationships: [];
       };
     };
