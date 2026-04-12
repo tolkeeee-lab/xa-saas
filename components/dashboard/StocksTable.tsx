@@ -134,7 +134,7 @@ export default function StocksTable({ data, boutiques }: StocksTableProps) {
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Rechercher un produit, une boutique…"
+            placeholder="Rechercher un produit ou une catégorie…"
             className="w-full bg-xa-bg border border-xa-border rounded-xl px-4 py-2.5 text-sm text-xa-text placeholder-xa-muted focus:outline-none focus:ring-2 focus:ring-xa-primary pr-8"
           />
           {searchInput && (

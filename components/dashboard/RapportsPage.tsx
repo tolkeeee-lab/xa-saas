@@ -98,9 +98,18 @@ export default function RapportsPage({
   }
 
   function exportCSV(rows: BoutiqueRapport[]) {
+    function escapeCell(value: string | number): string {
+      const str = String(value);
+      if (str.includes(';') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    }
     const header = ['Boutique', 'CA (FCFA)', 'Coût achat (FCFA)', 'Marge brute (FCFA)', 'Charges (FCFA)', 'Bénéfice net (FCFA)'];
     const lines = rows.map((r) =>
-      [r.nom, r.ca, r.cout_achat, r.marge_brute, r.charges, r.benefice_net].join(';'),
+      [r.nom, r.ca, r.cout_achat, r.marge_brute, r.charges, r.benefice_net]
+        .map(escapeCell)
+        .join(';'),
     );
     const csv = [header.join(';'), ...lines].join('\n');
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
