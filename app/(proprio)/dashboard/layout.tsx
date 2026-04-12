@@ -38,4 +38,4 @@ export default async function DashboardLayout({
       <MobileNav />
     </div>
   );
-}
+} 
