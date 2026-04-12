@@ -9,6 +9,7 @@ import type { Boutique, Profile } from '@/types/database';
 type SidebarProps = {
   boutiques: Boutique[];
   profile: Profile | null;
+  isSuperAdmin?: boolean;
 };
 
 const NAV_ITEMS = [
@@ -44,7 +45,7 @@ const NAV_ITEMS = [
     label: 'Employés',
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
     ),
   },
@@ -134,7 +135,7 @@ const NAV_ITEMS = [
     label: 'Personnel',
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
     ),
   },
@@ -150,7 +151,7 @@ const NAV_ITEMS = [
   },
 ];
 
-export default function Sidebar({ boutiques, profile }: SidebarProps) {
+export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [activeBoutiqueId, setActiveBoutiqueId] = useState<string>('all');
@@ -266,6 +267,22 @@ export default function Sidebar({ boutiques, profile }: SidebarProps) {
             </Link>
           );
         })}
+
+        {/* Super Admin link — visible uniquement pour le super admin */}
+        {isSuperAdmin && (
+          <>
+            <div className="my-2 border-t border-xa-border" />
+            <Link
+              href="/admin"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 text-sm font-semibold transition-colors bg-[#9b72ff]/10 text-[#9b72ff] hover:bg-[#9b72ff]/20 border border-[#9b72ff]/30"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span>⚡ Super Admin</span>
+            </Link>
+          </>
+        )}
       </nav>
 
       {/* User + logout */}
