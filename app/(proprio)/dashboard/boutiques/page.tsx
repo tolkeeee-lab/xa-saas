@@ -114,4 +114,4 @@ function BoutiqueListCard({ boutique }: { boutique: Boutique }) {
       </div>
     </div>
   );
-}
+} 
