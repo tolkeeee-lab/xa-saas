@@ -6,19 +6,33 @@
 
 /* ===== MODE CLAIR (défaut) ===== */
 :root {
+  /* Base */
   --xa-primary:       #6c2ed1;
   --xa-primary-light: #8a58da;
   --xa-accent:        #14d9eb;
   --xa-bg:            #f0eafa;
   --xa-surface:       #ffffff;
   --xa-text:          #0f061d;
-  --xa-muted:         #5725a7;
+  --xa-muted:         #7c5aa8;
   --xa-border:        #c4abed;
   --xa-danger:        #ff0011;
+
+  /* Couleurs sémantiques */
+  --xa-color-montant:   #0c828d;
+  --xa-color-alerte:    #c45d08;
+  --xa-color-danger:    #ff0011;
+  --xa-color-ok:        #0e8b70;
+  --xa-color-titre:     #411c7d;
+  --xa-color-quantite:  #8e850b;
+  --xa-color-personnel: #1759b5;
+  --xa-color-boutique:  #0e6c8b;
+  --xa-color-date:      #5725a7;
+  --xa-color-transfert: #a7258f;
 }
 
 /* ===== MODE SOMBRE ===== */
 .dark {
+  /* Base */
   --xa-primary:       #8a58da;
   --xa-primary-light: #a782e3;
   --xa-accent:        #14d9eb;
@@ -28,6 +42,18 @@
   --xa-muted:         #a782e3;
   --xa-border:        #411c7d;
   --xa-danger:        #ff3341;
+
+  /* Couleurs sémantiques lumineuses pour fond sombre */
+  --xa-color-montant:   #14d9eb;
+  --xa-color-alerte:    #f5740a;
+  --xa-color-danger:    #ff3341;
+  --xa-color-ok:        #17e8bb;
+  --xa-color-titre:     #a782e3;
+  --xa-color-quantite:  #f0e442;
+  --xa-color-personnel: #4a8ce8;
+  --xa-color-boutique:  #45c3ed;
+  --xa-color-date:      #8a58da;
+  --xa-color-transfert: #da58c2;
 }
 
 body {
@@ -41,37 +67,14 @@ body {
 
 /* ===== IMPRESSION PDF ===== */
 @media print {
-  nav,
-  aside,
-  header,
-  [data-sidebar],
-  .print\:hidden {
+  nav, aside, header, [data-sidebar], .print\:hidden {
     display: none !important;
   }
-
-  body {
-    background-color: #fff;
-    color: #000;
+  body { background-color: #fff; color: #000; }
+  main, [data-main-content] {
+    margin: 0 !important; padding: 1rem !important;
+    width: 100% !important; max-width: 100% !important;
   }
-
-  main,
-  [data-main-content] {
-    margin: 0 !important;
-    padding: 1rem !important;
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-
-  table {
-    page-break-inside: avoid;
-  }
-
-  tr {
-    page-break-inside: avoid;
-  }
-
-  * {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-} 
+  table, tr { page-break-inside: avoid; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
