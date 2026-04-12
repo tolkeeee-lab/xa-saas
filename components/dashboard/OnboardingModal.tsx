@@ -73,7 +73,7 @@ export default function OnboardingModal() {
                   s <= step
                     ? 'bg-xa-primary text-white'
                     : 'bg-xa-bg border border-xa-border text-xa-muted'
-                }`}
+                }`}  
               >
                 {s < step ? '✓' : s}
               </div>
@@ -115,7 +115,7 @@ export default function OnboardingModal() {
         {step === 2 && (
           <div>
             <h2 className="text-xl font-bold text-xa-text mb-1 text-center">Créer votre boutique</h2>
-            <p className="text-sm text-xa-muted text-center mb-6">Vous pourrez en ajouter d'autres plus tard.</p>
+            <p className="text-sm text-xa-muted text-center mb-6">Vous pourrez en ajouter d&apos;autres plus tard.</p>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-xa-text mb-1">Nom de la boutique *</label>
