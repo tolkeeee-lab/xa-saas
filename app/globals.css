@@ -65,6 +65,39 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+/* ===== ANIMATIONS XÀ ===== */
+
+@keyframes xa-gradient-rotate {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes xa-ring-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(108, 46, 209, 0.4); }
+  50%       { box-shadow: 0 0 0 12px rgba(108, 46, 209, 0); }
+}
+
+@keyframes xa-badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.2); }
+}
+
+@keyframes xa-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes xa-bar-grow {
+  from { transform: scaleY(0); transform-origin: bottom; }
+  to   { transform: scaleY(1); transform-origin: bottom; }
+}
+
+@keyframes xa-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ===== IMPRESSION PDF ===== */
 @media print {
   nav, aside, header, [data-sidebar], .print\:hidden {

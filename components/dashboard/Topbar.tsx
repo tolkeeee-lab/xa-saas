@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ui/ThemeToggle';
@@ -14,7 +14,23 @@ const PAGE_TITLES: Record<string, string> = {
   '/dashboard/parametres': 'Paramètres',
   '/dashboard/caisse': 'Caisse POS',
   '/dashboard/stocks': 'Stocks consolidés',
+  '/dashboard/transferts': 'Transferts',
+  '/dashboard/perimes': 'Péremptions',
+  '/dashboard/comparatif': 'Comparatif boutiques',
+  '/dashboard/dettes': 'Dettes clients',
+  '/dashboard/fournisseurs': 'Fournisseurs',
+  '/dashboard/rapports': 'Rapports',
+  '/dashboard/charges': 'Charges fixes',
+  '/dashboard/personnel': 'Personnel',
 };
+
+const NOTIFICATIONS = [
+  { id: 1, text: '⚠️ 2 produits sous seuil de stock' },
+  { id: 2, text: '💳 Facture charge fixe à régler' },
+  { id: 3, text: '📦 Transfert en attente de validation' },
+];
+
+const NOTIF_COUNT = 3;
 
 function getPageTitle(pathname: string): string {
   if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
@@ -25,6 +41,8 @@ function getPageTitle(pathname: string): string {
 export default function Topbar() {
   const pathname = usePathname();
   const [time, setTime] = useState('');
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function updateTime() {
@@ -41,6 +59,18 @@ export default function Topbar() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotifOpen(false);
+      }
+    }
+    if (notifOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [notifOpen]);
+
   return (
     <header className="h-14 px-4 md:px-6 flex items-center justify-between border-b border-xa-border bg-xa-surface shrink-0">
       <h1 className="text-base font-semibold text-xa-text">{getPageTitle(pathname)}</h1>
@@ -51,6 +81,57 @@ export default function Topbar() {
           </span>
         )}
         <ThemeToggle />
+
+        {/* Notification Bell */}
+        <div ref={notifRef} style={{ position: 'relative' }}>
+          <button
+            onClick={() => setNotifOpen((v) => !v)}
+            className="relative flex items-center justify-center w-8 h-8 rounded-lg hover:bg-xa-border/30 transition-colors"
+            aria-label="Notifications"
+          >
+            <span className="text-lg">🔔</span>
+            <span
+              className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 rounded-full text-white text-[10px] font-bold"
+              style={{
+                background: '#ff3341',
+                animation: 'xa-badge-pulse 2s ease-in-out infinite',
+                lineHeight: 1,
+              }}
+            >
+              {NOTIF_COUNT}
+            </span>
+          </button>
+
+          {notifOpen && (
+            <div
+              className="bg-xa-surface border border-xa-border rounded-xl shadow-xl overflow-hidden"
+              style={{
+                position: 'absolute',
+                top: 'calc(100% + 8px)',
+                right: 0,
+                width: '280px',
+                zIndex: 50,
+              }}
+            >
+              <div className="px-4 py-2.5 border-b border-xa-border">
+                <span className="text-xs font-semibold text-xa-muted uppercase tracking-wider">
+                  Notifications
+                </span>
+              </div>
+              <ul>
+                {NOTIFICATIONS.map((n) => (
+                  <li
+                    key={n.id}
+                    className="px-4 py-3 text-sm text-xa-text hover:bg-xa-border/20 transition-colors cursor-default border-b border-xa-border/50 last:border-b-0"
+                  >
+                    {n.text}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
         <Link
           href="/caisse"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-xa-primary text-white text-xs font-semibold hover:opacity-90 transition-opacity"

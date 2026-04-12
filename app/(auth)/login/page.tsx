@@ -8,42 +8,52 @@ import ThemeToggle from '@/components/ui/ThemeToggle';
 
 function XaLogo() {
   return (
-    <div className="flex flex-col items-center mb-8">
-      <svg
-        width="80"
-        height="56"
-        viewBox="0 0 80 56"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-label="xà logo"
-        role="img"
+    <div className="flex flex-col items-center mb-6">
+      <div
+        style={{
+          animation: 'xa-ring-pulse 2s ease-in-out infinite',
+          borderRadius: '50%',
+          padding: '4px',
+          display: 'inline-flex',
+        }}
       >
-        {/* Letter x */}
-        <text
-          x="4"
-          y="46"
-          fontFamily="Inter, sans-serif"
-          fontWeight="700"
-          fontSize="48"
-          fill="currentColor"
+        <svg
+          width="88"
+          height="62"
+          viewBox="0 0 80 56"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-label="xà logo"
+          role="img"
         >
-          x
-        </text>
-        {/* Letter à */}
-        <text
-          x="38"
-          y="46"
-          fontFamily="Inter, sans-serif"
-          fontWeight="700"
-          fontSize="48"
-          fill="currentColor"
-        >
-          à
-        </text>
-      </svg>
+          <text
+            x="4"
+            y="46"
+            fontFamily="Inter, sans-serif"
+            fontWeight="700"
+            fontSize="48"
+            fill="currentColor"
+          >
+            x
+          </text>
+          <text
+            x="38"
+            y="46"
+            fontFamily="Inter, sans-serif"
+            fontWeight="700"
+            fontSize="48"
+            fill="#14d9eb"
+          >
+            à
+          </text>
+        </svg>
+      </div>
       <span className="text-xs font-medium tracking-widest text-xa-muted uppercase mt-1">
         Solution de Gestion
       </span>
+      <p className="mt-3 text-sm text-xa-muted text-center">
+        Gérez vos boutiques, où que vous soyez.
+      </p>
     </div>
   );
 }
@@ -76,16 +86,38 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-xa-bg flex items-center justify-center px-4 py-12">
+    <main
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '3rem 1rem',
+        background: 'linear-gradient(135deg, #0f061d 0%, #6c2ed1 40%, #14d9eb 70%, #0f061d 100%)',
+        backgroundSize: '300% 300%',
+        animation: 'xa-gradient-rotate 10s ease infinite',
+      }}
+    >
       <div className="w-full max-w-sm md:max-w-md">
-        <div className="relative bg-xa-surface rounded-2xl shadow-sm border border-xa-border p-8">
-          <div className="absolute top-4 right-4">
+        <div
+          style={{
+            background: 'rgba(15, 6, 29, 0.75)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            border: '1px solid rgba(108,46,209,0.35)',
+            borderRadius: '1.25rem',
+            boxShadow: '0 0 60px rgba(108,46,209,0.3), 0 4px 32px rgba(0,0,0,0.5)',
+            padding: '2rem',
+            position: 'relative',
+          }}
+        >
+          <div style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
             <ThemeToggle />
           </div>
 
           <XaLogo />
 
-          <h1 className="text-xl font-semibold text-xa-text text-center mb-6">
+          <h1 className="text-xl font-semibold text-center mb-6" style={{ color: '#f0eafa' }}>
             Connexion
           </h1>
 
@@ -93,7 +125,8 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-xa-text mb-1"
+                className="block text-sm font-medium mb-1"
+                style={{ color: '#c4abed' }}
               >
                 Email
               </label>
@@ -104,7 +137,25 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 border border-xa-border rounded-xl text-sm bg-xa-bg text-xa-text focus:outline-none focus:ring-2 focus:ring-xa-primary focus:border-transparent transition"
+                style={{
+                  width: '100%',
+                  padding: '0.65rem 1rem',
+                  border: '1px solid rgba(108,46,209,0.4)',
+                  borderRadius: '0.75rem',
+                  fontSize: '0.875rem',
+                  background: 'rgba(108,46,209,0.12)',
+                  color: '#f0eafa',
+                  outline: 'none',
+                  transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(108,46,209,0.45)';
+                  e.currentTarget.style.borderColor = '#8a58da';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.borderColor = 'rgba(108,46,209,0.4)';
+                }}
                 placeholder="vous@exemple.com"
               />
             </div>
@@ -112,7 +163,8 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-xa-text mb-1"
+                className="block text-sm font-medium mb-1"
+                style={{ color: '#c4abed' }}
               >
                 Mot de passe
               </label>
@@ -123,13 +175,39 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2.5 border border-xa-border rounded-xl text-sm bg-xa-bg text-xa-text focus:outline-none focus:ring-2 focus:ring-xa-primary focus:border-transparent transition"
+                style={{
+                  width: '100%',
+                  padding: '0.65rem 1rem',
+                  border: '1px solid rgba(108,46,209,0.4)',
+                  borderRadius: '0.75rem',
+                  fontSize: '0.875rem',
+                  background: 'rgba(108,46,209,0.12)',
+                  color: '#f0eafa',
+                  outline: 'none',
+                  transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(108,46,209,0.45)';
+                  e.currentTarget.style.borderColor = '#8a58da';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.borderColor = 'rgba(108,46,209,0.4)';
+                }}
                 placeholder="••••••••"
               />
             </div>
 
             {error && (
-              <p className="text-sm text-xa-danger bg-red-50 dark:bg-red-950 rounded-xl px-4 py-3">
+              <p
+                style={{
+                  fontSize: '0.875rem',
+                  color: '#ff3341',
+                  background: 'rgba(255,51,65,0.1)',
+                  borderRadius: '0.75rem',
+                  padding: '0.75rem 1rem',
+                }}
+              >
                 {error}
               </p>
             )}
@@ -137,11 +215,39 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-xa-primary text-white font-semibold py-3 rounded-xl hover:bg-xa-primary-light transition disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: '0.75rem',
+                fontWeight: '600',
+                fontSize: '0.9375rem',
+                color: '#fff',
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.7 : 1,
+                background: 'linear-gradient(90deg, #6c2ed1, #14d9eb, #6c2ed1)',
+                backgroundSize: '200% auto',
+                animation: 'xa-shimmer 2.5s linear infinite',
+                transition: 'opacity 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+              }}
             >
               {loading ? (
                 <>
-                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: '1rem',
+                      height: '1rem',
+                      border: '2px solid rgba(255,255,255,0.4)',
+                      borderTopColor: '#fff',
+                      borderRadius: '50%',
+                      animation: 'spin 0.7s linear infinite',
+                    }}
+                  />
                   Connexion…
                 </>
               ) : (
@@ -150,11 +256,12 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-xa-muted">
+          <p className="mt-6 text-center text-sm" style={{ color: '#a782e3' }}>
             Pas encore de compte ?{' '}
             <Link
               href="/register"
-              className="text-xa-primary font-medium hover:underline"
+              style={{ color: '#14d9eb', fontWeight: '500' }}
+              className="hover:underline"
             >
               Créer un compte
             </Link>
