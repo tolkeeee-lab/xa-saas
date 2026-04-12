@@ -7,6 +7,7 @@ import StatCard from '@/components/dashboard/StatCard';
 import BoutiqueCard from '@/components/dashboard/BoutiqueCard';
 import WeeklyChart from '@/components/dashboard/WeeklyChart';
 import TransactionFlux from '@/components/dashboard/TransactionFlux';
+import DashboardClient from '@/components/dashboard/DashboardClient';
 import { formatFCFA } from '@/lib/format';
 import type { Transaction } from '@/types/database';
 import type { DailyStats } from '@/lib/supabase/getDailyStats';
@@ -65,6 +66,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      <DashboardClient userId={user.id} hasBoutiques={boutiques.length > 0} />
       {/* Stats grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard

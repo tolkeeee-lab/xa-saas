@@ -67,13 +67,18 @@ body {
 
 /* ===== IMPRESSION PDF ===== */
 @media print {
-  nav, aside, header, [data-sidebar], .print\:hidden {
+  nav, aside, header, [data-sidebar], .print\:hidden, button:not(.print-show) {
     display: none !important;
   }
-  body { background-color: #fff; color: #000; }
+  body {
+    background-color: #fff !important;
+    color: #000 !important;
+  }
   main, [data-main-content] {
-    margin: 0 !important; padding: 1rem !important;
-    width: 100% !important; max-width: 100% !important;
+    margin: 0 !important;
+    padding: 1rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
   table, tr { page-break-inside: avoid; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
