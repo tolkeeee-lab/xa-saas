@@ -4,11 +4,10 @@ import { useState, useEffect } from 'react';
 import OnboardingModal from './OnboardingModal';
 
 interface DashboardClientProps {
-  userId: string;
   hasBoutiques: boolean;
 }
 
-export default function DashboardClient({ userId: _userId, hasBoutiques }: DashboardClientProps) {
+export default function DashboardClient({ hasBoutiques }: DashboardClientProps) {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {

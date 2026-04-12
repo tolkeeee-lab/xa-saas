@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
-import { createHash } from 'crypto';
 
 export async function POST(request: Request) {
   const body = (await request.json()) as { boutique_id: string; pin: string };
@@ -10,15 +9,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'boutique_id et pin requis' }, { status: 400 });
   }
 
-  const pinHash = createHash('sha256').update(pin).digest('hex');
-
+  // The client sends an already-hashed PIN (SHA-256 hex). Compare directly with stored hash.
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from('employes')
     .select('id, nom, boutique_id')
     .eq('boutique_id', boutique_id)
     .eq('actif', true)
-    .eq('pin', pinHash)
+    .eq('pin', pin)
     .single();
 
   if (error || !data) {

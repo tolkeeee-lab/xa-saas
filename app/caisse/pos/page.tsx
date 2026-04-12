@@ -29,7 +29,18 @@ export default function CaissePosPage() {
 
     let sess: CaissierSession;
     try {
-      sess = JSON.parse(raw) as CaissierSession;
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      if (
+        typeof parsed.employe_id !== 'string' ||
+        typeof parsed.boutique_id !== 'string' ||
+        typeof parsed.employe_nom !== 'string' ||
+        typeof parsed.boutique_nom !== 'string'
+      ) {
+        sessionStorage.removeItem('xa-caissier');
+        router.push('/caisse');
+        return;
+      }
+      sess = parsed as unknown as CaissierSession;
     } catch {
       router.push('/caisse');
       return;

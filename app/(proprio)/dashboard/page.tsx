@@ -66,7 +66,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <DashboardClient userId={user.id} hasBoutiques={boutiques.length > 0} />
+      <DashboardClient hasBoutiques={boutiques.length > 0} />
       {/* Stats grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
