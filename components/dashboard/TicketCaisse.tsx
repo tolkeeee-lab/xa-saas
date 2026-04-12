@@ -1,5 +1,6 @@
 import { formatFCFA, formatDateTime } from '@/lib/format';
 import type { PayMode } from './Panier';
+import PrintButton from '@/components/ui/PrintButton';
 
 export type TicketData = {
   transaction_id: string;
@@ -84,12 +85,7 @@ export default function TicketCaisse({ ticket, onNouvelleVente }: TicketCaissePr
           >
             Nouvelle vente
           </button>
-          <button
-            onClick={() => window.print()}
-            className="flex-1 py-2 rounded-lg border border-xa-border text-xa-text text-sm font-medium hover:bg-xa-bg transition-colors"
-          >
-            Imprimer
-          </button>
+          <PrintButton label="Imprimer le ticket" />
         </div>
       </div>
     </div>

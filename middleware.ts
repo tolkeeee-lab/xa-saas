@@ -2,12 +2,13 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import type { Database } from '@/types/database';
 
-const PUBLIC_ROUTES = ['/login', '/register', '/offline'];
+const PUBLIC_ROUTES = ['/login', '/register', '/offline', '/forgot-password', '/reset-password', '/caisse'];
 const CAISSE_PREFIX = '/api/caisse';
 
 function isPublicRoute(pathname: string): boolean {
   if (PUBLIC_ROUTES.includes(pathname)) return true;
   if (pathname.startsWith(CAISSE_PREFIX)) return true;
+  if (pathname.startsWith('/caisse/')) return true;
   return false;
 }
 

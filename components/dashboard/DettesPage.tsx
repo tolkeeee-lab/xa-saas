@@ -5,6 +5,7 @@ import type { Boutique } from '@/types/database';
 import type { DettesData, DetteAvecBoutique } from '@/lib/supabase/getDettes';
 import { formatFCFA, formatDate } from '@/lib/format';
 import StatCard from './StatCard';
+import PrintButton from '@/components/ui/PrintButton';
 
 interface DettesPageProps {
   data: DettesData;
@@ -218,12 +219,15 @@ export default function DettesPage({ data: initialData, boutiques }: DettesPageP
           <h1 className="text-2xl font-bold text-xa-text">Dettes clients</h1>
           <p className="text-xa-muted text-sm mt-1">Suivi des créances réseau</p>
         </div>
-        <button
-          onClick={() => setShowNouvelle(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-xa-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity"
-        >
-          + Nouvelle dette
-        </button>
+        <div className="flex items-center gap-2">
+          <PrintButton />
+          <button
+            onClick={() => setShowNouvelle(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-xa-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity"
+          >
+            + Nouvelle dette
+          </button>
+        </div>
       </div>
 
       {/* Stat cards */}

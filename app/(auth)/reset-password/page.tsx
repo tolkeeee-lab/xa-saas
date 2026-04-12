@@ -18,7 +18,6 @@ function XaLogo() {
         aria-label="xà logo"
         role="img"
       >
-        {/* Letter x */}
         <text
           x="4"
           y="46"
@@ -29,7 +28,6 @@ function XaLogo() {
         >
           x
         </text>
-        {/* Letter à */}
         <text
           x="38"
           y="46"
@@ -48,26 +46,33 @@ function XaLogo() {
   );
 }
 
-export default function LoginPage() {
+export default function ResetPasswordPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+
+    if (password !== confirm) {
+      setError('Les mots de passe ne correspondent pas.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Le mot de passe doit contenir au moins 6 caractères.');
+      return;
+    }
+
     setLoading(true);
-
     const supabase = createClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error: updateError } = await supabase.auth.updateUser({ password });
 
-    if (signInError) {
-      setError(signInError.message);
+    if (updateError) {
+      setError(updateError.message);
       setLoading(false);
       return;
     }
@@ -86,51 +91,46 @@ export default function LoginPage() {
           <XaLogo />
 
           <h1 className="text-xl font-semibold text-xa-text text-center mb-6">
-            Connexion
+            Nouveau mot de passe
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label
-                htmlFor="email"
-                className="block text-sm font-medium text-xa-text mb-1"
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 border border-xa-border rounded-xl text-sm bg-xa-bg text-xa-text focus:outline-none focus:ring-2 focus:ring-xa-primary focus:border-transparent transition"
-                placeholder="vous@exemple.com"
-              />
-            </div>
-
-            <div>
-              <label
                 htmlFor="password"
                 className="block text-sm font-medium text-xa-text mb-1"
               >
-                Mot de passe
+                Nouveau mot de passe
               </label>
               <input
                 id="password"
                 type="password"
-                autoComplete="current-password"
+                autoComplete="new-password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-2.5 border border-xa-border rounded-xl text-sm bg-xa-bg text-xa-text focus:outline-none focus:ring-2 focus:ring-xa-primary focus:border-transparent transition"
                 placeholder="••••••••"
               />
-              <div className="flex justify-end mt-1">
-                <Link href="/forgot-password" className="text-xs text-xa-muted hover:text-xa-primary transition-colors">
-                  Mot de passe oublié ?
-                </Link>
-              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="confirm"
+                className="block text-sm font-medium text-xa-text mb-1"
+              >
+                Confirmer le mot de passe
+              </label>
+              <input
+                id="confirm"
+                type="password"
+                autoComplete="new-password"
+                required
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                className="w-full px-4 py-2.5 border border-xa-border rounded-xl text-sm bg-xa-bg text-xa-text focus:outline-none focus:ring-2 focus:ring-xa-primary focus:border-transparent transition"
+                placeholder="••••••••"
+              />
             </div>
 
             {error && (
@@ -147,23 +147,22 @@ export default function LoginPage() {
               {loading ? (
                 <>
                   <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Connexion…
+                  Mise à jour…
                 </>
               ) : (
-                'Se connecter'
+                'Changer le mot de passe'
               )}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-xa-muted">
-            Pas encore de compte ?{' '}
+          <div className="mt-6 text-center">
             <Link
-              href="/register"
-              className="text-xa-primary font-medium hover:underline"
+              href="/login"
+              className="text-sm text-xa-muted hover:text-xa-primary transition-colors"
             >
-              Créer un compte
+              ← Retour à la connexion
             </Link>
-          </p>
+          </div>
         </div>
       </div>
     </main>

@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import type { RapportsData, RapportsPeriodeData } from '@/lib/supabase/getRapports';
 import { formatFCFA, formatDate } from '@/lib/format';
 import StatCard from './StatCard';
+import PrintButton from '@/components/ui/PrintButton';
 
 interface RapportsPageProps {
   data: RapportsData;
@@ -126,6 +127,7 @@ export default function RapportsPage({
           </svg>
           Exporter PDF
         </button>
+        <PrintButton />
       </div>
 
       {/* Sélecteur de période */}
