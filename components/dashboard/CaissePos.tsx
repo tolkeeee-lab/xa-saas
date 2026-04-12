@@ -5,6 +5,7 @@ import type { Boutique, ProduitPublic } from '@/types/database';
 import ProduitCard from './ProduitCard';
 import Panier, { type CartItem, type PayMode } from './Panier';
 import TicketCaisse, { type TicketData } from './TicketCaisse';
+import { formatFCFA } from '@/lib/format';
 
 const CATEGORIES = ['Tous', 'Épicerie', 'Boissons', 'Hygiène', 'Frais', 'Boulangerie'];
 
@@ -13,6 +14,157 @@ interface CaissePosProps {
   produits: ProduitPublic[];
   userId: string;
 }
+
+// ——— Types for day summary ——————————————————————————————————————————————————
+
+type ResumeTransaction = {
+  id: string;
+  montant_total: number;
+  mode_paiement: string;
+  created_at: string;
+};
+
+type ResumeCaisse = {
+  transactions: ResumeTransaction[];
+  total_encaisse: number;
+  nb_transactions: number;
+  par_mode: Record<string, number>;
+};
+
+// ——— ResumeCaissePanel ————————————————————————————————————————————————————————
+
+function ResumeCaissePanel({
+  boutiqueId,
+  refreshKey,
+}: {
+  boutiqueId: string;
+  refreshKey: number;
+}) {
+  const [resume, setResume] = useState<ResumeCaisse | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!boutiqueId) return;
+    setLoading(true);
+    const today = new Date().toISOString().slice(0, 10);
+    fetch(`/api/transactions?boutique_id=${boutiqueId}&date=${today}`)
+      .then((r) => r.json())
+      .then((data: ResumeCaisse) => setResume(data))
+      .catch(() => setResume(null))
+      .finally(() => setLoading(false));
+  }, [boutiqueId, refreshKey]);
+
+  const modeLabel: Record<string, string> = {
+    especes: '💵 Espèces',
+    momo: '📱 MoMo',
+    carte: '💳 Carte',
+    credit: '📋 Crédit',
+    cash: '💵 Cash',
+    dette: '📋 Dette',
+  };
+
+  const modeColor: Record<string, string> = {
+    especes: 'text-xa-ok',
+    cash: 'text-xa-ok',
+    momo: 'text-xa-boutique',
+    carte: 'text-xa-date',
+    credit: 'text-xa-alerte',
+    dette: 'text-xa-danger',
+  };
+
+  return (
+    <aside className="flex flex-col bg-xa-surface border-l border-xa-border h-full overflow-hidden">
+      <div className="px-4 py-3 border-b border-xa-border">
+        <h2 className="font-semibold text-xa-titre text-sm">Caisse du jour</h2>
+        <p className="text-xs text-xa-muted">
+          {new Date().toLocaleDateString('fr-FR', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+          })}
+        </p>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-8">
+          <div className="w-5 h-5 rounded-full border-2 border-xa-primary border-t-transparent animate-spin" />
+        </div>
+      ) : resume ? (
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {/* Total */}
+          <div className="bg-xa-bg rounded-xl p-4 text-center">
+            <p className="text-xs text-xa-muted mb-1">Total encaissé</p>
+            <p className="text-2xl font-bold text-xa-montant">
+              {formatFCFA(resume.total_encaisse)}
+            </p>
+            <p className="text-xs text-xa-muted mt-1">{resume.nb_transactions} transaction(s)</p>
+          </div>
+
+          {/* Par mode */}
+          {Object.keys(resume.par_mode).length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider">
+                Par mode
+              </p>
+              {Object.entries(resume.par_mode).map(([mode, montant]) => (
+                <div key={mode} className="flex items-center justify-between">
+                  <span className={`text-xs ${modeColor[mode] ?? 'text-xa-text'}`}>
+                    {modeLabel[mode] ?? mode}
+                  </span>
+                  <span className="text-xs font-semibold text-xa-montant">
+                    {formatFCFA(montant)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Dernières transactions */}
+          {resume.transactions.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider">
+                Dernières ventes
+              </p>
+              {resume.transactions.slice(0, 5).map((t) => (
+                <div
+                  key={t.id}
+                  className="flex items-center justify-between py-1.5 border-b border-xa-border last:border-0"
+                >
+                  <div>
+                    <p className="text-xs text-xa-date">
+                      {new Date(t.created_at).toLocaleTimeString('fr-FR', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </p>
+                    <p className={`text-xs ${modeColor[t.mode_paiement] ?? 'text-xa-muted'}`}>
+                      {modeLabel[t.mode_paiement] ?? t.mode_paiement}
+                    </p>
+                  </div>
+                  <span className="text-xs font-semibold text-xa-montant">
+                    {formatFCFA(t.montant_total)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {resume.nb_transactions === 0 && (
+            <p className="text-xs text-xa-muted text-center py-4">
+              Aucune vente aujourd&apos;hui
+            </p>
+          )}
+        </div>
+      ) : (
+        <p className="text-xs text-xa-muted text-center py-8 px-4">
+          Impossible de charger le résumé
+        </p>
+      )}
+    </aside>
+  );
+}
+
+// ——— Main component ——————————————————————————————————————————————————————————
 
 export default function CaissePos({ boutiques, produits: initialProduits }: CaissePosProps) {
   const [boutiqueActive, setBoutiqueActive] = useState(boutiques[0]?.id ?? '');
@@ -26,6 +178,7 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
   const [ticket, setTicket] = useState<TicketData | null>(null);
   const [loading, setLoading] = useState(false);
   const [fetchingProduits, setFetchingProduits] = useState(false);
+  const [resumeRefreshKey, setResumeRefreshKey] = useState(0);
 
   // Re-fetch products when boutique changes
   useEffect(() => {
@@ -128,6 +281,9 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
         r.json(),
       );
       if (Array.isArray(updated)) setProduits(updated);
+
+      // Refresh day summary
+      setResumeRefreshKey((k) => k + 1);
     } finally {
       setLoading(false);
     }
@@ -150,28 +306,36 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
 
   return (
     <div className="flex flex-col h-[calc(100vh-120px)]">
-      {/* Top bar: boutique selector + caisse info */}
+      {/* Top bar: boutique selector */}
       <div className="flex flex-wrap items-center gap-3 mb-3">
-        <select
-          value={boutiqueActive}
-          onChange={(e) => setBoutiqueActive(e.target.value)}
-          className="px-3 py-2 rounded-lg border border-xa-border bg-xa-surface text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary"
-        >
-          {boutiques.map((b) => (
-            <option key={b.id} value={b.id}>
-              {b.nom}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center gap-2">
+          {activeBoutique && (
+            <span
+              className="w-3 h-3 rounded-full shrink-0"
+              style={{ backgroundColor: activeBoutique.couleur_theme }}
+            />
+          )}
+          <select
+            value={boutiqueActive}
+            onChange={(e) => setBoutiqueActive(e.target.value)}
+            className="px-3 py-2 rounded-lg border border-xa-border bg-xa-surface text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary"
+          >
+            {boutiques.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.nom}
+              </option>
+            ))}
+          </select>
+        </div>
         {activeBoutique && (
-          <span className="text-xs text-xa-muted">
+          <span className="text-xs text-xa-boutique font-medium">
             Caisse principale — {activeBoutique.nom}
           </span>
         )}
       </div>
 
-      {/* Main grid: catalogue | panier */}
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-[1fr_290px] gap-0 overflow-hidden rounded-xl border border-xa-border">
+      {/* Main grid: catalogue | panier | résumé du jour */}
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-[1fr_290px_220px] gap-0 overflow-hidden rounded-xl border border-xa-border">
         {/* Catalogue */}
         <div className="flex flex-col overflow-hidden">
           {/* Filters */}
@@ -236,6 +400,9 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
           clientTelephone={clientTelephone}
           onClientTelephoneChange={setClientTelephone}
         />
+
+        {/* Résumé caisse du jour */}
+        <ResumeCaissePanel boutiqueId={boutiqueActive} refreshKey={resumeRefreshKey} />
       </div>
     </div>
   );

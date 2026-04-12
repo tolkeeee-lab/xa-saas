@@ -19,6 +19,62 @@ type TransactionBody = {
 };
 
 /**
+ * GET /api/transactions?boutique_id=UUID&date=YYYY-MM-DD
+ * Returns validated transactions for a boutique on a given day, with an aggregate summary.
+ */
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const boutique_id = searchParams.get('boutique_id');
+  const date = searchParams.get('date');
+
+  if (!boutique_id) {
+    return NextResponse.json({ error: 'boutique_id requis' }, { status: 400 });
+  }
+
+  const targetDate = date ?? new Date().toISOString().slice(0, 10);
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateRegex.test(targetDate)) {
+    return NextResponse.json({ error: 'Format de date invalide, utilisez YYYY-MM-DD' }, { status: 400 });
+  }
+
+  const supabase = createAdminClient();
+
+  const startISO = `${targetDate}T00:00:00.000Z`;
+  const endISO = `${targetDate}T23:59:59.999Z`;
+
+  const { data: transactions, error } = await supabase
+    .from('transactions')
+    .select('id, montant_total, mode_paiement, created_at, statut')
+    .eq('boutique_id', boutique_id)
+    .eq('statut', 'validee')
+    .gte('created_at', startISO)
+    .lte('created_at', endISO)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  const txs = transactions ?? [];
+
+  const total_encaisse = txs.reduce((s, t) => s + (t.montant_total ?? 0), 0);
+  const nb_transactions = txs.length;
+  const par_mode: Record<string, number> = {};
+  for (const t of txs) {
+    const m = t.mode_paiement ?? 'especes';
+    par_mode[m] = (par_mode[m] ?? 0) + (t.montant_total ?? 0);
+  }
+
+  return NextResponse.json({
+    transactions: txs.slice(0, 20),
+    total_encaisse,
+    nb_transactions,
+    par_mode,
+  });
+}
+
+
+/**
  * POST /api/transactions
  * Creates a transaction with its lines, updates stock, and returns a ticket.
  * prix_achat is fetched server-side only — never returned to client.
