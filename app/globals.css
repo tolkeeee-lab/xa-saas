@@ -6,28 +6,28 @@
 
 /* ===== MODE CLAIR (défaut) ===== */
 :root {
-  --xa-primary:       #1c5d7d;
-  --xa-primary-light: #2e9bd1;
-  --xa-accent:        #f7cf08;
-  --xa-bg:            #eaf5fa;
+  --xa-primary:       #6c2ed1;
+  --xa-primary-light: #8a58da;
+  --xa-accent:        #14d9eb;
+  --xa-bg:            #f0eafa;
   --xa-surface:       #ffffff;
-  --xa-text:          #06161d;
-  --xa-muted:         #4a7a8a;
-  --xa-border:        #abd7ed;
-  --xa-danger:        #DC2626;
+  --xa-text:          #0f061d;
+  --xa-muted:         #5725a7;
+  --xa-border:        #c4abed;
+  --xa-danger:        #ff0011;
 }
 
 /* ===== MODE SOMBRE ===== */
 .dark {
-  --xa-primary:       #2e9bd1;
-  --xa-primary-light: #58afda;
-  --xa-accent:        #f7cf08;
-  --xa-bg:            #06161d;
-  --xa-surface:       #091f2a;
-  --xa-text:          #eaf5fa;
-  --xa-muted:         #82c3e3;
-  --xa-border:        #1c5d7d;
-  --xa-danger:        #EF4444;
+  --xa-primary:       #8a58da;
+  --xa-primary-light: #a782e3;
+  --xa-accent:        #14d9eb;
+  --xa-bg:            #0f061d;
+  --xa-surface:       #16092a;
+  --xa-text:          #f0eafa;
+  --xa-muted:         #a782e3;
+  --xa-border:        #411c7d;
+  --xa-danger:        #ff3341;
 }
 
 body {
@@ -41,7 +41,6 @@ body {
 
 /* ===== IMPRESSION PDF ===== */
 @media print {
-  /* Masquer la navigation */
   nav,
   aside,
   header,
@@ -55,7 +54,6 @@ body {
     color: #000;
   }
 
-  /* Forcer le contenu principal à pleine largeur */
   main,
   [data-main-content] {
     margin: 0 !important;
@@ -64,7 +62,6 @@ body {
     max-width: 100% !important;
   }
 
-  /* Éviter les coupures dans les tableaux */
   table {
     page-break-inside: avoid;
   }
@@ -73,7 +70,6 @@ body {
     page-break-inside: avoid;
   }
 
-  /* Conserver les couleurs de fond pour les badges */
   * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
