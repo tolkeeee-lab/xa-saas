@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode, type CSSProperties } from 'react';
 
 type StatCardProps = {
   title: string;
@@ -62,10 +62,8 @@ export default function StatCard({
 
   const displayValue = animate && isNumeric ? counted : value;
 
-  const borderLeftStyle = color
+  const borderLeftStyle: CSSProperties = color
     ? { borderLeftColor: color, borderLeftWidth: '4px' }
-    : accent
-    ? {}
     : {};
 
   return (

@@ -238,15 +238,7 @@ export default function LoginPage() {
               {loading ? (
                 <>
                   <span
-                    style={{
-                      display: 'inline-block',
-                      width: '1rem',
-                      height: '1rem',
-                      border: '2px solid rgba(255,255,255,0.4)',
-                      borderTopColor: '#fff',
-                      borderRadius: '50%',
-                      animation: 'spin 0.7s linear infinite',
-                    }}
+                    className="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"
                   />
                   Connexion…
                 </>
