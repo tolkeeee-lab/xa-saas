@@ -77,7 +77,7 @@ export async function getAdminStats(): Promise<AdminStats> {
 
   // 3. Fetch CA du mois en cours
   const now = new Date();
-  const debutMois = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const debutMois = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
 
   const boutiqueIds = (allBoutiques ?? []).map((b) => b.id);
 
