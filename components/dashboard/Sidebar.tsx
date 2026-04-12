@@ -315,4 +315,4 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
       </div>
     </aside>
   );
-}
+} 
