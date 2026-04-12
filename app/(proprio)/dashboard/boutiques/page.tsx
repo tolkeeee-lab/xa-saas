@@ -100,7 +100,7 @@ function BoutiqueListCard({ boutique }: { boutique: Boutique }) {
 
       <div className="flex gap-2">
         <Link
-          href="/caisse"
+          href="/dashboard/caisse"
           className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-xa-primary text-white text-xs font-semibold hover:opacity-90 transition-opacity"
         >
           Ouvrir caisse
