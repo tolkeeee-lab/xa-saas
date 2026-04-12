@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import type { RapportsData, RapportsPeriodeData } from '@/lib/supabase/getRapports';
+import type { RapportsData, RapportsPeriodeData, BoutiqueRapport } from '@/lib/supabase/getRapports';
 import { formatFCFA, formatDate } from '@/lib/format';
 import StatCard from './StatCard';
 
@@ -97,8 +97,28 @@ export default function RapportsPage({
     void appliquerPeriode(dateDebut, dateFin);
   }
 
-  function handleExport() {
-    window.print();
+  function exportCSV(rows: BoutiqueRapport[]) {
+    function escapeCell(value: string | number): string {
+      const str = String(value);
+      if (str.includes(';') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    }
+    const header = ['Boutique', 'CA (FCFA)', 'Coût achat (FCFA)', 'Marge brute (FCFA)', 'Charges (FCFA)', 'Bénéfice net (FCFA)'];
+    const lines = rows.map((r) =>
+      [r.nom, r.ca, r.cout_achat, r.marge_brute, r.charges, r.benefice_net]
+        .map(escapeCell)
+        .join(';'),
+    );
+    const csv = [header.join(';'), ...lines].join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `rapports-xa-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   const raccourcis: { label: string; value: Raccourci }[] = [
@@ -117,15 +137,23 @@ export default function RapportsPage({
           <h1 className="text-2xl font-bold text-xa-text">Rapports</h1>
           <p className="text-xa-muted text-sm mt-1">Tableau de bord financier réseau</p>
         </div>
-        <button
-          onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-xa-border text-xa-text text-sm hover:bg-xa-bg transition-colors print:hidden"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          Exporter PDF
-        </button>
+        <div className="flex items-center gap-2 flex-wrap print:hidden">
+          <button
+            onClick={() => exportCSV(periodeData.boutiques)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-xa-border text-xa-text text-sm hover:bg-xa-bg transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Export CSV
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-xa-border text-xa-text text-sm hover:bg-xa-bg transition-colors"
+          >
+            🖨️ Imprimer
+          </button>
+        </div>
       </div>
 
       {/* Sélecteur de période */}

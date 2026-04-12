@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import type { AppNotification } from '@/lib/supabase/getNotifications';
 
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard': "Vue d'ensemble",
@@ -24,14 +25,6 @@ const PAGE_TITLES: Record<string, string> = {
   '/dashboard/personnel': 'Personnel',
 };
 
-const NOTIFICATIONS = [
-  { id: 1, text: '⚠️ 2 produits sous seuil de stock' },
-  { id: 2, text: '💳 Facture charge fixe à régler' },
-  { id: 3, text: '📦 Transfert en attente de validation' },
-];
-
-const NOTIF_COUNT = 3;
-
 function getPageTitle(pathname: string): string {
   if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
   if (pathname.startsWith('/dashboard/boutiques/')) return 'Boutique';
@@ -43,6 +36,7 @@ export default function Topbar() {
   const [time, setTime] = useState('');
   const [notifOpen, setNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
 
   useEffect(() => {
     function updateTime() {
@@ -71,6 +65,21 @@ export default function Topbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [notifOpen]);
 
+  useEffect(() => {
+    async function fetchNotifs() {
+      try {
+        const res = await fetch('/api/notifications');
+        const data = (await res.json()) as { notifications?: AppNotification[] };
+        setNotifications(data.notifications ?? []);
+      } catch {
+        // ignore fetch errors silently
+      }
+    }
+    void fetchNotifs();
+    const interval = setInterval(() => void fetchNotifs(), 60_000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <header className="h-14 px-4 md:px-6 flex items-center justify-between border-b border-xa-border bg-xa-surface shrink-0">
       <h1 className="text-base font-semibold text-xa-text">{getPageTitle(pathname)}</h1>
@@ -90,16 +99,18 @@ export default function Topbar() {
             aria-label="Notifications"
           >
             <span className="text-lg">🔔</span>
-            <span
-              className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 rounded-full text-white text-[10px] font-bold"
-              style={{
-                background: '#ff3341',
-                animation: 'xa-badge-pulse 2s ease-in-out infinite',
-                lineHeight: 1,
-              }}
-            >
-              {NOTIF_COUNT}
-            </span>
+            {notifications.length > 0 && (
+              <span
+                className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 rounded-full text-white text-[10px] font-bold"
+                style={{
+                  background: '#ff3341',
+                  animation: 'xa-badge-pulse 2s ease-in-out infinite',
+                  lineHeight: 1,
+                }}
+              >
+                {notifications.length}
+              </span>
+            )}
           </button>
 
           {notifOpen && (
@@ -118,22 +129,26 @@ export default function Topbar() {
                   Notifications
                 </span>
               </div>
-              <ul>
-                {NOTIFICATIONS.map((n) => (
-                  <li
-                    key={n.id}
-                    className="px-4 py-3 text-sm text-xa-text hover:bg-xa-border/20 transition-colors cursor-default border-b border-xa-border/50 last:border-b-0"
-                  >
-                    {n.text}
-                  </li>
-                ))}
-              </ul>
+              {notifications.length === 0 ? (
+                <p className="px-4 py-3 text-sm text-xa-muted">Aucune notification.</p>
+              ) : (
+                <ul>
+                  {notifications.map((n) => (
+                    <li
+                      key={n.id}
+                      className="px-4 py-3 text-sm text-xa-text hover:bg-xa-border/20 transition-colors cursor-default border-b border-xa-border/50 last:border-b-0"
+                    >
+                      {n.text}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           )}
         </div>
 
         <Link
-          href="/caisse"
+          href="/dashboard/caisse"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-xa-primary text-white text-xs font-semibold hover:opacity-90 transition-opacity"
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

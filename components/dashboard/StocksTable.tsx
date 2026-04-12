@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { formatFCFA } from '@/lib/format';
 import type { Boutique, ProduitPublic } from '@/types/database';
 import type { StocksConsolidesData, StockConsolideRow } from '@/lib/supabase/getStocksConsolides';
@@ -34,6 +34,15 @@ export default function StocksTable({ data, boutiques }: StocksTableProps) {
   const [showModal, setShowModal] = useState(false);
   const [filterBoutique, setFilterBoutique] = useState<string>('all');
   const [rows, setRows] = useState<StockConsolideRow[]>(data.produits);
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(searchInput.toLowerCase().trim());
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   const statCards = [
     {
@@ -67,6 +76,15 @@ export default function StocksTable({ data, boutiques }: StocksTableProps) {
     filterBoutique === 'all'
       ? data.boutiques
       : data.boutiques.filter((b) => b.id === filterBoutique);
+
+  // Filter rows by search query
+  const filteredRows = searchQuery
+    ? rows.filter(
+        (p) =>
+          p.nom.toLowerCase().includes(searchQuery) ||
+          p.categorie.toLowerCase().includes(searchQuery),
+      )
+    : rows;
 
   function handleProduitAdded(produit: ProduitPublic) {
     // Add a new row to the local state for immediate UI update
@@ -111,7 +129,28 @@ export default function StocksTable({ data, boutiques }: StocksTableProps) {
           ))}
         </select>
 
-        <div className="flex-1" />
+        <div className="relative flex-1 min-w-[200px]">
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Rechercher un produit ou une catégorie…"
+            className="w-full bg-xa-bg border border-xa-border rounded-xl px-4 py-2.5 text-sm text-xa-text placeholder-xa-muted focus:outline-none focus:ring-2 focus:ring-xa-primary pr-8"
+          />
+          {searchInput && (
+            <button
+              onClick={() => setSearchInput('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xa-muted hover:text-xa-text transition-colors"
+              aria-label="Réinitialiser la recherche"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        <span className="text-xs text-xa-muted whitespace-nowrap">
+          {filteredRows.length} produit(s)
+        </span>
 
         <button
           onClick={() => setShowModal(true)}
@@ -125,7 +164,7 @@ export default function StocksTable({ data, boutiques }: StocksTableProps) {
       </div>
 
       {/* Table */}
-      {rows.length === 0 ? (
+      {filteredRows.length === 0 ? (
         <div className="bg-xa-surface border border-xa-border rounded-xl p-12 text-center">
           <p className="text-xa-muted">Aucun produit trouvé.</p>
         </div>
@@ -158,7 +197,7 @@ export default function StocksTable({ data, boutiques }: StocksTableProps) {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((row) => (
+                {filteredRows.map((row) => (
                   <tr
                     key={row.id}
                     className="border-b border-xa-border last:border-0 hover:bg-xa-bg transition-colors"
