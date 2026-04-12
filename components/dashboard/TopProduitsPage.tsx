@@ -235,10 +235,12 @@ export default function TopProduitsPage({ boutiques }: TopProduitsPageProps) {
     }
   }, [dateDebut, dateFin, boutiqueId]);
 
-  // Auto-fetch on mount
+  // Fetch on mount only — the user must press "Appliquer" to re-fetch after changing filters.
+  // fetchData is intentionally omitted from deps to avoid auto-fetch on every filter change
+  // (period raccourcis update 2 state values at once which would trigger duplicate requests).
   useEffect(() => {
     fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Split global into 3 sections
