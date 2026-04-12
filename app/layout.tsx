@@ -4,8 +4,12 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'xà — Solution de Gestion',
   description:
-    'Solution de gestion de caisse et d\'inventaire multi-boutiques pour le marché béninois.',
+    'Solution de gestion de caisse et d'inventaire multi-boutiques pour le marché béninois.',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/icon.svg',
+    apple: '/icon.svg',
+  },
 };
 
 export const viewport: Viewport = {
@@ -21,6 +25,8 @@ export default function RootLayout({
     <html lang="fr">
       <head>
         <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/icon.svg" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <script dangerouslySetInnerHTML={{
