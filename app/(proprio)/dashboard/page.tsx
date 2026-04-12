@@ -12,6 +12,13 @@ import type { Transaction } from '@/types/database';
 import type { DailyStats } from '@/lib/supabase/getDailyStats';
 import Link from 'next/link';
 
+const QUICK_LINKS = [
+  { href: '/dashboard/caisse',   label: '🛒 Nouvelle vente', color: '#6c2ed1' },
+  { href: '/dashboard/stocks',   label: '📦 Stocks',          color: '#14d9eb' },
+  { href: '/dashboard/rapports', label: '📊 Rapports',        color: '#17e8bb' },
+  { href: '/dashboard/charges',  label: '💳 Charges',         color: '#8a58da' },
+];
+
 export default async function DashboardPage() {
   const supabase = await createClient();
   const {
@@ -71,23 +78,57 @@ export default async function DashboardPage() {
           title="CA réseau aujourd'hui"
           value={formatFCFA(globalStats.ca)}
           subtitle="Toutes boutiques"
-          accent
+          emoji="💰"
+          color="#14d9eb"
+          animate
         />
         <StatCard
           title="Transactions"
           value={globalStats.transactions}
           subtitle="Aujourd'hui"
+          emoji="🧾"
+          color="#17e8bb"
+          animate
         />
         <StatCard
           title="Boutiques actives"
           value={boutiques.length}
           subtitle="En ligne"
+          emoji="🏪"
+          color="#8a58da"
+          animate
         />
         <StatCard
           title="Alertes stock"
           value={stockAlertes}
           subtitle="Produits sous seuil"
+          emoji="⚠️"
+          color="#f5740a"
+          animate
+          badge={stockAlertes > 0 ? `🔴 ${stockAlertes} alerte${stockAlertes > 1 ? 's' : ''}` : undefined}
         />
+      </div>
+
+      {/* Accès rapides */}
+      <div>
+        <h2 className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-3">
+          Accès rapides
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {QUICK_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white text-sm font-semibold transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-100"
+              style={{
+                background: `linear-gradient(135deg, ${link.color}cc, ${link.color})`,
+                boxShadow: `0 2px 12px ${link.color}44`,
+              }}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Per-boutique cards */}

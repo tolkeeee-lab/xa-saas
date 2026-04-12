@@ -4,6 +4,7 @@ import { getBoutiques } from '@/lib/supabase/getBoutiques';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Topbar from '@/components/dashboard/Topbar';
 import MobileNav from '@/components/dashboard/MobileNav';
+import KeyboardShortcuts from '@/components/dashboard/KeyboardShortcuts';
 import type { Profile } from '@/types/database';
 
 export default async function DashboardLayout({
@@ -36,6 +37,7 @@ export default async function DashboardLayout({
         </main>
       </div>
       <MobileNav />
+      <KeyboardShortcuts />
     </div>
   );
 } 
