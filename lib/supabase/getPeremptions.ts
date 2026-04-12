@@ -4,8 +4,10 @@ import type { Produit } from '@/types/database';
 /**
  * ProduitPeremption includes all Produit fields (including prix_achat)
  * so that the "Valeur perdue" column can be computed as stock_actuel * prix_achat.
+ * date_peremption is guaranteed non-null here (filtered server-side).
  */
-export type ProduitPeremption = Produit & {
+export type ProduitPeremption = Omit<Produit, 'date_peremption'> & {
+  date_peremption: string;
   boutique_nom: string;
   jours_restants: number;
 };
@@ -24,7 +26,7 @@ export async function getPeremptions(userId: string): Promise<ProduitPeremption[
   const boutiqueIds = boutiques.map((b) => b.id);
   const boutiqueNomMap = new Map(boutiques.map((b) => [b.id, b.nom]));
 
-  // Fetch products with expiry dates
+  // Fetch products with expiry dates — date_peremption is never null here
   const { data: produits } = await supabase
     .from('produits')
     .select(
@@ -40,16 +42,19 @@ export async function getPeremptions(userId: string): Promise<ProduitPeremption[
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  return produits.map((p) => {
-    const expiry = new Date(p.date_peremption!);
-    expiry.setHours(0, 0, 0, 0);
-    const diffMs = expiry.getTime() - today.getTime();
-    const jours_restants = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  return produits
+    .filter((p): p is typeof p & { date_peremption: string } => p.date_peremption !== null)
+    .map((p) => {
+      const expiry = new Date(p.date_peremption);
+      expiry.setHours(0, 0, 0, 0);
+      const diffMs = expiry.getTime() - today.getTime();
+      const jours_restants = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    return {
-      ...p,
-      boutique_nom: boutiqueNomMap.get(p.boutique_id) ?? '',
-      jours_restants,
-    } as ProduitPeremption;
-  });
+      return {
+        ...p,
+        date_peremption: p.date_peremption,
+        boutique_nom: boutiqueNomMap.get(p.boutique_id) ?? '',
+        jours_restants,
+      };
+    });
 }
