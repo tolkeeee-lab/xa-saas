@@ -67,4 +67,4 @@ export async function getNotifications(userId: string): Promise<AppNotification[
   }
 
   return notifs;
-}
+} 
