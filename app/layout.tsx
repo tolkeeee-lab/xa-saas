@@ -4,7 +4,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'xà — Solution de Gestion',
   description:
-    'Solution de gestion de caisse et d'inventaire multi-boutiques pour le marché béninois.',
+    `Solution de gestion de caisse et d'inventaire multi-boutiques pour le marché béninois.`,
   manifest: '/manifest.json',
   icons: {
     icon: '/icon.svg',
@@ -52,4 +52,4 @@ export default function RootLayout({
       <body>{children}</body>
     </html>
   );
-} 
+}
