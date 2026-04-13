@@ -175,6 +175,7 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
   const [payMode, setPayMode] = useState<PayMode>('especes');
   const [clientNom, setClientNom] = useState('');
   const [clientTelephone, setClientTelephone] = useState('');
+  const [montantRecu, setMontantRecu] = useState(0);
   const [categorie, setCategorie] = useState('Tous');
   const [recherche, setRecherche] = useState('');
   const [ticket, setTicket] = useState<TicketData | null>(null);
@@ -265,6 +266,8 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
     const sousTotal = cart.reduce((s, i) => s + i.prix_vente * i.qty, 0);
     const remise = sousTotal >= 50000 ? Math.round(sousTotal * 0.05) : 0;
     const montant_total = sousTotal - remise;
+    const monnaie_rendue =
+      payMode === 'especes' && montantRecu > montant_total ? montantRecu - montant_total : 0;
 
     const body = {
       boutique_id: boutiqueActive,
@@ -305,6 +308,13 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
         mode_paiement: payMode,
         boutique_nom: boutique?.nom ?? 'Boutique',
         offline: true,
+        ...(payMode === 'especes' && montantRecu > 0 && {
+          montant_recu: montantRecu,
+          monnaie_rendue,
+        }),
+        ...(payMode === 'credit' && {
+          client_nom: clientNom || 'Client anonyme',
+        }),
       });
       setLoading(false);
       return;
@@ -329,6 +339,13 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
       setTicket({
         ...data,
         boutique_nom: boutique?.nom ?? 'Boutique',
+        ...(payMode === 'especes' && montantRecu > 0 && {
+          montant_recu: montantRecu,
+          monnaie_rendue,
+        }),
+        ...(payMode === 'credit' && {
+          client_nom: clientNom || 'Client anonyme',
+        }),
       } as TicketData);
 
       // Refresh product list to reflect updated stocks
@@ -507,6 +524,7 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
           payMode={payMode}
           onPayModeChange={(mode) => {
             setPayMode(mode);
+            setMontantRecu(0);
             if (mode !== 'credit') {
               setClientNom('');
               setClientTelephone('');
@@ -519,6 +537,8 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
           onClientNomChange={setClientNom}
           clientTelephone={clientTelephone}
           onClientTelephoneChange={setClientTelephone}
+          montantRecu={montantRecu}
+          onMontantRecuChange={setMontantRecu}
         />
 
         {/* Résumé caisse du jour */}
