@@ -13,7 +13,14 @@ export type OfflineSale = {
 
 const DB_NAME = 'xa-offline';
 const STORE_NAME = 'sales';
-const DB_VERSION = 1;
+const PRODUITS_STORE = 'produits';
+const DB_VERSION = 2;
+
+export type CachedProduit = {
+  boutique_id: string;
+  produits: unknown[];
+  cached_at: number;
+};
 
 export function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -21,13 +28,46 @@ export function openDB(): Promise<IDBDatabase> {
 
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
+      const oldVersion = event.oldVersion;
+      if (oldVersion < 1) {
         db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+      }
+      if (oldVersion < 2) {
+        if (!db.objectStoreNames.contains(PRODUITS_STORE)) {
+          db.createObjectStore(PRODUITS_STORE, { keyPath: 'boutique_id' });
+        }
       }
     };
 
     request.onsuccess = (event) => resolve((event.target as IDBOpenDBRequest).result);
     request.onerror = (event) => reject((event.target as IDBOpenDBRequest).error);
+  });
+}
+
+export async function saveProduits(boutiqueId: string, produits: unknown[]): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(PRODUITS_STORE, 'readwrite');
+    const store = tx.objectStore(PRODUITS_STORE);
+    const request = store.put({ boutique_id: boutiqueId, produits, cached_at: Date.now() } satisfies CachedProduit);
+    request.onsuccess = () => resolve();
+    request.onerror = (event) => reject((event.target as IDBRequest).error);
+    tx.oncomplete = () => db.close();
+  });
+}
+
+export async function loadProduits(boutiqueId: string): Promise<unknown[] | null> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(PRODUITS_STORE, 'readonly');
+    const store = tx.objectStore(PRODUITS_STORE);
+    const request = store.get(boutiqueId);
+    request.onsuccess = (event) => {
+      const cached = (event.target as IDBRequest<CachedProduit | undefined>).result;
+      resolve(cached ? cached.produits : null);
+    };
+    request.onerror = (event) => reject((event.target as IDBRequest).error);
+    tx.oncomplete = () => db.close();
   });
 }
 

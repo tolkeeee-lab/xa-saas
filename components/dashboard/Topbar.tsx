@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import InstallPwaButton from '@/components/dashboard/InstallPwaButton';
 import type { AppNotification } from '@/lib/supabase/getNotifications';
 
 const PAGE_TITLES: Record<string, string> = {
@@ -148,6 +149,7 @@ export default function Topbar() {
           )}
         </div>
 
+        <InstallPwaButton />
         <Link
           href="/dashboard/caisse"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-xa-primary text-white text-xs font-semibold hover:opacity-90 transition-opacity"
