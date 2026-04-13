@@ -355,7 +355,7 @@ export default function MesDettesPage({ data: initialData }: MesDettesPageProps)
                       Total dettes en cours
                     </td>
                     <td className="px-4 py-3 font-bold text-xa-danger">
-                      {formatFCFA(Math.round(totals.total_en_cours))}
+                      {formatFCFA(totals.total_en_cours)}
                     </td>
                     <td colSpan={3} />
                   </tr>

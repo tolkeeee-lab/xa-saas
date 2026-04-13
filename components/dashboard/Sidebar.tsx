@@ -328,7 +328,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
             >
               {item.icon}
               <span className="flex-1">{item.label}</span>
-              {item.href === '/dashboard/stocks' && hasStockAlerte && (
+              {item.href === '/dashboard/alertes-stock' && hasStockAlerte && (
                 <span className="w-2 h-2 rounded-full bg-xa-danger shrink-0" />
               )}
             </Link>
