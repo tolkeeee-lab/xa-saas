@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase-browser';
 import type { Boutique, Profile } from '@/types/database';
+import type { AppNotification } from '@/lib/supabase/getNotifications';
 
 type SidebarProps = {
   boutiques: Boutique[];
@@ -59,6 +60,15 @@ const NAV_ITEMS = [
     ),
   },
   {
+    href: '/dashboard/transactions',
+    label: 'Transactions',
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      </svg>
+    ),
+  },
+  {
     href: '/dashboard/cloture-caisse',
     label: 'Clôture de caisse',
     icon: (
@@ -73,6 +83,15 @@ const NAV_ITEMS = [
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+    ),
+  },
+  {
+    href: '/dashboard/alertes-stock',
+    label: 'Alertes Stock',
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
       </svg>
     ),
   },
@@ -109,6 +128,15 @@ const NAV_ITEMS = [
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
+  {
+    href: '/dashboard/mes-dettes',
+    label: 'Mes dettes',
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
   },
@@ -175,10 +203,27 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
   const router = useRouter();
   const [activeBoutiqueId, setActiveBoutiqueId] = useState<string>('all');
   const [showBoutiqueList, setShowBoutiqueList] = useState(false);
+  const [hasStockAlerte, setHasStockAlerte] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem('xa-boutique-active');
     if (stored) setActiveBoutiqueId(stored);
+  }, []);
+
+  useEffect(() => {
+    async function fetchNotifs() {
+      try {
+        const res = await fetch('/api/notifications');
+        const data = (await res.json()) as { notifications?: AppNotification[] };
+        const notifs = data.notifications ?? [];
+        setHasStockAlerte(notifs.some((n) => n.type === 'stock'));
+      } catch {
+        // ignore silently
+      }
+    }
+    void fetchNotifs();
+    const interval = setInterval(() => void fetchNotifs(), 60_000);
+    return () => clearInterval(interval);
   }, []);
 
   function selectBoutique(id: string) {
@@ -282,7 +327,10 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
               }`}
             >
               {item.icon}
-              <span>{item.label}</span>
+              <span className="flex-1">{item.label}</span>
+              {item.href === '/dashboard/stocks' && hasStockAlerte && (
+                <span className="w-2 h-2 rounded-full bg-xa-danger shrink-0" />
+              )}
             </Link>
           );
         })}
