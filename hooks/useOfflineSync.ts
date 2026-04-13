@@ -116,9 +116,12 @@ export function useOfflineSync({
   // Poll every 5 seconds to keep pendingCount fresh
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const id = setInterval(refreshCount, 5000);
+    const id = setInterval(async () => {
+      if (!isOnline) return; // No point polling when offline — sync can't happen
+      await refreshCount();
+    }, 5000);
     return () => clearInterval(id);
-  }, [refreshCount]);
+  }, [refreshCount, isOnline]);
 
   return { isOnline, pendingCount, syncing, syncNow };
 }

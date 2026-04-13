@@ -58,7 +58,7 @@ async function staleWhileRevalidate(request) {
 
   if (cached && isCachedResponseFresh(cached)) {
     // Return stale immediately, revalidate in background
-    fetchAndCache;
+    void fetchAndCache;
     return cached;
   }
 
