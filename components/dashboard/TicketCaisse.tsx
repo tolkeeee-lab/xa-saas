@@ -1,3 +1,5 @@
+'use client';
+
 import { formatFCFA, formatDateTime } from '@/lib/format';
 import type { PayMode } from './Panier';
 
@@ -16,6 +18,9 @@ export type TicketData = {
   mode_paiement: PayMode;
   boutique_nom: string;
   offline?: boolean;
+  montant_recu?: number;
+  monnaie_rendue?: number;
+  client_nom?: string;
 };
 
 const PAY_MODE_LABELS: Record<PayMode, string> = {
@@ -33,9 +38,29 @@ interface TicketCaisseProps {
 export default function TicketCaisse({ ticket, onNouvelleVente }: TicketCaisseProps) {
   const sousTotal = ticket.lignes.reduce((s, l) => s + l.sous_total, 0);
 
+  function buildWhatsAppText(): string {
+    const lines = ticket.lignes
+      .map((l) => `• ${l.nom} ×${l.quantite} = ${formatFCFA(l.sous_total)}`)
+      .join('\n');
+    let msg = `*Ticket — ${ticket.boutique_nom}*\n${formatDateTime(ticket.created_at)}\n\n${lines}\n\n`;
+    if (ticket.remise > 0) msg += `Remise : -${formatFCFA(ticket.remise)}\n`;
+    msg += `*Total : ${formatFCFA(ticket.montant_total)}*\n`;
+    msg += `Paiement : ${PAY_MODE_LABELS[ticket.mode_paiement]}\n`;
+    if (ticket.mode_paiement === 'especes' && (ticket.montant_recu ?? 0) > 0) {
+      msg += `Montant reçu : ${formatFCFA(ticket.montant_recu!)}\n`;
+      msg += `Monnaie rendue : ${formatFCFA(ticket.monnaie_rendue ?? 0)}\n`;
+    }
+    return msg;
+  }
+
+  function handleWhatsApp() {
+    const text = encodeURIComponent(buildWhatsAppText());
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  }
+
   return (
     <div className="flex flex-col items-center justify-center h-full p-4">
-      <div className="w-full max-w-sm bg-xa-surface border border-xa-border rounded-xl overflow-hidden shadow-lg">
+      <div className="ticket-print w-full max-w-sm bg-xa-surface border border-xa-border rounded-xl overflow-hidden shadow-lg">
         {/* Offline provisional banner */}
         {ticket.offline && (
           <div
@@ -95,10 +120,27 @@ export default function TicketCaisse({ ticket, onNouvelleVente }: TicketCaissePr
           <p className="text-xs text-xa-muted text-right">
             {PAY_MODE_LABELS[ticket.mode_paiement]}
           </p>
+          {ticket.mode_paiement === 'especes' && (ticket.montant_recu ?? 0) > 0 && (
+            <>
+              <div className="flex justify-between text-sm text-xa-muted">
+                <span>Montant reçu</span>
+                <span>{formatFCFA(ticket.montant_recu!)}</span>
+              </div>
+              <div className="flex justify-between text-sm text-green-500 font-semibold">
+                <span>Monnaie rendue</span>
+                <span>{formatFCFA(ticket.monnaie_rendue ?? 0)}</span>
+              </div>
+            </>
+          )}
+          {ticket.mode_paiement === 'credit' && ticket.client_nom && (
+            <p className="text-xs text-xa-muted text-right mt-1">
+              Client : <span className="font-medium text-xa-text">{ticket.client_nom}</span>
+            </p>
+          )}
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-3 border-t border-xa-border flex gap-2">
+        <div className="ticket-print-actions px-4 py-3 border-t border-xa-border flex gap-2">
           <button
             onClick={onNouvelleVente}
             className="flex-1 py-2 rounded-lg bg-xa-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity"
@@ -110,6 +152,12 @@ export default function TicketCaisse({ ticket, onNouvelleVente }: TicketCaissePr
             className="flex-1 py-2 rounded-lg border border-xa-border text-xa-text text-sm font-medium hover:bg-xa-bg transition-colors"
           >
             Imprimer
+          </button>
+          <button
+            onClick={handleWhatsApp}
+            className="flex-1 py-2 rounded-lg border border-green-500/50 text-green-500 text-sm font-medium hover:bg-green-500/10 transition-colors"
+          >
+            WhatsApp
           </button>
         </div>
       </div>

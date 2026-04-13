@@ -111,3 +111,28 @@ body {
   table, tr { page-break-inside: avoid; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* ===== IMPRESSION TICKET THERMIQUE 80mm ===== */
+@media print {
+  body > * { display: none !important; }
+  .ticket-print {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    padding: 4mm !important;
+    background: white !important;
+    color: black !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+  }
+  .ticket-print * {
+    color: black !important;
+    background: transparent !important;
+    border-color: black !important;
+  }
+  .ticket-print-actions { display: none !important; }
+}

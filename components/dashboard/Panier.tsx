@@ -30,6 +30,8 @@ interface PanierProps {
   onClientNomChange?: (v: string) => void;
   clientTelephone?: string;
   onClientTelephoneChange?: (v: string) => void;
+  montantRecu?: number;
+  onMontantRecuChange?: (v: number) => void;
 }
 
 export default function Panier({
@@ -44,6 +46,8 @@ export default function Panier({
   onClientNomChange,
   clientTelephone,
   onClientTelephoneChange,
+  montantRecu,
+  onMontantRecuChange,
 }: PanierProps) {
   const sousTotal = items.reduce((s, i) => s + i.prix_vente * i.qty, 0);
   const remise = sousTotal >= 50000 ? Math.round(sousTotal * 0.05) : 0;
@@ -149,6 +153,25 @@ export default function Panier({
               onChange={(e) => onClientTelephoneChange?.(e.target.value)}
               className="w-full px-3 py-1.5 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-xs focus:outline-none focus:ring-2 focus:ring-xa-primary"
             />
+          </div>
+        )}
+
+        {/* Espèces: montant reçu + monnaie rendue */}
+        {payMode === 'especes' && (
+          <div className="space-y-1">
+            <input
+              type="number"
+              min={0}
+              placeholder="Montant reçu"
+              value={(montantRecu ?? 0) > 0 ? montantRecu : ''}
+              onChange={(e) => onMontantRecuChange?.(Number(e.target.value))}
+              className="w-full px-3 py-1.5 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-xs focus:outline-none focus:ring-2 focus:ring-xa-primary"
+            />
+            {(montantRecu ?? 0) >= total && (montantRecu ?? 0) > 0 && (
+              <p className="text-xs text-green-500 font-semibold text-right">
+                Monnaie : {formatFCFA((montantRecu ?? 0) - total)}
+              </p>
+            )}
           </div>
         )}
 
