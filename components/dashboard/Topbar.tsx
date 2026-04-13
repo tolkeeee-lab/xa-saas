@@ -14,6 +14,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/dashboard/employes': 'Employés',
   '/dashboard/parametres': 'Paramètres',
   '/dashboard/caisse': 'Caisse POS',
+  '/dashboard/cloture-caisse': 'Clôture de caisse',
   '/dashboard/stocks': 'Stocks consolidés',
   '/dashboard/transferts': 'Transferts',
   '/dashboard/perimes': 'Péremptions',
