@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { createClient } from '@/lib/supabase-server';
+import type { Client } from '@/types/database';
 
 /**
  * PATCH /api/clients/[id] → mettre à jour nom, téléphone, points, total_achats, nb_visites
@@ -49,7 +50,9 @@ export async function PATCH(
     return NextResponse.json({ error: 'Client introuvable' }, { status: 404 });
   }
 
-  const updatePayload: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  const updatePayload: Partial<Omit<Client, 'id'>> = {
+    updated_at: new Date().toISOString(),
+  };
 
   if (typeof body.nom === 'string' && body.nom.trim()) {
     updatePayload.nom = body.nom.trim();
