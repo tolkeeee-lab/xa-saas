@@ -104,6 +104,11 @@ export default function ClotureCaissePage({ data }: Props) {
         throw new Error(json.error ?? 'Erreur serveur');
       }
 
+      const postJson = (await res.json()) as {
+        success: boolean;
+        cloture: { id: string; ecart: number };
+      };
+
       showToast(
         liveData?.cloture_existante
           ? 'Clôture mise à jour avec succès ✅'
@@ -111,37 +116,31 @@ export default function ClotureCaissePage({ data }: Props) {
         'success',
       );
 
-      // Refresh live data and historique
+      // Refresh live data to sync cloture_existante state
       await fetchLiveData(selectedBoutiqueId, date);
 
-      const histRes = await fetch(
-        `/api/cloture-caisse?boutique_id=${encodeURIComponent(selectedBoutiqueId)}&date=${encodeURIComponent(date)}`,
-      );
-      if (histRes.ok) {
-        // Re-fetch full historique by reloading page data from server would require
-        // a server action. Instead, update the historique optimistically.
-        const boutiqueName = selectedBoutique?.nom ?? '';
-        const updatedRow: ClotureCaisseRow = {
-          id: liveData?.cloture_existante?.id ?? '',
-          boutique_id: selectedBoutiqueId,
-          boutique_nom: boutiqueName,
-          date,
-          ca_theorique: liveData?.ca_theorique ?? 0,
-          cash_theorique: cashTheorique,
-          cash_reel: cashReelNum,
-          ecart,
-          nb_transactions: liveData?.nb_transactions ?? 0,
-          par_mode: liveData?.par_mode ?? {},
-          note: note || null,
-          created_at: new Date().toISOString(),
-        };
-        setHistorique((prev) => {
-          const without = prev.filter(
-            (r) => !(r.boutique_id === selectedBoutiqueId && r.date === date),
-          );
-          return [updatedRow, ...without].slice(0, 30);
-        });
-      }
+      // Optimistically update the historique using the server-returned ID and ecart
+      const boutiqueName = selectedBoutique?.nom ?? '';
+      const updatedRow: ClotureCaisseRow = {
+        id: postJson.cloture.id,
+        boutique_id: selectedBoutiqueId,
+        boutique_nom: boutiqueName,
+        date,
+        ca_theorique: liveData?.ca_theorique ?? 0,
+        cash_theorique: cashTheorique,
+        cash_reel: cashReelNum,
+        ecart: postJson.cloture.ecart,
+        nb_transactions: liveData?.nb_transactions ?? 0,
+        par_mode: liveData?.par_mode ?? {},
+        note: note || null,
+        created_at: new Date().toISOString(),
+      };
+      setHistorique((prev) => {
+        const without = prev.filter(
+          (r) => !(r.boutique_id === selectedBoutiqueId && r.date === date),
+        );
+        return [updatedRow, ...without].slice(0, 30);
+      });
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Erreur inconnue', 'error');
     } finally {
