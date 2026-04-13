@@ -366,9 +366,12 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
       if (selectedClient) {
         const pointsGagnes = Math.floor(montant_total / 1000);
         const remiseUtilisee = selectedClient.points >= 100;
-        const pointsDelta = remiseUtilisee
-          ? -selectedClient.points + pointsGagnes // reset + nouveaux points
-          : pointsGagnes;
+        // Nouveaux points après cette vente
+        const newPoints = remiseUtilisee
+          ? pointsGagnes // remise utilisée → points remis à 0 + points de cette vente
+          : selectedClient.points + pointsGagnes;
+        // Delta à envoyer à l'API (depuis la valeur actuelle connue)
+        const pointsDelta = newPoints - selectedClient.points;
 
         fetch(`/api/clients/${selectedClient.id}`, {
           method: 'PATCH',
@@ -386,7 +389,7 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
             c.id === selectedClient.id
               ? {
                   ...c,
-                  points: Math.max(0, remiseUtilisee ? pointsGagnes : c.points + pointsGagnes),
+                  points: Math.max(0, newPoints),
                   total_achats: c.total_achats + montant_total,
                   nb_visites: c.nb_visites + 1,
                 }
