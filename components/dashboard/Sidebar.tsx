@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase-browser';
 import type { Boutique, Profile } from '@/types/database';
+import type { AppNotification } from '@/lib/supabase/getNotifications';
 
 type SidebarProps = {
   boutiques: Boutique[];
@@ -64,6 +65,15 @@ const NAV_ITEMS = [
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+    ),
+  },
+  {
+    href: '/dashboard/alertes-stock',
+    label: 'Alertes Stock',
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
       </svg>
     ),
   },
@@ -156,10 +166,27 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
   const router = useRouter();
   const [activeBoutiqueId, setActiveBoutiqueId] = useState<string>('all');
   const [showBoutiqueList, setShowBoutiqueList] = useState(false);
+  const [hasStockAlerte, setHasStockAlerte] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem('xa-boutique-active');
     if (stored) setActiveBoutiqueId(stored);
+  }, []);
+
+  useEffect(() => {
+    async function fetchStockAlerte() {
+      try {
+        const res = await fetch('/api/notifications');
+        const data = (await res.json()) as { notifications?: AppNotification[] };
+        const notifs = data.notifications ?? [];
+        setHasStockAlerte(notifs.some((n) => n.type === 'stock'));
+      } catch {
+        // ignore fetch errors silently
+      }
+    }
+    void fetchStockAlerte();
+    const interval = setInterval(() => void fetchStockAlerte(), 60_000);
+    return () => clearInterval(interval);
   }, []);
 
   function selectBoutique(id: string) {
@@ -263,7 +290,10 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
               }`}
             >
               {item.icon}
-              <span>{item.label}</span>
+              <span className="flex-1">{item.label}</span>
+              {item.href === '/dashboard/stocks' && hasStockAlerte && (
+                <span className="w-2 h-2 rounded-full bg-xa-danger shrink-0" />
+              )}
             </Link>
           );
         })}

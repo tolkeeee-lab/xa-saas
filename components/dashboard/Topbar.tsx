@@ -23,6 +23,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/dashboard/rapports': 'Rapports',
   '/dashboard/charges': 'Charges fixes',
   '/dashboard/personnel': 'Personnel',
+  '/dashboard/alertes-stock': 'Alertes Stock',
 };
 
 function getPageTitle(pathname: string): string {
@@ -138,7 +139,18 @@ export default function Topbar() {
                       key={n.id}
                       className="px-4 py-3 text-sm text-xa-text hover:bg-xa-border/20 transition-colors cursor-default border-b border-xa-border/50 last:border-b-0"
                     >
-                      {n.text}
+                      <div className="flex items-center justify-between gap-2">
+                        <span>{n.text}</span>
+                        {n.type === 'stock' && (
+                          <Link
+                            href="/dashboard/alertes-stock"
+                            onClick={() => setNotifOpen(false)}
+                            className="text-xs text-xa-primary hover:underline whitespace-nowrap shrink-0"
+                          >
+                            Voir →
+                          </Link>
+                        )}
+                      </div>
                     </li>
                   ))}
                 </ul>
