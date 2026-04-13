@@ -61,10 +61,12 @@ export default function WeeklyChart({ stats, boutiques }: WeeklyChartProps) {
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 50);
-    const stored = localStorage.getItem('xa-objectif-journalier');
-    if (stored) {
-      const val = parseInt(stored, 10);
-      if (!isNaN(val) && val > 0) setObjectif(val);
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('xa-objectif-journalier');
+      if (stored) {
+        const val = parseInt(stored, 10);
+        if (!isNaN(val) && val > 0) setObjectif(val);
+      }
     }
     return () => clearTimeout(t);
   }, []);
@@ -210,12 +212,12 @@ export default function WeeklyChart({ stats, boutiques }: WeeklyChartProps) {
       <MetricToggle metric={metric} setMetric={setMetric} />
 
       {/* Bars wrapper — scrollable on mobile for 30j */}
-      <div className={is30j ? 'overflow-x-auto -mx-1 px-1' : undefined}>
+      <div className={is30j ? 'overflow-x-auto -mx-1 px-1' : ''}>
         <div
           className="flex items-end gap-1"
           style={{
             height: `${MAX_BAR_HEIGHT + 24}px`,
-            minWidth: is30j ? `${days.length * 18}px` : undefined,
+            ...(is30j ? { minWidth: `${days.length * 18}px` } : {}),
           }}
         >
           {days.map((date) => {
@@ -232,7 +234,7 @@ export default function WeeklyChart({ stats, boutiques }: WeeklyChartProps) {
               <div
                 key={date}
                 className="flex-1 flex flex-col items-center justify-end"
-                style={{ height: '100%', position: 'relative', minWidth: is30j ? '14px' : undefined }}
+                style={{ height: '100%', position: 'relative', ...(is30j ? { minWidth: '14px' } : {}) }}
                 onMouseEnter={() => setHoveredKey(date)}
                 onMouseLeave={() => setHoveredKey(null)}
               >
@@ -270,7 +272,10 @@ export default function WeeklyChart({ stats, boutiques }: WeeklyChartProps) {
                     <div style={{ height: '100%', backgroundColor: 'var(--xa-primary)' }} />
                   )}
                 </div>
-                <span className="text-xs text-xa-muted mt-1.5" style={{ fontSize: is30j ? '0.55rem' : undefined }}>
+                <span
+                  className="text-xs text-xa-muted mt-1.5"
+                  style={is30j ? { fontSize: '0.55rem' } : {}}
+                >
                   {label}
                 </span>
               </div>
