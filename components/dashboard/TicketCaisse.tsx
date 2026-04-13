@@ -47,7 +47,7 @@ export default function TicketCaisse({ ticket, onNouvelleVente }: TicketCaissePr
     msg += `*Total : ${formatFCFA(ticket.montant_total)}*\n`;
     msg += `Paiement : ${PAY_MODE_LABELS[ticket.mode_paiement]}\n`;
     if (ticket.mode_paiement === 'especes' && (ticket.montant_recu ?? 0) > 0) {
-      msg += `Reçu : ${formatFCFA(ticket.montant_recu!)}\n`;
+      msg += `Montant reçu : ${formatFCFA(ticket.montant_recu!)}\n`;
       msg += `Monnaie rendue : ${formatFCFA(ticket.monnaie_rendue ?? 0)}\n`;
     }
     return msg;

@@ -163,7 +163,7 @@ export default function Panier({
               type="number"
               min={0}
               placeholder="Montant reçu"
-              value={montantRecu !== undefined && montantRecu > 0 ? montantRecu : ''}
+              value={(montantRecu ?? 0) > 0 ? montantRecu : ''}
               onChange={(e) => onMontantRecuChange?.(Number(e.target.value))}
               className="w-full px-3 py-1.5 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-xs focus:outline-none focus:ring-2 focus:ring-xa-primary"
             />
