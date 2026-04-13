@@ -63,7 +63,7 @@ export async function getAlertesStock(userId: string): Promise<AlertesStockData>
         statut: 'rupture',
       });
       nb_ruptures++;
-    } else if (p.stock_actuel <= p.seuil_alerte) {
+    } else if (p.stock_actuel > 0 && p.stock_actuel <= p.seuil_alerte) {
       alertes.push({
         id: p.id,
         nom: p.nom,

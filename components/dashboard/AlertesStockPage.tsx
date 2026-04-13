@@ -213,7 +213,7 @@ export default function AlertesStockPage({ data }: AlertesStockPageProps) {
                     </td>
                     <td className="px-4 py-3">
                       <Link
-                        href="/dashboard/produits"
+                        href={`/dashboard/produits?boutique=${row.boutique_id}`}
                         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-xa-primary/10 text-xa-primary hover:bg-xa-primary/20 transition-colors"
                       >
                         Réapprovisionner
