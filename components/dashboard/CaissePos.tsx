@@ -6,6 +6,8 @@ import ProduitCard from './ProduitCard';
 import Panier, { type CartItem, type PayMode } from './Panier';
 import TicketCaisse, { type TicketData } from './TicketCaisse';
 import { formatFCFA } from '@/lib/format';
+import { useOfflineSync } from '@/hooks/useOfflineSync';
+import { enqueueSale, type OfflineSale } from '@/lib/offline/offlineQueue';
 
 const CATEGORIES = ['Tous', 'Épicerie', 'Boissons', 'Hygiène', 'Frais', 'Boulangerie'];
 
@@ -179,6 +181,27 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
   const [loading, setLoading] = useState(false);
   const [fetchingProduits, setFetchingProduits] = useState(false);
   const [resumeRefreshKey, setResumeRefreshKey] = useState(0);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = useCallback(
+    (message: string, type: 'success' | 'error') => {
+      setToast({ message, type });
+      setTimeout(() => setToast(null), 4000);
+    },
+    [],
+  );
+
+  const { isOnline, pendingCount, syncing } = useOfflineSync({
+    onSyncResult: (succeeded, failed) => {
+      if (succeeded > 0) {
+        showToast(`${succeeded} vente${succeeded !== 1 ? 's' : ''} synchronisée${succeeded !== 1 ? 's' : ''}`, 'success');
+        setResumeRefreshKey((k) => k + 1);
+      }
+      if (failed > 0) {
+        showToast(`${failed} vente${failed !== 1 ? 's' : ''} non synchronisée${failed !== 1 ? 's' : ''}`, 'error');
+      }
+    },
+  });
 
   // Re-fetch products when boutique changes
   useEffect(() => {
@@ -243,24 +266,56 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
     const remise = sousTotal >= 50000 ? Math.round(sousTotal * 0.05) : 0;
     const montant_total = sousTotal - remise;
 
+    const body = {
+      boutique_id: boutiqueActive,
+      lignes: cart.map((i) => ({
+        produit_id: i.produit_id,
+        quantite: i.qty,
+        prix_unitaire: i.prix_vente,
+      })),
+      mode_paiement: payMode,
+      montant_total,
+      ...(payMode === 'credit' && {
+        client_nom: clientNom || 'Client anonyme',
+        client_telephone: clientTelephone || undefined,
+      }),
+    };
+
+    // Si hors-ligne → enqueue et afficher un ticket provisoire
+    if (!isOnline) {
+      const sale: OfflineSale = {
+        id: crypto.randomUUID(),
+        ...body,
+        created_at: new Date().toISOString(),
+      };
+      await enqueueSale(sale);
+      const boutique = boutiques.find((b) => b.id === boutiqueActive);
+      setTicket({
+        transaction_id: sale.id,
+        created_at: sale.created_at,
+        lignes: cart.map((i) => ({
+          produit_id: i.produit_id,
+          nom: i.nom,
+          quantite: i.qty,
+          prix_unitaire: i.prix_vente,
+          sous_total: i.prix_vente * i.qty,
+        })),
+        montant_total,
+        remise,
+        mode_paiement: payMode,
+        boutique_nom: boutique?.nom ?? 'Boutique',
+        offline: true,
+      });
+      setLoading(false);
+      return;
+    }
+
+    // En ligne → logique normale
     try {
       const res = await fetch('/api/transactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          boutique_id: boutiqueActive,
-          lignes: cart.map((i) => ({
-            produit_id: i.produit_id,
-            quantite: i.qty,
-            prix_unitaire: i.prix_vente,
-          })),
-          mode_paiement: payMode,
-          montant_total,
-          ...(payMode === 'credit' && {
-            client_nom: clientNom || 'Client anonyme',
-            client_telephone: clientTelephone || undefined,
-          }),
-        }),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
@@ -306,6 +361,71 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
 
   return (
     <div className="flex flex-col h-[calc(100vh-120px)]">
+      {/* Offline / syncing banners */}
+      {!isOnline && (
+        <div
+          style={{
+            background: '#ff3341',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            borderRadius: '0.5rem',
+            fontSize: '0.8125rem',
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '0.75rem',
+          }}
+        >
+          <span>📵</span>
+          <span>
+            Mode hors-ligne —{' '}
+            {pendingCount} vente{pendingCount !== 1 ? 's' : ''} en attente de synchronisation
+          </span>
+        </div>
+      )}
+
+      {isOnline && syncing && (
+        <div
+          style={{
+            background: '#4d9fff',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            borderRadius: '0.5rem',
+            fontSize: '0.8125rem',
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '0.75rem',
+          }}
+        >
+          <span>⏳</span>
+          <span>Synchronisation en cours…</span>
+        </div>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div
+          style={{
+            background: toast.type === 'success' ? '#00d68f' : '#ff3341',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            borderRadius: '0.5rem',
+            fontSize: '0.8125rem',
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            marginBottom: '0.75rem',
+          }}
+        >
+          <span>{toast.type === 'success' ? '✅' : '❌'}</span>
+          <span>{toast.message}</span>
+        </div>
+      )}
+
       {/* Top bar: boutique selector */}
       <div className="flex flex-wrap items-center gap-3 mb-3">
         <div className="flex items-center gap-2">

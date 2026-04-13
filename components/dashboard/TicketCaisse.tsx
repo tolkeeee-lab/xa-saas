@@ -15,6 +15,7 @@ export type TicketData = {
   remise: number;
   mode_paiement: PayMode;
   boutique_nom: string;
+  offline?: boolean;
 };
 
 const PAY_MODE_LABELS: Record<PayMode, string> = {
@@ -35,10 +36,30 @@ export default function TicketCaisse({ ticket, onNouvelleVente }: TicketCaissePr
   return (
     <div className="flex flex-col items-center justify-center h-full p-4">
       <div className="w-full max-w-sm bg-xa-surface border border-xa-border rounded-xl overflow-hidden shadow-lg">
+        {/* Offline provisional banner */}
+        {ticket.offline && (
+          <div
+            style={{
+              background: '#ffb020',
+              color: '#1a1a1a',
+              padding: '0.5rem 1rem',
+              fontSize: '0.8125rem',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              justifyContent: 'center',
+            }}
+          >
+            <span>⚠️</span>
+            <span>Ticket provisoire — sera synchronisé lors de la reconnexion</span>
+          </div>
+        )}
+
         {/* Header */}
         <div className="bg-xa-primary text-white px-5 py-4 text-center">
-          <div className="text-2xl mb-1">✓</div>
-          <p className="font-bold text-lg">Vente validée</p>
+          <div className="text-2xl mb-1">{ticket.offline ? '📵' : '✓'}</div>
+          <p className="font-bold text-lg">{ticket.offline ? 'Vente hors-ligne' : 'Vente validée'}</p>
           <p className="text-sm opacity-90">{ticket.boutique_nom}</p>
           <p className="text-xs opacity-75 mt-1">{formatDateTime(ticket.created_at)}</p>
         </div>
