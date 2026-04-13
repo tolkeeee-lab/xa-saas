@@ -71,6 +71,7 @@ export type Transaction = {
   local_id: string | null;
   boutique_id: string;
   employe_id: string | null;
+  client_id?: string | null;
   montant_total: number;
   benefice_total: number;
   montant_recu: number;
@@ -79,6 +80,19 @@ export type Transaction = {
   client_nom: string | null;
   statut: 'validee' | 'annulee';
   sync_statut: 'local' | 'synced' | 'conflict';
+  created_at: string;
+  updated_at: string;
+};
+
+export type Client = {
+  id: string;
+  proprietaire_id: string;
+  nom: string;
+  telephone: string | null;
+  points: number;
+  total_achats: number;
+  nb_visites: number;
+  actif: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -205,8 +219,8 @@ export type Database = {
       };
       transactions: {
         Row: Transaction;
-        Insert: Omit<Transaction, 'id' | 'created_at' | 'updated_at' | 'local_id' | 'employe_id' | 'client_nom'> &
-          Partial<Pick<Transaction, 'id' | 'created_at' | 'updated_at' | 'local_id' | 'employe_id' | 'client_nom'>>;
+        Insert: Omit<Transaction, 'id' | 'created_at' | 'updated_at' | 'local_id' | 'employe_id' | 'client_nom' | 'client_id'> &
+          Partial<Pick<Transaction, 'id' | 'created_at' | 'updated_at' | 'local_id' | 'employe_id' | 'client_nom' | 'client_id'>>;
         Update: Partial<Omit<Transaction, 'id'>>;
         Relationships: [];
       };
@@ -264,6 +278,13 @@ export type Database = {
         Insert: Omit<ClotureCaisse, 'id' | 'ecart' | 'created_at'> &
           Partial<Pick<ClotureCaisse, 'id' | 'created_at'>>;
         Update: Partial<Omit<ClotureCaisse, 'id' | 'ecart'>>;
+        Relationships: [];
+      };
+      clients: {
+        Row: Client;
+        Insert: Omit<Client, 'id' | 'created_at' | 'updated_at' | 'points' | 'total_achats' | 'nb_visites'> &
+          Partial<Pick<Client, 'id' | 'created_at' | 'updated_at' | 'points' | 'total_achats' | 'nb_visites'>>;
+        Update: Partial<Omit<Client, 'id'>>;
         Relationships: [];
       };
     };
