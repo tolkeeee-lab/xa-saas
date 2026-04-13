@@ -51,18 +51,22 @@ export async function getNotifications(userId: string): Promise<AppNotification[
     }
   }
 
-  // 3. Charges fixes en retard (échéance passée, non payées)
+  // 3. Charges fixes actives
+  // ChargeFixe n'a pas de champ "statut" — on filtre sur actif:true uniquement.
+  // Si tu veux filtrer sur un statut de paiement, ajoute un champ statut dans
+  // types/database.ts et dans le schéma Supabase.
   const { data: charges } = await supabase
     .from('charges_fixes')
-    .select('id, nom, date_echeance, statut')
+    .select('id, libelle, actif')
     .eq('proprietaire_id', userId)
-    .eq('statut', 'impayee')
-    .lt('date_echeance', new Date().toISOString().split('T')[0]);
+    .eq('actif', true);
 
-  if ((charges?.length ?? 0) > 0) {
+  const chargesActives = charges ?? [];
+
+  if (chargesActives.length > 0) {
     notifs.push({
       id: 'charge-retard',
-      text: `💳 ${charges!.length} charge${charges!.length > 1 ? 's' : ''} fixe${charges!.length > 1 ? 's' : ''} en retard`,
+      text: `💳 ${chargesActives.length} charge${chargesActives.length > 1 ? 's' : ''} fixe${chargesActives.length > 1 ? 's' : ''} active${chargesActives.length > 1 ? 's' : ''}`,
       type: 'charge',
     });
   }
