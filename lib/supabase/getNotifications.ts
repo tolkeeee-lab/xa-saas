@@ -51,21 +51,5 @@ export async function getNotifications(userId: string): Promise<AppNotification[
     }
   }
 
-  // 3. Charges fixes en retard (échéance passée, non payées)
-  const { data: charges } = await supabase
-    .from('charges_fixes')
-    .select('id, nom, date_echeance, statut')
-    .eq('proprietaire_id', userId)
-    .eq('statut', 'impayee')
-    .lt('date_echeance', new Date().toISOString().split('T')[0]);
-
-  if ((charges?.length ?? 0) > 0) {
-    notifs.push({
-      id: 'charge-retard',
-      text: `💳 ${charges!.length} charge${charges!.length > 1 ? 's' : ''} fixe${charges!.length > 1 ? 's' : ''} en retard`,
-      type: 'charge',
-    });
-  }
-
   return notifs;
 }
