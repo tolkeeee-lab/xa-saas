@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import type { Boutique, ProduitPublic } from '@/types/database';
+import type { Boutique, ProduitPublic, Client } from '@/types/database';
 import ProduitCard from './ProduitCard';
 import Panier, { type CartItem, type PayMode } from './Panier';
 import TicketCaisse, { type TicketData } from './TicketCaisse';
@@ -184,6 +184,12 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
   const [resumeRefreshKey, setResumeRefreshKey] = useState(0);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
+  // Client fidélité
+  const [clientSearch, setClientSearch] = useState('');
+  const [clients, setClients] = useState<Client[]>([]);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [showClientDropdown, setShowClientDropdown] = useState(false);
+
   const showToast = useCallback(
     (message: string, type: 'success' | 'error') => {
       setToast({ message, type });
@@ -225,6 +231,14 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
       })
       .finally(() => setFetchingProduits(false));
   }, [boutiqueActive]);
+
+  // Fetch clients fidélité au montage
+  useEffect(() => {
+    fetch('/api/clients')
+      .then((r) => r.json())
+      .then((data: Client[]) => setClients(Array.isArray(data) ? data : []))
+      .catch(() => {}); // silencieux si hors-ligne
+  }, []);
 
   const produitsFiltres = useMemo(() => {
     return produits.filter((p) => {
@@ -273,7 +287,10 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
     setLoading(true);
 
     const sousTotal = cart.reduce((s, i) => s + i.prix_vente * i.qty, 0);
-    const remise = sousTotal >= 50000 ? Math.round(sousTotal * 0.05) : 0;
+    const remisePanier = sousTotal >= 50000 ? Math.round(sousTotal * 0.05) : 0;
+    const clientHasRemise = Boolean(selectedClient && selectedClient.points >= 100);
+    const remiseClient = clientHasRemise && remisePanier === 0 ? Math.round(sousTotal * 0.05) : 0;
+    const remise = remisePanier + remiseClient;
     const montant_total = sousTotal - remise;
     const monnaie_rendue =
       payMode === 'especes' && montantRecu > montant_total ? montantRecu - montant_total : 0;
@@ -287,6 +304,7 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
       })),
       mode_paiement: payMode,
       montant_total,
+      ...(selectedClient && { client_id: selectedClient.id }),
       ...(payMode === 'credit' && {
         client_nom: clientNom || 'Client anonyme',
         client_telephone: clientTelephone || undefined,
@@ -344,6 +362,40 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
         return;
       }
 
+      // Mise à jour des points client fidélité
+      if (selectedClient) {
+        const pointsGagnes = Math.floor(montant_total / 1000);
+        const remiseUtilisee = selectedClient.points >= 100;
+        const pointsDelta = remiseUtilisee
+          ? -selectedClient.points + pointsGagnes // reset + nouveaux points
+          : pointsGagnes;
+
+        fetch(`/api/clients/${selectedClient.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            points_delta: pointsDelta,
+            total_achats_delta: montant_total,
+            increment_visites: true,
+          }),
+        }).catch(() => {}); // silencieux si hors-ligne
+
+        // Mise à jour locale
+        setClients((prev) =>
+          prev.map((c) =>
+            c.id === selectedClient.id
+              ? {
+                  ...c,
+                  points: Math.max(0, remiseUtilisee ? pointsGagnes : c.points + pointsGagnes),
+                  total_achats: c.total_achats + montant_total,
+                  nb_visites: c.nb_visites + 1,
+                }
+              : c,
+          ),
+        );
+        setSelectedClient(null);
+      }
+
       const boutique = boutiques.find((b) => b.id === boutiqueActive);
       setTicket({
         ...data,
@@ -373,6 +425,8 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
   function nouvelleVente() {
     setCart([]);
     setTicket(null);
+    setSelectedClient(null);
+    setClientSearch('');
   }
 
   const activeBoutique = boutiques.find((b) => b.id === boutiqueActive);
@@ -482,29 +536,120 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
           </div>
         </div>
 
-        {/* Panier */}
-        <Panier
-          items={cart}
-          onUpdate={updateCart}
-          payMode={payMode}
-          onPayModeChange={(mode) => {
-            setPayMode(mode);
-            setMontantRecu(0);
-            if (mode !== 'credit') {
-              setClientNom('');
-              setClientTelephone('');
-            }
-          }}
-          onValider={validerVente}
-          loading={loading}
-          boutiqueName={activeBoutique?.nom ?? ''}
-          clientNom={clientNom}
-          onClientNomChange={setClientNom}
-          clientTelephone={clientTelephone}
-          onClientTelephoneChange={setClientTelephone}
-          montantRecu={montantRecu}
-          onMontantRecuChange={setMontantRecu}
-        />
+        {/* Panier + sélecteur client */}
+        <div className="flex flex-col bg-xa-surface border-l border-xa-border h-full overflow-hidden">
+          {/* Sélecteur client fidélité */}
+          <div className="px-3 pt-3 pb-2 border-b border-xa-border space-y-2">
+            <div className="relative">
+              <label className="text-xs text-xa-muted font-semibold block mb-1">
+                Client fidélité (optionnel)
+              </label>
+              <input
+                type="text"
+                placeholder="🔍 Nom ou téléphone..."
+                value={
+                  selectedClient
+                    ? `${selectedClient.nom}${selectedClient.telephone ? ` · ${selectedClient.telephone}` : ''}`
+                    : clientSearch
+                }
+                onChange={(e) => {
+                  if (!selectedClient) {
+                    setClientSearch(e.target.value);
+                    setShowClientDropdown(true);
+                  }
+                }}
+                onFocus={() => {
+                  if (!selectedClient) setShowClientDropdown(true);
+                }}
+                readOnly={!!selectedClient}
+                className="w-full px-3 py-1.5 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-xs focus:outline-none focus:border-xa-primary"
+              />
+              {selectedClient && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedClient(null);
+                    setClientSearch('');
+                  }}
+                  className="absolute right-2 top-6 text-xa-muted hover:text-xa-danger text-xs"
+                >
+                  ✕
+                </button>
+              )}
+              {showClientDropdown && clientSearch && !selectedClient && (
+                <div className="absolute top-full left-0 right-0 z-20 bg-xa-surface border border-xa-border rounded-lg shadow-lg mt-1 max-h-36 overflow-y-auto">
+                  {clients
+                    .filter(
+                      (c) =>
+                        c.nom.toLowerCase().includes(clientSearch.toLowerCase()) ||
+                        (c.telephone ?? '').includes(clientSearch),
+                    )
+                    .slice(0, 5)
+                    .map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedClient(c);
+                          setShowClientDropdown(false);
+                          setClientSearch('');
+                        }}
+                        className="w-full text-left px-3 py-2 text-xs hover:bg-xa-bg flex justify-between items-center"
+                      >
+                        <span className="font-semibold text-xa-text">
+                          {c.nom}
+                          {c.telephone ? ` · ${c.telephone}` : ''}
+                        </span>
+                        <span
+                          className={`text-xs px-1.5 py-0.5 rounded ${c.points >= 100 ? 'bg-green-500/20 text-green-400' : 'text-xa-muted'}`}
+                        >
+                          {c.points} pts{c.points >= 100 ? ' 🎁' : ''}
+                        </span>
+                      </button>
+                    ))}
+                  {clients.filter(
+                    (c) =>
+                      c.nom.toLowerCase().includes(clientSearch.toLowerCase()) ||
+                      (c.telephone ?? '').includes(clientSearch),
+                  ).length === 0 && (
+                    <p className="px-3 py-2 text-xs text-xa-muted">Aucun client trouvé</p>
+                  )}
+                </div>
+              )}
+            </div>
+            {selectedClient && selectedClient.points >= 100 && (
+              <div className="px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/30 text-xs text-green-400 font-semibold">
+                🎁 Remise 5% débloquée pour {selectedClient.nom} !
+              </div>
+            )}
+          </div>
+
+          <div className="flex-1 overflow-hidden">
+            <Panier
+              items={cart}
+              onUpdate={updateCart}
+              payMode={payMode}
+              onPayModeChange={(mode) => {
+                setPayMode(mode);
+                setMontantRecu(0);
+                if (mode !== 'credit') {
+                  setClientNom('');
+                  setClientTelephone('');
+                }
+              }}
+              onValider={validerVente}
+              loading={loading}
+              boutiqueName={activeBoutique?.nom ?? ''}
+              clientNom={clientNom}
+              onClientNomChange={setClientNom}
+              clientTelephone={clientTelephone}
+              onClientTelephoneChange={setClientTelephone}
+              montantRecu={montantRecu}
+              onMontantRecuChange={setMontantRecu}
+              clientHasRemise={Boolean(selectedClient && selectedClient.points >= 100)}
+            />
+          </div>
+        </div>
 
         {/* Résumé caisse du jour */}
         <ResumeCaissePanel boutiqueId={boutiqueActive} refreshKey={resumeRefreshKey} />

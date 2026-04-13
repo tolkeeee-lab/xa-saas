@@ -32,6 +32,7 @@ interface PanierProps {
   onClientTelephoneChange?: (v: string) => void;
   montantRecu?: number;
   onMontantRecuChange?: (v: number) => void;
+  clientHasRemise?: boolean;
 }
 
 export default function Panier({
@@ -48,9 +49,12 @@ export default function Panier({
   onClientTelephoneChange,
   montantRecu,
   onMontantRecuChange,
+  clientHasRemise = false,
 }: PanierProps) {
   const sousTotal = items.reduce((s, i) => s + i.prix_vente * i.qty, 0);
-  const remise = sousTotal >= 50000 ? Math.round(sousTotal * 0.05) : 0;
+  const remisePanier = sousTotal >= 50000 ? Math.round(sousTotal * 0.05) : 0;
+  const remiseClient = clientHasRemise && remisePanier === 0 ? Math.round(sousTotal * 0.05) : 0;
+  const remise = remisePanier + remiseClient;
   const total = sousTotal - remise;
 
   return (
@@ -107,10 +111,16 @@ export default function Panier({
             <span>Sous-total</span>
             <span>{formatFCFA(sousTotal)}</span>
           </div>
-          {remise > 0 && (
+          {remisePanier > 0 && (
             <div className="flex justify-between text-green-500">
               <span>Remise fidélité 5 %</span>
-              <span>− {formatFCFA(remise)}</span>
+              <span>− {formatFCFA(remisePanier)}</span>
+            </div>
+          )}
+          {remiseClient > 0 && (
+            <div className="flex justify-between text-green-400">
+              <span>🎁 Remise client 5 %</span>
+              <span>− {formatFCFA(remiseClient)}</span>
             </div>
           )}
           <div className="flex justify-between font-bold text-xa-text text-sm pt-1">
