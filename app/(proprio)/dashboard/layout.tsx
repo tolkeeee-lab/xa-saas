@@ -5,6 +5,7 @@ import Sidebar from '@/components/dashboard/Sidebar';
 import Topbar from '@/components/dashboard/Topbar';
 import MobileNav from '@/components/dashboard/MobileNav';
 import KeyboardShortcuts from '@/components/dashboard/KeyboardShortcuts';
+import OfflineBanner from '@/components/dashboard/OfflineBanner';
 import type { Profile } from '@/types/database';
 
 export default async function DashboardLayout({
@@ -32,6 +33,7 @@ export default async function DashboardLayout({
       <Sidebar boutiques={boutiques} profile={profile} isSuperAdmin={isSuperAdmin} />
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <Topbar />
+        <OfflineBanner />
         <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6">
           {children}
         </main>

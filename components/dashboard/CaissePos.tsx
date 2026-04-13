@@ -7,7 +7,7 @@ import Panier, { type CartItem, type PayMode } from './Panier';
 import TicketCaisse, { type TicketData } from './TicketCaisse';
 import { formatFCFA } from '@/lib/format';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
-import { enqueueSale, type OfflineSale } from '@/lib/offline/offlineQueue';
+import { enqueueSale, saveProduits, loadProduits, type OfflineSale } from '@/lib/offline/offlineQueue';
 
 const CATEGORIES = ['Tous', 'Épicerie', 'Boissons', 'Hygiène', 'Frais', 'Boulangerie'];
 
@@ -192,7 +192,7 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
     [],
   );
 
-  const { isOnline, pendingCount, syncing } = useOfflineSync({
+  const { isOnline } = useOfflineSync({
     onSyncResult: (succeeded, failed) => {
       if (succeeded > 0) {
         showToast(`${succeeded} vente${succeeded !== 1 ? 's' : ''} synchronisée${succeeded !== 1 ? 's' : ''}`, 'success');
@@ -210,9 +210,18 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
     setFetchingProduits(true);
     fetch(`/api/produits?boutique_id=${boutiqueActive}`)
       .then((r) => r.json())
-      .then((data: ProduitPublic[]) => {
-        setProduits(Array.isArray(data) ? data : []);
-        setCart([]);
+      .then(async (data: ProduitPublic[]) => {
+        if (Array.isArray(data)) {
+          setProduits(data);
+          setCart([]);
+          await saveProduits(boutiqueActive, data);
+        }
+      })
+      .catch(async () => {
+        const cached = await loadProduits(boutiqueActive);
+        if (cached) {
+          setProduits(cached as ProduitPublic[]);
+        }
       })
       .finally(() => setFetchingProduits(false));
   }, [boutiqueActive]);
@@ -378,50 +387,6 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
 
   return (
     <div className="flex flex-col h-[calc(100vh-120px)]">
-      {/* Offline / syncing banners */}
-      {!isOnline && (
-        <div
-          style={{
-            background: '#ff3341',
-            color: 'white',
-            padding: '0.5rem 1rem',
-            borderRadius: '0.5rem',
-            fontSize: '0.8125rem',
-            fontWeight: '600',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            marginBottom: '0.75rem',
-          }}
-        >
-          <span>📵</span>
-          <span>
-            Mode hors-ligne —{' '}
-            {pendingCount} vente{pendingCount !== 1 ? 's' : ''} en attente de synchronisation
-          </span>
-        </div>
-      )}
-
-      {isOnline && syncing && (
-        <div
-          style={{
-            background: '#4d9fff',
-            color: 'white',
-            padding: '0.5rem 1rem',
-            borderRadius: '0.5rem',
-            fontSize: '0.8125rem',
-            fontWeight: '600',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            marginBottom: '0.75rem',
-          }}
-        >
-          <span>⏳</span>
-          <span>Synchronisation en cours…</span>
-        </div>
-      )}
-
       {/* Toast */}
       {toast && (
         <div
