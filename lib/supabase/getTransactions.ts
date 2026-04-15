@@ -51,13 +51,15 @@ export async function getTransactions(
 
   const { data } = await query;
 
-  const transactions: TransactionWithDetails[] = (data ?? []).map((t) => ({
-    ...t,
-    boutique_nom: (t.boutiques as { nom: string } | null)?.nom ?? '—',
-    employe_nom: t.employes
-      ? `${(t.employes as { nom: string; prenom: string }).nom} ${(t.employes as { nom: string; prenom: string }).prenom}`
-      : null,
-  }));
+  const transactions: TransactionWithDetails[] = (data ?? []).map((t) => {
+    const boutique = (t.boutiques as unknown as { nom: string } | null);
+    const employe = (t.employes as unknown as { nom: string; prenom: string } | null);
+    return {
+      ...t,
+      boutique_nom: boutique?.nom ?? '—',
+      employe_nom: employe ? `${employe.nom} ${employe.prenom}` : null,
+    };
+  });
 
   const validees = transactions.filter((t) => t.statut === 'validee');
   const total_ca = validees.reduce((s, t) => s + t.montant_total, 0);
