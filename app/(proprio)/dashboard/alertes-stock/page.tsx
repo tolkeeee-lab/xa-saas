@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getAlertesStock } from '@/lib/supabase/getAlertesStock';
-import AlertesStockPage from '@/components/dashboard/AlertesStockPage';
+import AlertesStockPage from '@/features/stocks/AlertesStockPage';
 
 export const metadata = { title: 'Alertes Stock — xà' };
 

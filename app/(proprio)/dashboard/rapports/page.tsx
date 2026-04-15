@@ -2,8 +2,8 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getRapports, getRapportsPeriode } from '@/lib/supabase/getRapports';
 import { getBoutiques } from '@/lib/supabase/getBoutiques';
-import RapportsPage from '@/components/dashboard/RapportsPage';
-import TopProduitsPage from '@/components/dashboard/TopProduitsPage';
+import RapportsPage from '@/features/rapports/RapportsPage';
+import TopProduitsPage from '@/features/rapports/TopProduitsPage';
 
 export default async function RapportsServerPage() {
   const supabase = await createClient();

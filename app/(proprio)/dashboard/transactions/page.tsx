@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getTransactions } from '@/lib/supabase/getTransactions';
-import TransactionsPage from '@/components/dashboard/TransactionsPage';
+import TransactionsPage from '@/features/rapports/TransactionsPage';
 
 export const metadata = { title: 'Transactions — xà' };
 

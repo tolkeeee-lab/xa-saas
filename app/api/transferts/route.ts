@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
+import { getAuthUser } from '@/lib/auth/getAuthUser';
 
 type TransfertBody = {
   produit_id?: string;
@@ -14,6 +15,9 @@ type TransfertBody = {
  * Returns transfers involving the given boutique IDs.
  */
 export async function GET(request: NextRequest) {
+  const { error: authError } = await getAuthUser();
+  if (authError) return authError;
+
   const boutiqueIds = request.nextUrl.searchParams.get('boutique_ids');
   if (!boutiqueIds) {
     return NextResponse.json({ error: 'boutique_ids requis' }, { status: 400 });
@@ -46,6 +50,9 @@ export async function GET(request: NextRequest) {
  * Body: { produit_id, boutique_source_id, boutique_destination_id, quantite, note? }
  */
 export async function POST(request: NextRequest) {
+  const { error: authError } = await getAuthUser();
+  if (authError) return authError;
+
   let body: TransfertBody;
 
   try {

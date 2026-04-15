@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getDettesProprioData } from '@/lib/supabase/getDettesProprioData';
-import MesDettesPage from '@/components/dashboard/MesDettesPage';
+import MesDettesPage from '@/features/dettes/MesDettesPage';
 
 export const metadata = { title: 'Mes dettes — xà' };
 

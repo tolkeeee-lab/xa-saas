@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getClients } from '@/lib/supabase/getClients';
-import ClientsPage from '@/components/dashboard/ClientsPage';
+import ClientsPage from '@/features/clients/ClientsPage';
 
 export const metadata = { title: 'Clients fidèles — xà' };
 

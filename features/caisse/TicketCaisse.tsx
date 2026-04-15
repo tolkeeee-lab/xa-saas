@@ -1,7 +1,7 @@
 'use client';
 
 import { formatFCFA, formatDateTime } from '@/lib/format';
-import type { PayMode } from './Panier';
+import type { PayMode } from '@/features/caisse/Panier';
 
 export type TicketData = {
   transaction_id: string;

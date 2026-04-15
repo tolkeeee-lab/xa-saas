@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getComparatif, type ComparatifPeriode } from '@/lib/supabase/getComparatif';
-import ComparatifPage from '@/components/dashboard/ComparatifPage';
+import ComparatifPage from '@/features/rapports/ComparatifPage';
 
 export const metadata = { title: 'Comparatif boutiques — xà' };
 

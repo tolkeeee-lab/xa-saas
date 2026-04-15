@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getBoutiques } from '@/lib/supabase/getBoutiques';
-import Sidebar from '@/components/dashboard/Sidebar';
-import Topbar from '@/components/dashboard/Topbar';
-import MobileNav from '@/components/dashboard/MobileNav';
-import KeyboardShortcuts from '@/components/dashboard/KeyboardShortcuts';
-import OfflineBanner from '@/components/dashboard/OfflineBanner';
+import Sidebar from '@/components/layout/Sidebar';
+import Topbar from '@/components/layout/Topbar';
+import MobileNav from '@/components/layout/MobileNav';
+import KeyboardShortcuts from '@/components/ui/KeyboardShortcuts';
+import OfflineBanner from '@/components/ui/OfflineBanner';
 import type { Profile } from '@/types/database';
 
 export default async function DashboardLayout({

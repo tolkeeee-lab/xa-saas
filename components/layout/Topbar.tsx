@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ui/ThemeToggle';
-import InstallPwaButton from '@/components/dashboard/InstallPwaButton';
+import InstallPwaButton from '@/components/ui/InstallPwaButton';
 import type { AppNotification } from '@/lib/supabase/getNotifications';
 
 const PAGE_TITLES: Record<string, string> = {

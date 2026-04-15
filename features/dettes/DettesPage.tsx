@@ -4,7 +4,7 @@ import { useState } from 'react';
 import type { Boutique } from '@/types/database';
 import type { DettesData, DetteAvecBoutique } from '@/lib/supabase/getDettes';
 import { formatFCFA, formatDate } from '@/lib/format';
-import StatCard from './StatCard';
+import StatCard from '@/components/ui/StatCard';
 
 interface DettesPageProps {
   data: DettesData;

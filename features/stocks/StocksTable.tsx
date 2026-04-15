@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { formatFCFA } from '@/lib/format';
 import type { Boutique, ProduitPublic } from '@/types/database';
 import type { StocksConsolidesData, StockConsolideRow } from '@/lib/supabase/getStocksConsolides';
-import AddProduitModal from './AddProduitModal';
+import AddProduitModal from '@/features/stocks/AddProduitModal';
 
 type StockStatus = 'ok' | 'bas' | 'rupture';
 
