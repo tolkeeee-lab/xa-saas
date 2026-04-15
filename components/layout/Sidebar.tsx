@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase-browser';
 import type { Boutique, Profile } from '@/types/database';
-import type { AppNotification } from '@/lib/supabase/getNotifications';
+import { useNotifs } from '@/context/NotifContext';
 
 type SidebarProps = {
   boutiques: Boutique[];
@@ -203,27 +203,12 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
   const router = useRouter();
   const [activeBoutiqueId, setActiveBoutiqueId] = useState<string>('all');
   const [showBoutiqueList, setShowBoutiqueList] = useState(false);
-  const [hasStockAlerte, setHasStockAlerte] = useState(false);
+  const { notifications } = useNotifs();
+  const hasStockAlerte = notifications.some((n) => n.type === 'stock');
 
   useEffect(() => {
     const stored = localStorage.getItem('xa-boutique-active');
     if (stored) setActiveBoutiqueId(stored);
-  }, []);
-
-  useEffect(() => {
-    async function fetchNotifs() {
-      try {
-        const res = await fetch('/api/notifications');
-        const data = (await res.json()) as { notifications?: AppNotification[] };
-        const notifs = data.notifications ?? [];
-        setHasStockAlerte(notifs.some((n) => n.type === 'stock'));
-      } catch {
-        // ignore silently
-      }
-    }
-    void fetchNotifs();
-    const interval = setInterval(() => void fetchNotifs(), 60_000);
-    return () => clearInterval(interval);
   }, []);
 
   function selectBoutique(id: string) {
