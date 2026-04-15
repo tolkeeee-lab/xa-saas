@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
+import { applyRateLimit } from '@/lib/rateLimit';
+import { validateBody } from '@/lib/schemas/validate';
+import { produitsPatchSchema } from '@/lib/schemas/produits';
 
 type PatchBody = {
   stock_actuel?: number;
@@ -16,6 +19,9 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { error: authError } = await getAuthUser();
   if (authError) return authError;
 
@@ -25,12 +31,15 @@ export async function PATCH(
     return NextResponse.json({ error: 'id produit requis' }, { status: 400 });
   }
 
-  let body: PatchBody;
+  let rawBody: unknown;
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
   }
+
+  const { data: body, error: validationError } = validateBody(produitsPatchSchema, rawBody);
+  if (validationError) return validationError;
 
   const update: PatchBody = {};
   if (body.stock_actuel !== undefined) update.stock_actuel = body.stock_actuel;

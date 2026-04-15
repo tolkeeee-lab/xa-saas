@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 import { createAdminClient } from '@/lib/supabase-admin';
+import { applyRateLimit } from '@/lib/rateLimit';
+import { validateBody } from '@/lib/schemas/validate';
+import { clotureCaissePostSchema } from '@/lib/schemas/cloture-caisse';
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -42,6 +45,9 @@ async function computeTheorique(boutiqueId: string, date: string) {
  * GET /api/cloture-caisse?boutique_id=X&date=YYYY-MM-DD
  */
 export async function GET(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -96,6 +102,9 @@ export async function GET(request: NextRequest) {
  * Body: { boutique_id, date, cash_reel, note? }
  */
 export async function POST(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -105,35 +114,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
 
-  const body = (await request.json()) as {
-    boutique_id?: string;
-    date?: string;
-    cash_reel?: number;
-    note?: string;
-  };
+  let rawBody: unknown;
+  try {
+    rawBody = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
+  }
+
+  const { data: body, error: validationError } = validateBody(clotureCaissePostSchema, rawBody);
+  if (validationError) return validationError;
 
   const { boutique_id, date, cash_reel, note } = body;
-
-  if (!boutique_id || !date || cash_reel === undefined) {
-    return NextResponse.json(
-      { error: 'Champs boutique_id, date et cash_reel requis' },
-      { status: 400 },
-    );
-  }
-
-  if (!ISO_DATE_RE.test(date)) {
-    return NextResponse.json(
-      { error: 'Format de date invalide (YYYY-MM-DD attendu)' },
-      { status: 400 },
-    );
-  }
-
-  if (typeof cash_reel !== 'number' || isNaN(cash_reel) || cash_reel < 0) {
-    return NextResponse.json(
-      { error: 'cash_reel doit être un nombre positif ou nul' },
-      { status: 400 },
-    );
-  }
 
   const { ca_theorique, cash_theorique, par_mode, nb_transactions } = await computeTheorique(
     boutique_id,

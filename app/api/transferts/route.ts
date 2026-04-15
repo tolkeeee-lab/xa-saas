@@ -1,20 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-
-type TransfertBody = {
-  produit_id?: string;
-  boutique_source_id?: string;
-  boutique_destination_id?: string;
-  quantite?: number;
-  note?: string;
-};
+import { applyRateLimit } from '@/lib/rateLimit';
+import { validateBody } from '@/lib/schemas/validate';
+import { transfertsPostSchema } from '@/lib/schemas/transferts';
 
 /**
  * GET /api/transferts?boutique_ids=id1,id2
  * Returns transfers involving the given boutique IDs.
  */
 export async function GET(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { error: authError } = await getAuthUser();
   if (authError) return authError;
 
@@ -50,33 +48,24 @@ export async function GET(request: NextRequest) {
  * Body: { produit_id, boutique_source_id, boutique_destination_id, quantite, note? }
  */
 export async function POST(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { error: authError } = await getAuthUser();
   if (authError) return authError;
 
-  let body: TransfertBody;
+  let rawBody: unknown;
 
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
   }
 
+  const { data: body, error: validationError } = validateBody(transfertsPostSchema, rawBody);
+  if (validationError) return validationError;
+
   const { produit_id, boutique_source_id, boutique_destination_id, quantite, note } = body;
-
-  if (!produit_id || !boutique_source_id || !boutique_destination_id || quantite == null) {
-    return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 });
-  }
-
-  if (boutique_source_id === boutique_destination_id) {
-    return NextResponse.json(
-      { error: 'La source et la destination doivent être différentes' },
-      { status: 422 },
-    );
-  }
-
-  if (!Number.isInteger(quantite) || quantite <= 0) {
-    return NextResponse.json({ error: 'La quantité doit être un entier positif' }, { status: 422 });
-  }
 
   const supabase = createAdminClient();
 

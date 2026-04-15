@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 import { createAdminClient } from '@/lib/supabase-admin';
+import { applyRateLimit } from '@/lib/rateLimit';
+import { validateBody } from '@/lib/schemas/validate';
+import { chargesFixesPatchSchema } from '@/lib/schemas/charges-fixes';
 import type { ChargeFixe } from '@/types/database';
 
 type PatchBody = {
@@ -20,6 +23,9 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { id } = await params;
 
   const supabase = await createClient();
@@ -31,37 +37,22 @@ export async function PATCH(
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
 
-  let body: PatchBody;
+  let rawBody: unknown;
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
   }
 
-  const VALID_CATEGORIES: ChargeFixe['categorie'][] = ['loyer', 'salaire', 'fournisseur', 'autre'];
-  const VALID_PERIODICITES: ChargeFixe['periodicite'][] = ['mensuel', 'hebdo', 'annuel'];
+  const { data: body, error: validationError } = validateBody(chargesFixesPatchSchema, rawBody);
+  if (validationError) return validationError;
 
   const update: PatchBody = {};
   if (body.libelle !== undefined) update.libelle = body.libelle;
-  if (body.categorie !== undefined) {
-    if (!VALID_CATEGORIES.includes(body.categorie)) {
-      return NextResponse.json({ error: 'Catégorie invalide' }, { status: 422 });
-    }
-    update.categorie = body.categorie;
-  }
+  if (body.categorie !== undefined) update.categorie = body.categorie;
   if (body.boutique_id !== undefined) update.boutique_id = body.boutique_id;
-  if (body.montant !== undefined) {
-    if (typeof body.montant !== 'number' || body.montant < 0) {
-      return NextResponse.json({ error: 'Montant invalide' }, { status: 422 });
-    }
-    update.montant = body.montant;
-  }
-  if (body.periodicite !== undefined) {
-    if (!VALID_PERIODICITES.includes(body.periodicite)) {
-      return NextResponse.json({ error: 'Périodicité invalide' }, { status: 422 });
-    }
-    update.periodicite = body.periodicite;
-  }
+  if (body.montant !== undefined) update.montant = body.montant;
+  if (body.periodicite !== undefined) update.periodicite = body.periodicite;
   if (body.actif !== undefined) update.actif = body.actif;
 
   if (Object.keys(update).length === 0) {
@@ -100,9 +91,12 @@ export async function PATCH(
  * Deletes a charge fixe.
  */
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { id } = await params;
 
   const supabase = await createClient();

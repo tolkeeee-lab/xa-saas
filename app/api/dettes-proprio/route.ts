@@ -1,22 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 import { createAdminClient } from '@/lib/supabase-admin';
+import { applyRateLimit } from '@/lib/rateLimit';
+import { validateBody } from '@/lib/schemas/validate';
+import { dettesProprioPostSchema } from '@/lib/schemas/dettes-proprio';
 import type { DetteProprio } from '@/types/database';
-
-type PostBody = {
-  libelle?: string;
-  creancier?: string;
-  montant?: number;
-  montant_rembourse?: number;
-  date_echeance?: string | null;
-  notes?: string | null;
-};
 
 /**
  * GET /api/dettes-proprio
  * Returns all dettes proprio for the authenticated owner.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -46,6 +43,9 @@ export async function GET() {
  * Creates a new dette proprio.
  */
 export async function POST(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -55,28 +55,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
 
-  let body: PostBody;
+  let rawBody: unknown;
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
   }
 
+  const { data: body, error: validationError } = validateBody(dettesProprioPostSchema, rawBody);
+  if (validationError) return validationError;
+
   const { libelle, creancier, montant, montant_rembourse, date_echeance, notes } = body;
 
-  if (!libelle || !creancier || montant == null) {
-    return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 });
-  }
-
-  if (typeof montant !== 'number' || montant < 0) {
-    return NextResponse.json({ error: 'Montant invalide' }, { status: 422 });
-  }
-
   const rembourse = montant_rembourse ?? 0;
-  if (typeof rembourse !== 'number' || rembourse < 0) {
-    return NextResponse.json({ error: 'Montant remboursé invalide' }, { status: 422 });
-  }
-
   const statut: DetteProprio['statut'] = rembourse >= montant ? 'rembourse' : 'en_cours';
 
   const admin = createAdminClient();

@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 import { getRapportsPeriode } from '@/lib/supabase/getRapports';
+import { applyRateLimit } from '@/lib/rateLimit';
 
 /**
  * GET /api/rapports?dateDebut=YYYY-MM-DD&dateFin=YYYY-MM-DD
  */
 export async function GET(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },

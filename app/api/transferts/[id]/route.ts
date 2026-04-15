@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-
-type PatchBody = {
-  statut?: 'en_transit' | 'livre';
-};
+import { applyRateLimit } from '@/lib/rateLimit';
+import { validateBody } from '@/lib/schemas/validate';
+import { transfertsPatchSchema } from '@/lib/schemas/transferts';
 
 /**
  * PATCH /api/transferts/[id]
@@ -14,6 +13,9 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { error: authError } = await getAuthUser();
   if (authError) return authError;
 
@@ -23,16 +25,15 @@ export async function PATCH(
     return NextResponse.json({ error: 'id transfert requis' }, { status: 400 });
   }
 
-  let body: PatchBody;
+  let rawBody: unknown;
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
   }
 
-  if (!body.statut || !['en_transit', 'livre'].includes(body.statut)) {
-    return NextResponse.json({ error: 'Statut invalide' }, { status: 422 });
-  }
+  const { data: body, error: validationError } = validateBody(transfertsPatchSchema, rawBody);
+  if (validationError) return validationError;
 
   const supabase = createAdminClient();
 

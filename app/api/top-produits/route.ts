@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 import { getTopProduits } from '@/lib/supabase/getTopProduits';
+import { applyRateLimit } from '@/lib/rateLimit';
 
 /**
  * GET /api/top-produits?dateDebut=YYYY-MM-DD&dateFin=YYYY-MM-DD&boutiqueId=all|UUID
  * Returns top sold products globally and per boutique.
  */
 export async function GET(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },

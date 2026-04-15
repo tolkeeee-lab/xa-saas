@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
+import { applyRateLimit } from '@/lib/rateLimit';
+import { validateBody } from '@/lib/schemas/validate';
+import { dettesPatchSchema } from '@/lib/schemas/dettes';
 
 type DetteStatut = 'en_attente' | 'paye' | 'en_retard';
 
@@ -16,29 +19,29 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { error: authError } = await getAuthUser();
   if (authError) return authError;
 
   const { id } = await params;
 
-  let body: { statut?: unknown; montant_rembourse?: unknown };
+  let rawBody: unknown;
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
   }
 
+  const { data: body, error: validationError } = validateBody(dettesPatchSchema, rawBody);
+  if (validationError) return validationError;
+
   const admin = createAdminClient();
 
-  const validStatuts: DetteStatut[] = ['en_attente', 'paye', 'en_retard'];
   const payload: DetteUpdatePayload = {};
-
-  if (typeof body.statut === 'string' && validStatuts.includes(body.statut as DetteStatut)) {
-    payload.statut = body.statut as DetteStatut;
-  }
-  if (typeof body.montant_rembourse === 'number') {
-    payload.montant_rembourse = body.montant_rembourse;
-  }
+  if (body.statut !== undefined) payload.statut = body.statut;
+  if (body.montant_rembourse !== undefined) payload.montant_rembourse = body.montant_rembourse;
 
   if (Object.keys(payload).length === 0) {
     return NextResponse.json({ error: 'Aucun champ à mettre à jour' }, { status: 400 });
