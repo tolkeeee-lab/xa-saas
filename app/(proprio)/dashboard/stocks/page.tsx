@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getBoutiques } from '@/lib/supabase/getBoutiques';
 import { getStocksConsolides } from '@/lib/supabase/getStocksConsolides';
-import StocksTable from '@/components/dashboard/StocksTable';
+import StocksTable from '@/features/stocks/StocksTable';
 
 export const metadata = { title: 'Stocks consolidés — xà' };
 

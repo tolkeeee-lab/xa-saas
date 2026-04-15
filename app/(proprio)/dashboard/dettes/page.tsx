@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getDettes } from '@/lib/supabase/getDettes';
-import DettesPage from '@/components/dashboard/DettesPage';
+import DettesPage from '@/features/dettes/DettesPage';
 import { getBoutiques } from '@/lib/supabase/getBoutiques';
 
 export default async function DettesServerPage() {

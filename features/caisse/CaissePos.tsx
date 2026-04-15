@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Boutique, ProduitPublic, Client } from '@/types/database';
-import ProduitCard from './ProduitCard';
-import Panier, { type CartItem, type PayMode } from './Panier';
-import TicketCaisse, { type TicketData } from './TicketCaisse';
+import ProduitCard from '@/features/stocks/ProduitCard';
+import Panier, { type CartItem, type PayMode } from '@/features/caisse/Panier';
+import TicketCaisse, { type TicketData } from '@/features/caisse/TicketCaisse';
 import { formatFCFA } from '@/lib/format';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { enqueueSale, saveProduits, loadProduits, type OfflineSale } from '@/lib/offline/offlineQueue';

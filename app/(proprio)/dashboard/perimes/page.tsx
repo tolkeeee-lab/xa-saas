@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getPeremptions } from '@/lib/supabase/getPeremptions';
-import PerimesTable from '@/components/dashboard/PerimesTable';
+import PerimesTable from '@/features/stocks/PerimesTable';
 
 export const metadata = { title: 'Péremptions — xà' };
 

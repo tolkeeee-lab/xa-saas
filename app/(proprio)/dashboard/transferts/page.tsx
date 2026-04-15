@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getBoutiques } from '@/lib/supabase/getBoutiques';
 import { getTransferts } from '@/lib/supabase/getTransferts';
-import TransfertsPage from '@/components/dashboard/TransfertsPage';
+import TransfertsPage from '@/features/transferts/TransfertsPage';
 import type { Produit } from '@/types/database';
 
 export const metadata = { title: 'Transferts inter-sites — xà' };
