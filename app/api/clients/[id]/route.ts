@@ -49,7 +49,14 @@ export async function PATCH(
     return NextResponse.json({ error: 'Client introuvable' }, { status: 404 });
   }
 
-  const updatePayload: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  const updatePayload: {
+    updated_at: string;
+    nom?: string;
+    telephone?: string | null;
+    points?: number;
+    total_achats?: number;
+    nb_visites?: number;
+  } = { updated_at: new Date().toISOString() };
 
   if (typeof body.nom === 'string' && body.nom.trim()) {
     updatePayload.nom = body.nom.trim();
