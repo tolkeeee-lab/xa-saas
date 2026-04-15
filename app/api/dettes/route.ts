@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
+import { applyRateLimit } from '@/lib/rateLimit';
+import { validateBody } from '@/lib/schemas/validate';
+import { dettesPostSchema } from '@/lib/schemas/dettes';
 
 /**
  * GET /api/dettes?boutique_id=xxx  → liste dettes d'une boutique
@@ -8,6 +11,9 @@ import { getAuthUser } from '@/lib/auth/getAuthUser';
  */
 
 export async function GET(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { error: authError } = await getAuthUser();
   if (authError) return authError;
 
@@ -32,29 +38,23 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { error: authError } = await getAuthUser();
   if (authError) return authError;
 
-  let body: Record<string, unknown>;
+  let rawBody: unknown;
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
   }
 
-  const { boutique_id, client_nom, client_telephone, montant, description, date_echeance } =
-    body as {
-      boutique_id: string;
-      client_nom: string;
-      client_telephone?: string;
-      montant: number;
-      description?: string;
-      date_echeance?: string;
-    };
+  const { data: body, error: validationError } = validateBody(dettesPostSchema, rawBody);
+  if (validationError) return validationError;
 
-  if (!boutique_id || !client_nom || montant == null) {
-    return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 });
-  }
+  const { boutique_id, client_nom, client_telephone, montant, description, date_echeance } = body;
 
   const admin = createAdminClient();
 

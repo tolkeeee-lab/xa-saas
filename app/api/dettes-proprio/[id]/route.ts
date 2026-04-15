@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 import { createAdminClient } from '@/lib/supabase-admin';
+import { applyRateLimit } from '@/lib/rateLimit';
+import { validateBody } from '@/lib/schemas/validate';
+import { dettesProprioPathSchema } from '@/lib/schemas/dettes-proprio';
 import type { DetteProprio, Database } from '@/types/database';
-
-type PatchBody = {
-  statut?: DetteProprio['statut'];
-  montant_rembourse?: number;
-  notes?: string | null;
-};
 
 type DetteProprioPatch = Database['public']['Tables']['dettes_proprio']['Update'];
 
@@ -19,6 +16,9 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { id } = await params;
 
   const supabase = await createClient();
@@ -30,34 +30,21 @@ export async function PATCH(
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
 
-  let body: PatchBody;
+  let rawBody: unknown;
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
   }
 
-  const VALID_STATUTS: DetteProprio['statut'][] = ['en_cours', 'rembourse', 'en_retard'];
+  const { data: body, error: validationError } = validateBody(dettesProprioPathSchema, rawBody);
+  if (validationError) return validationError;
 
   const update: DetteProprioPatch = {};
 
-  if (body.statut !== undefined) {
-    if (!VALID_STATUTS.includes(body.statut)) {
-      return NextResponse.json({ error: 'Statut invalide' }, { status: 422 });
-    }
-    update.statut = body.statut;
-  }
-
-  if (body.montant_rembourse !== undefined) {
-    if (typeof body.montant_rembourse !== 'number' || body.montant_rembourse < 0) {
-      return NextResponse.json({ error: 'Montant remboursé invalide' }, { status: 422 });
-    }
-    update.montant_rembourse = body.montant_rembourse;
-  }
-
-  if (body.notes !== undefined) {
-    update.notes = body.notes;
-  }
+  if (body.statut !== undefined) update.statut = body.statut;
+  if (body.montant_rembourse !== undefined) update.montant_rembourse = body.montant_rembourse;
+  if (body.notes !== undefined) update.notes = body.notes;
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: 'Aucun champ à mettre à jour' }, { status: 400 });
@@ -105,9 +92,12 @@ export async function PATCH(
  * Soft-deletes a dette proprio (sets actif = false).
  */
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { id } = await params;
 
   const supabase = await createClient();

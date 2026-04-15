@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { createClient } from '@/lib/supabase-server';
+import { applyRateLimit } from '@/lib/rateLimit';
+import { validateBody } from '@/lib/schemas/validate';
+import { fournisseursPostSchema, commandeFournisseurSchema } from '@/lib/schemas/fournisseurs';
 
 /**
  * GET /api/fournisseurs  → liste fournisseurs du propriétaire authentifié
@@ -8,7 +11,10 @@ import { createClient } from '@/lib/supabase-server';
  * POST /api/fournisseurs?action=commande → créer une commande fournisseur
  */
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -33,6 +39,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -42,9 +51,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
 
-  let body: Record<string, unknown>;
+  let rawBody: unknown;
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
   }
@@ -55,14 +64,13 @@ export async function POST(request: NextRequest) {
   const admin = createAdminClient();
 
   if (action === 'commande') {
-    const fournisseur_id = typeof body.fournisseur_id === 'string' ? body.fournisseur_id : '';
-    const boutique_id = typeof body.boutique_id === 'string' ? body.boutique_id : '';
-    const montant = typeof body.montant === 'number' ? body.montant : 0;
-    const note = typeof body.note === 'string' ? body.note : null;
+    const { data: body, error: validationError } = validateBody(
+      commandeFournisseurSchema,
+      rawBody,
+    );
+    if (validationError) return validationError;
 
-    if (!fournisseur_id || !boutique_id || !montant) {
-      return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 });
-    }
+    const { fournisseur_id, boutique_id, montant, note } = body;
 
     const { data, error } = await admin
       .from('commandes_fournisseur')
@@ -70,7 +78,7 @@ export async function POST(request: NextRequest) {
         fournisseur_id,
         boutique_id,
         montant,
-        note,
+        note: note ?? null,
         statut: 'en_attente' as const,
       })
       .select()
@@ -83,26 +91,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(data, { status: 201 });
   }
 
-  // Create fournisseur
-  const nom = typeof body.nom === 'string' ? body.nom : '';
-  const specialite = typeof body.specialite === 'string' ? body.specialite : null;
-  const delai_livraison = typeof body.delai_livraison === 'string' ? body.delai_livraison : null;
-  const noteVal = typeof body.note === 'number' ? body.note : 0;
-  const telephone = typeof body.telephone === 'string' ? body.telephone : null;
+  const { data: body, error: validationError } = validateBody(fournisseursPostSchema, rawBody);
+  if (validationError) return validationError;
 
-  if (!nom) {
-    return NextResponse.json({ error: 'Le nom est obligatoire' }, { status: 400 });
-  }
+  const { nom, specialite, delai_livraison, note: noteVal, telephone } = body;
 
   const { data, error } = await admin
     .from('fournisseurs')
     .insert({
       proprietaire_id: user.id,
       nom,
-      specialite,
-      delai_livraison,
-      note: noteVal,
-      telephone,
+      specialite: specialite ?? null,
+      delai_livraison: delai_livraison ?? null,
+      note: noteVal ?? 0,
+      telephone: telephone ?? null,
     })
     .select()
     .single();

@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
+import { applyRateLimit } from '@/lib/rateLimit';
+import { validateBody } from '@/lib/schemas/validate';
+import { produitsPostSchema } from '@/lib/schemas/produits';
 
 /**
  * GET /api/produits?boutique_id=xxx
  * Returns products for the given boutique WITHOUT prix_achat.
  */
 export async function GET(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { error: authError } = await getAuthUser();
   if (authError) return authError;
 
@@ -38,31 +44,24 @@ export async function GET(request: NextRequest) {
  * Body: { boutique_id, nom, categorie, prix_achat, prix_vente, stock_actuel, seuil_alerte, unite? }
  */
 export async function POST(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { error: authError } = await getAuthUser();
   if (authError) return authError;
 
-  let body: {
-    boutique_id?: string;
-    nom?: string;
-    categorie?: string;
-    prix_achat?: number;
-    prix_vente?: number;
-    stock_actuel?: number;
-    seuil_alerte?: number;
-    unite?: string;
-  };
+  let rawBody: unknown;
 
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
   }
 
-  const { boutique_id, nom, categorie, prix_achat, prix_vente, stock_actuel, seuil_alerte, unite } = body;
+  const { data: body, error: validationError } = validateBody(produitsPostSchema, rawBody);
+  if (validationError) return validationError;
 
-  if (!boutique_id || !nom || prix_achat == null || prix_vente == null) {
-    return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 });
-  }
+  const { boutique_id, nom, categorie, prix_achat, prix_vente, stock_actuel, seuil_alerte, unite } = body;
 
   if (prix_vente <= prix_achat) {
     return NextResponse.json({ error: "Le prix de vente doit être supérieur au prix d'achat" }, { status: 422 });

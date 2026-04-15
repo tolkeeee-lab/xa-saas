@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { createClient } from '@/lib/supabase-server';
+import { applyRateLimit } from '@/lib/rateLimit';
+import { validateBody } from '@/lib/schemas/validate';
+import { clientsPatchSchema } from '@/lib/schemas/clients';
 
 /**
  * PATCH /api/clients/[id] → mettre à jour nom, téléphone, points, total_achats, nb_visites
@@ -11,6 +14,9 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { id } = await params;
 
   const supabase = await createClient();
@@ -22,18 +28,15 @@ export async function PATCH(
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
 
-  let body: {
-    nom?: unknown;
-    telephone?: unknown;
-    points_delta?: unknown;
-    total_achats_delta?: unknown;
-    increment_visites?: unknown;
-  };
+  let rawBody: unknown;
   try {
-    body = await request.json() as typeof body;
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
   }
+
+  const { data: body, error: validationError } = validateBody(clientsPatchSchema, rawBody);
+  if (validationError) return validationError;
 
   const admin = createAdminClient();
 
@@ -58,17 +61,16 @@ export async function PATCH(
     nb_visites?: number;
   } = { updated_at: new Date().toISOString() };
 
-  if (typeof body.nom === 'string' && body.nom.trim()) {
+  if (body.nom !== undefined) {
     updatePayload.nom = body.nom.trim();
   }
   if (body.telephone !== undefined) {
-    updatePayload.telephone =
-      typeof body.telephone === 'string' && body.telephone.trim() ? body.telephone.trim() : null;
+    updatePayload.telephone = body.telephone?.trim() ?? null;
   }
-  if (typeof body.points_delta === 'number') {
+  if (body.points_delta !== undefined) {
     updatePayload.points = Math.max(0, existing.points + body.points_delta);
   }
-  if (typeof body.total_achats_delta === 'number') {
+  if (body.total_achats_delta !== undefined) {
     updatePayload.total_achats = existing.total_achats + body.total_achats_delta;
   }
   if (body.increment_visites === true) {
@@ -90,9 +92,12 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { id } = await params;
 
   const supabase = await createClient();

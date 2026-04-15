@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { createClient } from '@/lib/supabase-server';
+import { applyRateLimit } from '@/lib/rateLimit';
+import { validateBody } from '@/lib/schemas/validate';
+import { clientsPostSchema } from '@/lib/schemas/clients';
 
 /*
  * SQL migration (run once in Supabase SQL editor — do NOT execute from code):
@@ -32,7 +35,10 @@ import { createClient } from '@/lib/supabase-server';
  * POST /api/clients → créer un client
  */
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -58,6 +64,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -67,16 +76,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
 
-  let body: { nom?: unknown; telephone?: unknown };
+  let rawBody: unknown;
   try {
-    body = await request.json() as { nom?: unknown; telephone?: unknown };
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
   }
 
-  if (typeof body.nom !== 'string' || !body.nom.trim()) {
-    return NextResponse.json({ error: 'Le champ nom est obligatoire' }, { status: 400 });
-  }
+  const { data: body, error: validationError } = validateBody(clientsPostSchema, rawBody);
+  if (validationError) return validationError;
 
   const admin = createAdminClient();
   const { data, error } = await admin
@@ -84,7 +92,7 @@ export async function POST(request: NextRequest) {
     .insert({
       proprietaire_id: user.id,
       nom: body.nom.trim(),
-      telephone: typeof body.telephone === 'string' && body.telephone.trim() ? body.telephone.trim() : null,
+      telephone: body.telephone?.trim() ?? null,
     })
     .select()
     .single();

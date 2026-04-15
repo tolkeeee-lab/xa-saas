@@ -1,29 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { getAuthUser } from '@/lib/auth/getAuthUser';
-
-type PayMode = 'especes' | 'momo' | 'carte' | 'credit';
-
-type LigneInput = {
-  produit_id: string;
-  quantite: number;
-  prix_unitaire: number; // prix_vente
-};
-
-type TransactionBody = {
-  boutique_id: string;
-  lignes: LigneInput[];
-  mode_paiement: PayMode;
-  montant_total: number;
-  client_nom?: string;
-  client_telephone?: string;
-};
+import { applyRateLimit } from '@/lib/rateLimit';
+import { validateBody } from '@/lib/schemas/validate';
+import { transactionsPostSchema } from '@/lib/schemas/transactions';
 
 /**
  * GET /api/transactions?boutique_id=UUID&date=YYYY-MM-DD
  * Returns validated transactions for a boutique on a given day, with an aggregate summary.
  */
 export async function GET(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { error: authError } = await getAuthUser();
   if (authError) return authError;
 
@@ -85,22 +74,24 @@ export async function GET(request: NextRequest) {
  * If mode_paiement === 'credit', a dette is automatically created.
  */
 export async function POST(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const { error: authError } = await getAuthUser();
   if (authError) return authError;
 
-  let body: TransactionBody;
+  let rawBody: unknown;
 
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
   }
 
-  const { boutique_id, lignes, mode_paiement, montant_total } = body;
+  const { data: body, error: validationError } = validateBody(transactionsPostSchema, rawBody);
+  if (validationError) return validationError;
 
-  if (!boutique_id || !lignes?.length || !mode_paiement || montant_total == null) {
-    return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 });
-  }
+  const { boutique_id, lignes, mode_paiement, montant_total } = body;
 
   const supabase = createAdminClient();
 

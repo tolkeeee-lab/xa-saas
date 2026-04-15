@@ -1,21 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 import { createAdminClient } from '@/lib/supabase-admin';
-import type { ChargeFixe } from '@/types/database';
-
-type PostBody = {
-  libelle?: string;
-  categorie?: ChargeFixe['categorie'];
-  boutique_id?: string | null;
-  montant?: number;
-  periodicite?: ChargeFixe['periodicite'];
-};
+import { applyRateLimit } from '@/lib/rateLimit';
+import { validateBody } from '@/lib/schemas/validate';
+import { chargesFixesPostSchema } from '@/lib/schemas/charges-fixes';
 
 /**
  * GET /api/charges-fixes
  * Returns all charges fixes for the authenticated owner.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -44,6 +41,9 @@ export async function GET() {
  * Creates a new charge fixe.
  */
 export async function POST(request: NextRequest) {
+  const limited = applyRateLimit(request);
+  if (limited) return limited;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -53,31 +53,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
 
-  let body: PostBody;
+  let rawBody: unknown;
   try {
-    body = await request.json();
+    rawBody = await request.json();
   } catch {
     return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
   }
 
+  const { data: body, error: validationError } = validateBody(chargesFixesPostSchema, rawBody);
+  if (validationError) return validationError;
+
   const { libelle, categorie, boutique_id, montant, periodicite } = body;
-
-  if (!libelle || !categorie || montant == null) {
-    return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 });
-  }
-
-  const VALID_CATEGORIES: ChargeFixe['categorie'][] = ['loyer', 'salaire', 'fournisseur', 'autre'];
-  const VALID_PERIODICITES: ChargeFixe['periodicite'][] = ['mensuel', 'hebdo', 'annuel'];
-
-  if (!VALID_CATEGORIES.includes(categorie)) {
-    return NextResponse.json({ error: 'Catégorie invalide' }, { status: 422 });
-  }
-  if (periodicite && !VALID_PERIODICITES.includes(periodicite)) {
-    return NextResponse.json({ error: 'Périodicité invalide' }, { status: 422 });
-  }
-  if (typeof montant !== 'number' || montant < 0) {
-    return NextResponse.json({ error: 'Montant invalide' }, { status: 422 });
-  }
 
   const admin = createAdminClient();
   const { data, error } = await admin
