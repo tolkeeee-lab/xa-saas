@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
+import { getAuthUser } from '@/lib/auth/getAuthUser';
 
 type PayMode = 'especes' | 'momo' | 'carte' | 'credit';
 
@@ -23,6 +24,9 @@ type TransactionBody = {
  * Returns validated transactions for a boutique on a given day, with an aggregate summary.
  */
 export async function GET(request: NextRequest) {
+  const { error: authError } = await getAuthUser();
+  if (authError) return authError;
+
   const { searchParams } = new URL(request.url);
   const boutique_id = searchParams.get('boutique_id');
   const date = searchParams.get('date');
@@ -81,6 +85,9 @@ export async function GET(request: NextRequest) {
  * If mode_paiement === 'credit', a dette is automatically created.
  */
 export async function POST(request: NextRequest) {
+  const { error: authError } = await getAuthUser();
+  if (authError) return authError;
+
   let body: TransactionBody;
 
   try {

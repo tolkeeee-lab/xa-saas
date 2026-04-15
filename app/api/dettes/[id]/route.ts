@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
+import { getAuthUser } from '@/lib/auth/getAuthUser';
 
 type DetteStatut = 'en_attente' | 'paye' | 'en_retard';
 
@@ -15,6 +16,9 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const { error: authError } = await getAuthUser();
+  if (authError) return authError;
+
   const { id } = await params;
 
   let body: { statut?: unknown; montant_rembourse?: unknown };
