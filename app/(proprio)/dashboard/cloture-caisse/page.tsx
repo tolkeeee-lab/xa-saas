@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getClotureCaisseData } from '@/lib/supabase/getClotureCaisse';
-import ClotureCaissePage from '@/components/dashboard/ClotureCaissePage';
+import ClotureCaissePage from '@/features/cloture/ClotureCaissePage';
 
 export const metadata = { title: 'Clôture de caisse — xà' };
 

@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getChargesFixes } from '@/lib/supabase/getChargesFixes';
 import { getBoutiques } from '@/lib/supabase/getBoutiques';
-import ChargesFixesPage from '@/components/dashboard/ChargesFixesPage';
+import ChargesFixesPage from '@/features/charges/ChargesFixesPage';
 
 export const metadata = { title: 'Charges fixes — xà' };
 

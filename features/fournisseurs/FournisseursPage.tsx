@@ -4,8 +4,8 @@ import { useState } from 'react';
 import type { Boutique } from '@/types/database';
 import type { FournisseurAvecCommande } from '@/lib/supabase/getFournisseurs';
 import { formatFCFA } from '@/lib/format';
-import AddFournisseurModal from './AddFournisseurModal';
-import CommandeModal from './CommandeModal';
+import AddFournisseurModal from '@/features/fournisseurs/AddFournisseurModal';
+import CommandeModal from '@/features/fournisseurs/CommandeModal';
 
 interface FournisseursPageProps {
   fournisseurs: FournisseurAvecCommande[];

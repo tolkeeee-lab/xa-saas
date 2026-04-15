@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import type { RapportsData, RapportsPeriodeData, BoutiqueRapport } from '@/lib/supabase/getRapports';
 import { formatFCFA, formatDate } from '@/lib/format';
-import StatCard from './StatCard';
+import StatCard from '@/components/ui/StatCard';
 
 interface RapportsPageProps {
   data: RapportsData;

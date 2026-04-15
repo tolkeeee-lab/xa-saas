@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getBoutiques } from '@/lib/supabase/getBoutiques';
 import { getProduits } from '@/lib/supabase/getProduits';
-import CaissePos from '@/components/dashboard/CaissePos';
+import CaissePos from '@/features/caisse/CaissePos';
 
 export const metadata = { title: 'Caisse POS — xà' };
 

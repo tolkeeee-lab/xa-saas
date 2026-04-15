@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getFournisseurs } from '@/lib/supabase/getFournisseurs';
-import FournisseursPage from '@/components/dashboard/FournisseursPage';
+import FournisseursPage from '@/features/fournisseurs/FournisseursPage';
 import { getBoutiques } from '@/lib/supabase/getBoutiques';
 
 export default async function FournisseursServerPage() {
