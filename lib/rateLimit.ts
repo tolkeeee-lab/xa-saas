@@ -60,6 +60,12 @@ export function checkRateLimit(
 
 /**
  * Extracts the client IP from the request headers.
+ *
+ * The `x-forwarded-for` and `x-real-ip` headers are trusted here because
+ * Next.js deployments (e.g. Vercel, AWS ALB) strip or overwrite these headers
+ * at the infrastructure layer before they reach the application. If you deploy
+ * behind a custom reverse proxy, ensure it overwrites these headers so clients
+ * cannot spoof them.
  */
 function getIp(request: NextRequest): string {
   return (
