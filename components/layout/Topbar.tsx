@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import InstallPwaButton from '@/components/ui/InstallPwaButton';
-import type { AppNotification } from '@/lib/supabase/getNotifications';
+import { useNotifs } from '@/context/NotifContext';
 
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard': "Vue d'ensemble",
@@ -41,7 +41,7 @@ export default function Topbar() {
   const [time, setTime] = useState('');
   const [notifOpen, setNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
-  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const { notifications } = useNotifs();
 
   useEffect(() => {
     function updateTime() {
@@ -69,21 +69,6 @@ export default function Topbar() {
     }
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [notifOpen]);
-
-  useEffect(() => {
-    async function fetchNotifs() {
-      try {
-        const res = await fetch('/api/notifications');
-        const data = (await res.json()) as { notifications?: AppNotification[] };
-        setNotifications(data.notifications ?? []);
-      } catch {
-        // ignore fetch errors silently
-      }
-    }
-    void fetchNotifs();
-    const interval = setInterval(() => void fetchNotifs(), 60_000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <header className="h-14 px-4 md:px-6 flex items-center justify-between border-b border-xa-border bg-xa-surface shrink-0">
