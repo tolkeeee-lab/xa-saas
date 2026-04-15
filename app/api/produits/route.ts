@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
+import { getAuthUser } from '@/lib/auth/getAuthUser';
 
 /**
  * GET /api/produits?boutique_id=xxx
  * Returns products for the given boutique WITHOUT prix_achat.
  */
 export async function GET(request: NextRequest) {
+  const { error: authError } = await getAuthUser();
+  if (authError) return authError;
+
   const boutiqueId = request.nextUrl.searchParams.get('boutique_id');
   if (!boutiqueId) {
     return NextResponse.json({ error: 'boutique_id requis' }, { status: 400 });
@@ -34,6 +38,9 @@ export async function GET(request: NextRequest) {
  * Body: { boutique_id, nom, categorie, prix_achat, prix_vente, stock_actuel, seuil_alerte, unite? }
  */
 export async function POST(request: NextRequest) {
+  const { error: authError } = await getAuthUser();
+  if (authError) return authError;
+
   let body: {
     boutique_id?: string;
     nom?: string;

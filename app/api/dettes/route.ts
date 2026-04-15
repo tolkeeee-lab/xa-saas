@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
-import { createClient } from '@/lib/supabase-server';
+import { getAuthUser } from '@/lib/auth/getAuthUser';
 
 /**
  * GET /api/dettes?boutique_id=xxx  → liste dettes d'une boutique
@@ -8,17 +8,11 @@ import { createClient } from '@/lib/supabase-server';
  */
 
 export async function GET(request: NextRequest) {
+  const { error: authError } = await getAuthUser();
+  if (authError) return authError;
+
   const { searchParams } = new URL(request.url);
   const boutique_id = searchParams.get('boutique_id');
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
-  }
 
   const admin = createAdminClient();
 
@@ -38,6 +32,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { error: authError } = await getAuthUser();
+  if (authError) return authError;
+
   let body: Record<string, unknown>;
   try {
     body = await request.json();
