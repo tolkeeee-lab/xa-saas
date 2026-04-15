@@ -5,7 +5,18 @@ interface RateLimitEntry {
   resetAt: number;
 }
 
+// NOTE: This in-memory store works for single-instance deployments.
+// For multi-instance or serverless production environments, replace with a
+// distributed cache such as Redis/Upstash.
 const store = new Map<string, RateLimitEntry>();
+
+/** Purge entries that have already passed their reset time to prevent unbounded growth. */
+function pruneExpired(): void {
+  const now = Date.now();
+  for (const [key, entry] of store) {
+    if (now > entry.resetAt) store.delete(key);
+  }
+}
 
 export interface RateLimitOptions {
   windowMs: number;
@@ -20,6 +31,7 @@ export function checkRateLimit(
   key: string,
   options: RateLimitOptions,
 ): { success: true } | { success: false; response: NextResponse } {
+  pruneExpired();
   const now = Date.now();
   const entry = store.get(key);
 

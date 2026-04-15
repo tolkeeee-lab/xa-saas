@@ -67,13 +67,6 @@ export async function POST(request: NextRequest) {
 
   const { produit_id, boutique_source_id, boutique_destination_id, quantite, note } = body;
 
-  if (boutique_source_id === boutique_destination_id) {
-    return NextResponse.json(
-      { error: 'La source et la destination doivent être différentes' },
-      { status: 422 },
-    );
-  }
-
   const supabase = createAdminClient();
 
   // Verify source stock

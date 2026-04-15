@@ -63,10 +63,6 @@ export async function POST(request: NextRequest) {
 
   const { boutique_id, nom, categorie, prix_achat, prix_vente, stock_actuel, seuil_alerte, unite } = body;
 
-  if (prix_vente <= prix_achat) {
-    return NextResponse.json({ error: "Le prix de vente doit être supérieur au prix d'achat" }, { status: 422 });
-  }
-
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from('produits')
