@@ -8,6 +8,10 @@ export type DailyStats = {
 };
 
 export function getDailyStats(boutiqueId?: string): Promise<DailyStats> {
+  // Security note: boutiqueId is a UUID that belongs to exactly one proprietaire.
+  // The cache is scoped by boutiqueId, which provides implicit user isolation
+  // since UUIDs are globally unique. This function is only called from
+  // authenticated server components that have already verified ownership.
   return unstable_cache(
     async () => {
       const supabase = await createClient();

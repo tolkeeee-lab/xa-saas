@@ -117,6 +117,9 @@ export function getChargesFixes(userId: string): Promise<ChargesFixesData> {
       };
     },
     ['charges-fixes', userId],
+    // Both tags are needed: this function fetches and returns both charges_fixes
+    // AND dettes_proprio data in a single aggregate response. Invalidating
+    // either tag refreshes the combined view correctly.
     { revalidate: 60, tags: [`charges-fixes-${userId}`, `dettes-proprio-${userId}`] },
   )();
 }
