@@ -5,21 +5,18 @@ import { getDailyStats } from '@/lib/supabase/getDailyStats';
 import { getWeeklyStats } from '@/lib/supabase/getWeeklyStats';
 import { getRapports } from '@/lib/supabase/getRapports';
 import { getTopProduits } from '@/lib/supabase/getTopProduits';
-import StatCard from '@/components/ui/StatCard';
 import BoutiqueCard from '@/components/ui/BoutiqueCard';
-import WeeklyChart from '@/features/rapports/WeeklyChart';
 import TransactionFlux from '@/features/rapports/TransactionFlux';
 import DashboardCharts from '@/features/dashboard/DashboardCharts';
-import { formatFCFA } from '@/lib/format';
 import type { Transaction } from '@/types/database';
 import type { DailyStats } from '@/lib/supabase/getDailyStats';
 import Link from 'next/link';
 
 const QUICK_LINKS = [
-  { href: '/dashboard/caisse',   label: '🛒 Nouvelle vente', color: '#6c2ed1' },
-  { href: '/dashboard/stocks',   label: '📦 Stocks',          color: '#14d9eb' },
-  { href: '/dashboard/rapports', label: '📊 Rapports',        color: '#17e8bb' },
-  { href: '/dashboard/charges',  label: '💳 Charges',         color: '#8a58da' },
+  { href: '/dashboard/caisse',   emoji: '🛒', label: 'Nouvelle vente' },
+  { href: '/dashboard/stocks',   emoji: '📦', label: 'Stocks'          },
+  { href: '/dashboard/rapports', emoji: '📊', label: 'Rapports'        },
+  { href: '/dashboard/charges',  emoji: '💳', label: 'Charges'         },
 ];
 
 export default async function DashboardPage() {
@@ -38,17 +35,10 @@ export default async function DashboardPage() {
   const boutiqueIds = boutiques.map((b) => b.id);
   const today = now.toISOString().split('T')[0];
 
-  const [weeklyStats, boutiqueStatsArr, stockResult, txResult, rapports, topProduitsData] =
+  const [weeklyStats, boutiqueStatsArr, txResult, rapports, topProduitsData] =
     await Promise.all([
       getWeeklyStats(user.id),
       Promise.all(boutiques.map((b) => getDailyStats(b.id))),
-      boutiqueIds.length > 0
-        ? supabase
-            .from('produits')
-            .select('id, stock_actuel, seuil_alerte')
-            .in('boutique_id', boutiqueIds)
-            .eq('actif', true)
-        : Promise.resolve({ data: [] as { id: string; stock_actuel: number; seuil_alerte: number }[] }),
       boutiqueIds.length > 0
         ? supabase
             .from('transactions')
@@ -62,11 +52,6 @@ export default async function DashboardPage() {
       getRapports(user.id),
       getTopProduits(user.id, dateDebut, dateFin),
     ]);
-
-  const produits = stockResult.data ?? [];
-  const stockAlertes = produits.filter(
-    (p) => p.stock_actuel <= p.seuil_alerte,
-  ).length;
 
   const recentTransactions = (txResult.data ?? []) as Transaction[];
 
@@ -82,41 +67,21 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="CA réseau aujourd'hui"
-          value={formatFCFA(globalStats.ca)}
-          subtitle="Toutes boutiques"
-          emoji="💰"
-          color="#14d9eb"
-          animate
-        />
-        <StatCard
-          title="Transactions"
-          value={globalStats.transactions}
-          subtitle="Aujourd'hui"
-          emoji="🧾"
-          color="#17e8bb"
-          animate
-        />
-        <StatCard
-          title="Boutiques actives"
-          value={boutiques.length}
-          subtitle="En ligne"
-          emoji="🏪"
-          color="#8a58da"
-          animate
-        />
-        <StatCard
-          title="Alertes stock"
-          value={stockAlertes}
-          subtitle="Produits sous seuil"
-          emoji="⚠️"
-          color="#f5740a"
-          animate
-          badge={stockAlertes > 0 ? `🔴 ${stockAlertes} alerte${stockAlertes > 1 ? 's' : ''}` : undefined}
-        />
+      {/* Header */}
+      <div className="flex items-end justify-between">
+        <div>
+          <p className="text-xs text-zinc-400 uppercase tracking-widest mb-1">
+            {now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Tableau de bord</h1>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-zinc-400">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          En direct
+        </div>
       </div>
 
       {/* Rich dashboard charts */}
@@ -130,7 +95,7 @@ export default async function DashboardPage() {
 
       {/* Accès rapides */}
       <div>
-        <h2 className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-3">
+        <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
           Accès rapides
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -138,13 +103,10 @@ export default async function DashboardPage() {
             <Link
               key={link.href}
               href={link.href}
-              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white text-sm font-semibold transition-all duration-200 hover:scale-105 hover:shadow-lg active:scale-100"
-              style={{
-                background: `linear-gradient(135deg, ${link.color}cc, ${link.color})`,
-                boxShadow: `0 2px 12px ${link.color}44`,
-              }}
+              className="flex flex-col items-center justify-center gap-1.5 px-4 py-4 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 text-sm font-medium text-zinc-900 dark:text-white transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
             >
-              {link.label}
+              <span className="text-2xl">{link.emoji}</span>
+              <span>{link.label}</span>
             </Link>
           ))}
         </div>
@@ -153,7 +115,7 @@ export default async function DashboardPage() {
       {/* Per-boutique cards */}
       {boutiques.length > 0 ? (
         <div>
-          <h2 className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-3">
+          <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
             Mes boutiques
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -176,8 +138,8 @@ export default async function DashboardPage() {
           </div>
         </div>
       ) : (
-        <div className="bg-xa-surface border border-xa-border rounded-xl p-8 text-center">
-          <p className="text-xa-muted mb-4">Vous n&apos;avez pas encore de boutique.</p>
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-xl p-8 text-center shadow-sm">
+          <p className="text-zinc-400 mb-4">Vous n&apos;avez pas encore de boutique.</p>
           <Link
             href="/dashboard/boutiques/new"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-xa-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity"
@@ -187,11 +149,8 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* Chart + flux */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <WeeklyChart stats={weeklyStats} boutiques={boutiques} />
-        <TransactionFlux transactions={recentTransactions} boutiques={boutiques} />
-      </div>
+      {/* Transaction flux */}
+      <TransactionFlux transactions={recentTransactions} boutiques={boutiques} />
     </div>
   );
 }
