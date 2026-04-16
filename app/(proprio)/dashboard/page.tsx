@@ -3,10 +3,13 @@ import { createClient } from '@/lib/supabase-server';
 import { getBoutiques } from '@/lib/supabase/getBoutiques';
 import { getDailyStats } from '@/lib/supabase/getDailyStats';
 import { getWeeklyStats } from '@/lib/supabase/getWeeklyStats';
+import { getRapports } from '@/lib/supabase/getRapports';
+import { getTopProduits } from '@/lib/supabase/getTopProduits';
 import StatCard from '@/components/ui/StatCard';
 import BoutiqueCard from '@/components/ui/BoutiqueCard';
 import WeeklyChart from '@/features/rapports/WeeklyChart';
 import TransactionFlux from '@/features/rapports/TransactionFlux';
+import DashboardCharts from '@/features/dashboard/DashboardCharts';
 import { formatFCFA } from '@/lib/format';
 import type { Transaction } from '@/types/database';
 import type { DailyStats } from '@/lib/supabase/getDailyStats';
@@ -27,31 +30,38 @@ export default async function DashboardPage() {
 
   if (!user) redirect('/login');
 
+  const now = new Date();
+  const dateDebut = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+  const dateFin = now.toISOString().slice(0, 10);
+
   const boutiques = await getBoutiques(user.id);
   const boutiqueIds = boutiques.map((b) => b.id);
-  const today = new Date().toISOString().split('T')[0];
+  const today = now.toISOString().split('T')[0];
 
-  const [weeklyStats, boutiqueStatsArr, stockResult, txResult] = await Promise.all([
-    getWeeklyStats(user.id),
-    Promise.all(boutiques.map((b) => getDailyStats(b.id))),
-    boutiqueIds.length > 0
-      ? supabase
-          .from('produits')
-          .select('id, stock_actuel, seuil_alerte')
-          .in('boutique_id', boutiqueIds)
-          .eq('actif', true)
-      : Promise.resolve({ data: [] as { id: string; stock_actuel: number; seuil_alerte: number }[] }),
-    boutiqueIds.length > 0
-      ? supabase
-          .from('transactions')
-          .select('*')
-          .in('boutique_id', boutiqueIds)
-          .gte('created_at', today)
-          .eq('statut', 'validee')
-          .order('created_at', { ascending: false })
-          .limit(10)
-      : Promise.resolve({ data: [] as Transaction[] }),
-  ]);
+  const [weeklyStats, boutiqueStatsArr, stockResult, txResult, rapports, topProduitsData] =
+    await Promise.all([
+      getWeeklyStats(user.id),
+      Promise.all(boutiques.map((b) => getDailyStats(b.id))),
+      boutiqueIds.length > 0
+        ? supabase
+            .from('produits')
+            .select('id, stock_actuel, seuil_alerte')
+            .in('boutique_id', boutiqueIds)
+            .eq('actif', true)
+        : Promise.resolve({ data: [] as { id: string; stock_actuel: number; seuil_alerte: number }[] }),
+      boutiqueIds.length > 0
+        ? supabase
+            .from('transactions')
+            .select('*')
+            .in('boutique_id', boutiqueIds)
+            .gte('created_at', today)
+            .eq('statut', 'validee')
+            .order('created_at', { ascending: false })
+            .limit(10)
+        : Promise.resolve({ data: [] as Transaction[] }),
+      getRapports(user.id),
+      getTopProduits(user.id, dateDebut, dateFin),
+    ]);
 
   const produits = stockResult.data ?? [];
   const stockAlertes = produits.filter(
@@ -108,6 +118,15 @@ export default async function DashboardPage() {
           badge={stockAlertes > 0 ? `🔴 ${stockAlertes} alerte${stockAlertes > 1 ? 's' : ''}` : undefined}
         />
       </div>
+
+      {/* Rich dashboard charts */}
+      <DashboardCharts
+        weeklyStats={weeklyStats}
+        moisStats={rapports.moisStats}
+        topProduits={topProduitsData.global}
+        globalStats={globalStats}
+        boutiques={boutiques}
+      />
 
       {/* Accès rapides */}
       <div>
