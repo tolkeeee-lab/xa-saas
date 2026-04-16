@@ -61,17 +61,13 @@ function ResumeCaissePanel({
     momo: '📱 MoMo',
     carte: '💳 Carte',
     credit: '📋 Crédit',
-    cash: '💵 Cash',
-    dette: '📋 Dette',
   };
 
   const modeColor: Record<string, string> = {
     especes: 'text-xa-ok',
-    cash: 'text-xa-ok',
     momo: 'text-xa-boutique',
     carte: 'text-xa-date',
     credit: 'text-xa-alerte',
-    dette: 'text-xa-danger',
   };
 
   return (
