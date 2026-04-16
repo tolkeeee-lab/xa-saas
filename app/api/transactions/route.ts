@@ -221,8 +221,8 @@ export async function POST(request: NextRequest) {
   }));
 
   // Invalidate all caches affected by a new transaction:
-  // stock levels, notifications, weekly/monthly stats, and rapport data.
-  // If this is a credit sale, also invalidate the dettes cache.
+  // stock levels, notifications, consolidated stocks, weekly stats, and rapports
+  // (monthly report data). If this is a credit sale, also invalidate dettes cache.
   const txCacheTags = ['alertes-stock', 'notifications', 'stocks-consolides', 'weekly-stats', 'rapports'];
   if (mode_paiement === 'credit') txCacheTags.push('dettes');
   revalidateUserCache(user.id, txCacheTags);

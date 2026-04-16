@@ -12,7 +12,7 @@ export function getBoutiques(userId: string): Promise<Boutique[]> {
         .eq('proprietaire_id', userId)
         .eq('actif', true)
         .order('created_at', { ascending: true });
-      return (data ?? []) as Boutique[];
+      return data ?? [];
     },
     ['boutiques', userId],
     { revalidate: 60, tags: [`boutiques-${userId}`] },
