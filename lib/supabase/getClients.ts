@@ -1,4 +1,4 @@
-import { unstable_cache } from 'next/cache';
+import { cache } from 'react';
 import { createClient } from '@/lib/supabase-server';
 import type { Client } from '@/types/database';
 
@@ -9,28 +9,22 @@ export type ClientsData = {
   total_points_reseau: number;
 };
 
-export function getClients(userId: string): Promise<ClientsData> {
-  return unstable_cache(
-    async () => {
-      const supabase = await createClient();
+export const getClients = cache(async (userId: string): Promise<ClientsData> => {
+  const supabase = await createClient();
 
-      const { data } = await supabase
-        .from('clients')
-        .select('id, proprietaire_id, nom, telephone, points, total_achats, nb_visites, actif, created_at, updated_at')
-        .eq('proprietaire_id', userId)
-        .eq('actif', true)
-        .order('points', { ascending: false });
+  const { data } = await supabase
+    .from('clients')
+    .select('id, proprietaire_id, nom, telephone, points, total_achats, nb_visites, actif, created_at, updated_at')
+    .eq('proprietaire_id', userId)
+    .eq('actif', true)
+    .order('points', { ascending: false });
 
-      const clients: Client[] = (data ?? []) as Client[];
+  const clients: Client[] = (data ?? []) as Client[];
 
-      return {
-        clients,
-        total_clients: clients.length,
-        clients_avec_remise: clients.filter((c) => c.points >= 100).length,
-        total_points_reseau: clients.reduce((s, c) => s + c.points, 0),
-      };
-    },
-    ['clients', userId],
-    { revalidate: 60, tags: [`clients-${userId}`] },
-  )();
-}
+  return {
+    clients,
+    total_clients: clients.length,
+    clients_avec_remise: clients.filter((c) => c.points >= 100).length,
+    total_points_reseau: clients.reduce((s, c) => s + c.points, 0),
+  };
+});

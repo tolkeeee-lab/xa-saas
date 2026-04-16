@@ -1,4 +1,4 @@
-import { unstable_cache } from 'next/cache';
+import { cache } from 'react';
 import { createClient } from '@/lib/supabase-server';
 import type { Produit } from '@/types/database';
 
@@ -13,55 +13,49 @@ export type ProduitPeremption = Omit<Produit, 'date_peremption'> & {
   jours_restants: number;
 };
 
-export function getPeremptions(userId: string): Promise<ProduitPeremption[]> {
-  return unstable_cache(
-    async () => {
-      const supabase = await createClient();
+export const getPeremptions = cache(async (userId: string): Promise<ProduitPeremption[]> => {
+  const supabase = await createClient();
 
-      // Fetch boutiques owned by the user
-      const { data: boutiques } = await supabase
-        .from('boutiques')
-        .select('id, nom')
-        .eq('proprietaire_id', userId);
+  // Fetch boutiques owned by the user
+  const { data: boutiques } = await supabase
+    .from('boutiques')
+    .select('id, nom')
+    .eq('proprietaire_id', userId);
 
-      if (!boutiques?.length) return [];
+  if (!boutiques?.length) return [];
 
-      const boutiqueIds = boutiques.map((b) => b.id);
-      const boutiqueNomMap = new Map(boutiques.map((b) => [b.id, b.nom]));
+  const boutiqueIds = boutiques.map((b) => b.id);
+  const boutiqueNomMap = new Map(boutiques.map((b) => [b.id, b.nom]));
 
-      // Fetch products with expiry dates — date_peremption is never null here
-      const { data: produits } = await supabase
-        .from('produits')
-        .select(
-          'id, boutique_id, nom, categorie, description, prix_achat, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, created_at, updated_at',
-        )
-        .in('boutique_id', boutiqueIds)
-        .not('date_peremption', 'is', null)
-        .eq('actif', true)
-        .order('date_peremption', { ascending: true });
+  // Fetch products with expiry dates — date_peremption is never null here
+  const { data: produits } = await supabase
+    .from('produits')
+    .select(
+      'id, boutique_id, nom, categorie, description, prix_achat, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, created_at, updated_at',
+    )
+    .in('boutique_id', boutiqueIds)
+    .not('date_peremption', 'is', null)
+    .eq('actif', true)
+    .order('date_peremption', { ascending: true });
 
-      if (!produits) return [];
+  if (!produits) return [];
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-      return produits
-        .filter((p): p is typeof p & { date_peremption: string } => p.date_peremption !== null)
-        .map((p) => {
-          const expiry = new Date(p.date_peremption);
-          expiry.setHours(0, 0, 0, 0);
-          const diffMs = expiry.getTime() - today.getTime();
-          const jours_restants = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  return produits
+    .filter((p): p is typeof p & { date_peremption: string } => p.date_peremption !== null)
+    .map((p) => {
+      const expiry = new Date(p.date_peremption);
+      expiry.setHours(0, 0, 0, 0);
+      const diffMs = expiry.getTime() - today.getTime();
+      const jours_restants = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-          return {
-            ...p,
-            date_peremption: p.date_peremption,
-            boutique_nom: boutiqueNomMap.get(p.boutique_id) ?? '',
-            jours_restants,
-          };
-        });
-    },
-    ['peremptions', userId],
-    { revalidate: 60, tags: [`peremptions-${userId}`] },
-  )();
-}
+      return {
+        ...p,
+        date_peremption: p.date_peremption,
+        boutique_nom: boutiqueNomMap.get(p.boutique_id) ?? '',
+        jours_restants,
+      };
+    });
+});

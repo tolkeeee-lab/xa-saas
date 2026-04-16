@@ -1,4 +1,4 @@
-import { unstable_cache } from 'next/cache';
+import { cache } from 'react';
 import { createClient } from '@/lib/supabase-server';
 import type { Dette } from '@/types/database';
 
@@ -14,55 +14,49 @@ export type DettesData = {
   recuperees_ce_mois: number;
 };
 
-export function getDettes(userId: string): Promise<DettesData> {
-  return unstable_cache(
-    async () => {
-      const supabase = await createClient();
+export const getDettes = cache(async (userId: string): Promise<DettesData> => {
+  const supabase = await createClient();
 
-      const { data: boutiques } = await supabase
-        .from('boutiques')
-        .select('id, nom, couleur_theme')
-        .eq('proprietaire_id', userId)
-        .eq('actif', true);
+  const { data: boutiques } = await supabase
+    .from('boutiques')
+    .select('id, nom, couleur_theme')
+    .eq('proprietaire_id', userId)
+    .eq('actif', true);
 
-      if (!boutiques?.length) {
-        return { dettes: [], total_du: 0, en_retard: 0, recuperees_ce_mois: 0 };
-      }
+  if (!boutiques?.length) {
+    return { dettes: [], total_du: 0, en_retard: 0, recuperees_ce_mois: 0 };
+  }
 
-      const boutiqueIds = boutiques.map((b) => b.id);
-      const boutiqueMap = new Map(boutiques.map((b) => [b.id, b]));
+  const boutiqueIds = boutiques.map((b) => b.id);
+  const boutiqueMap = new Map(boutiques.map((b) => [b.id, b]));
 
-      const { data: dettes } = await supabase
-        .from('dettes')
-        .select('id, boutique_id, client_nom, client_telephone, montant, montant_rembourse, description, statut, date_echeance, created_at')
-        .in('boutique_id', boutiqueIds)
-        .order('created_at', { ascending: false });
+  const { data: dettes } = await supabase
+    .from('dettes')
+    .select('id, boutique_id, client_nom, client_telephone, montant, montant_rembourse, description, statut, date_echeance, created_at')
+    .in('boutique_id', boutiqueIds)
+    .order('created_at', { ascending: false });
 
-      const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
-      const dettesAvecBoutique: DetteAvecBoutique[] = (dettes ?? []).map((d) => {
-        const b = boutiqueMap.get(d.boutique_id);
-        return {
-          ...d,
-          boutique_nom: b?.nom ?? '',
-          boutique_couleur: b?.couleur_theme ?? '#999',
-        };
-      });
+  const dettesAvecBoutique: DetteAvecBoutique[] = (dettes ?? []).map((d) => {
+    const b = boutiqueMap.get(d.boutique_id);
+    return {
+      ...d,
+      boutique_nom: b?.nom ?? '',
+      boutique_couleur: b?.couleur_theme ?? '#999',
+    };
+  });
 
-      const total_du = dettesAvecBoutique
-        .filter((d) => d.statut !== 'paye')
-        .reduce((s, d) => s + (d.montant - d.montant_rembourse), 0);
+  const total_du = dettesAvecBoutique
+    .filter((d) => d.statut !== 'paye')
+    .reduce((s, d) => s + (d.montant - d.montant_rembourse), 0);
 
-      const en_retard = dettesAvecBoutique.filter((d) => d.statut === 'en_retard').length;
+  const en_retard = dettesAvecBoutique.filter((d) => d.statut === 'en_retard').length;
 
-      const recuperees_ce_mois = dettesAvecBoutique
-        .filter((d) => d.statut === 'paye' && d.created_at >= startOfMonth)
-        .reduce((s, d) => s + d.montant, 0);
+  const recuperees_ce_mois = dettesAvecBoutique
+    .filter((d) => d.statut === 'paye' && d.created_at >= startOfMonth)
+    .reduce((s, d) => s + d.montant, 0);
 
-      return { dettes: dettesAvecBoutique, total_du, en_retard, recuperees_ce_mois };
-    },
-    ['dettes', userId],
-    { revalidate: 60, tags: [`dettes-${userId}`] },
-  )();
-}
+  return { dettes: dettesAvecBoutique, total_du, en_retard, recuperees_ce_mois };
+});
