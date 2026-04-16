@@ -15,6 +15,7 @@
 //   unique(boutique_id, date)
 // );
 
+import { unstable_cache } from 'next/cache';
 import { createClient } from '@/lib/supabase-server';
 import type { Boutique } from '@/types/database';
 
@@ -38,51 +39,57 @@ export type ClotureCaissePageData = {
   historique: ClotureCaisseRow[];
 };
 
-export async function getClotureCaisseData(userId: string): Promise<ClotureCaissePageData> {
-  const supabase = await createClient();
+export function getClotureCaisseData(userId: string): Promise<ClotureCaissePageData> {
+  return unstable_cache(
+    async () => {
+      const supabase = await createClient();
 
-  const { data: boutiques } = await supabase
-    .from('boutiques')
-    .select('id, nom, couleur_theme')
-    .eq('proprietaire_id', userId)
-    .eq('actif', true);
+      const { data: boutiques } = await supabase
+        .from('boutiques')
+        .select('id, nom, couleur_theme')
+        .eq('proprietaire_id', userId)
+        .eq('actif', true);
 
-  if (!boutiques?.length) {
-    return { boutiques: [], historique: [] };
-  }
+      if (!boutiques?.length) {
+        return { boutiques: [], historique: [] };
+      }
 
-  const boutiqueIds = boutiques.map((b) => b.id);
-  const boutiqueMap = new Map(boutiques.map((b) => [b.id, b.nom]));
+      const boutiqueIds = boutiques.map((b) => b.id);
+      const boutiqueMap = new Map(boutiques.map((b) => [b.id, b.nom]));
 
-  try {
-    const { data: clotures, error } = await supabase
-      .from('clotures_caisse')
-      .select('*')
-      .in('boutique_id', boutiqueIds)
-      .order('date', { ascending: false })
-      .limit(30);
+      try {
+        const { data: clotures, error } = await supabase
+          .from('clotures_caisse')
+          .select('id, boutique_id, date, ca_theorique, cash_theorique, cash_reel, ecart, nb_transactions, par_mode, note, created_at')
+          .in('boutique_id', boutiqueIds)
+          .order('date', { ascending: false })
+          .limit(30);
 
-    if (error) {
-      return { boutiques, historique: [] };
-    }
+        if (error) {
+          return { boutiques, historique: [] };
+        }
 
-    const historique: ClotureCaisseRow[] = (clotures ?? []).map((c) => ({
-      id: c.id,
-      boutique_id: c.boutique_id,
-      boutique_nom: boutiqueMap.get(c.boutique_id) ?? '',
-      date: c.date,
-      ca_theorique: c.ca_theorique,
-      cash_theorique: c.cash_theorique,
-      cash_reel: c.cash_reel,
-      ecart: c.ecart,
-      nb_transactions: c.nb_transactions,
-      par_mode: (c.par_mode as Record<string, number>) ?? {},
-      note: c.note ?? null,
-      created_at: c.created_at ?? '',
-    }));
+        const historique: ClotureCaisseRow[] = (clotures ?? []).map((c) => ({
+          id: c.id,
+          boutique_id: c.boutique_id,
+          boutique_nom: boutiqueMap.get(c.boutique_id) ?? '',
+          date: c.date,
+          ca_theorique: c.ca_theorique,
+          cash_theorique: c.cash_theorique,
+          cash_reel: c.cash_reel,
+          ecart: c.ecart,
+          nb_transactions: c.nb_transactions,
+          par_mode: (c.par_mode as Record<string, number>) ?? {},
+          note: c.note ?? null,
+          created_at: c.created_at ?? '',
+        }));
 
-    return { boutiques, historique };
-  } catch {
-    return { boutiques, historique: [] };
-  }
+        return { boutiques, historique };
+      } catch {
+        return { boutiques, historique: [] };
+      }
+    },
+    ['cloture-caisse', userId],
+    { revalidate: 60, tags: [`cloture-caisse-${userId}`] },
+  )();
 }

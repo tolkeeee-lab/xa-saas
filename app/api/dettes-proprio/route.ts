@@ -5,6 +5,7 @@ import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { dettesProprioPostSchema } from '@/lib/schemas/dettes-proprio';
 import type { DetteProprio } from '@/types/database';
+import { revalidateUserCache } from '@/lib/revalidate';
 
 /**
  * GET /api/dettes-proprio
@@ -90,6 +91,8 @@ export async function POST(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  revalidateUserCache(user.id, ['dettes-proprio', 'charges-fixes']);
 
   return NextResponse.json(data as DetteProprio, { status: 201 });
 }

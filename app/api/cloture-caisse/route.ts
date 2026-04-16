@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase-admin';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { clotureCaissePostSchema } from '@/lib/schemas/cloture-caisse';
+import { revalidateUserCache } from '@/lib/revalidate';
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -155,6 +156,8 @@ export async function POST(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  revalidateUserCache(user.id, ['cloture-caisse']);
 
   return NextResponse.json({ success: true, cloture: { id: cloture.id, ecart: cloture.ecart } });
 }

@@ -4,6 +4,7 @@ import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { produitsPatchSchema } from '@/lib/schemas/produits';
+import { revalidateUserCache } from '@/lib/revalidate';
 
 type PatchBody = {
   stock_actuel?: number;
@@ -22,7 +23,7 @@ export async function PATCH(
   const limited = applyRateLimit(request);
   if (limited) return limited;
 
-  const { error: authError } = await getAuthUser();
+  const { user, error: authError } = await getAuthUser();
   if (authError) return authError;
 
   const { id } = await params;
@@ -61,6 +62,8 @@ export async function PATCH(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  revalidateUserCache(user.id, ['alertes-stock', 'notifications', 'stocks-consolides', 'peremptions']);
 
   return NextResponse.json(data);
 }

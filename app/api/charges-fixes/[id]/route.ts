@@ -5,6 +5,7 @@ import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { chargesFixesPatchSchema } from '@/lib/schemas/charges-fixes';
 import type { ChargeFixe } from '@/types/database';
+import { revalidateUserCache } from '@/lib/revalidate';
 
 type PatchBody = {
   libelle?: string;
@@ -83,6 +84,8 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  revalidateUserCache(user.id, ['charges-fixes']);
+
   return NextResponse.json(data);
 }
 
@@ -126,6 +129,8 @@ export async function DELETE(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  revalidateUserCache(user.id, ['charges-fixes']);
 
   return NextResponse.json({ success: true });
 }

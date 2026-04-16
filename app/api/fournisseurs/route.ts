@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase-server';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { fournisseursPostSchema, commandeFournisseurSchema } from '@/lib/schemas/fournisseurs';
+import { revalidateUserCache } from '@/lib/revalidate';
 
 /**
  * GET /api/fournisseurs  → liste fournisseurs du propriétaire authentifié
@@ -88,6 +89,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    revalidateUserCache(user.id, ['fournisseurs']);
+
     return NextResponse.json(data, { status: 201 });
   }
 
@@ -112,6 +115,8 @@ export async function POST(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  revalidateUserCache(user.id, ['fournisseurs']);
 
   return NextResponse.json(data, { status: 201 });
 }

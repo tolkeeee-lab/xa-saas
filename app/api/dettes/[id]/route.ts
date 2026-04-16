@@ -4,6 +4,7 @@ import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { dettesPatchSchema } from '@/lib/schemas/dettes';
+import { revalidateUserCache } from '@/lib/revalidate';
 
 type DetteStatut = 'en_attente' | 'paye' | 'en_retard';
 
@@ -22,7 +23,7 @@ export async function PATCH(
   const limited = applyRateLimit(request);
   if (limited) return limited;
 
-  const { error: authError } = await getAuthUser();
+  const { user, error: authError } = await getAuthUser();
   if (authError) return authError;
 
   const { id } = await params;
@@ -59,6 +60,8 @@ export async function PATCH(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  revalidateUserCache(user.id, ['dettes']);
 
   return NextResponse.json(data);
 }

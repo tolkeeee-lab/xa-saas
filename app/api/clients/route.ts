@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase-server';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { clientsPostSchema } from '@/lib/schemas/clients';
+import { revalidateUserCache } from '@/lib/revalidate';
 
 /*
  * SQL migration (run once in Supabase SQL editor — do NOT execute from code):
@@ -100,6 +101,8 @@ export async function POST(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  revalidateUserCache(user.id, ['clients']);
 
   return NextResponse.json(data, { status: 201 });
 }

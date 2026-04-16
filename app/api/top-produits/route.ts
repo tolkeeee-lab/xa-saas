@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase-server';
 import { getTopProduits } from '@/lib/supabase/getTopProduits';
 import { applyRateLimit } from '@/lib/rateLimit';
 
+export const revalidate = 300;
+
 /**
  * GET /api/top-produits?dateDebut=YYYY-MM-DD&dateFin=YYYY-MM-DD&boutiqueId=all|UUID
  * Returns top sold products globally and per boutique.
