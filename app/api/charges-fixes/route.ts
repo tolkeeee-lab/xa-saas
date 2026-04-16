@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase-admin';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { chargesFixesPostSchema } from '@/lib/schemas/charges-fixes';
+import { revalidateUserCache } from '@/lib/revalidate';
 
 /**
  * GET /api/charges-fixes
@@ -83,6 +84,8 @@ export async function POST(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  revalidateUserCache(user.id, ['charges-fixes']);
 
   return NextResponse.json(data, { status: 201 });
 }

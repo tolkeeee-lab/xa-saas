@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { createClient } from '@/lib/supabase-server';
 import type { Boutique } from '@/types/database';
 
@@ -83,54 +84,60 @@ async function computeBoutiqueStats(
   return results.sort((a, b) => b.ca - a.ca);
 }
 
-export async function getComparatif(
+export function getComparatif(
   userId: string,
   periode: ComparatifPeriode = 'ce_mois',
 ): Promise<ComparatifData> {
-  const supabase = await createClient();
+  return unstable_cache(
+    async () => {
+      const supabase = await createClient();
 
-  const { data: boutiques } = await supabase
-    .from('boutiques')
-    .select('*')
-    .eq('proprietaire_id', userId)
-    .eq('actif', true);
+      const { data: boutiques } = await supabase
+        .from('boutiques')
+        .select('id, proprietaire_id, nom, ville, quartier, code_unique, pin_caisse, couleur_theme, actif, created_at, updated_at')
+        .eq('proprietaire_id', userId)
+        .eq('actif', true);
 
-  if (!boutiques?.length) return { boutiques: [], boutiquesLastPeriod: [], ruptures: [] };
+      if (!boutiques?.length) return { boutiques: [], boutiquesLastPeriod: [], ruptures: [] };
 
-  const boutiqueIds = boutiques.map((b) => b.id);
+      const boutiqueIds = boutiques.map((b) => b.id);
 
-  const { from, to } = getPeriodRange(periode);
+      const { from, to } = getPeriodRange(periode);
 
-  // Previous period range (same duration, one period back)
-  const durationMs = to.getTime() - from.getTime();
-  const prevTo = new Date(from.getTime() - 1);
-  const prevFrom = new Date(prevTo.getTime() - durationMs);
+      // Previous period range (same duration, one period back)
+      const durationMs = to.getTime() - from.getTime();
+      const prevTo = new Date(from.getTime() - 1);
+      const prevFrom = new Date(prevTo.getTime() - durationMs);
 
-  const [sortedBoutiques, boutiquesLastPeriod] = await Promise.all([
-    computeBoutiqueStats(supabase, boutiques, from, to),
-    computeBoutiqueStats(supabase, boutiques, prevFrom, prevTo),
-  ]);
+      const [sortedBoutiques, boutiquesLastPeriod] = await Promise.all([
+        computeBoutiqueStats(supabase, boutiques, from, to),
+        computeBoutiqueStats(supabase, boutiques, prevFrom, prevTo),
+      ]);
 
-  // Fetch ruptures (stock_actuel <= 0)
-  const { data: prodRuptures } = await supabase
-    .from('produits')
-    .select('nom, boutique_id, stock_actuel')
-    .in('boutique_id', boutiqueIds)
-    .lte('stock_actuel', 0)
-    .eq('actif', true)
-    .order('nom', { ascending: true });
+      // Fetch ruptures (stock_actuel <= 0)
+      const { data: prodRuptures } = await supabase
+        .from('produits')
+        .select('nom, boutique_id, stock_actuel')
+        .in('boutique_id', boutiqueIds)
+        .lte('stock_actuel', 0)
+        .eq('actif', true)
+        .order('nom', { ascending: true });
 
-  const boutiqueMap = new Map((boutiques as Boutique[]).map((b) => [b.id, b]));
+      const boutiqueMap = new Map((boutiques as Boutique[]).map((b) => [b.id, b]));
 
-  const ruptures: RuptureItem[] = (prodRuptures ?? []).map((p) => {
-    const b = boutiqueMap.get(p.boutique_id);
-    return {
-      boutique_nom: b?.nom ?? '',
-      boutique_couleur: b?.couleur_theme ?? '#999',
-      produit_nom: p.nom,
-      stock_actuel: p.stock_actuel,
-    };
-  });
+      const ruptures: RuptureItem[] = (prodRuptures ?? []).map((p) => {
+        const b = boutiqueMap.get(p.boutique_id);
+        return {
+          boutique_nom: b?.nom ?? '',
+          boutique_couleur: b?.couleur_theme ?? '#999',
+          produit_nom: p.nom,
+          stock_actuel: p.stock_actuel,
+        };
+      });
 
-  return { boutiques: sortedBoutiques, boutiquesLastPeriod, ruptures };
+      return { boutiques: sortedBoutiques, boutiquesLastPeriod, ruptures };
+    },
+    ['comparatif', userId, periode],
+    { revalidate: 60, tags: [`comparatif-${userId}`] },
+  )();
 }

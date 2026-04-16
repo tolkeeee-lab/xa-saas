@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase-server';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { clientsPatchSchema } from '@/lib/schemas/clients';
+import { revalidateUserCache } from '@/lib/revalidate';
 
 /**
  * PATCH /api/clients/[id] → mettre à jour nom, téléphone, points, total_achats, nb_visites
@@ -88,6 +89,8 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  revalidateUserCache(user.id, ['clients']);
+
   return NextResponse.json(data);
 }
 
@@ -131,6 +134,8 @@ export async function DELETE(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  revalidateUserCache(user.id, ['clients']);
 
   return NextResponse.json({ success: true });
 }

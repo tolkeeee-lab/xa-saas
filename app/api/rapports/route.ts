@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase-server';
 import { getRapportsPeriode } from '@/lib/supabase/getRapports';
 import { applyRateLimit } from '@/lib/rateLimit';
 
+export const revalidate = 300;
+
 /**
  * GET /api/rapports?dateDebut=YYYY-MM-DD&dateFin=YYYY-MM-DD
  */

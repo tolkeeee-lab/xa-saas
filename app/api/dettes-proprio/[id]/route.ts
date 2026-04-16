@@ -5,6 +5,7 @@ import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { dettesProprioPathSchema } from '@/lib/schemas/dettes-proprio';
 import type { DetteProprio, Database } from '@/types/database';
+import { revalidateUserCache } from '@/lib/revalidate';
 
 type DetteProprioPatch = Database['public']['Tables']['dettes_proprio']['Update'];
 
@@ -84,6 +85,8 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  revalidateUserCache(user.id, ['dettes-proprio', 'charges-fixes']);
+
   return NextResponse.json(data as DetteProprio);
 }
 
@@ -130,6 +133,8 @@ export async function DELETE(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  revalidateUserCache(user.id, ['dettes-proprio', 'charges-fixes']);
 
   return NextResponse.json({ success: true });
 }

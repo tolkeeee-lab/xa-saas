@@ -4,6 +4,7 @@ import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { transactionsPostSchema } from '@/lib/schemas/transactions';
+import { revalidateUserCache } from '@/lib/revalidate';
 
 /**
  * GET /api/transactions?boutique_id=UUID&date=YYYY-MM-DD
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
   const limited = applyRateLimit(request);
   if (limited) return limited;
 
-  const { error: authError } = await getAuthUser();
+  const { user, error: authError } = await getAuthUser();
   if (authError) return authError;
 
   let rawBody: unknown;
@@ -218,6 +219,8 @@ export async function POST(request: NextRequest) {
     prix_unitaire: l.prix_unitaire,
     sous_total: l.prix_unitaire * l.quantite,
   }));
+
+  revalidateUserCache(user.id, ['alertes-stock', 'notifications', 'stocks-consolides', 'weekly-stats', 'rapports', ...(mode_paiement === 'credit' ? ['dettes'] : [])]);
 
   return NextResponse.json({
     transaction_id: transaction.id,

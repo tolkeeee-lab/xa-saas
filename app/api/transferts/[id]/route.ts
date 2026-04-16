@@ -4,6 +4,7 @@ import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { transfertsPatchSchema } from '@/lib/schemas/transferts';
+import { revalidateUserCache } from '@/lib/revalidate';
 
 /**
  * PATCH /api/transferts/[id]
@@ -16,7 +17,7 @@ export async function PATCH(
   const limited = applyRateLimit(request);
   if (limited) return limited;
 
-  const { error: authError } = await getAuthUser();
+  const { user, error: authError } = await getAuthUser();
   if (authError) return authError;
 
   const { id } = await params;
@@ -47,6 +48,8 @@ export async function PATCH(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  revalidateUserCache(user.id, ['transferts', 'notifications', 'alertes-stock']);
 
   return NextResponse.json(data);
 }

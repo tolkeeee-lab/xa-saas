@@ -4,6 +4,7 @@ import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { dettesPostSchema } from '@/lib/schemas/dettes';
+import { revalidateUserCache } from '@/lib/revalidate';
 
 /**
  * GET /api/dettes?boutique_id=xxx  → liste dettes d'une boutique
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
   const limited = applyRateLimit(request);
   if (limited) return limited;
 
-  const { error: authError } = await getAuthUser();
+  const { user, error: authError } = await getAuthUser();
   if (authError) return authError;
 
   let rawBody: unknown;
@@ -76,6 +77,8 @@ export async function POST(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  revalidateUserCache(user.id, ['dettes']);
 
   return NextResponse.json(data, { status: 201 });
 }

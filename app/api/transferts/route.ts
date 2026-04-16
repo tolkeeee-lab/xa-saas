@@ -4,6 +4,7 @@ import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { transfertsPostSchema } from '@/lib/schemas/transferts';
+import { revalidateUserCache } from '@/lib/revalidate';
 
 /**
  * GET /api/transferts?boutique_ids=id1,id2
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
   const limited = applyRateLimit(request);
   if (limited) return limited;
 
-  const { error: authError } = await getAuthUser();
+  const { user, error: authError } = await getAuthUser();
   if (authError) return authError;
 
   let rawBody: unknown;
@@ -136,6 +137,8 @@ export async function POST(request: NextRequest) {
       .eq('id', produit_id)
       .eq('boutique_id', boutique_destination_id);
   }
+
+  revalidateUserCache(user.id, ['transferts', 'notifications', 'alertes-stock', 'stocks-consolides']);
 
   return NextResponse.json(transfert, { status: 201 });
 }
