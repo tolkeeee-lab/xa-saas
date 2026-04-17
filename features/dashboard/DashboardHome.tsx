@@ -312,7 +312,7 @@ function PeakHoursChart({ hourlyStats }: { hourlyStats: number[] }) {
       {/* Bar chart */}
       <div className="flex items-end gap-1.5" style={{ height: BAR_MAX_H }}>
         {values.map((v, i) => {
-          const barH = Math.max(Math.round((v / max) * (BAR_MAX_H - 8)), 6);
+          const barH = Math.max(Math.round((v / max) * (BAR_MAX_H - 8)), 6); // 8px vertical padding
           const isPeak = top2Indices.has(i);
           return (
             <div key={i} className="flex flex-col justify-end flex-1 h-full">
@@ -593,7 +593,7 @@ function BoutiquePerformance({
           {/* Mini bar chart */}
           <div className="flex items-end gap-2 mb-4" style={{ height: PERF_MAX_H }}>
             {top4.map((item) => {
-              const barH = Math.max(Math.round((item.ca / maxCA) * (PERF_MAX_H - 6)), 6);
+              const barH = Math.max(Math.round((item.ca / maxCA) * (PERF_MAX_H - 6)), 6); // 6px vertical padding, 6px min height
               return (
                 <div key={item.boutique.id} className="flex flex-col justify-end items-center flex-1 h-full gap-1">
                   <div
