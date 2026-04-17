@@ -33,7 +33,7 @@ export type DashboardHomeProps = {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const CATEGORY_COLORS = ['#6366F1', '#22C55E', '#F97316', '#EF4444', '#14B8A6', '#A855F7'];
+const CATEGORY_COLORS = ['#6c2ed1', '#17e8bb', '#f5740a', '#ff0011'];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -112,10 +112,10 @@ function getInitials(name: string | null): string {
 }
 
 const AVATAR_COLORS = [
-  'bg-indigo-100 text-indigo-700',
-  'bg-green-100 text-green-700',
-  'bg-orange-100 text-orange-700',
-  'bg-pink-100 text-pink-700',
+  'bg-xa-primary text-white',
+  'bg-mauve-200 text-mauve-800',
+  'bg-aquamarine-100 text-aquamarine-700',
+  'bg-powder-petal-100 text-powder-petal-700',
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -135,13 +135,13 @@ function StatCard({
   iconBg: string;
 }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+    <div className="bg-xa-surface border border-xa-border rounded-2xl p-5">
       <div className="flex items-start justify-between">
-        <span className={`inline-flex rounded-xl p-2 ${iconBg}`}>{icon}</span>
+        <span className={`inline-flex rounded-xl p-2.5 ${iconBg}`}>{icon}</span>
         <span>{badge}</span>
       </div>
-      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-3">{title}</p>
-      <p className="text-3xl font-bold text-gray-900">{value}</p>
+      <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider mt-4">{title}</p>
+      <p className="text-3xl font-bold text-xa-text">{value}</p>
     </div>
   );
 }
@@ -155,8 +155,8 @@ function EvoBadge({ delta }: { delta: number | null }) {
       className={[
         'inline-flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-full',
         positive
-          ? 'bg-green-50 text-green-600'
-          : 'bg-red-50 text-red-500',
+          ? 'bg-aquamarine-100 text-aquamarine-700'
+          : 'bg-cotton-rose-100 text-cotton-rose-600',
       ].join(' ')}
     >
       {positive ? '▲' : '▼'} {Math.abs(delta)}%
@@ -211,10 +211,10 @@ function RevenueChart({
   const step = period === '30J' ? 5 : 1;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 lg:col-span-2">
+    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6 lg:col-span-2">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Évolution des revenus</h3>
+        <h3 className="text-xs font-semibold text-xa-muted uppercase tracking-wider">Évolution des revenus</h3>
         <div className="flex gap-1">
           {(['7J', '30J', 'MOIS', 'ANNÉE'] as RevPeriod[]).map((p) => (
             <button
@@ -222,10 +222,10 @@ function RevenueChart({
               type="button"
               onClick={() => setPeriod(p)}
               className={[
-                'px-2.5 py-1 text-xs font-semibold rounded-md transition-colors',
+                'px-3 py-1 text-xs font-semibold rounded-lg transition-colors',
                 period === p
-                  ? 'bg-indigo-500 text-white'
-                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200',
+                  ? 'bg-xa-primary text-white'
+                  : 'text-xa-muted hover:text-xa-text',
               ].join(' ')}
             >
               {p}
@@ -239,7 +239,7 @@ function RevenueChart({
         {/* Y-axis labels */}
         <div className="flex flex-col justify-between text-right pb-5" style={{ minWidth: 44 }}>
           {yTicks.reverse().map((v) => (
-            <span key={v} className="text-xs text-gray-300 leading-none">
+            <span key={v} className="text-xs text-xa-muted leading-none">
               {v >= 1000 ? `${Math.round(v / 1000)}k` : String(v)}
             </span>
           ))}
@@ -255,13 +255,13 @@ function RevenueChart({
           >
             <defs>
               <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#6366F1" stopOpacity="0.25" />
-                <stop offset="100%" stopColor="#6366F1" stopOpacity="0" />
+                <stop offset="0%" stopColor="#6c2ed1" stopOpacity="0.15" />
+                <stop offset="100%" stopColor="#6c2ed1" stopOpacity="0" />
               </linearGradient>
             </defs>
             {area && <path d={area} fill="url(#revGrad)" />}
             {line && (
-              <path d={line} fill="none" stroke="#6366F1" strokeWidth="2.5" strokeLinecap="round" />
+              <path d={line} fill="none" stroke="#6c2ed1" strokeWidth="2" strokeLinecap="round" />
             )}
           </svg>
 
@@ -270,7 +270,7 @@ function RevenueChart({
             {chartData.map((d, i) => (
               <span
                 key={i}
-                className="text-xs text-gray-300"
+                className="text-xs text-xa-muted"
                 style={{ display: i % step === 0 ? 'block' : 'none' }}
               >
                 {d.label}
@@ -301,10 +301,10 @@ function PeakHoursChart({ hourlyStats }: { hourlyStats: number[] }) {
   const peakLabel = `${String(peakHour).padStart(2, '0')}:00 — ${String(peakHour + 1).padStart(2, '0')}:00`;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Heures de pointe</h3>
+        <h3 className="text-xs font-semibold text-xa-muted uppercase tracking-wider">Heures de pointe</h3>
       </div>
 
       {/* Bar chart */}
@@ -318,7 +318,7 @@ function PeakHoursChart({ hourlyStats }: { hourlyStats: number[] }) {
                 className="w-full rounded-sm transition-all"
                 style={{
                   height: `${Math.max(heightPct, 4)}%`,
-                  backgroundColor: isPeak ? '#6366F1' : '#E5E7EB',
+                  backgroundColor: isPeak ? '#6c2ed1' : '#c4abed',
                 }}
               />
             </div>
@@ -331,7 +331,7 @@ function PeakHoursChart({ hourlyStats }: { hourlyStats: number[] }) {
         {hours.map((h, i) => (
           <span
             key={h}
-            className="text-xs text-gray-300 flex-1 text-center"
+            className="text-xs text-xa-muted flex-1 text-center"
             style={{ display: i % 2 === 0 ? 'block' : 'none' }}
           >
             {String(h).padStart(2, '0')}h
@@ -342,8 +342,8 @@ function PeakHoursChart({ hourlyStats }: { hourlyStats: number[] }) {
       {/* Peak badge */}
       {max > 0 && (
         <div className="mt-3 flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 text-xs font-semibold bg-indigo-50 text-indigo-600 rounded-full px-4 py-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 inline-block" />
+          <span className="inline-flex items-center gap-1 text-xs font-semibold bg-mauve-50 text-mauve-600 rounded-full px-3 py-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-xa-primary inline-block" />
             PIC IDENTIFIÉ {peakLabel}
           </span>
         </div>
@@ -377,11 +377,11 @@ function CategoryDonut({ salesByCategory }: { salesByCategory: CategoryStat[] })
   });
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Ventes par catégorie</h3>
+    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6">
+      <h3 className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-4">Ventes par catégorie</h3>
 
       {top5.length === 0 ? (
-        <p className="text-gray-400 text-sm text-center py-8">Aucune donnée</p>
+        <p className="text-xa-muted text-sm text-center py-8">Aucune donnée</p>
       ) : (
         <div className="flex flex-col items-center gap-4">
           {/* Donut SVG */}
@@ -392,10 +392,10 @@ function CategoryDonut({ salesByCategory }: { salesByCategory: CategoryStat[] })
               ) : null,
             )}
             {/* Center text */}
-            <text x="70" y="66" textAnchor="middle" className="fill-gray-900" style={{ fontSize: 11, fontWeight: 700 }}>
+            <text x="70" y="66" textAnchor="middle" style={{ fontSize: 11, fontWeight: 700, fill: '#0f061d' }}>
               {total >= 1000 ? `${Math.round(total / 1000)}k` : String(total)}
             </text>
-            <text x="70" y="78" textAnchor="middle" style={{ fontSize: 8, fill: '#9CA3AF' }}>
+            <text x="70" y="78" textAnchor="middle" style={{ fontSize: 8, fill: '#7c5aa8' }}>
               FCFA
             </text>
           </svg>
@@ -409,9 +409,9 @@ function CategoryDonut({ salesByCategory }: { salesByCategory: CategoryStat[] })
                     className="w-2.5 h-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: arc.color }}
                   />
-                  <span className="text-xs text-gray-700 truncate">{arc.categorie}</span>
+                  <span className="text-xs text-xa-text font-medium truncate">{arc.categorie}</span>
                 </div>
-                <span className="text-xs font-semibold text-gray-900 ml-2 shrink-0">
+                <span className="text-xs font-semibold text-xa-text ml-2 shrink-0">
                   {formatFCFA(arc.ca_total)}
                 </span>
               </div>
@@ -435,19 +435,19 @@ function RecentOrders({
   const boutiqueMap = new Map(boutiques.map((b) => [b.id, b]));
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Commandes récentes</h3>
+        <h3 className="text-xs font-semibold text-xa-muted uppercase tracking-wider">Commandes récentes</h3>
         <Link
           href="/dashboard/transactions"
-          className="text-xs font-semibold text-indigo-500 hover:text-indigo-700 uppercase tracking-wider"
+          className="text-xs font-semibold text-xa-primary uppercase tracking-wider"
         >
-          Voir tout
+          VOIR TOUT
         </Link>
       </div>
 
       {transactions.length === 0 ? (
-        <p className="text-gray-400 text-sm text-center py-8">Aucune transaction</p>
+        <p className="text-xa-muted text-sm text-center py-8">Aucune transaction</p>
       ) : (
         <ul className="space-y-3">
           {transactions.map((tx, i) => {
@@ -466,30 +466,30 @@ function RecentOrders({
               <li key={tx.id} className="flex items-center gap-3">
                 <div
                   className={[
-                    'w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0',
+                    'w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold shrink-0',
                     AVATAR_COLORS[i % AVATAR_COLORS.length],
                   ].join(' ')}
                 >
                   {initials}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                  <p className="text-sm font-medium text-xa-text truncate">
                     {tx.client_nom ?? 'Client anonyme'}
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-xa-muted">
                     {dateStr} · {timeStr}
                   </p>
                 </div>
                 <div className="flex flex-col items-end gap-1 shrink-0">
-                  <span className="text-sm font-semibold text-gray-900">
+                  <span className="text-sm font-semibold text-xa-text">
                     {formatFCFA(tx.montant_total)}
                   </span>
                   <span
                     className={[
                       'text-xs font-semibold px-1.5 py-0.5 rounded',
                       tx.statut === 'validee'
-                        ? 'bg-green-50 text-green-600'
-                        : 'bg-red-50 text-red-500',
+                        ? 'bg-aquamarine-100 text-aquamarine-700'
+                        : 'bg-cotton-rose-100 text-cotton-rose-600',
                     ].join(' ')}
                   >
                     {tx.statut === 'validee' ? 'LIVRÉ' : 'ANNULÉ'}
@@ -510,11 +510,11 @@ function StockAlerts({ alertesStock }: { alertesStock: AlertesStockData }) {
   const top4 = alertesStock.alertes.slice(0, 4);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Alertes stocks critiques</h3>
+    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6">
+      <h3 className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-4">Alertes stocks critiques</h3>
 
       {top4.length === 0 ? (
-        <p className="text-gray-400 text-sm text-center py-8">Aucune alerte</p>
+        <p className="text-xa-muted text-sm text-center py-8">Aucune alerte</p>
       ) : (
         <ul className="space-y-3">
           {top4.map((alerte) => {
@@ -525,20 +525,20 @@ function StockAlerts({ alertesStock }: { alertesStock: AlertesStockData }) {
             return (
               <li key={alerte.id} className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-900 truncate max-w-[140px]">
+                  <span className="text-sm font-medium text-xa-text truncate max-w-[140px]">
                     {alerte.nom}
                   </span>
-                  <span className="text-xs font-semibold text-red-500 ml-2 shrink-0">
+                  <span className="text-xs font-bold text-xa-danger ml-2 shrink-0">
                     {alerte.stock_actuel}/{alerte.seuil_alerte}
                   </span>
                 </div>
-                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-xa-border rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-red-400"
+                    className="h-full rounded-full bg-xa-danger"
                     style={{ width: `${Math.min(pct, 100)}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-400">{alerte.boutique_nom}</p>
+                <p className="text-xs text-xa-muted">{alerte.boutique_nom}</p>
               </li>
             );
           })}
@@ -547,7 +547,7 @@ function StockAlerts({ alertesStock }: { alertesStock: AlertesStockData }) {
 
       <Link
         href="/dashboard/alertes-stock"
-        className="mt-4 w-full flex items-center justify-center text-xs font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg py-2 transition-colors"
+        className="mt-4 w-full flex items-center justify-center text-xs font-semibold text-xa-danger uppercase tracking-wider py-2"
       >
         RÉAPPROVISIONNER
       </Link>
@@ -579,11 +579,11 @@ function BoutiquePerformance({
   const top4 = boutiqueCA.slice(0, 4);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Performance des boutiques</h3>
+    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6">
+      <h3 className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-4">Performance des boutiques</h3>
 
       {top4.length === 0 ? (
-        <p className="text-gray-400 text-sm text-center py-8">Aucune boutique</p>
+        <p className="text-xa-muted text-sm text-center py-8">Aucune boutique</p>
       ) : (
         <>
           {/* Mini bar chart */}
@@ -596,10 +596,10 @@ function BoutiquePerformance({
                     className="w-full rounded-sm"
                     style={{
                       height: `${Math.max(heightPct, 6)}%`,
-                      backgroundColor: item.boutique.couleur_theme || '#6366F1',
+                      backgroundColor: '#6c2ed1',
                     }}
                   />
-                  <span className="text-xs text-gray-400 truncate w-full text-center" style={{ fontSize: 9 }}>
+                  <span className="text-xs text-xa-muted truncate w-full text-center" style={{ fontSize: 9 }}>
                     {item.boutique.nom}
                   </span>
                 </div>
@@ -611,17 +611,14 @@ function BoutiquePerformance({
           <ul className="space-y-2">
             {top4.map((item) => (
               <li key={item.boutique.id} className="flex items-center gap-2">
-                <span
-                  className="w-2 h-2 rounded-full shrink-0"
-                  style={{ backgroundColor: item.boutique.couleur_theme || '#6366F1' }}
-                />
-                <span className="text-sm text-gray-700 flex-1 truncate">{item.boutique.nom}</span>
-                <span className="text-xs font-semibold text-gray-900">
+                <span className="w-2 h-2 rounded-full bg-xa-primary shrink-0" />
+                <span className="text-sm text-xa-text flex-1 truncate">{item.boutique.nom}</span>
+                <span className="text-xs font-semibold text-xa-montant">
                   {formatFCFA(item.ca)}
                 </span>
                 <Link
                   href={`/dashboard/boutiques`}
-                  className="text-xs text-indigo-400 hover:text-indigo-600"
+                  className="text-xs text-xa-muted"
                 >
                   &gt;
                 </Link>
@@ -704,30 +701,30 @@ export default function DashboardHome({
   );
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen space-y-6">
+    <div className="p-6 bg-xa-bg min-h-screen space-y-6">
       {/* ── Row 1 — 4 KPI cards ─────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Volume de vente"
           value={formatFCFA(totalCA)}
           icon={caIcon}
-          iconBg="bg-emerald-50 text-emerald-500"
+          iconBg="bg-aquamarine-50 text-aquamarine-600"
           badge={<EvoBadge delta={getDelta('ca')} />}
         />
         <StatCard
           title="Commandes"
           value={totalTx}
           icon={txIcon}
-          iconBg="bg-emerald-50 text-emerald-500"
+          iconBg="bg-aquamarine-50 text-aquamarine-600"
           badge={<EvoBadge delta={getDelta('transactions')} />}
         />
         <StatCard
           title="Clients"
           value={clientsCount}
           icon={clientIcon}
-          iconBg="bg-red-50 text-red-400"
+          iconBg="bg-cotton-rose-50 text-cotton-rose-500"
           badge={
-            <span className="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-600">
+            <span className="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-cotton-rose-100 text-cotton-rose-600">
               actifs
             </span>
           }
@@ -736,14 +733,14 @@ export default function DashboardHome({
           title="Alertes stocks"
           value={totalAlertes}
           icon={alerteIcon}
-          iconBg="bg-orange-50 text-orange-400"
+          iconBg="bg-powder-petal-50 text-powder-petal-500"
           badge={
             totalAlertes > 0 ? (
-              <span className="inline-flex items-center text-xs font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-600">
+              <span className="inline-flex items-center text-xs font-bold px-2 py-0.5 rounded-full bg-powder-petal-100 text-powder-petal-700">
                 PRIORITÉ HAUTE
               </span>
             ) : (
-              <span className="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-green-50 text-green-600">
+              <span className="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-aquamarine-100 text-aquamarine-700">
                 OK
               </span>
             )
