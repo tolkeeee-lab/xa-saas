@@ -126,22 +126,22 @@ function StatCard({
   value,
   icon,
   badge,
+  iconBg,
 }: {
   title: string;
   value: string | number;
   icon: React.ReactNode;
   badge: React.ReactNode;
+  iconBg: string;
 }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-5 flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-          {title}
-        </span>
-        <span className="text-gray-300">{icon}</span>
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+      <div className="flex items-start justify-between">
+        <span className={`inline-flex rounded-xl p-2 ${iconBg}`}>{icon}</span>
+        <span>{badge}</span>
       </div>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
-      <div>{badge}</div>
+      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-3">{title}</p>
+      <p className="text-3xl font-bold text-gray-900">{value}</p>
     </div>
   );
 }
@@ -211,10 +211,10 @@ function RevenueChart({
   const step = period === '30J' ? 5 : 1;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-5 lg:col-span-2">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 lg:col-span-2">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-        <h3 className="text-sm font-semibold text-gray-800">Évolution des revenus</h3>
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Évolution des revenus</h3>
         <div className="flex gap-1">
           {(['7J', '30J', 'MOIS', 'ANNÉE'] as RevPeriod[]).map((p) => (
             <button
@@ -301,10 +301,10 @@ function PeakHoursChart({ hourlyStats }: { hourlyStats: number[] }) {
   const peakLabel = `${String(peakHour).padStart(2, '0')}:00 — ${String(peakHour + 1).padStart(2, '0')}:00`;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-5">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-gray-800">Heures de pointe</h3>
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Heures de pointe</h3>
       </div>
 
       {/* Bar chart */}
@@ -342,7 +342,7 @@ function PeakHoursChart({ hourlyStats }: { hourlyStats: number[] }) {
       {/* Peak badge */}
       {max > 0 && (
         <div className="mt-3 flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600">
+          <span className="inline-flex items-center gap-1 text-xs font-semibold bg-indigo-50 text-indigo-600 rounded-full px-4 py-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 inline-block" />
             PIC IDENTIFIÉ {peakLabel}
           </span>
@@ -377,8 +377,8 @@ function CategoryDonut({ salesByCategory }: { salesByCategory: CategoryStat[] })
   });
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-5">
-      <h3 className="text-sm font-semibold text-gray-800 mb-4">Ventes par catégorie</h3>
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Ventes par catégorie</h3>
 
       {top5.length === 0 ? (
         <p className="text-gray-400 text-sm text-center py-8">Aucune donnée</p>
@@ -435,9 +435,9 @@ function RecentOrders({
   const boutiqueMap = new Map(boutiques.map((b) => [b.id, b]));
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-5">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-gray-800">Commandes récentes</h3>
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Commandes récentes</h3>
         <Link
           href="/dashboard/transactions"
           className="text-xs font-semibold text-indigo-500 hover:text-indigo-700 uppercase tracking-wider"
@@ -510,8 +510,8 @@ function StockAlerts({ alertesStock }: { alertesStock: AlertesStockData }) {
   const top4 = alertesStock.alertes.slice(0, 4);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-5">
-      <h3 className="text-sm font-semibold text-gray-800 mb-4">Alertes stocks critiques</h3>
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Alertes stocks critiques</h3>
 
       {top4.length === 0 ? (
         <p className="text-gray-400 text-sm text-center py-8">Aucune alerte</p>
@@ -579,8 +579,8 @@ function BoutiquePerformance({
   const top4 = boutiqueCA.slice(0, 4);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-5">
-      <h3 className="text-sm font-semibold text-gray-800 mb-4">Performance des boutiques</h3>
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Performance des boutiques</h3>
 
       {top4.length === 0 ? (
         <p className="text-gray-400 text-sm text-center py-8">Aucune boutique</p>
@@ -704,27 +704,30 @@ export default function DashboardHome({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 bg-gray-50 min-h-screen space-y-6">
       {/* ── Row 1 — 4 KPI cards ─────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Volume de vente"
           value={formatFCFA(totalCA)}
           icon={caIcon}
+          iconBg="bg-emerald-50 text-emerald-500"
           badge={<EvoBadge delta={getDelta('ca')} />}
         />
         <StatCard
           title="Commandes"
           value={totalTx}
           icon={txIcon}
+          iconBg="bg-emerald-50 text-emerald-500"
           badge={<EvoBadge delta={getDelta('transactions')} />}
         />
         <StatCard
           title="Clients"
           value={clientsCount}
           icon={clientIcon}
+          iconBg="bg-red-50 text-red-400"
           badge={
-            <span className="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">
+            <span className="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-600">
               actifs
             </span>
           }
@@ -733,9 +736,10 @@ export default function DashboardHome({
           title="Alertes stocks"
           value={totalAlertes}
           icon={alerteIcon}
+          iconBg="bg-orange-50 text-orange-400"
           badge={
             totalAlertes > 0 ? (
-              <span className="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-50 text-orange-600">
+              <span className="inline-flex items-center text-xs font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-600">
                 PRIORITÉ HAUTE
               </span>
             ) : (
@@ -748,13 +752,13 @@ export default function DashboardHome({
       </div>
 
       {/* ── Row 2 — Revenue chart + Peak hours ──────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <RevenueChart weeklyStats={weeklyStats} moisStats={moisStats} />
         <PeakHoursChart hourlyStats={hourlyStats} />
       </div>
 
       {/* ── Row 3 — 4 blocks ─────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <CategoryDonut salesByCategory={salesByCategory} />
         <RecentOrders transactions={recentTransactions} boutiques={boutiques} />
         <StockAlerts alertesStock={alertesStock} />
