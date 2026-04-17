@@ -310,6 +310,7 @@ function PeakHoursChart({ hourlyStats }: { hourlyStats: number[] }) {
       {/* Bar chart */}
       <div className="flex items-end gap-1.5 h-24">
         {values.map((v, i) => {
+          // 88px max bar height within h-24 (96px) container, leaving 8px for spacing
           const barH = Math.max(Math.round((v / max) * 88), 4);
           const isPeak = top2Indices.has(i);
           return (
