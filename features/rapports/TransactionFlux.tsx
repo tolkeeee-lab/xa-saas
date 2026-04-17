@@ -17,7 +17,7 @@ export default function TransactionFlux({
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-xa-text">Flux transactions</h3>
         <span className="flex items-center gap-1.5 text-xs text-aquamarine-600 font-semibold">
-          <span className="w-2 h-2 rounded-full bg-aquamarine-500 animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-aquamarine-600 animate-pulse" />
           En direct
         </span>
       </div>
