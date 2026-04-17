@@ -126,15 +126,12 @@ function StatCard({
   value,
   icon,
   badge,
-  badgeStyle,
 }: {
   title: string;
   value: string | number;
   icon: React.ReactNode;
   badge: React.ReactNode;
-  badgeStyle?: string;
 }) {
-  void badgeStyle;
   return (
     <div className="bg-white rounded-2xl shadow-sm p-5 flex flex-col gap-3">
       <div className="flex items-center justify-between">
@@ -574,7 +571,7 @@ function BoutiquePerformance({
       .filter((s) => s.boutique_id === b.id)
       .reduce((sum, s) => sum + s.ca, 0),
   }));
-  boutiqueCA.sort((a, bItem) => bItem.ca - a.ca);
+  boutiqueCA.sort((a, b) => b.ca - a.ca);
 
   const maxCA = Math.max(...boutiqueCA.map((x) => x.ca), 1);
 
