@@ -8,8 +8,7 @@ import TicketCaisse, { type TicketData } from '@/features/caisse/TicketCaisse';
 import { formatFCFA } from '@/lib/format';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { enqueueSale, saveProduits, loadProduits, type OfflineSale } from '@/lib/offline/offlineQueue';
-
-const CATEGORIES = ['Tous', 'Épicerie', 'Boissons', 'Hygiène', 'Frais', 'Boulangerie'];
+import { calculatePrix, POINTS_REMISE_SEUIL } from '@/lib/pricing';
 
 interface CaissePosProps {
   boutiques: Boutique[];
@@ -216,13 +215,22 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
         if (Array.isArray(data)) {
           setProduits(data);
           setCart([]);
+          setCategorie('Tous'); // reset filter when switching boutique (C5)
           await saveProduits(boutiqueActive, data);
         }
       })
       .catch(async () => {
+        // Network error — try IndexedDB cache
         const cached = await loadProduits(boutiqueActive);
         if (cached) {
           setProduits(cached as ProduitPublic[]);
+        } else {
+          // Cache absent or expired (TTL) — show empty catalogue with a warning
+          setProduits([]);
+          showToast(
+            'Catalogue non disponible hors connexion — veuillez vous reconnecter pour synchroniser',
+            'error',
+          );
         }
       })
       .finally(() => setFetchingProduits(false));
@@ -243,6 +251,15 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
       return matchCat && matchSearch;
     });
   }, [produits, categorie, recherche]);
+
+  // Derive unique categories from the current boutique's products (C5)
+  // Falls back to 'Général' for products with a null/empty category.
+  const categoriesDynamiques = useMemo(() => {
+    const cats = produits
+      .map((p) => (p.categorie?.trim() || 'Général') as string)
+      .filter(Boolean);
+    return ['Tous', ...Array.from(new Set(cats)).sort()];
+  }, [produits]);
 
   const addToCart = useCallback(
     (produit: ProduitPublic) => {
@@ -282,12 +299,11 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
     if (cart.length === 0) return;
     setLoading(true);
 
-    const sousTotal = cart.reduce((s, i) => s + i.prix_vente * i.qty, 0);
-    const remisePanier = sousTotal >= 50000 ? Math.round(sousTotal * 0.05) : 0;
-    const clientHasRemise = Boolean(selectedClient && selectedClient.points >= 100);
-    const remiseClient = clientHasRemise && remisePanier === 0 ? Math.round(sousTotal * 0.05) : 0;
-    const remise = remisePanier + remiseClient;
-    const montant_total = sousTotal - remise;
+    const clientHasRemise = Boolean(selectedClient && selectedClient.points >= POINTS_REMISE_SEUIL);
+    const { remise, montantTotal: montant_total } = calculatePrix(
+      cart.map((i) => ({ prix_unitaire: i.prix_vente, quantite: i.qty })),
+      clientHasRemise,
+    );
     const monnaie_rendue =
       payMode === 'especes' && montantRecu > montant_total ? montantRecu - montant_total : 0;
 
@@ -358,40 +374,22 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
         return;
       }
 
-      // Mise à jour des points client fidélité
-      if (selectedClient) {
-        const pointsGagnes = Math.floor(montant_total / 1000);
-        const remiseUtilisee = selectedClient.points >= 100;
-        // Nouveaux points après cette vente
-        const newPoints = remiseUtilisee
-          ? pointsGagnes // remise utilisée → points remis à 0 + points de cette vente
-          : selectedClient.points + pointsGagnes;
-        // Delta à envoyer à l'API (depuis la valeur actuelle connue)
-        const pointsDelta = newPoints - selectedClient.points;
-
-        fetch(`/api/clients/${selectedClient.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            points_delta: pointsDelta,
-            total_achats_delta: montant_total,
-            increment_visites: true,
-          }),
-        }).catch(() => {}); // silencieux si hors-ligne
-
-        // Mise à jour locale
+      // Update local client state from server response (C10 — no more client PATCH)
+      if (selectedClient && data.client) {
         setClients((prev) =>
           prev.map((c) =>
             c.id === selectedClient.id
               ? {
                   ...c,
-                  points: Math.max(0, newPoints),
-                  total_achats: c.total_achats + montant_total,
-                  nb_visites: c.nb_visites + 1,
+                  points: data.client.points,
+                  total_achats: data.client.total_achats,
+                  nb_visites: data.client.nb_visites,
                 }
               : c,
           ),
         );
+        setSelectedClient(null);
+      } else if (selectedClient) {
         setSelectedClient(null);
       }
 
@@ -495,7 +493,7 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
         <div className="flex flex-col overflow-hidden">
           {/* Filters */}
           <div className="px-4 py-3 border-b border-xa-border flex flex-wrap gap-2">
-            {CATEGORIES.map((cat) => (
+            {categoriesDynamiques.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setCategorie(cat)}
@@ -645,7 +643,7 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
               onClientTelephoneChange={setClientTelephone}
               montantRecu={montantRecu}
               onMontantRecuChange={setMontantRecu}
-              clientHasRemise={Boolean(selectedClient && selectedClient.points >= 100)}
+              clientHasRemise={Boolean(selectedClient && selectedClient.points >= POINTS_REMISE_SEUIL)}
             />
           </div>
         </div>

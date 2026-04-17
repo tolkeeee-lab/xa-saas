@@ -36,26 +36,30 @@ export const getPersonnel = cache(async (userId: string): Promise<EmployePersonn
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);
 
-  const results = await Promise.all(
-    employes.map(async (emp) => {
-      const { data: txs } = await supabase
-        .from('transactions')
-        .select('montant_total')
-        .eq('employe_id', emp.id)
-        .eq('statut', 'validee')
-        .gte('created_at', startOfMonth.toISOString());
+  const employeIds = employes.map((e) => e.id);
 
-      const ca_mois = txs?.reduce((s, t) => s + (t.montant_total ?? 0), 0) ?? 0;
-      const boutique = boutiqueMap.get(emp.boutique_id);
+  // Single bulk query instead of one-per-employee (N+1 → O(1)) — C6
+  const { data: txRows } = await supabase
+    .from('transactions')
+    .select('employe_id, montant_total')
+    .in('employe_id', employeIds)
+    .eq('statut', 'validee')
+    .gte('created_at', startOfMonth.toISOString());
 
-      return {
-        ...emp,
-        boutique_nom: boutique?.nom ?? '',
-        boutique_couleur: boutique?.couleur_theme ?? '#999',
-        ca_mois,
-      } as EmployePersonnel;
-    }),
-  );
+  const caParEmploye: Record<string, number> = {};
+  for (const row of txRows ?? []) {
+    if (row.employe_id) {
+      caParEmploye[row.employe_id] = (caParEmploye[row.employe_id] ?? 0) + (row.montant_total ?? 0);
+    }
+  }
 
-  return results;
+  return employes.map((emp) => {
+    const boutique = boutiqueMap.get(emp.boutique_id);
+    return {
+      ...emp,
+      boutique_nom: boutique?.nom ?? '',
+      boutique_couleur: boutique?.couleur_theme ?? '#999',
+      ca_mois: caParEmploye[emp.id] ?? 0,
+    } as EmployePersonnel;
+  });
 });

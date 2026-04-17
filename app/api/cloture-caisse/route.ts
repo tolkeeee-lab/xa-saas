@@ -46,7 +46,7 @@ async function computeTheorique(boutiqueId: string, date: string) {
  * GET /api/cloture-caisse?boutique_id=X&date=YYYY-MM-DD
  */
 export async function GET(request: NextRequest) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const supabase = await createClient();
@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
  * Body: { boutique_id, date, cash_reel, note? }
  */
 export async function POST(request: NextRequest) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const supabase = await createClient();

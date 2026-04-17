@@ -5,13 +5,18 @@ import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { transactionsPostSchema } from '@/lib/schemas/transactions';
 import { revalidateUserCache } from '@/lib/revalidate';
+import {
+  calculatePrix,
+  calculatePointsGagnes,
+  POINTS_REMISE_SEUIL,
+} from '@/lib/pricing';
 
 /**
  * GET /api/transactions?boutique_id=UUID&date=YYYY-MM-DD
  * Returns validated transactions for a boutique on a given day, with an aggregate summary.
  */
 export async function GET(request: NextRequest) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const { error: authError } = await getAuthUser();
@@ -73,9 +78,12 @@ export async function GET(request: NextRequest) {
  * Creates a transaction with its lines, updates stock, and returns a ticket.
  * prix_achat is fetched server-side only — never returned to client.
  * If mode_paiement === 'credit', a dette is automatically created.
+ * If client_id is provided, loyalty points are updated server-side.
+ * Supports idempotency via optional local_id: if a transaction with the same
+ * local_id already exists it is returned as-is (no duplicate insertion).
  */
 export async function POST(request: NextRequest) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const { user, error: authError } = await getAuthUser();
@@ -92,11 +100,33 @@ export async function POST(request: NextRequest) {
   const { data: body, error: validationError } = validateBody(transactionsPostSchema, rawBody);
   if (validationError) return validationError;
 
-  const { boutique_id, lignes, mode_paiement, montant_total } = body;
+  const { boutique_id, lignes, mode_paiement, montant_total, local_id, client_id } = body;
 
   const supabase = createAdminClient();
 
-  // Fetch prix_achat for all products to compute benefice_total server-side
+  // ── Idempotency check (C8) ───────────────────────────────────────────────
+  // If local_id was provided, check whether this sale was already processed.
+  if (local_id) {
+    const { data: existing } = await supabase
+      .from('transactions')
+      .select('id, created_at, montant_total, mode_paiement')
+      .eq('local_id', local_id)
+      .maybeSingle();
+
+    if (existing) {
+      return NextResponse.json({
+        transaction_id: existing.id,
+        created_at: existing.created_at,
+        lignes: [],
+        montant_total: existing.montant_total,
+        remise: 0,
+        mode_paiement: existing.mode_paiement,
+        client: null,
+      });
+    }
+  }
+
+  // ── Product validation (C9) ──────────────────────────────────────────────
   const produitIds = lignes.map((l) => l.produit_id);
   const { data: produitsData, error: produitsError } = await supabase
     .from('produits')
@@ -109,7 +139,6 @@ export async function POST(request: NextRequest) {
 
   const produitMap = new Map((produitsData ?? []).map((p) => [p.id, p]));
 
-  // Validate stock and compute benefice
   for (const ligne of lignes) {
     const produit = produitMap.get(ligne.produit_id);
     if (!produit) {
@@ -120,25 +149,55 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // ── Server-side total revalidation (C3) ─────────────────────────────────
+  // Look up the client to determine whether their loyalty discount applies.
+  let hasClientRemise = false;
+  let clientData: { id: string; points: number; total_achats: number; nb_visites: number } | null = null;
+
+  if (client_id) {
+    const { data: clientRow } = await supabase
+      .from('clients')
+      .select('id, points, total_achats, nb_visites')
+      .eq('id', client_id)
+      .maybeSingle();
+
+    if (clientRow) {
+      clientData = clientRow;
+      hasClientRemise = clientRow.points >= POINTS_REMISE_SEUIL;
+    }
+  }
+
+  const { remise, montantTotal: montantTotalServeur } = calculatePrix(lignes, hasClientRemise);
+
+  // Reject if client-sent total deviates by more than 1 FCFA (rounding tolerance)
+  if (Math.abs(montant_total - montantTotalServeur) > 1) {
+    return NextResponse.json(
+      { error: `Montant total invalide (attendu ${montantTotalServeur} FCFA)` },
+      { status: 422 },
+    );
+  }
+
   const benefice_total = lignes.reduce((sum, ligne) => {
     const produit = produitMap.get(ligne.produit_id);
     const marge = produit ? ligne.prix_unitaire - produit.prix_achat : 0;
     return sum + marge * ligne.quantite;
   }, 0);
 
-  // Insert transaction
+  // ── Insert transaction ───────────────────────────────────────────────────
   const { data: transaction, error: txError } = await supabase
     .from('transactions')
     .insert({
       boutique_id,
-      montant_total,
+      montant_total: montantTotalServeur,
       benefice_total,
-      montant_recu: montant_total,
+      montant_recu: montantTotalServeur,
       monnaie_rendue: 0,
       mode_paiement,
+      client_id: client_id ?? null,
       client_nom: body.client_nom ?? null,
       statut: 'validee',
       sync_statut: 'synced',
+      local_id: local_id ?? null,
     })
     .select('id, created_at')
     .single();
@@ -147,21 +206,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: txError?.message ?? 'Erreur transaction' }, { status: 500 });
   }
 
-  // Insert transaction lines
-  const lignesInsert = lignes.map((ligne) => {
-    const produit = produitMap.get(ligne.produit_id)!;
-    return {
-      transaction_id: transaction.id,
-      produit_id: ligne.produit_id,
-      nom_produit: '', // will be enriched below if needed
-      quantite: ligne.quantite,
-      prix_vente_unitaire: ligne.prix_unitaire,
-      prix_achat_unitaire: produit.prix_achat,
-      sous_total: ligne.prix_unitaire * ligne.quantite,
-    };
-  });
-
-  // Fetch product names for the ticket
+  // ── Fetch product names for ticket ──────────────────────────────────────
   const { data: nomsProduits } = await supabase
     .from('produits')
     .select('id, nom')
@@ -169,10 +214,19 @@ export async function POST(request: NextRequest) {
 
   const nomsMap = new Map((nomsProduits ?? []).map((p) => [p.id, p.nom]));
 
-  const lignesInsertFull = lignesInsert.map((l) => ({
-    ...l,
-    nom_produit: nomsMap.get(l.produit_id) ?? 'Produit',
-  }));
+  // ── Insert transaction lines ─────────────────────────────────────────────
+  const lignesInsertFull = lignes.map((ligne) => {
+    const produit = produitMap.get(ligne.produit_id)!;
+    return {
+      transaction_id: transaction.id,
+      produit_id: ligne.produit_id,
+      nom_produit: nomsMap.get(ligne.produit_id) ?? 'Produit',
+      quantite: ligne.quantite,
+      prix_vente_unitaire: ligne.prix_unitaire,
+      prix_achat_unitaire: produit.prix_achat,
+      sous_total: ligne.prix_unitaire * ligne.quantite,
+    };
+  });
 
   const { error: lignesError } = await supabase
     .from('transaction_lignes')
@@ -182,16 +236,29 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: lignesError.message }, { status: 500 });
   }
 
-  // Update stock for each product
-  for (const ligne of lignes) {
-    const produit = produitMap.get(ligne.produit_id)!;
-    await supabase
-      .from('produits')
-      .update({ stock_actuel: produit.stock_actuel - ligne.quantite })
-      .eq('id', ligne.produit_id);
+  // ── Update stock levels in parallel (C9 Option A) ───────────────────────
+  // Running updates concurrently instead of sequentially to reduce latency.
+  // Note: this is not a SQL transaction — if one update fails the others still
+  // commit. The migration in supabase/migrations/*_process_sale_rpc.sql
+  // provides the fully atomic Option B for a future sprint.
+  const stockResults = await Promise.all(
+    lignes.map((ligne) => {
+      const produit = produitMap.get(ligne.produit_id)!;
+      return supabase
+        .from('produits')
+        .update({ stock_actuel: produit.stock_actuel - ligne.quantite })
+        .eq('id', ligne.produit_id);
+    }),
+  );
+
+  const stockErrors = stockResults.filter((r) => r.error);
+  if (stockErrors.length > 0) {
+    // Log stock update failures but do not block the response — the
+    // transaction is already committed and the ticket must be printed.
+    console.error('[transactions] stock update failures:', stockErrors.map((r) => r.error?.message));
   }
 
-  // If mode credit → create a dette automatically (J+30 by default)
+  // ── Credit sale → create dette ───────────────────────────────────────────
   if (mode_paiement === 'credit') {
     const DEFAULT_CREDIT_DAYS = 30;
     const dateEcheance = new Date();
@@ -200,7 +267,7 @@ export async function POST(request: NextRequest) {
       boutique_id,
       client_nom: body.client_nom ?? 'Client anonyme',
       client_telephone: body.client_telephone ?? null,
-      montant: montant_total,
+      montant: montantTotalServeur,
       montant_rembourse: 0,
       description: `Vente crédit - ${lignes.length} article(s)`,
       statut: 'en_attente',
@@ -208,10 +275,35 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // Build ticket (no prix_achat returned)
-  const sousTotal = lignes.reduce((s, l) => s + l.prix_unitaire * l.quantite, 0);
-  const remise = sousTotal >= 50000 ? Math.round(sousTotal * 0.05) : 0;
+  // ── Update loyalty points server-side (C10) ──────────────────────────────
+  let updatedClient: { id: string; points: number; total_achats: number; nb_visites: number } | null = null;
 
+  if (client_id && clientData) {
+    const pointsGagnes = calculatePointsGagnes(montantTotalServeur);
+    // If the loyalty discount was used (≥ 100 points), points reset to 0 then
+    // new points for this purchase are added.
+    const newPoints = hasClientRemise
+      ? pointsGagnes
+      : clientData.points + pointsGagnes;
+
+    const { data: updatedClientRow } = await supabase
+      .from('clients')
+      .update({
+        points: Math.max(0, newPoints),
+        total_achats: clientData.total_achats + montantTotalServeur,
+        nb_visites: clientData.nb_visites + 1,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', client_id)
+      .select('id, points, total_achats, nb_visites')
+      .single();
+
+    if (updatedClientRow) {
+      updatedClient = updatedClientRow;
+    }
+  }
+
+  // ── Build ticket (no prix_achat returned) ───────────────────────────────
   const ticketLignes = lignes.map((l) => ({
     produit_id: l.produit_id,
     nom: nomsMap.get(l.produit_id) ?? 'Produit',
@@ -220,19 +312,29 @@ export async function POST(request: NextRequest) {
     sous_total: l.prix_unitaire * l.quantite,
   }));
 
-  // Invalidate all caches affected by a new transaction:
-  // stock levels, notifications, consolidated stocks, weekly stats, and rapports
-  // (monthly report data). If this is a credit sale, also invalidate dettes cache.
   const txCacheTags = ['alertes-stock', 'notifications', 'stocks-consolides', 'weekly-stats', 'rapports'];
   if (mode_paiement === 'credit') txCacheTags.push('dettes');
+  if (client_id) txCacheTags.push('clients');
   revalidateUserCache(user.id, txCacheTags);
 
   return NextResponse.json({
     transaction_id: transaction.id,
     created_at: transaction.created_at,
     lignes: ticketLignes,
-    montant_total,
+    montant_total: montantTotalServeur,
     remise,
     mode_paiement,
+    client: updatedClient,
+  });
+}
+
+  return NextResponse.json({
+    transaction_id: transaction.id,
+    created_at: transaction.created_at,
+    lignes: ticketLignes,
+    montant_total: montantTotalServeur,
+    remise,
+    mode_paiement,
+    client: updatedClient,
   });
 }

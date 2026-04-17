@@ -5,10 +5,12 @@ export const clientsPostSchema = z.object({
   telephone: z.string().optional(),
 });
 
+/**
+ * Only name and telephone can be updated via the PATCH endpoint.
+ * Points, total_achats and nb_visites are updated server-side by
+ * /api/transactions (never accepted from the client to prevent abuse).
+ */
 export const clientsPatchSchema = z.object({
   nom: z.string().min(1).optional(),
   telephone: z.string().nullable().optional(),
-  points_delta: z.number().optional(),
-  total_achats_delta: z.number().optional(),
-  increment_visites: z.boolean().optional(),
 });

@@ -11,7 +11,7 @@ import { revalidateUserCache } from '@/lib/revalidate';
  * Returns products for the given boutique WITHOUT prix_achat.
  */
 export async function GET(request: NextRequest) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const { error: authError } = await getAuthUser();
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
  * Body: { boutique_id, nom, categorie, prix_achat, prix_vente, stock_actuel, seuil_alerte, unite? }
  */
 export async function POST(request: NextRequest) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const { user, error: authError } = await getAuthUser();

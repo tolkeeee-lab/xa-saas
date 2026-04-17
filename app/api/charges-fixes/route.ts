@@ -11,7 +11,7 @@ import { revalidateUserCache } from '@/lib/revalidate';
  * Returns all charges fixes for the authenticated owner.
  */
 export async function GET(request: NextRequest) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const supabase = await createClient();
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
  * Creates a new charge fixe.
  */
 export async function POST(request: NextRequest) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const supabase = await createClient();

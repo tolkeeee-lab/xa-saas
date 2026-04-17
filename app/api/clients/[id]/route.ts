@@ -15,7 +15,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const { id } = await params;
@@ -57,9 +57,6 @@ export async function PATCH(
     updated_at: string;
     nom?: string;
     telephone?: string | null;
-    points?: number;
-    total_achats?: number;
-    nb_visites?: number;
   } = { updated_at: new Date().toISOString() };
 
   if (body.nom !== undefined) {
@@ -67,15 +64,6 @@ export async function PATCH(
   }
   if (body.telephone !== undefined) {
     updatePayload.telephone = body.telephone?.trim() ?? null;
-  }
-  if (body.points_delta !== undefined) {
-    updatePayload.points = Math.max(0, existing.points + body.points_delta);
-  }
-  if (body.total_achats_delta !== undefined) {
-    updatePayload.total_achats = existing.total_achats + body.total_achats_delta;
-  }
-  if (body.increment_visites === true) {
-    updatePayload.nb_visites = existing.nb_visites + 1;
   }
 
   const { data, error } = await admin
@@ -98,7 +86,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const { id } = await params;
