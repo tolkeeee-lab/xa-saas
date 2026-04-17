@@ -37,7 +37,7 @@ async function computeTheorique(boutiqueId: string, date: string) {
     par_mode[mode] = (par_mode[mode] ?? 0) + (t.montant_total ?? 0);
   }
 
-  const cash_theorique = (par_mode['cash'] ?? 0) + (par_mode['especes'] ?? 0);
+  const cash_theorique = par_mode['especes'] ?? 0;
 
   return { ca_theorique, cash_theorique, par_mode, nb_transactions };
 }

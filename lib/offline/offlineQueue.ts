@@ -4,7 +4,7 @@ export type OfflineSale = {
   id: string; // UUID généré côté client (crypto.randomUUID())
   boutique_id: string;
   lignes: { produit_id: string; quantite: number; prix_unitaire: number }[];
-  mode_paiement: string;
+  mode_paiement: 'especes' | 'momo' | 'carte' | 'credit';
   montant_total: number;
   client_nom?: string;
   client_telephone?: string;

@@ -76,7 +76,7 @@ export type Transaction = {
   benefice_total: number;
   montant_recu: number;
   monnaie_rendue: number;
-  mode_paiement: 'cash' | 'especes' | 'momo' | 'carte' | 'credit' | 'dette';
+  mode_paiement: 'especes' | 'momo' | 'carte' | 'credit';
   client_nom: string | null;
   statut: 'validee' | 'annulee';
   sync_statut: 'local' | 'synced' | 'conflict';
