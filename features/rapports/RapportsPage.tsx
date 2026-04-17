@@ -318,7 +318,7 @@ export default function RapportsPage({
                         <td className="px-4 py-3 text-right text-xa-muted">{jour.transactions}</td>
                         <td className="px-4 py-3 text-right text-xs font-semibold">
                           {evo !== null ? (
-                            <span className={evo >= 0 ? 'text-green-500' : 'text-xa-danger'}>
+                            <span className={evo >= 0 ? 'text-aquamarine-600' : 'text-xa-danger'}>
                               {evo >= 0 ? '+' : ''}
                               {evo}%
                             </span>

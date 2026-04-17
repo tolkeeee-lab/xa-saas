@@ -343,7 +343,7 @@ export default function WeeklyChart({ stats, boutiques }: WeeklyChartProps) {
                 />
               </div>
               {todayCA >= objectif && (
-                <p className="text-xs text-emerald-500 font-semibold mt-1">🎯 Objectif atteint !</p>
+                <p className="text-xs text-aquamarine-600 font-semibold mt-1">🎯 Objectif atteint !</p>
               )}
             </>
           )}

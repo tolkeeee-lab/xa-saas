@@ -62,7 +62,7 @@ export default function BoutiqueCard({
         </div>
         <div>
           <p className="text-xs text-xa-muted">Bénéfice</p>
-          <p className="text-sm font-bold text-emerald-500">{formatFCFA(benefice)}</p>
+          <p className="text-sm font-bold text-aquamarine-600">{formatFCFA(benefice)}</p>
         </div>
       </div>
       <div className="flex justify-end">

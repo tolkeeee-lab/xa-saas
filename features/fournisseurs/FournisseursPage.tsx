@@ -23,9 +23,9 @@ function Etoiles({ note }: { note: number }) {
 
 function StatutBadge({ statut }: { statut: string }) {
   const map: Record<string, string> = {
-    en_attente: 'bg-orange-500/20 text-orange-400',
+    en_attente: 'bg-powder-petal-500/20 text-powder-petal-400',
     en_cours: 'bg-xa-primary/20 text-xa-primary',
-    recu: 'bg-green-500/20 text-green-400',
+    recu: 'bg-aquamarine-500/20 text-aquamarine-500',
   };
   const label: Record<string, string> = {
     en_attente: 'En attente',
@@ -99,7 +99,7 @@ export default function FournisseursPage({ fournisseurs: initial, boutiques }: F
                     </td>
                     <td className="px-4 py-3">
                       {f.specialite ? (
-                        <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 text-xs font-medium">
+                        <span className="px-2 py-0.5 rounded-full bg-mauve-500/20 text-mauve-500 text-xs font-medium">
                           {f.specialite}
                         </span>
                       ) : (

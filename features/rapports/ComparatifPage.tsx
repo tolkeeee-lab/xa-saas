@@ -14,7 +14,7 @@ type ComparatifPageProps = {
 function getPerformanceBadge(marge: number) {
   if (marge >= 25) {
     return (
-      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/20">
+      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-aquamarine-100 text-aquamarine-700 dark:bg-aquamarine-900/20">
         Excellent
       </span>
     );
@@ -27,7 +27,7 @@ function getPerformanceBadge(marge: number) {
     );
   }
   return (
-    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 dark:bg-orange-900/20">
+      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-powder-petal-100 text-powder-petal-600 dark:bg-powder-petal-900/20">
       Moyen
     </span>
   );
@@ -142,10 +142,10 @@ export default function ComparatifPage({
       {(enProgression || enRecul) && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {enProgression && (
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 flex items-center gap-3">
+            <div className="bg-aquamarine-50 dark:bg-aquamarine-900/20 border border-aquamarine-200 dark:border-aquamarine-800 rounded-xl p-4 flex items-center gap-3">
               <span className="text-2xl">📈</span>
               <div>
-                <p className="text-xs font-semibold text-green-600 uppercase tracking-wider mb-0.5">
+                <p className="text-xs font-semibold text-aquamarine-700 uppercase tracking-wider mb-0.5">
                   En progression
                 </p>
                 <p className="font-bold text-xa-text">{enProgression.nom}</p>
@@ -156,7 +156,7 @@ export default function ComparatifPage({
             </div>
           )}
           {enRecul && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-center gap-3">
+            <div className="bg-cotton-rose-50 dark:bg-cotton-rose-900/20 border border-cotton-rose-200 dark:border-cotton-rose-800 rounded-xl p-4 flex items-center gap-3">
               <span className="text-2xl">📉</span>
               <div>
                 <p className="text-xs font-semibold text-xa-danger uppercase tracking-wider mb-0.5">
@@ -245,8 +245,8 @@ export default function ComparatifPage({
                 </div>
                 <div className="space-y-1.5">
                   <BarRow label="CA" value={b.ca} max={maxCA} color="bg-xa-primary" />
-                  <BarRow label="Bénéfice" value={b.benefice} max={maxBenef} color="bg-green-500" />
-                  <BarRow label="Coût achats" value={b.cout_achats} max={maxCoutAchats} color="bg-orange-400" />
+                  <BarRow label="Bénéfice" value={b.benefice} max={maxBenef} color="bg-aquamarine-500" />
+                  <BarRow label="Coût achats" value={b.cout_achats} max={maxCoutAchats} color="bg-powder-petal-400" />
                 </div>
               </div>
             ))}
@@ -301,10 +301,10 @@ export default function ComparatifPage({
                     <td className="px-4 py-3 font-semibold text-xa-text">
                       {formatFCFA(b.ca)}
                     </td>
-                    <td className="px-4 py-3 text-green-600 font-medium">
+                    <td className="px-4 py-3 text-aquamarine-700 font-medium">
                       {formatFCFA(b.benefice)}
                     </td>
-                    <td className="px-4 py-3 text-orange-500">
+                    <td className="px-4 py-3 text-powder-petal-500">
                       {formatFCFA(b.cout_achats)}
                     </td>
                     <td className="px-4 py-3 text-xa-text">{b.nbTx}</td>
@@ -362,7 +362,7 @@ export default function ComparatifPage({
                     </td>
                     <td className="px-4 py-3 font-medium text-xa-text">{r.produit_nom}</td>
                     <td className="px-4 py-3">
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-xa-danger dark:bg-red-900/20">
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-cotton-rose-100 text-xa-danger dark:bg-cotton-rose-900/20">
                         {r.stock_actuel}
                       </span>
                     </td>

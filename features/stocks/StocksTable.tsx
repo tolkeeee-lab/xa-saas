@@ -13,15 +13,15 @@ function StatusBadge({ statut }: { statut: StockStatus }) {
     return <span className="text-xs font-semibold text-xa-danger">Rupture</span>;
   }
   if (statut === 'bas') {
-    return <span className="text-xs font-semibold text-yellow-500">Stock bas</span>;
+    return <span className="text-xs font-semibold text-lemon-chiffon-500">Stock bas</span>;
   }
-  return <span className="text-xs font-semibold text-green-500">OK</span>;
+  return <span className="text-xs font-semibold text-aquamarine-600">OK</span>;
 }
 
 function StockCell({ value, seuil_alerte }: { value: number; seuil_alerte: number }) {
   let color = 'text-xa-text';
   if (value === 0) color = 'text-xa-danger font-semibold';
-  else if (value <= seuil_alerte) color = 'text-yellow-500 font-semibold';
+  else if (value <= seuil_alerte) color = 'text-lemon-chiffon-500 font-semibold';
   return <span className={color}>{value}</span>;
 }
 
@@ -55,7 +55,7 @@ export default function StocksTable({ data, boutiques }: StocksTableProps) {
       label: 'Valeur réseau',
       value: formatFCFA(data.valeurReseau),
       icon: '💰',
-      color: 'text-green-500',
+      color: 'text-aquamarine-600',
     },
     {
       label: 'Ruptures',
@@ -67,7 +67,7 @@ export default function StocksTable({ data, boutiques }: StocksTableProps) {
       label: 'Stocks bas',
       value: data.stocksBas,
       icon: '🟠',
-      color: 'text-yellow-500',
+      color: 'text-lemon-chiffon-500',
     },
   ];
 

@@ -18,8 +18,8 @@ const STATUT_LABELS: Record<DetteProprio['statut'], string> = {
 };
 
 const STATUT_COLORS: Record<DetteProprio['statut'], string> = {
-  en_cours: 'bg-orange-500/20 text-orange-400',
-  rembourse: 'bg-green-500/20 text-green-400',
+  en_cours: 'bg-powder-petal-500/20 text-powder-petal-400',
+  rembourse: 'bg-aquamarine-500/20 text-aquamarine-500',
   en_retard: 'bg-xa-danger/20 text-xa-danger',
 };
 
@@ -214,7 +214,7 @@ export default function MesDettesPage({ data: initialData }: MesDettesPageProps)
       {toast && (
         <div
           className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white ${
-            toast.type === 'success' ? 'bg-green-600' : 'bg-xa-danger'
+            toast.type === 'success' ? 'bg-aquamarine-600' : 'bg-xa-danger'
           }`}
         >
           {toast.message}
@@ -248,13 +248,13 @@ export default function MesDettesPage({ data: initialData }: MesDettesPageProps)
         <StatCard
           label="Déjà remboursé"
           value={formatFCFA(totals.total_rembourse)}
-          color="text-green-500"
+          color="text-aquamarine-600"
           style={{ animation: 'xa-fade-up 0.4s ease both', animationDelay: '0.05s' }}
         />
         <StatCard
           label="Dettes en retard"
           value={String(totals.nb_en_retard)}
-          color="text-orange-500"
+          color="text-powder-petal-500"
           style={{ animation: 'xa-fade-up 0.4s ease both', animationDelay: '0.1s' }}
         />
         <StatCard
@@ -305,7 +305,7 @@ export default function MesDettesPage({ data: initialData }: MesDettesPageProps)
                       <td className="px-4 py-3 font-medium text-xa-text">{d.libelle}</td>
                       <td className="px-4 py-3 text-xa-muted">{d.creancier}</td>
                       <td className="px-4 py-3 text-xa-text font-semibold">{formatFCFA(d.montant)}</td>
-                      <td className="px-4 py-3 text-green-500">{formatFCFA(d.montant_rembourse)}</td>
+                      <td className="px-4 py-3 text-aquamarine-600">{formatFCFA(d.montant_rembourse)}</td>
                       <td className="px-4 py-3 font-bold text-xa-danger">{formatFCFA(resteDu)}</td>
                       <td className="px-4 py-3 text-xa-muted">
                         {d.date_echeance
@@ -329,7 +329,7 @@ export default function MesDettesPage({ data: initialData }: MesDettesPageProps)
                               </button>
                               <button
                                 onClick={() => handleMarkRembourse(d.id)}
-                                className="px-2 py-1 rounded-lg bg-green-600 text-white text-xs font-semibold hover:opacity-90 transition-opacity whitespace-nowrap"
+                                className="px-2 py-1 rounded-lg bg-aquamarine-600 text-white text-xs font-semibold hover:opacity-90 transition-opacity whitespace-nowrap"
                               >
                                 Tout remboursé
                               </button>

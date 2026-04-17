@@ -66,7 +66,7 @@ export default function AlertesStockPage({ data }: AlertesStockPageProps) {
           style={{ animation: 'xa-fade-up 0.4s ease both', animationDelay: '0.05s' }}
         >
           <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-1">Stock bas</p>
-          <p className="text-lg font-bold text-yellow-500">{data.nb_bas}</p>
+          <p className="text-lg font-bold text-lemon-chiffon-500">{data.nb_bas}</p>
         </div>
         <div
           className="bg-xa-surface border border-xa-border rounded-xl p-3"
@@ -198,7 +198,7 @@ function AlerteRow({ alerte: a }: { alerte: AlerteStockRow }) {
         </div>
       </td>
       <td className="px-4 py-3">
-        <span className={`font-bold ${a.stock_actuel === 0 ? 'text-xa-danger' : 'text-yellow-500'}`}>
+        <span className={`font-bold ${a.stock_actuel === 0 ? 'text-xa-danger' : 'text-lemon-chiffon-500'}`}>
           {a.stock_actuel}
         </span>
       </td>
@@ -208,7 +208,7 @@ function AlerteRow({ alerte: a }: { alerte: AlerteStockRow }) {
           className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
             a.statut === 'rupture'
               ? 'bg-xa-danger/20 text-xa-danger'
-              : 'bg-yellow-500/20 text-yellow-500'
+              : 'bg-lemon-chiffon-500/20 text-lemon-chiffon-500'
           }`}
         >
           {a.statut === 'rupture' ? 'Rupture' : 'Stock bas'}

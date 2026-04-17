@@ -92,7 +92,7 @@ export default function NewBoutiquePage() {
         className="bg-xa-surface border border-xa-border rounded-xl p-6 space-y-5"
       >
         {error && (
-          <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950 border border-xa-danger text-xa-danger text-sm">
+          <div className="p-3 rounded-lg bg-cotton-rose-50 dark:bg-cotton-rose-950 border border-xa-danger text-xa-danger text-sm">
             {error}
           </div>
         )}

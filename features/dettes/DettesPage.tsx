@@ -13,8 +13,8 @@ interface DettesPageProps {
 
 function StatutBadge({ statut }: { statut: string }) {
   const map: Record<string, string> = {
-    en_attente: 'bg-orange-500/20 text-orange-400',
-    paye: 'bg-green-500/20 text-green-400',
+    en_attente: 'bg-powder-petal-500/20 text-powder-petal-400',
+    paye: 'bg-aquamarine-500/20 text-aquamarine-500',
     en_retard: 'bg-xa-danger/20 text-xa-danger',
   };
   const label: Record<string, string> = {
@@ -304,7 +304,7 @@ export default function DettesPage({ data: initialData, boutiques }: DettesPageP
                         <button
                           onClick={() => marquerPaye(d)}
                           disabled={markingPaid === d.id}
-                          className="px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+                          className="px-3 py-1.5 rounded-lg bg-aquamarine-600 text-white text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
                         >
                           {markingPaid === d.id ? '…' : 'Marquer payé'}
                         </button>

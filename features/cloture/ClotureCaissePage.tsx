@@ -169,7 +169,7 @@ export default function ClotureCaissePage({ data }: Props) {
         <div
           className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl shadow-lg text-sm font-medium transition-all ${
             toast.type === 'success'
-              ? 'bg-green-500 text-white'
+              ? 'bg-aquamarine-500 text-white'
               : 'bg-xa-danger text-white'
           }`}
           style={{ animation: 'xa-fade-up 0.3s ease both' }}
@@ -285,15 +285,15 @@ export default function ClotureCaissePage({ data }: Props) {
         {showEcart && (
           <div>
             {ecart === 0 ? (
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 text-green-700 text-sm font-semibold dark:bg-green-900/20">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-aquamarine-100 text-aquamarine-700 text-sm font-semibold dark:bg-aquamarine-900/20">
                 ✅ Caisse équilibrée
               </span>
             ) : ecart > 0 ? (
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-semibold dark:bg-blue-900/20">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-baby-blue-ice-100 text-baby-blue-ice-700 text-sm font-semibold dark:bg-baby-blue-ice-900/20">
                 📈 Surplus +{formatFCFA(ecart)}
               </span>
             ) : (
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-100 text-red-700 text-sm font-semibold dark:bg-red-900/20">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cotton-rose-100 text-cotton-rose-700 text-sm font-semibold dark:bg-cotton-rose-900/20">
                 📉 Manque {formatFCFA(Math.abs(ecart))}
               </span>
             )}
@@ -406,9 +406,9 @@ export default function ClotureCaissePage({ data }: Props) {
                       </td>
                       <td className="px-4 py-3 text-right tabular-nums">
                         {ecartVal === 0 ? (
-                          <span className="text-green-600 font-semibold">0</span>
+                          <span className="text-aquamarine-700 font-semibold">0</span>
                         ) : ecartVal > 0 ? (
-                          <span className="text-blue-600 font-semibold">
+                          <span className="text-baby-blue-ice-600 font-semibold">
                             +{formatFCFA(ecartVal)}
                           </span>
                         ) : (
