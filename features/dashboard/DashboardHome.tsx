@@ -255,13 +255,13 @@ function RevenueChart({
           >
             <defs>
               <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#6c2ed1" stopOpacity="0.15" />
-                <stop offset="100%" stopColor="#6c2ed1" stopOpacity="0" />
+                <stop offset="0%" stopColor="#6c2ed1" stopOpacity="0.25" />
+                <stop offset="100%" stopColor="#6c2ed1" stopOpacity="0.02" />
               </linearGradient>
             </defs>
             {area && <path d={area} fill="url(#revGrad)" />}
             {line && (
-              <path d={line} fill="none" stroke="#6c2ed1" strokeWidth="2" strokeLinecap="round" />
+              <path d={line} fill="none" stroke="#6c2ed1" strokeWidth="2.5" strokeLinecap="round" />
             )}
           </svg>
 
@@ -308,16 +308,16 @@ function PeakHoursChart({ hourlyStats }: { hourlyStats: number[] }) {
       </div>
 
       {/* Bar chart */}
-      <div className="flex items-end gap-1.5 h-28">
+      <div className="flex items-end gap-1.5 h-24">
         {values.map((v, i) => {
-          const heightPct = (v / max) * 100;
+          const barH = Math.max(Math.round((v / max) * 88), 4);
           const isPeak = top2Indices.has(i);
           return (
-            <div key={i} className="flex flex-col items-center flex-1 gap-1">
+            <div key={i} className="flex flex-col items-center flex-1 gap-1 h-full justify-end">
               <div
                 className="w-full rounded-sm transition-all"
                 style={{
-                  height: `${Math.max(heightPct, 4)}%`,
+                  height: `${barH}px`,
                   backgroundColor: isPeak ? '#6c2ed1' : '#c4abed',
                 }}
               />
