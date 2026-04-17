@@ -112,13 +112,13 @@ export default function Panier({
             <span>{formatFCFA(sousTotal)}</span>
           </div>
           {remisePanier > 0 && (
-            <div className="flex justify-between text-green-500">
+            <div className="flex justify-between text-aquamarine-600">
               <span>Remise fidélité 5 %</span>
               <span>− {formatFCFA(remisePanier)}</span>
             </div>
           )}
           {remiseClient > 0 && (
-            <div className="flex justify-between text-green-400">
+            <div className="flex justify-between text-aquamarine-500">
               <span>🎁 Remise client 5 %</span>
               <span>− {formatFCFA(remiseClient)}</span>
             </div>
@@ -178,7 +178,7 @@ export default function Panier({
               className="w-full px-3 py-1.5 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-xs focus:outline-none focus:ring-2 focus:ring-xa-primary"
             />
             {(montantRecu ?? 0) >= total && (montantRecu ?? 0) > 0 && (
-              <p className="text-xs text-green-500 font-semibold text-right">
+              <p className="text-xs text-aquamarine-600 font-semibold text-right">
                 Monnaie : {formatFCFA((montantRecu ?? 0) - total)}
               </p>
             )}

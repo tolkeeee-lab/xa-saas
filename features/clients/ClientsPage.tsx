@@ -19,14 +19,14 @@ interface ModalState {
 function PointsBadge({ points }: { points: number }) {
   if (points >= 100) {
     return (
-      <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-500/20 text-green-400">
+      <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-aquamarine-500/20 text-aquamarine-600">
         {points} pts 🎁
       </span>
     );
   }
   if (points >= 50) {
     return (
-      <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-400">
+      <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-powder-petal-500/20 text-powder-petal-500">
         {points} pts
       </span>
     );
@@ -41,7 +41,7 @@ function PointsBadge({ points }: { points: number }) {
 function RemiseCell({ points }: { points: number }) {
   if (points >= 100) {
     return (
-      <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-500/20 text-green-400">
+      <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-aquamarine-500/20 text-aquamarine-600">
         ✓ 5% dispo
       </span>
     );
@@ -268,7 +268,7 @@ export default function ClientsPage({ data: initialData }: ClientsPageProps) {
                           <div className="flex items-center gap-1">
                             <button
                               onClick={() => handleDelete(client.id)}
-                              className="text-xs px-2.5 py-1 rounded-md bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
+                              className="text-xs px-2.5 py-1 rounded-md bg-cotton-rose-500/20 text-cotton-rose-500 hover:bg-cotton-rose-500/30 transition-colors"
                             >
                               Confirmer
                             </button>

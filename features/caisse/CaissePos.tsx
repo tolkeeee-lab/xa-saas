@@ -600,7 +600,7 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
                           {c.telephone ? ` · ${c.telephone}` : ''}
                         </span>
                         <span
-                          className={`text-xs px-1.5 py-0.5 rounded ${c.points >= 100 ? 'bg-green-500/20 text-green-400' : 'text-xa-muted'}`}
+                          className={`text-xs px-1.5 py-0.5 rounded ${c.points >= 100 ? 'bg-aquamarine-500/20 text-aquamarine-600' : 'text-xa-muted'}`}
                         >
                           {c.points} pts{c.points >= 100 ? ' 🎁' : ''}
                         </span>
@@ -617,7 +617,7 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
               )}
             </div>
             {selectedClient && selectedClient.points >= 100 && (
-              <div className="px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/30 text-xs text-green-400 font-semibold">
+              <div className="px-3 py-2 rounded-lg bg-aquamarine-500/10 border border-aquamarine-500/30 text-xs text-aquamarine-600 font-semibold">
                 🎁 Remise 5% débloquée pour {selectedClient.nom} !
               </div>
             )}

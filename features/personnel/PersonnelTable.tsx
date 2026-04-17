@@ -117,7 +117,7 @@ export default function PersonnelTable({
       {toast && (
         <div
           className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white ${
-            toast.type === 'success' ? 'bg-green-600' : 'bg-xa-danger'
+            toast.type === 'success' ? 'bg-aquamarine-600' : 'bg-xa-danger'
           }`}
         >
           {toast.message}
@@ -149,11 +149,11 @@ export default function PersonnelTable({
           </p>
           <p className="text-2xl font-bold text-xa-text">{total}</p>
         </div>
-        <div className="bg-green-100 dark:bg-green-900/20 border border-xa-border rounded-xl p-4">
+        <div className="bg-aquamarine-100 dark:bg-aquamarine-900/20 border border-xa-border rounded-xl p-4">
           <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-1">
             Présents aujourd&apos;hui
           </p>
-          <p className="text-2xl font-bold text-green-600">{presents}</p>
+          <p className="text-2xl font-bold text-aquamarine-700">{presents}</p>
         </div>
         <div className="bg-xa-surface border border-xa-border rounded-xl p-4">
           <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-1">
@@ -217,7 +217,7 @@ export default function PersonnelTable({
                       <td className="px-4 py-3 capitalize text-xa-text">{emp.role}</td>
                       <td className="px-4 py-3">
                         {emp.actif ? (
-                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/20">
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-aquamarine-100 text-aquamarine-700 dark:bg-aquamarine-900/20">
                             Présent
                           </span>
                         ) : (

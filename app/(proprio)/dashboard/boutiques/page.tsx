@@ -78,8 +78,8 @@ function BoutiqueListCard({ boutique }: { boutique: Boutique }) {
           </p>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span className="text-xs text-emerald-500 font-medium">Actif</span>
+          <span className="w-2 h-2 rounded-full bg-aquamarine-500" />
+          <span className="text-xs text-aquamarine-600 font-medium">Actif</span>
         </div>
       </div>
 

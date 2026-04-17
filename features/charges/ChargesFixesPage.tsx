@@ -31,9 +31,9 @@ const CATEGORIE_LABELS: Record<ChargeFixe['categorie'], string> = {
 };
 
 const CATEGORIE_COLORS: Record<ChargeFixe['categorie'], string> = {
-  loyer: 'bg-blue-100 text-blue-700 dark:bg-blue-900/20',
-  salaire: 'bg-purple-100 text-purple-700 dark:bg-purple-900/20',
-  fournisseur: 'bg-orange-100 text-orange-600 dark:bg-orange-900/20',
+  loyer: 'bg-baby-blue-ice-100 text-baby-blue-ice-700 dark:bg-baby-blue-ice-900/20',
+  salaire: 'bg-mauve-100 text-mauve-700 dark:bg-mauve-900/20',
+  fournisseur: 'bg-powder-petal-100 text-powder-petal-600 dark:bg-powder-petal-900/20',
   autre: 'bg-xa-surface text-xa-muted border border-xa-border',
 };
 
@@ -201,7 +201,7 @@ export default function ChargesFixesPage({ data: initialData, boutiques }: Charg
       {toast && (
         <div
           className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white ${
-            toast.type === 'success' ? 'bg-green-600' : 'bg-xa-danger'
+            toast.type === 'success' ? 'bg-aquamarine-600' : 'bg-xa-danger'
           }`}
         >
           {toast.message}
@@ -230,10 +230,10 @@ export default function ChargesFixesPage({ data: initialData, boutiques }: Charg
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
           <FinCard label="CA du mois" value={formatFCFA(data.ca_mois)} color="text-xa-primary" />
           <FinCard label="Coût achats" value={formatFCFA(data.cout_achats_mois)} color="text-xa-danger" />
-          <FinCard label="Charges fixes" value={formatFCFA(data.total_mensuel)} color="text-orange-500" />
+          <FinCard label="Charges fixes" value={formatFCFA(data.total_mensuel)} color="text-powder-petal-500" />
           <div className="bg-xa-bg border border-xa-border rounded-xl p-3">
             <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-1">Dettes en cours</p>
-            <p className="text-lg font-bold text-red-800">{formatFCFA(data.total_dettes_en_cours)}</p>
+            <p className="text-lg font-bold text-cotton-rose-800">{formatFCFA(data.total_dettes_en_cours)}</p>
             <Link href="/dashboard/mes-dettes" className="text-xs text-xa-primary hover:underline">
               Voir mes dettes →
             </Link>
@@ -241,7 +241,7 @@ export default function ChargesFixesPage({ data: initialData, boutiques }: Charg
           <FinCard
             label="Reste au proprio"
             value={formatFCFA(data.reste_proprio)}
-            color={data.reste_proprio >= 0 ? 'text-green-600' : 'text-xa-danger'}
+            color={data.reste_proprio >= 0 ? 'text-aquamarine-700' : 'text-xa-danger'}
           />
         </div>
 
@@ -255,25 +255,25 @@ export default function ChargesFixesPage({ data: initialData, boutiques }: Charg
                 title={`Coût achats : ${pctAchats}%`}
               />
               <div
-                className="bg-orange-400 transition-all"
+                className="bg-powder-petal-400 transition-all"
                 style={{ width: `${pctCharges}%` }}
                 title={`Charges fixes : ${pctCharges}%`}
               />
               <div
-                className="bg-red-800 transition-all"
+                className="bg-cotton-rose-800 transition-all"
                 style={{ width: `${pctDettes}%` }}
                 title={`Dettes : ${pctDettes}%`}
               />
               <div
-                className="bg-green-500 transition-all flex-1"
+                className="bg-aquamarine-500 transition-all flex-1"
                 title={`Reste proprio : ${pctReste}%`}
               />
             </div>
             <div className="flex gap-4 mt-2 flex-wrap">
               <LegendItem color="bg-xa-danger" label={`Coût achats ${pctAchats}%`} />
-              <LegendItem color="bg-orange-400" label={`Charges ${pctCharges}%`} />
-              <LegendItem color="bg-red-800" label={`Dettes ${pctDettes}%`} />
-              <LegendItem color="bg-green-500" label={`Reste ${pctReste}%`} />
+              <LegendItem color="bg-powder-petal-400" label={`Charges ${pctCharges}%`} />
+              <LegendItem color="bg-cotton-rose-800" label={`Dettes ${pctDettes}%`} />
+              <LegendItem color="bg-aquamarine-500" label={`Reste ${pctReste}%`} />
             </div>
           </div>
         )}
@@ -373,7 +373,7 @@ export default function ChargesFixesPage({ data: initialData, boutiques }: Charg
                   <td colSpan={5} className="px-4 py-3 text-xs font-semibold text-xa-muted uppercase tracking-wider text-right">
                     Total mensuel
                   </td>
-                  <td className="px-4 py-3 font-bold text-orange-500">
+                  <td className="px-4 py-3 font-bold text-powder-petal-500">
                     {formatFCFA(Math.round(data.total_mensuel))}
                   </td>
                   <td />

@@ -163,7 +163,7 @@ export default function ParametresPage() {
             <div
               className={`p-3 rounded-lg text-sm border ${
                 profileMsg.type === 'success'
-                  ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
+                  ? 'border-aquamarine-500 text-aquamarine-600 dark:text-aquamarine-400'
                   : 'border-xa-danger text-xa-danger'
               }`}
             >
@@ -231,7 +231,7 @@ export default function ParametresPage() {
               <div
                 className={`p-3 rounded-lg text-sm border ${
                   boutiqueMsg.type === 'success'
-                    ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
+                    ? 'border-aquamarine-500 text-aquamarine-600 dark:text-aquamarine-400'
                     : 'border-xa-danger text-xa-danger'
                 }`}
               >

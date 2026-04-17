@@ -14,14 +14,14 @@ type ToastState = { message: string; type: 'success' | 'error' } | null;
 function getStatusBadge(jours: number) {
   if (jours < 0) {
     return (
-      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-xa-danger dark:bg-red-900/20">
+      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-cotton-rose-100 text-xa-danger dark:bg-cotton-rose-900/20">
         Expiré ({Math.abs(jours)}j)
       </span>
     );
   }
   if (jours <= 7) {
     return (
-      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 dark:bg-orange-900/20">
+      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-powder-petal-100 text-powder-petal-600 dark:bg-powder-petal-900/20">
         {jours} jour{jours !== 1 ? 's' : ''}
       </span>
     );
@@ -34,7 +34,7 @@ function getStatusBadge(jours: number) {
     );
   }
   return (
-    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/20">
+    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-aquamarine-100 text-aquamarine-700 dark:bg-aquamarine-900/20">
       {jours} jours
     </span>
   );
@@ -180,7 +180,7 @@ export default function PerimesTable({ produits: initialProduits }: PerimesTable
       {toast && (
         <div
           className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white ${
-            toast.type === 'success' ? 'bg-green-600' : 'bg-xa-danger'
+            toast.type === 'success' ? 'bg-aquamarine-600' : 'bg-xa-danger'
           }`}
         >
           {toast.message}
@@ -197,17 +197,17 @@ export default function PerimesTable({ produits: initialProduits }: PerimesTable
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-red-100 dark:bg-red-900/20 border border-xa-border rounded-xl p-4">
+        <div className="bg-cotton-rose-100 dark:bg-cotton-rose-900/20 border border-xa-border rounded-xl p-4">
           <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-1">
             Expirés
           </p>
           <p className="text-2xl font-bold text-xa-danger">{expires}</p>
         </div>
-        <div className="bg-orange-100 dark:bg-orange-900/20 border border-xa-border rounded-xl p-4">
+        <div className="bg-powder-petal-100 dark:bg-powder-petal-900/20 border border-xa-border rounded-xl p-4">
           <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-1">
             Expirent &lt; 7 jours
           </p>
-          <p className="text-2xl font-bold text-orange-500">{expiresSoon7}</p>
+          <p className="text-2xl font-bold text-powder-petal-500">{expiresSoon7}</p>
         </div>
         <div className="bg-xa-surface border border-xa-border rounded-xl p-4">
           <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-1">
@@ -330,7 +330,7 @@ export default function PerimesTable({ produits: initialProduits }: PerimesTable
                         <button
                           onClick={() => handlePromoFlash(p.id, p.prix_vente)}
                           disabled={loading[p.id]}
-                          className="px-3 py-1.5 rounded-lg bg-orange-500 text-white text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 whitespace-nowrap"
+                          className="px-3 py-1.5 rounded-lg bg-powder-petal-500 text-white text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 whitespace-nowrap"
                         >
                           {loading[p.id] ? '…' : 'Promo flash -30%'}
                         </button>

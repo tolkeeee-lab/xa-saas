@@ -142,7 +142,7 @@ export default function TransfertsPage({
       {toast && (
         <div
           className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white ${
-            toast.type === 'success' ? 'bg-green-600' : 'bg-xa-danger'
+            toast.type === 'success' ? 'bg-aquamarine-600' : 'bg-xa-danger'
           }`}
         >
           {toast.message}
@@ -162,8 +162,8 @@ export default function TransfertsPage({
         <StatCard
           label="En transit"
           value={String(enTransit)}
-          color="text-yellow-600"
-          bg="bg-yellow-100 dark:bg-yellow-900/20"
+          color="text-lemon-chiffon-600"
+          bg="bg-lemon-chiffon-100 dark:bg-lemon-chiffon-900/20"
         />
         <StatCard
           label="Ce mois"
@@ -190,7 +190,7 @@ export default function TransfertsPage({
               <div key={t.id} className="flex items-center gap-3 min-w-0">
                 <span
                   className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                    t.statut === 'livre' ? 'bg-green-500' : 'bg-yellow-400'
+                    t.statut === 'livre' ? 'bg-aquamarine-500' : 'bg-lemon-chiffon-400'
                   }`}
                 />
                 <span className="text-xs text-xa-muted whitespace-nowrap shrink-0">
@@ -207,8 +207,8 @@ export default function TransfertsPage({
                 <span
                   className={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${
                     t.statut === 'livre'
-                      ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-                      : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
+                      ? 'bg-aquamarine-100 text-aquamarine-700 dark:bg-aquamarine-900/20 dark:text-aquamarine-500'
+                      : 'bg-lemon-chiffon-100 text-lemon-chiffon-700 dark:bg-lemon-chiffon-900/20 dark:text-lemon-chiffon-500'
                   }`}
                 >
                   {t.statut === 'livre' ? 'Livré' : 'En transit'}
@@ -290,11 +290,11 @@ export default function TransfertsPage({
                       <td className="px-4 py-2.5 text-xa-text">{t.quantite}</td>
                       <td className="px-4 py-2.5">
                         {t.statut === 'livre' ? (
-                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-aquamarine-100 text-aquamarine-700 dark:bg-aquamarine-900/20 dark:text-aquamarine-500">
                             Livré
                           </span>
                         ) : (
-                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400">
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-lemon-chiffon-100 text-lemon-chiffon-700 dark:bg-lemon-chiffon-900/20 dark:text-lemon-chiffon-500">
                             En transit
                           </span>
                         )}
@@ -304,7 +304,7 @@ export default function TransfertsPage({
                           <button
                             onClick={() => handleMarquerLivre(t.id)}
                             disabled={markingLivre[t.id]}
-                            className="px-3 py-1 rounded-lg bg-green-600 text-white text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 whitespace-nowrap"
+                            className="px-3 py-1 rounded-lg bg-aquamarine-600 text-white text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 whitespace-nowrap"
                           >
                             {markingLivre[t.id] ? '…' : 'Marquer livré'}
                           </button>

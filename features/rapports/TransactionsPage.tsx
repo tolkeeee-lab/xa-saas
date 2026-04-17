@@ -35,10 +35,10 @@ function exportCSV(transactions: TransactionWithDetails[]) {
 const MODE_PAIEMENT_COLORS: Record<string, string> = {
   cash: 'bg-xa-border/40 text-xa-muted',
   especes: 'bg-xa-border/40 text-xa-muted',
-  momo: 'bg-blue-500/20 text-blue-400',
+  momo: 'bg-baby-blue-ice-500/20 text-baby-blue-ice-400',
   carte: 'bg-violet-500/20 text-violet-400',
-  credit: 'bg-orange-500/20 text-orange-400',
-  dette: 'bg-orange-500/20 text-orange-400',
+  credit: 'bg-powder-petal-500/20 text-powder-petal-400',
+  dette: 'bg-powder-petal-500/20 text-powder-petal-400',
 };
 
 export default function TransactionsPage({ data }: TransactionsPageProps) {
@@ -104,7 +104,7 @@ export default function TransactionsPage({ data }: TransactionsPageProps) {
           style={{ animation: 'xa-fade-up 0.4s ease both', animationDelay: '0.1s' }}
         >
           <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-1">Validées</p>
-          <p className="text-lg font-bold text-emerald-500">{nbValidees}</p>
+          <p className="text-lg font-bold text-aquamarine-600">{nbValidees}</p>
         </div>
         <div
           className="bg-xa-surface border border-xa-border rounded-xl p-3"
@@ -263,7 +263,7 @@ function TransactionRow({
         {formatFCFA(t.montant_total)}
       </td>
       <td className="px-4 py-3 hidden sm:table-cell">
-        <span className={t.benefice_total > 0 ? 'text-emerald-500 font-semibold' : 'text-xa-muted'}>
+        <span className={t.benefice_total > 0 ? 'text-aquamarine-600 font-semibold' : 'text-xa-muted'}>
           {formatFCFA(t.benefice_total)}
         </span>
       </td>
@@ -271,7 +271,7 @@ function TransactionRow({
         <span
           className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
             t.statut === 'validee'
-              ? 'bg-emerald-500/20 text-emerald-400'
+              ? 'bg-aquamarine-500/20 text-aquamarine-500'
               : 'bg-xa-danger/20 text-xa-danger'
           }`}
         >

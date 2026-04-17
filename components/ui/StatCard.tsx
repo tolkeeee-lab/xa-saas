@@ -105,7 +105,7 @@ export default function StatCard({
           <span
             className={`text-xs font-semibold ${
               trend === 'up'
-                ? 'text-emerald-500'
+                ? 'text-aquamarine-600'
                 : trend === 'down'
                 ? 'text-xa-danger'
                 : 'text-xa-muted'

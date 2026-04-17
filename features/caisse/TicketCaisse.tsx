@@ -108,7 +108,7 @@ export default function TicketCaisse({ ticket, onNouvelleVente }: TicketCaissePr
             <span>{formatFCFA(sousTotal)}</span>
           </div>
           {ticket.remise > 0 && (
-            <div className="flex justify-between text-sm text-green-500">
+            <div className="flex justify-between text-sm text-aquamarine-600">
               <span>Remise fidélité (5 %)</span>
               <span>− {formatFCFA(ticket.remise)}</span>
             </div>
@@ -126,7 +126,7 @@ export default function TicketCaisse({ ticket, onNouvelleVente }: TicketCaissePr
                 <span>Montant reçu</span>
                 <span>{formatFCFA(ticket.montant_recu!)}</span>
               </div>
-              <div className="flex justify-between text-sm text-green-500 font-semibold">
+              <div className="flex justify-between text-sm text-aquamarine-600 font-semibold">
                 <span>Monnaie rendue</span>
                 <span>{formatFCFA(ticket.monnaie_rendue ?? 0)}</span>
               </div>
@@ -155,7 +155,7 @@ export default function TicketCaisse({ ticket, onNouvelleVente }: TicketCaissePr
           </button>
           <button
             onClick={handleWhatsApp}
-            className="flex-1 py-2 rounded-lg border border-green-500/50 text-green-500 text-sm font-medium hover:bg-green-500/10 transition-colors"
+            className="flex-1 py-2 rounded-lg border border-aquamarine-500/50 text-aquamarine-600 text-sm font-medium hover:bg-aquamarine-500/10 transition-colors"
           >
             WhatsApp
           </button>

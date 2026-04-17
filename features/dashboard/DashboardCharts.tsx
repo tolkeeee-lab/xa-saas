@@ -49,9 +49,9 @@ function AreaTooltip({
   const value = payload[0].value;
   const formatted = metric === 'transactions' ? String(value) : formatFCFA(value);
   return (
-    <div className="bg-white dark:bg-zinc-900 rounded-lg px-3 py-2 shadow-md text-sm">
-      <p className="text-zinc-400 text-xs mb-0.5">{label}</p>
-      <p className="font-semibold text-zinc-900 dark:text-white">{formatted}</p>
+    <div className="bg-xa-surface rounded-lg px-3 py-2 shadow-md text-sm">
+      <p className="text-xa-muted text-xs mb-0.5">{label}</p>
+      <p className="font-semibold text-xa-text">{formatted}</p>
     </div>
   );
 }
@@ -68,9 +68,9 @@ function BarTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white dark:bg-zinc-900 rounded-lg px-3 py-2 shadow-md text-sm">
-      <p className="text-zinc-400 text-xs mb-0.5">{label}</p>
-      <p className="font-semibold text-zinc-900 dark:text-white">{formatFCFA(payload[0].value)}</p>
+    <div className="bg-xa-surface rounded-lg px-3 py-2 shadow-md text-sm">
+      <p className="text-xa-muted text-xs mb-0.5">{label}</p>
+      <p className="font-semibold text-xa-text">{formatFCFA(payload[0].value)}</p>
     </div>
   );
 }
@@ -219,14 +219,14 @@ export default function DashboardCharts({
             type="button"
             onClick={() => setSelectedKpi(card.key)}
             className={[
-              'bg-white dark:bg-zinc-900 border rounded-xl p-4 text-left transition-shadow duration-200 cursor-pointer w-full',
+              'bg-xa-surface border rounded-xl p-4 text-left transition-shadow duration-200 cursor-pointer w-full',
               selectedKpi === card.key
-                ? 'border-zinc-200 dark:border-zinc-700 shadow-md'
-                : 'border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-md',
+                ? 'border-xa-border shadow-md'
+                : 'border-xa-border shadow-sm hover:shadow-md',
             ].join(' ')}
           >
-            <p className="text-xs text-zinc-400 uppercase tracking-widest mb-1">{card.title}</p>
-            <p className="text-2xl font-bold text-zinc-900 dark:text-white mb-3">{card.value}</p>
+            <p className="text-xs text-xa-muted uppercase tracking-widest mb-1">{card.title}</p>
+            <p className="text-2xl font-bold text-xa-text mb-3">{card.value}</p>
             {/* Sparkline — only for metrics that vary over time */}
             {card.sparkKey !== null && (
               <div className="h-10 relative">
@@ -247,8 +247,8 @@ export default function DashboardCharts({
                     className={[
                       'absolute bottom-0 right-0 text-xs font-medium px-1.5 py-0.5 rounded',
                       card.badge.startsWith('+')
-                        ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40'
-                        : 'text-red-500 bg-red-50 dark:bg-red-950/40',
+                        ? 'text-aquamarine-700 bg-aquamarine-50'
+                        : 'text-cotton-rose-500 bg-cotton-rose-50',
                     ].join(' ')}
                   >
                     {card.badge}
@@ -263,11 +263,11 @@ export default function DashboardCharts({
       {/* Main trend + Top produits */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Main AreaChart */}
-        <div className="xl:col-span-2 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-xl p-5 shadow-sm">
+        <div className="xl:col-span-2 bg-xa-surface border border-xa-border rounded-xl p-5 shadow-sm">
           <div className="flex items-center justify-between flex-wrap gap-3 mb-1">
             <div>
-              <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Évolution</h3>
-              <p className="text-xs text-zinc-400 mt-0.5">Tendance sur la période sélectionnée</p>
+              <h3 className="text-sm font-semibold text-xa-text">Évolution</h3>
+              <p className="text-xs text-xa-muted mt-0.5">Tendance sur la période sélectionnée</p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               {/* Metric toggles */}
@@ -280,8 +280,8 @@ export default function DashboardCharts({
                     className={[
                       'px-2.5 py-1 text-xs font-medium rounded-full transition-colors',
                       metric === m
-                        ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
-                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700',
+                        ? 'bg-xa-primary text-white'
+                        : 'bg-xa-bg text-xa-muted hover:bg-xa-border',
                     ].join(' ')}
                   >
                     {metricLabels[m]}
@@ -298,8 +298,8 @@ export default function DashboardCharts({
                     className={[
                       'px-2.5 py-1 text-xs font-medium rounded-full transition-colors',
                       period === p
-                        ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
-                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700',
+                        ? 'bg-xa-primary text-white'
+                        : 'bg-xa-bg text-xa-muted hover:bg-xa-border',
                     ].join(' ')}
                   >
                     {p}
@@ -358,10 +358,10 @@ export default function DashboardCharts({
         </div>
 
         {/* Top produits */}
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-xl p-5 shadow-sm">
-          <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-4">Top produits du mois</h3>
+        <div className="bg-xa-surface border border-xa-border rounded-xl p-5 shadow-sm">
+          <h3 className="text-sm font-semibold text-xa-text mb-4">Top produits du mois</h3>
           {top5.length === 0 ? (
-            <p className="text-zinc-400 text-sm text-center py-8">Aucun produit vendu</p>
+            <p className="text-xa-muted text-sm text-center py-8">Aucun produit vendu</p>
           ) : (
             <ul className="space-y-4">
               {top5.map((produit, i) => {
@@ -371,18 +371,18 @@ export default function DashboardCharts({
                   <li key={produit.produit_id ?? produit.nom}>
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="flex items-center gap-2 min-w-0">
-                        <span className="text-xs text-zinc-400 font-mono shrink-0">{rank}</span>
-                        <span className="text-sm font-medium text-zinc-900 dark:text-white truncate">
+                        <span className="text-xs text-xa-muted font-mono shrink-0">{rank}</span>
+                        <span className="text-sm font-medium text-xa-text truncate">
                           {produit.nom}
                         </span>
                       </span>
-                      <span className="text-xs text-zinc-400 shrink-0 ml-2">
+                      <span className="text-xs text-xa-muted shrink-0 ml-2">
                         {formatFCFA(produit.ca_total)}
                       </span>
                     </div>
-                    <div className="h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                    <div className="h-1 bg-xa-bg rounded-full overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-zinc-900 dark:bg-white"
+                        className="h-full rounded-full bg-xa-primary"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -395,8 +395,8 @@ export default function DashboardCharts({
       </div>
 
       {/* 6-month bar chart */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-xl p-5 shadow-sm">
-        <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-5">CA — 6 derniers mois</h3>
+      <div className="bg-xa-surface border border-xa-border rounded-xl p-5 shadow-sm">
+        <h3 className="text-sm font-semibold text-xa-text mb-5">CA — 6 derniers mois</h3>
         <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={moisStats} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>

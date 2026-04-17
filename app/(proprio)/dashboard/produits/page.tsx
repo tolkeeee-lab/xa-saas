@@ -15,9 +15,9 @@ function getStockStatus(produit: Produit): StockStatus {
 }
 
 const STATUS_CONFIG: Record<StockStatus, { label: string; classes: string }> = {
-  rupture: { label: 'Rupture', classes: 'bg-red-100 text-xa-danger dark:bg-red-950' },
+  rupture: { label: 'Rupture', classes: 'bg-cotton-rose-100 text-xa-danger dark:bg-cotton-rose-950' },
   bas: { label: 'Stock bas', classes: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-bright-amber-400' },
-  ok: { label: 'OK', classes: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950' },
+  ok: { label: 'OK', classes: 'bg-aquamarine-100 text-aquamarine-700 dark:bg-aquamarine-950' },
 };
 
 const EMPTY_FORM = {
