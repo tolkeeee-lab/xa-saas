@@ -135,13 +135,13 @@ function StatCard({
   iconBg: string;
 }) {
   return (
-    <div className="bg-xa-surface border border-xa-border rounded-2xl p-5">
+    <div className="bg-xa-surface border border-xa-border rounded-2xl p-5 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
       <div className="flex items-start justify-between">
-        <span className={`inline-flex rounded-xl p-2.5 ${iconBg}`}>{icon}</span>
+        <span className={`inline-flex rounded-2xl p-3 shadow-sm ${iconBg}`}>{icon}</span>
         <span>{badge}</span>
       </div>
       <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider mt-4">{title}</p>
-      <p className="text-3xl font-bold text-xa-text">{value}</p>
+      <p className="text-4xl font-black text-xa-text">{value}</p>
     </div>
   );
 }
@@ -200,7 +200,7 @@ function RevenueChart({
 
   const values = chartData.map((d) => d.value);
   const W = 500;
-  const H = 160;
+  const H = 180;
   const { line, area } = buildAreaPaths(values, W, H, 0, 8);
 
   // Y-axis tick values
@@ -211,7 +211,7 @@ function RevenueChart({
   const step = period === '30J' ? 5 : 1;
 
   return (
-    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6 lg:col-span-2">
+    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6 lg:col-span-2 shadow-md">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <h3 className="text-xs font-semibold text-xa-muted uppercase tracking-wider">Évolution des revenus</h3>
@@ -255,7 +255,7 @@ function RevenueChart({
           >
             <defs>
               <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#6c2ed1" stopOpacity="0.25" />
+                <stop offset="0%" stopColor="#6c2ed1" stopOpacity="0.45" />
                 <stop offset="100%" stopColor="#6c2ed1" stopOpacity="0.02" />
               </linearGradient>
             </defs>
@@ -300,26 +300,28 @@ function PeakHoursChart({ hourlyStats }: { hourlyStats: number[] }) {
   const peakHour = hours[peakIdx];
   const peakLabel = `${String(peakHour).padStart(2, '0')}:00 — ${String(peakHour + 1).padStart(2, '0')}:00`;
 
+  const BAR_MAX_H = 96;
+
   return (
-    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6">
+    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6 shadow-md">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs font-semibold text-xa-muted uppercase tracking-wider">Heures de pointe</h3>
       </div>
 
       {/* Bar chart */}
-      <div className="flex items-end gap-1.5 h-24">
+      <div className="flex items-end gap-1.5" style={{ height: BAR_MAX_H }}>
         {values.map((v, i) => {
-          // 88px max bar height within h-24 (96px) container, leaving 8px for spacing
-          const barH = Math.max(Math.round((v / max) * 88), 4);
+          const barH = Math.max(Math.round((v / max) * (BAR_MAX_H - 8)), 6);
           const isPeak = top2Indices.has(i);
           return (
-            <div key={i} className="flex flex-col items-center flex-1 gap-1 h-full justify-end">
+            <div key={i} className="flex flex-col justify-end flex-1 h-full">
               <div
-                className="w-full rounded-sm transition-all"
+                className="w-full rounded-md transition-all duration-300"
                 style={{
                   height: `${barH}px`,
                   backgroundColor: isPeak ? '#6c2ed1' : '#c4abed',
+                  boxShadow: isPeak ? '0 2px 8px rgba(108,46,209,0.35)' : 'none',
                 }}
               />
             </div>
@@ -378,7 +380,7 @@ function CategoryDonut({ salesByCategory }: { salesByCategory: CategoryStat[] })
   });
 
   return (
-    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6">
+    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
       <h3 className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-4">Ventes par catégorie</h3>
 
       {top5.length === 0 ? (
@@ -436,7 +438,7 @@ function RecentOrders({
   const boutiqueMap = new Map(boutiques.map((b) => [b.id, b]));
 
   return (
-    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6">
+    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs font-semibold text-xa-muted uppercase tracking-wider">Commandes récentes</h3>
         <Link
@@ -511,7 +513,7 @@ function StockAlerts({ alertesStock }: { alertesStock: AlertesStockData }) {
   const top4 = alertesStock.alertes.slice(0, 4);
 
   return (
-    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6">
+    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
       <h3 className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-4">Alertes stocks critiques</h3>
 
       {top4.length === 0 ? (
@@ -578,9 +580,10 @@ function BoutiquePerformance({
 
   // Simple bar chart: 4 bars
   const top4 = boutiqueCA.slice(0, 4);
+  const PERF_MAX_H = 80;
 
   return (
-    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6">
+    <div className="bg-xa-surface border border-xa-border rounded-2xl p-6 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200">
       <h3 className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-4">Performance des boutiques</h3>
 
       {top4.length === 0 ? (
@@ -588,16 +591,17 @@ function BoutiquePerformance({
       ) : (
         <>
           {/* Mini bar chart */}
-          <div className="flex items-end gap-2 h-20 mb-4">
+          <div className="flex items-end gap-2 mb-4" style={{ height: PERF_MAX_H }}>
             {top4.map((item) => {
-              const heightPct = (item.ca / maxCA) * 100;
+              const barH = Math.max(Math.round((item.ca / maxCA) * (PERF_MAX_H - 6)), 6);
               return (
-                <div key={item.boutique.id} className="flex flex-col items-center flex-1 gap-1">
+                <div key={item.boutique.id} className="flex flex-col justify-end items-center flex-1 h-full gap-1">
                   <div
-                    className="w-full rounded-sm"
+                    className="w-full rounded-md"
                     style={{
-                      height: `${Math.max(heightPct, 6)}%`,
+                      height: `${barH}px`,
                       backgroundColor: '#6c2ed1',
+                      boxShadow: '0 2px 8px rgba(108,46,209,0.25)',
                     }}
                   />
                   <span className="text-xs text-xa-muted truncate w-full text-center" style={{ fontSize: 9 }}>
