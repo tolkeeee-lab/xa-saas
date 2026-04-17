@@ -23,6 +23,9 @@ export const POINTS_REMISE_SEUIL = 100;
 /** Amount of FCFA spent per loyalty point earned (1 point per 1 000 FCFA). */
 export const POINTS_PAR_FCFA = 1_000;
 
+/** Number of weeks per month used for monthly normalisation of weekly charges. */
+const WEEKS_PER_MONTH = 52 / 12;
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type LignePrix = {
@@ -46,7 +49,7 @@ export function toMensuel(
   montant: number,
   periodicite: 'mensuel' | 'hebdo' | 'annuel',
 ): number {
-  if (periodicite === 'hebdo') return montant * (52 / 12);
+  if (periodicite === 'hebdo') return montant * WEEKS_PER_MONTH;
   if (periodicite === 'annuel') return montant / 12;
   return montant;
 }

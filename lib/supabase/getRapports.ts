@@ -213,8 +213,10 @@ export const getRapportsPeriode = cache(async (
     .lte('created_at', endISO);
 
   // Fetch real charges for the period (C4)
-  // Monthly charges are used as-is; for multi-month periods this gives the
-  // monthly cost which is a reasonable approximation for the period total.
+  // Monthly charges are used as the period unit of measurement.
+  // NOTE: For multi-month periods this represents the current monthly charge
+  // level, not the total for the entire period. This is a known limitation —
+  // a future improvement could multiply by the number of months in the period.
   const chargesParBoutique = await fetchChargesParBoutique(supabase, boutiqueIds, userId);
 
   // Per-boutique stats for the period

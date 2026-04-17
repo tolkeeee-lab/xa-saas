@@ -11,16 +11,15 @@
  * Body: { boutique_id: UUID, pin_hash: string (64-char hex SHA-256) }
  *
  * Response 200: { success: true, boutique: { id, nom, couleur_theme } }
- * Response 401: { error: string, attemptsLeft?: number }
+ * Response 401: { error: string }
  * Response 429: { error: string } + Retry-After header
  */
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createAdminClient } from '@/lib/supabase-admin';
-import { isPinLocked, recordPinFailure, clearPinFailures } from '@/lib/rateLimit';
+import { isPinLocked, recordPinFailure, clearPinFailures, PIN_WINDOW_MS } from '@/lib/rateLimit';
 
 const PIN_HASH_RE = /^[0-9a-f]{64}$/i;
-const PIN_MAX_ATTEMPTS = 5;
 
 function getIp(request: NextRequest): string {
   return (
@@ -107,23 +106,13 @@ export async function POST(request: NextRequest) {
         { error: 'Trop de tentatives incorrectes. Réessayez plus tard.' },
         {
           status: 429,
-          headers: { 'Retry-After': String(15 * 60) },
+          headers: { 'Retry-After': String(Math.round(PIN_WINDOW_MS / 1_000)) },
         },
       );
     }
 
-    // Retrieve remaining attempts from current counter
-    const lockAfterFailure = isPinLocked(bruteKey);
-    // We already know it's not locked yet — calculate attempts left
-    const attemptsLeft = lockAfterFailure.locked
-      ? 0
-      : PIN_MAX_ATTEMPTS - (5 - Math.max(0, 5 - (lockAfterFailure.retryAfterSec > 0 ? 0 : PIN_MAX_ATTEMPTS)));
-
     return NextResponse.json(
-      {
-        error: 'PIN incorrect',
-        attemptsLeft: Math.max(0, PIN_MAX_ATTEMPTS - 1),
-      },
+      { error: 'PIN incorrect' },
       { status: 401 },
     );
   }

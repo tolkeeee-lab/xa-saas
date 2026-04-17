@@ -16,7 +16,7 @@ const store = new Map<string, RateLimitEntry>();
 /** Maximum PIN attempts before a 15-minute lockout. */
 const PIN_MAX_ATTEMPTS = 5;
 /** Lockout window for failed PIN attempts (milliseconds). */
-const PIN_WINDOW_MS = 15 * 60 * 1_000;
+export const PIN_WINDOW_MS = 15 * 60 * 1_000;
 
 const pinStore = new Map<string, RateLimitEntry>();
 

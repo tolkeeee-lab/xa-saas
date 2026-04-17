@@ -99,8 +99,10 @@ export async function applyRateLimitDistributed(
     }
 
     return null;
-  } catch {
+  } catch (err) {
     // Redis unavailable — fail open (allow the request) to preserve availability.
+    // Log the error so configuration issues are visible in deployment logs.
+    console.error('[rateLimitDistributed] Redis error:', err);
     return null;
   }
 }

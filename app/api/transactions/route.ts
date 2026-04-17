@@ -73,6 +73,9 @@ export async function GET(request: NextRequest) {
 }
 
 
+/** Maximum allowable deviation (FCFA) between client-sent and server-calculated totals. */
+const MONTANT_TOLERANCE_FCFA = 1;
+
 /**
  * POST /api/transactions
  * Creates a transaction with its lines, updates stock, and returns a ticket.
@@ -169,8 +172,8 @@ export async function POST(request: NextRequest) {
 
   const { remise, montantTotal: montantTotalServeur } = calculatePrix(lignes, hasClientRemise);
 
-  // Reject if client-sent total deviates by more than 1 FCFA (rounding tolerance)
-  if (Math.abs(montant_total - montantTotalServeur) > 1) {
+  // Reject if client-sent total deviates by more than MONTANT_TOLERANCE_FCFA (rounding tolerance)
+  if (Math.abs(montant_total - montantTotalServeur) > MONTANT_TOLERANCE_FCFA) {
     return NextResponse.json(
       { error: `Montant total invalide (attendu ${montantTotalServeur} FCFA)` },
       { status: 422 },
@@ -316,17 +319,6 @@ export async function POST(request: NextRequest) {
   if (mode_paiement === 'credit') txCacheTags.push('dettes');
   if (client_id) txCacheTags.push('clients');
   revalidateUserCache(user.id, txCacheTags);
-
-  return NextResponse.json({
-    transaction_id: transaction.id,
-    created_at: transaction.created_at,
-    lignes: ticketLignes,
-    montant_total: montantTotalServeur,
-    remise,
-    mode_paiement,
-    client: updatedClient,
-  });
-}
 
   return NextResponse.json({
     transaction_id: transaction.id,

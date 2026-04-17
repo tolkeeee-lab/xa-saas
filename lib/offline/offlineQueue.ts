@@ -18,6 +18,7 @@ export type OfflineSale = {
  * 24 hours is a reasonable default for a daily-operated POS terminal.
  */
 export const PRODUITS_CACHE_TTL_MS = 24 * 60 * 60 * 1_000;
+const DB_NAME = 'xa-offline';
 const STORE_NAME = 'sales';
 const PRODUITS_STORE = 'produits';
 const DB_VERSION = 2;
