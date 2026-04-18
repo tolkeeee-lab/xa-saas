@@ -13,6 +13,7 @@
 import { Redis } from '@upstash/redis';
 import { Ratelimit } from '@upstash/ratelimit';
 import { NextRequest, NextResponse } from 'next/server';
+import { PIN_MAX_ATTEMPTS, PIN_WINDOW_MS } from './rateLimit';
 
 // ─── Singleton initialisation ────────────────────────────────────────────────
 
@@ -68,15 +69,12 @@ function getMax(method: string, pathname: string): number {
 
 // ─── Distributed PIN brute-force lock ────────────────────────────────────────
 
-/** Must match PIN_MAX_ATTEMPTS in lib/rateLimit.ts. */
-const PIN_MAX_ATTEMPTS_DIST = 5;
-/** Must match PIN_WINDOW_MS / 1000 in lib/rateLimit.ts. */
-const PIN_WINDOW_SECONDS = 15 * 60;
+const PIN_WINDOW_SECONDS = PIN_WINDOW_MS / 1_000;
 
 /**
  * Records a failed PIN attempt in Redis for the given key.
  * Returns `{ blocked: true, retryAfterSec }` when the failure count reaches
- * PIN_MAX_ATTEMPTS_DIST within the window.
+ * PIN_MAX_ATTEMPTS within the window.
  *
  * Key format: `pin:${ip}:${boutique_id}`
  */
@@ -90,7 +88,7 @@ export async function recordPinFailureDistributed(
       // Set expiry only on first increment to preserve the original window end.
       await r.expire(key, PIN_WINDOW_SECONDS);
     }
-    if (count >= PIN_MAX_ATTEMPTS_DIST) {
+    if (count >= PIN_MAX_ATTEMPTS) {
       const ttl = await r.ttl(key);
       return { blocked: true, retryAfterSec: Math.max(0, ttl) };
     }
@@ -112,7 +110,7 @@ export async function isPinLockedDistributed(
   try {
     const r = getRedis();
     const count = (await r.get<number>(key)) ?? 0;
-    if (count >= PIN_MAX_ATTEMPTS_DIST) {
+    if (count >= PIN_MAX_ATTEMPTS) {
       const ttl = await r.ttl(key);
       return { locked: true, retryAfterSec: Math.max(0, ttl) };
     }

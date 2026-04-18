@@ -14,7 +14,7 @@ const store = new Map<string, RateLimitEntry>();
 // ─── PIN brute-force store ────────────────────────────────────────────────────
 
 /** Maximum PIN attempts before a 15-minute lockout. Lockout is triggered on the Nth failure. */
-const PIN_MAX_ATTEMPTS = 5;
+export const PIN_MAX_ATTEMPTS = 5;
 /** Lockout window for failed PIN attempts (milliseconds). */
 export const PIN_WINDOW_MS = 15 * 60 * 1_000;
 
@@ -36,10 +36,7 @@ function recordPinFailureInMemory(key: string): { blocked: boolean; retryAfterSe
 
   if (!entry || now > entry.resetAt) {
     pinStore.set(key, { count: 1, resetAt: now + PIN_WINDOW_MS });
-    // First failure — not yet blocked (threshold is PIN_MAX_ATTEMPTS)
-    return PIN_MAX_ATTEMPTS <= 1
-      ? { blocked: true, retryAfterSec: Math.ceil(PIN_WINDOW_MS / 1_000) }
-      : { blocked: false, retryAfterSec: 0 };
+    return { blocked: false, retryAfterSec: 0 };
   }
 
   entry.count++;
