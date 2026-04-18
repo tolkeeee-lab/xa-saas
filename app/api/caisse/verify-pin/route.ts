@@ -18,9 +18,9 @@
  *  - All security events are logged server-side for monitoring/audit.
  *  - PIN lock can be backed by Upstash Redis (set USE_DISTRIBUTED_RATE_LIMIT=true).
  *
- * Body: { boutique_id: UUID, pin_hash: string (64-char hex SHA-256) }
+ * Body: { boutique_id: UUID, pin_hash: string (64-char hex SHA-256), terminal_id?: string (UUID) }
  *
- * Response 200: { success: true, boutique: { id, nom, couleur_theme }, session: { token, expires_at } }
+ * Response 200: { success: true, boutique: { id, nom, couleur_theme }, session: { token, expires_at }, terminal_id?: string }
  * Response 401: { error: string }
  * Response 429: { error: string } + Retry-After header
  */
@@ -31,6 +31,9 @@ import { isPinLocked, recordPinFailure, clearPinFailures } from '@/lib/rateLimit
 import { createCaisseSession } from '@/lib/caisseSession';
 
 const PIN_HASH_RE = /^[0-9a-f]{64}$/i;
+/** Validates that a terminal_id is a well-formed UUID v4. */
+const TERMINAL_ID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 /** Generic public error for any invalid credentials — avoids boutique enumeration. */
 const ERR_INVALID_CREDENTIALS = 'Identifiants caisse invalides';
@@ -64,9 +67,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { boutique_id, pin_hash } = rawBody as {
+  const { boutique_id, pin_hash, terminal_id } = rawBody as {
     boutique_id: string;
     pin_hash: string;
+    terminal_id?: string;
   };
 
   // Basic format validation
@@ -76,6 +80,11 @@ export async function POST(request: NextRequest) {
       { status: 400 },
     );
   }
+
+  // Validate terminal_id format if provided; silently ignore if malformed so
+  // we don't break existing clients that don't send it.
+  const validatedTerminalId =
+    terminal_id && TERMINAL_ID_RE.test(terminal_id) ? terminal_id : undefined;
 
   const ip = getIp(request);
   const bruteKey = `pin:${ip}:${boutique_id}`;
@@ -173,10 +182,45 @@ export async function POST(request: NextRequest) {
   // Success — clear brute-force counter, create a short-lived caisse session,
   // and return boutique info (no PIN) alongside the session token.
   await clearPinFailures(bruteKey);
-  const { token, expires_at } = createCaisseSession(boutique_id);
+  const { token, expires_at } = createCaisseSession(boutique_id, validatedTerminalId);
+
+  // Register / refresh the terminal record asynchronously.
+  // This is fire-and-forget: a failure here must never block a successful login.
+  if (validatedTerminalId) {
+    const now = new Date().toISOString();
+    admin
+      .from('caisse_terminals')
+      .upsert(
+        {
+          boutique_id,
+          terminal_id: validatedTerminalId,
+          last_seen_at: now,
+          last_ip: ip !== 'anonymous' ? ip : null,
+          statut: 'actif',
+        },
+        {
+          onConflict: 'boutique_id,terminal_id',
+          ignoreDuplicates: false,
+        },
+      )
+      .then(({ error: upsertErr }) => {
+        if (upsertErr) {
+          console.warn('[verify-pin] terminal_upsert_failed', {
+            boutique_id,
+            terminal_id: validatedTerminalId,
+            error: upsertErr.message,
+          });
+        }
+      })
+      .catch(() => {
+        // Swallow — terminal tracking must not impact the auth flow.
+      });
+  }
+
   console.info('[verify-pin] connexion_reussie', {
     ip,
     boutique_id,
+    terminal_id: validatedTerminalId ?? null,
     timestamp: new Date().toISOString(),
   });
 
@@ -191,5 +235,6 @@ export async function POST(request: NextRequest) {
       token,
       expires_at,
     },
+    ...(validatedTerminalId ? { terminal_id: validatedTerminalId } : {}),
   });
 }

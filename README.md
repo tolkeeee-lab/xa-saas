@@ -187,6 +187,103 @@ rétrograde) — la validation serveur sera activée dans une prochaine itérati
 
 ---
 
+## Terminaux caisse de confiance (trusted devices)
+
+### Vue d'ensemble
+
+Chaque navigateur POS génère automatiquement un identifiant stable (`terminal_id`, UUID v4) stocké
+dans `localStorage`.  Cet identifiant est transmis lors de chaque vérification PIN via
+`POST /api/caisse/verify-pin`.  Le serveur l'enregistre dans la table `caisse_terminals` et
+l'intègre au token de session caisse.
+
+### Identité terminal côté client
+
+```typescript
+import { getOrCreateTerminalId } from '@/lib/terminalId';
+const terminal_id = getOrCreateTerminalId(); // null côté SSR
+```
+
+L'ID est créé une seule fois par navigateur et réutilisé à chaque session.  Il persiste tant que
+le `localStorage` n'est pas effacé.
+
+### Enregistrement lors du verify-pin
+
+```http
+POST /api/caisse/verify-pin
+Content-Type: application/json
+
+{
+  "boutique_id": "...",
+  "pin_hash": "...",
+  "terminal_id": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+En cas de succès, le serveur :
+1. **Upsert** un enregistrement dans `caisse_terminals` (`first_seen_at` / `last_seen_at` / `last_ip`).
+2. Intègre le `terminal_id` dans le payload du token de session (HMAC-SHA256 signé).
+3. Retourne le `terminal_id` dans la réponse JSON.
+
+Le `terminal_id` est **optionnel** : les clients qui ne l'envoient pas continuent à fonctionner
+normalement (migration progressive).
+
+### Lister les terminaux connus
+
+```http
+GET /api/caisse/terminals
+x-caisse-token: <token>
+```
+
+Retourne les terminaux enregistrés pour la boutique du token :
+
+```json
+{
+  "terminals": [
+    {
+      "id": "...",
+      "terminal_id": "550e8400-...",
+      "label": null,
+      "first_seen_at": "2026-04-18T12:00:00Z",
+      "last_seen_at": "2026-04-18T15:30:00Z",
+      "last_ip": "192.168.1.10",
+      "statut": "actif"
+    }
+  ]
+}
+```
+
+### Schéma de la table `caisse_terminals`
+
+| Colonne        | Type        | Description                                   |
+|---|---|---|
+| `id`           | UUID PK     | Identifiant interne                           |
+| `boutique_id`  | UUID FK     | Boutique concernée                            |
+| `terminal_id`  | TEXT        | UUID stable généré côté client                |
+| `label`        | TEXT (null) | Nom optionnel (ex. "Caisse 1")                |
+| `first_seen_at`| TIMESTAMPTZ | Première authentification réussie             |
+| `last_seen_at` | TIMESTAMPTZ | Dernière authentification réussie             |
+| `last_ip`      | TEXT (null) | Dernière IP connue                            |
+| `statut`       | TEXT        | `'actif'` ou `'revoque'`                      |
+
+### Limites connues
+
+- L'**enforcement** du statut `revoque` n'est pas encore activé : un terminal révoqué peut toujours
+  s'authentifier (le flag est en place en DB, la vérification viendra dans une prochaine PR).
+- Le `terminal_id` repose sur `localStorage` : il est perdu si l'utilisateur vide les données du
+  site, ce qui génère un nouvel ID (et donc un nouveau terminal en DB).
+- La révocation manuelle (PATCH) depuis le tableau de bord n'est pas encore implémentée.
+
+### Prochaines étapes suggérées
+
+1. **Affichage dashboard** — page `/dashboard/caisse/terminaux` listant et nommant les terminaux.
+2. **Révocation** — `PATCH /api/caisse/terminals/:id` (auth patron) pour passer `statut` à
+   `'revoque'`.
+3. **Enforcement** — vérifier dans `verify-pin` que le terminal n'est pas révoqué avant d'émettre
+   un token.
+4. **Approbation stricte** — option "n'autoriser que les terminaux approuvés" par boutique.
+
+---
+
 ## Mode offline (PWA)
 
 Le mode offline repose sur **IndexedDB** et le Background Sync du Service Worker :
@@ -231,6 +328,7 @@ CAISSE_SESSION_SECRET=<random-32-byte-hex>
 | `/dashboard/parametres` | Authentifié | Paramètres (code, PIN, employés) |
 | `/api/caisse/*` | Public (service-role) | API routes caisse sécurisées |
 | `/api/caisse/session` | Public (token caisse) | Déconnexion session caisse (DELETE) |
+| `/api/caisse/terminals` | Public (token caisse) | Liste des terminaux connus par boutique (GET) |
 | `/api/transactions/sync` | Public (service-role) | Sync offline transactions |
 | `/dashboard/transferts` | Authentifié | Transferts inter-sites |
 | `/dashboard/perimes` | Authentifié | Péremptions produits |

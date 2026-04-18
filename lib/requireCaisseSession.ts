@@ -22,6 +22,8 @@ import {
 
 export type CaisseSessionContext = {
   boutique_id: string;
+  /** Present when the session token was issued with a terminal_id. */
+  terminal_id?: string;
 };
 
 const ERROR_MESSAGES: Record<CaisseSessionError, string> = {
@@ -66,5 +68,10 @@ export function requireCaisseSession(
     };
   }
 
-  return { context: { boutique_id: validation.boutique_id } };
+  return {
+    context: {
+      boutique_id: validation.boutique_id,
+      ...(validation.terminal_id ? { terminal_id: validation.terminal_id } : {}),
+    },
+  };
 }

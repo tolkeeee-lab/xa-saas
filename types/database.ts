@@ -171,6 +171,18 @@ export type DetteProprio = {
   updated_at: string;
 };
 
+export type CaisseTerminal = {
+  id: string;
+  boutique_id: string;
+  terminal_id: string;
+  label: string | null;
+  first_seen_at: string;
+  last_seen_at: string;
+  last_ip: string | null;
+  statut: 'actif' | 'revoque';
+  created_at: string;
+};
+
 export type ClotureCaisse = {
   id: string;
   boutique_id: string;
@@ -285,6 +297,13 @@ export type Database = {
         Insert: Omit<Client, 'id' | 'created_at' | 'updated_at' | 'points' | 'total_achats' | 'nb_visites' | 'actif'> &
           Partial<Pick<Client, 'id' | 'created_at' | 'updated_at' | 'points' | 'total_achats' | 'nb_visites' | 'actif'>>;
         Update: Partial<Omit<Client, 'id'>>;
+        Relationships: [];
+      };
+      caisse_terminals: {
+        Row: CaisseTerminal;
+        Insert: Omit<CaisseTerminal, 'id' | 'first_seen_at' | 'last_seen_at' | 'created_at'> &
+          Partial<Pick<CaisseTerminal, 'id' | 'first_seen_at' | 'last_seen_at' | 'created_at'>>;
+        Update: Partial<Omit<CaisseTerminal, 'id' | 'boutique_id' | 'terminal_id' | 'first_seen_at' | 'created_at'>>;
         Relationships: [];
       };
     };

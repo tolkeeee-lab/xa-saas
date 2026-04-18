@@ -38,6 +38,8 @@ export type CaisseSessionPayload = {
   boutique_id: string;
   /** Unix timestamp (seconds) — token expiry. */
   exp: number;
+  /** Optional stable terminal identifier (UUID from client localStorage). */
+  terminal_id?: string;
 };
 
 export type CaisseSessionError =
@@ -49,7 +51,7 @@ export type CaisseSessionError =
   | 'WRONG_BOUTIQUE';
 
 export type CaisseSessionValidation =
-  | { valid: true; boutique_id: string }
+  | { valid: true; boutique_id: string; terminal_id?: string }
   | { valid: false; error: CaisseSessionError };
 
 // ─── In-memory denylist ───────────────────────────────────────────────────────
@@ -111,15 +113,25 @@ function computeHmac(encodedPayload: string): string {
 /**
  * Creates a signed caisse session token for the given boutique.
  *
+ * Optionally embeds a `terminal_id` in the payload so the server can
+ * correlate sessions to known POS devices.
+ *
  * Returns the opaque token string and its ISO-8601 expiry date.
  */
-export function createCaisseSession(boutique_id: string): {
+export function createCaisseSession(
+  boutique_id: string,
+  terminal_id?: string,
+): {
   token: string;
   /** ISO-8601 string — when the session expires. */
   expires_at: string;
 } {
   const expSec = Math.floor((Date.now() + SESSION_TTL_MS) / 1_000);
-  const payload: CaisseSessionPayload = { boutique_id, exp: expSec };
+  const payload: CaisseSessionPayload = {
+    boutique_id,
+    exp: expSec,
+    ...(terminal_id ? { terminal_id } : {}),
+  };
   const encodedPayload = base64urlEncode(JSON.stringify(payload));
   const signature = computeHmac(encodedPayload);
   const token = `${encodedPayload}.${signature}`;
@@ -188,7 +200,11 @@ export function validateCaisseSession(
     return { valid: false, error: 'WRONG_BOUTIQUE' };
   }
 
-  return { valid: true, boutique_id: payload.boutique_id };
+  return {
+    valid: true,
+    boutique_id: payload.boutique_id,
+    ...(payload.terminal_id ? { terminal_id: payload.terminal_id } : {}),
+  };
 }
 
 /**

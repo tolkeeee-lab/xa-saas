@@ -14,6 +14,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { hashPin } from '@/lib/pinHash';
+import { getOrCreateTerminalId } from '@/lib/terminalId';
 
 export type LockReason = 'idle' | 'manual' | 'expired';
 
@@ -62,10 +63,15 @@ export default function CaisseLockScreen({
 
     try {
       const pin_hash = await hashPin(pin);
+      const terminal_id = getOrCreateTerminalId();
       const res = await fetch('/api/caisse/verify-pin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ boutique_id: boutiqueId, pin_hash }),
+        body: JSON.stringify({
+          boutique_id: boutiqueId,
+          pin_hash,
+          ...(terminal_id ? { terminal_id } : {}),
+        }),
       });
 
       const data = (await res.json()) as {
