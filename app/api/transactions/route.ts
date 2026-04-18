@@ -213,4 +213,4 @@ export async function POST(request: NextRequest): Promise<Response> {
     remise,
     mode_paiement,
   });
-}
+} 
