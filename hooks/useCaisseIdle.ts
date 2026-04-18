@@ -98,10 +98,18 @@ export function useCaisseIdle({
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    // Throttle the activity handler to at most once per second to avoid
+    // constantly clearing and resetting the timer on high-frequency events
+    // such as mousemove.
+    let lastActivity = 0;
     function handleActivity() {
       // Ignore events while already locked — the user must go through the
       // lock screen instead of inadvertently resetting the timer.
-      if (!isLockedRef.current) startTimer();
+      if (isLockedRef.current) return;
+      const now = Date.now();
+      if (now - lastActivity < 1_000) return; // throttle: at most once per second
+      lastActivity = now;
+      startTimer();
     }
 
     ACTIVITY_EVENTS.forEach((evt) => {

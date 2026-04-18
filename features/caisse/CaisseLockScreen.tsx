@@ -51,6 +51,12 @@ export default function CaisseLockScreen({
     e.preventDefault();
     if (!pin || loading) return;
 
+    // Enforce a minimum of 4 digits to reject accidentally short PINs.
+    if (pin.length < 4) {
+      setError('Le PIN doit comporter au moins 4 chiffres.');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -87,8 +93,6 @@ export default function CaisseLockScreen({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-      // Prevent click-through to the POS UI underneath.
-      onClick={(e) => e.stopPropagation()}
     >
       <div className="bg-xa-surface border border-xa-border rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4">
         {/* Header */}

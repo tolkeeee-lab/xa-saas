@@ -343,7 +343,7 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
     // We do this inline rather than relying on a useCallback so we can return
     // immediately — React state updates are async and isLocked would not have
     // been updated yet if we called checkTokenExpiry() and then re-read it.
-    if (caisseTokenExpiresAt && new Date(caisseTokenExpiresAt) <= new Date()) {
+    if (caisseTokenExpiresAt && new Date(caisseTokenExpiresAt) < new Date()) {
       setLockReason('expired');
       lock();
       return;
