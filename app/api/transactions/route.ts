@@ -6,9 +6,9 @@ import { validateBody } from '@/lib/schemas/validate';
 import { transactionsPostSchema } from '@/lib/schemas/transactions';
 import { revalidateUserCache } from '@/lib/revalidate';
 
-export async function GET(request: NextRequest) {
-  const limited = applyRateLimit(request);
-  if (limited !== null) return limited;
+export async function GET(request: NextRequest): Promise<Response> {
+  const limited = await applyRateLimit(request);
+  if (limited) return limited;
 
   const { error: authError } = await getAuthUser();
   if (authError) return authError;
@@ -63,9 +63,9 @@ export async function GET(request: NextRequest) {
   });
 }
 
-export async function POST(request: NextRequest) {
-  const limited = applyRateLimit(request);
-  if (limited !== null) return limited;
+export async function POST(request: NextRequest): Promise<Response> {
+  const limited = await applyRateLimit(request);
+  if (limited) return limited;
 
   const { user, error: authError } = await getAuthUser();
   if (authError) return authError;
