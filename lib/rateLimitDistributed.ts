@@ -66,6 +66,75 @@ function getMax(method: string, pathname: string): number {
   return 30;
 }
 
+// ─── Distributed PIN brute-force lock ────────────────────────────────────────
+
+/** Must match PIN_MAX_ATTEMPTS in lib/rateLimit.ts. */
+const PIN_MAX_ATTEMPTS_DIST = 5;
+/** Must match PIN_WINDOW_MS / 1000 in lib/rateLimit.ts. */
+const PIN_WINDOW_SECONDS = 15 * 60;
+
+/**
+ * Records a failed PIN attempt in Redis for the given key.
+ * Returns `{ blocked: true, retryAfterSec }` when the failure count reaches
+ * PIN_MAX_ATTEMPTS_DIST within the window.
+ *
+ * Key format: `pin:${ip}:${boutique_id}`
+ */
+export async function recordPinFailureDistributed(
+  key: string,
+): Promise<{ blocked: boolean; retryAfterSec: number }> {
+  try {
+    const r = getRedis();
+    const count = await r.incr(key);
+    if (count === 1) {
+      // Set expiry only on first increment to preserve the original window end.
+      await r.expire(key, PIN_WINDOW_SECONDS);
+    }
+    if (count >= PIN_MAX_ATTEMPTS_DIST) {
+      const ttl = await r.ttl(key);
+      return { blocked: true, retryAfterSec: Math.max(0, ttl) };
+    }
+    return { blocked: false, retryAfterSec: 0 };
+  } catch (err) {
+    // Redis unavailable — fail open to preserve availability.
+    console.error('[pinLockDistributed] recordPinFailure error:', err);
+    return { blocked: false, retryAfterSec: 0 };
+  }
+}
+
+/**
+ * Returns `{ locked: true, retryAfterSec }` if the key is currently locked out,
+ * `{ locked: false, retryAfterSec: 0 }` otherwise.
+ */
+export async function isPinLockedDistributed(
+  key: string,
+): Promise<{ locked: boolean; retryAfterSec: number }> {
+  try {
+    const r = getRedis();
+    const count = (await r.get<number>(key)) ?? 0;
+    if (count >= PIN_MAX_ATTEMPTS_DIST) {
+      const ttl = await r.ttl(key);
+      return { locked: true, retryAfterSec: Math.max(0, ttl) };
+    }
+    return { locked: false, retryAfterSec: 0 };
+  } catch (err) {
+    // Redis unavailable — fail open.
+    console.error('[pinLockDistributed] isPinLocked error:', err);
+    return { locked: false, retryAfterSec: 0 };
+  }
+}
+
+/**
+ * Clears the brute-force counter in Redis after a successful PIN verification.
+ */
+export async function clearPinFailuresDistributed(key: string): Promise<void> {
+  try {
+    await getRedis().del(key);
+  } catch (err) {
+    console.error('[pinLockDistributed] clearPinFailures error:', err);
+  }
+}
+
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 /**

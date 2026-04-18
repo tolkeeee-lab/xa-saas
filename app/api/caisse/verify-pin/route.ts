@@ -8,6 +8,11 @@
  * consecutive failures within 15 minutes the endpoint returns 429 with a
  * `Retry-After` header and the number of seconds until the lockout expires.
  *
+ * Security notes:
+ *  - Error responses are intentionally generic to prevent boutique enumeration.
+ *  - All security events are logged server-side for monitoring/audit.
+ *  - PIN lock can be backed by Upstash Redis (set USE_DISTRIBUTED_RATE_LIMIT=true).
+ *
  * Body: { boutique_id: UUID, pin_hash: string (64-char hex SHA-256) }
  *
  * Response 200: { success: true, boutique: { id, nom, couleur_theme } }
@@ -17,9 +22,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createAdminClient } from '@/lib/supabase-admin';
-import { isPinLocked, recordPinFailure, clearPinFailures, PIN_WINDOW_MS } from '@/lib/rateLimit';
+import { isPinLocked, recordPinFailure, clearPinFailures } from '@/lib/rateLimit';
 
 const PIN_HASH_RE = /^[0-9a-f]{64}$/i;
+
+/** Generic public error for any invalid credentials — avoids boutique enumeration. */
+const ERR_INVALID_CREDENTIALS = 'Identifiants caisse invalides';
+const ERR_TOO_MANY_ATTEMPTS = 'Trop de tentatives incorrectes. Réessayez plus tard.';
 
 function getIp(request: NextRequest): string {
   return (
@@ -66,10 +75,16 @@ export async function POST(request: NextRequest) {
   const bruteKey = `pin:${ip}:${boutique_id}`;
 
   // Check if already locked out
-  const lockStatus = isPinLocked(bruteKey);
+  const lockStatus = await isPinLocked(bruteKey);
   if (lockStatus.locked) {
+    console.warn('[verify-pin] verrou_actif', {
+      ip,
+      boutique_id,
+      retry_after: lockStatus.retryAfterSec,
+      timestamp: new Date().toISOString(),
+    });
     return NextResponse.json(
-      { error: 'Trop de tentatives incorrectes. Réessayez plus tard.' },
+      { error: ERR_TOO_MANY_ATTEMPTS },
       {
         status: 429,
         headers: { 'Retry-After': String(lockStatus.retryAfterSec) },
@@ -87,7 +102,31 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error || !boutique) {
-    return NextResponse.json({ error: 'Boutique introuvable' }, { status: 404 });
+    // Record failure to maintain consistent lock behavior regardless of boutique existence.
+    const failResult = await recordPinFailure(bruteKey);
+    console.warn('[verify-pin] tentative_echouee', {
+      ip,
+      boutique_id,
+      raison: 'boutique_inconnue',
+      timestamp: new Date().toISOString(),
+    });
+    if (failResult.blocked) {
+      console.warn('[verify-pin] verrou_declenche', {
+        ip,
+        boutique_id,
+        retry_after: failResult.retryAfterSec,
+        timestamp: new Date().toISOString(),
+      });
+      return NextResponse.json(
+        { error: ERR_TOO_MANY_ATTEMPTS },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(failResult.retryAfterSec) },
+        },
+      );
+    }
+    // Generic 401 — do not reveal whether the boutique_id exists.
+    return NextResponse.json({ error: ERR_INVALID_CREDENTIALS }, { status: 401 });
   }
 
   // Constant-time comparison to prevent timing attacks
@@ -99,26 +138,39 @@ export async function POST(request: NextRequest) {
     crypto.timingSafeEqual(storedBuf, receivedBuf);
 
   if (!match) {
-    const blocked = recordPinFailure(bruteKey);
-
-    if (blocked) {
+    const failResult = await recordPinFailure(bruteKey);
+    console.warn('[verify-pin] tentative_echouee', {
+      ip,
+      boutique_id,
+      raison: 'pin_invalide',
+      timestamp: new Date().toISOString(),
+    });
+    if (failResult.blocked) {
+      console.warn('[verify-pin] verrou_declenche', {
+        ip,
+        boutique_id,
+        retry_after: failResult.retryAfterSec,
+        timestamp: new Date().toISOString(),
+      });
       return NextResponse.json(
-        { error: 'Trop de tentatives incorrectes. Réessayez plus tard.' },
+        { error: ERR_TOO_MANY_ATTEMPTS },
         {
           status: 429,
-          headers: { 'Retry-After': String(Math.round(PIN_WINDOW_MS / 1_000)) },
+          headers: { 'Retry-After': String(failResult.retryAfterSec) },
         },
       );
     }
 
-    return NextResponse.json(
-      { error: 'PIN incorrect' },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: ERR_INVALID_CREDENTIALS }, { status: 401 });
   }
 
   // Success — clear brute-force counter and return boutique info (no PIN)
-  clearPinFailures(bruteKey);
+  await clearPinFailures(bruteKey);
+  console.info('[verify-pin] connexion_reussie', {
+    ip,
+    boutique_id,
+    timestamp: new Date().toISOString(),
+  });
 
   return NextResponse.json({
     success: true,
