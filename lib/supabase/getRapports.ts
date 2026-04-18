@@ -1,6 +1,7 @@
 import { cache } from 'react';
 import { createClient } from '@/lib/supabase-server';
 import type { Boutique } from '@/types/database';
+import { toMensuel } from '@/lib/pricing';
 
 export type MoisStat = {
   mois: string; // e.g. "Jan", "Fév", ...
@@ -41,6 +42,45 @@ export type RapportsPeriodeData = {
 };
 
 const MOIS_LABELS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+
+/**
+ * Returns the total monthly equivalent of active charges for each boutique.
+ * Boutique-specific charges are assigned to their boutique; global charges
+ * (boutique_id IS NULL) are split equally across all active boutiques.
+ *
+ * Uses `toMensuel` from lib/pricing.ts for consistent period normalisation.
+ */
+async function fetchChargesParBoutique(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  boutiqueIds: string[],
+  userId: string,
+): Promise<Record<string, number>> {
+  const chargesParBoutique: Record<string, number> = {};
+  for (const bid of boutiqueIds) chargesParBoutique[bid] = 0;
+
+  const { data: charges } = await supabase
+    .from('charges_fixes')
+    .select('boutique_id, montant, periodicite')
+    .eq('proprietaire_id', userId)
+    .eq('actif', true);
+
+  const nbBoutiques = boutiqueIds.length;
+
+  for (const charge of charges ?? []) {
+    const montantMensuel = toMensuel(
+      charge.montant,
+      charge.periodicite as 'mensuel' | 'hebdo' | 'annuel',
+    );
+    if (charge.boutique_id && boutiqueIds.includes(charge.boutique_id)) {
+      chargesParBoutique[charge.boutique_id] += montantMensuel;
+    } else if (!charge.boutique_id && nbBoutiques > 0) {
+      const partParBoutique = montantMensuel / nbBoutiques;
+      for (const bid of boutiqueIds) chargesParBoutique[bid] += partParBoutique;
+    }
+  }
+
+  return chargesParBoutique;
+}
 
 export const getRapports = cache(async (userId: string): Promise<RapportsData> => {
   const supabase = await createClient();
@@ -89,6 +129,9 @@ export const getRapports = cache(async (userId: string): Promise<RapportsData> =
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
   const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
 
+  // Fetch real monthly charges for all boutiques in one query (C4)
+  const chargesParBoutique = await fetchChargesParBoutique(supabase, boutiqueIds, userId);
+
   const boutiqueRapports: BoutiqueRapport[] = await Promise.all(
     boutiques.map(async (b) => {
       const [{ data: txsCurrent }, { data: txsPrev }] = await Promise.all([
@@ -111,7 +154,8 @@ export const getRapports = cache(async (userId: string): Promise<RapportsData> =
       const benefice = txsCurrent?.reduce((s, t) => s + (t.benefice_total ?? 0), 0) ?? 0;
       const cout_achat = ca - benefice;
       const marge_brute = benefice;
-      const charges = Math.round(marge_brute * 0.25);
+      // Use the real charges for this boutique instead of a hardcoded 25% rate
+      const charges = Math.round(chargesParBoutique[b.id] ?? 0);
       const benefice_net = marge_brute - charges;
 
       const ca_prev = txsPrev?.reduce((s, t) => s + (t.montant_total ?? 0), 0) ?? 0;
@@ -168,6 +212,13 @@ export const getRapportsPeriode = cache(async (
     .gte('created_at', startISO)
     .lte('created_at', endISO);
 
+  // Fetch real charges for the period (C4)
+  // Monthly charges are used as the period unit of measurement.
+  // NOTE: For multi-month periods this represents the current monthly charge
+  // level, not the total for the entire period. This is a known limitation —
+  // a future improvement could multiply by the number of months in the period.
+  const chargesParBoutique = await fetchChargesParBoutique(supabase, boutiqueIds, userId);
+
   // Per-boutique stats for the period
   const boutiqueRapports: BoutiqueRapport[] = boutiques.map((b) => {
     const btxs = (txs ?? []).filter((t) => t.boutique_id === b.id);
@@ -175,7 +226,8 @@ export const getRapportsPeriode = cache(async (
     const benefice = btxs.reduce((s, t) => s + (t.benefice_total ?? 0), 0);
     const cout_achat = ca - benefice;
     const marge_brute = benefice;
-    const charges = Math.round(marge_brute * 0.25);
+    // Use real charges instead of hardcoded 25% estimate (C4)
+    const charges = Math.round(chargesParBoutique[b.id] ?? 0);
     const benefice_net = marge_brute - charges;
     return { ...b, ca, cout_achat, marge_brute, charges, benefice_net, evolution: 0 };
   });

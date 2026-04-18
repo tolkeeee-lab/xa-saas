@@ -11,6 +11,13 @@ export type OfflineSale = {
   created_at: string; // ISO string
 };
 
+/**
+ * Maximum age of a cached product catalogue before it is considered stale.
+ * After this duration, loadProduits() returns null to force a fresh fetch.
+ * When offline and the cache is expired, the POS will display a warning.
+ * 24 hours is a reasonable default for a daily-operated POS terminal.
+ */
+export const PRODUITS_CACHE_TTL_MS = 24 * 60 * 60 * 1_000;
 const DB_NAME = 'xa-offline';
 const STORE_NAME = 'sales';
 const PRODUITS_STORE = 'produits';
@@ -64,7 +71,16 @@ export async function loadProduits(boutiqueId: string): Promise<unknown[] | null
     const request = store.get(boutiqueId);
     request.onsuccess = (event) => {
       const cached = (event.target as IDBRequest<CachedProduit | undefined>).result;
-      resolve(cached ? cached.produits : null);
+      if (!cached) {
+        resolve(null);
+        return;
+      }
+      // Expire stale cache entries so caissiers never work with very old prices
+      if (Date.now() - cached.cached_at > PRODUITS_CACHE_TTL_MS) {
+        resolve(null);
+        return;
+      }
+      resolve(cached.produits);
     };
     request.onerror = (event) => reject((event.target as IDBRequest).error);
     tx.oncomplete = () => db.close();

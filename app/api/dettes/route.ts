@@ -12,7 +12,7 @@ import { revalidateUserCache } from '@/lib/revalidate';
  */
 
 export async function GET(request: NextRequest) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const { error: authError } = await getAuthUser();
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const { user, error: authError } = await getAuthUser();

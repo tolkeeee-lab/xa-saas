@@ -60,6 +60,9 @@ export function useOfflineSync({
               lignes: sale.lignes,
               mode_paiement: sale.mode_paiement,
               montant_total: sale.montant_total,
+              // Idempotency key: the sale's own UUID prevents duplicate insertions
+              // when the network times out but the server already processed the request
+              local_id: sale.id,
               ...(sale.client_nom !== undefined && { client_nom: sale.client_nom }),
               ...(sale.client_telephone !== undefined && {
                 client_telephone: sale.client_telephone,

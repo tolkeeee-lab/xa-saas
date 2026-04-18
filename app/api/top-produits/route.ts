@@ -10,7 +10,7 @@ export const revalidate = 300;
  * Returns top sold products globally and per boutique.
  */
 export async function GET(request: NextRequest) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const supabase = await createClient();

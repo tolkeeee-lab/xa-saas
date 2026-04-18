@@ -11,7 +11,7 @@ import { revalidateUserCache } from '@/lib/revalidate';
  * Returns transfers involving the given boutique IDs.
  */
 export async function GET(request: NextRequest) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const { error: authError } = await getAuthUser();
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
  * Body: { produit_id, boutique_source_id, boutique_destination_id, quantite, note? }
  */
 export async function POST(request: NextRequest) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const { user, error: authError } = await getAuthUser();

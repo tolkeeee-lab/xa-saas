@@ -4,7 +4,7 @@ import { getNotifications } from '@/lib/supabase/getNotifications';
 import { applyRateLimit } from '@/lib/rateLimit';
 
 export async function GET(request: NextRequest) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const supabase = await createClient();

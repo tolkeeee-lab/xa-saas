@@ -9,7 +9,7 @@ export const revalidate = 300;
  * GET /api/rapports?dateDebut=YYYY-MM-DD&dateFin=YYYY-MM-DD
  */
 export async function GET(request: NextRequest) {
-  const limited = applyRateLimit(request);
+  const limited = await applyRateLimit(request);
   if (limited) return limited;
 
   const supabase = await createClient();
