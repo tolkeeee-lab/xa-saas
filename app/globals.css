@@ -125,6 +125,17 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── Dashboard responsive ── */
+@media (max-width: 767px) {
+  .sp-left-panel {
+    position: static !important;
+    height: auto !important;
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--sp-rule2);
+  }
+}
+
 /* ===== IMPRESSION PDF ===== */
 @media print {
   nav, aside, header, [data-sidebar], .print\:hidden {
