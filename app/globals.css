@@ -1,141 +1,149 @@
-@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Space+Mono:wght@400;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ================================================================
-   xà DESIGN SYSTEM — variables unifiées
+   xà DESIGN SYSTEM — Fusion v3 palette
    ================================================================ */
 
 /* ── MODE CLAIR (défaut) ── */
 :root {
   /* Fonds */
-  --xa-bg:        #F4F7F4;
-  --xa-bg2:       #E8EEE8;
-  --xa-bg3:       #DCE6DC;
-  --xa-surface:   #FFFFFF;
+  --xa-bg:       #FAFAF5;
+  --xa-bg2:      #F2F2EB;
+  --xa-bg3:      #E8E8DF;
+  --xa-surface:  #FFFFFF;
 
   /* Texte */
-  --xa-ink:       #0A120A;
-  --xa-ink2:      #162016;
-  --xa-muted:     #4A6A4A;
-  --xa-faint:     #98B898;
+  --xa-ink:      #0A0A08;
+  --xa-ink2:     #1C1C18;
+  --xa-text:     #0A0A08;
+  --xa-muted:    #6E6E66;
+  --xa-faint:    #ABABAA;
 
   /* Séparateurs */
-  --xa-rule:      rgba(10, 18, 10, 0.08);
-  --xa-rule2:     rgba(10, 18, 10, 0.14);
+  --xa-rule:     rgba(10,10,8,.08);
+  --xa-rule2:    rgba(10,10,8,.14);
+  --xa-border:   rgba(10,10,8,.14);
 
-  /* Accent principal */
-  --xa-accent:    #00C853;
-  --xa-accentbg:  rgba(0, 200, 83, 0.08);
+  /* Accent principal (vert électrique) */
+  --xa-accent:        #00C853;
+  --xa-accentbg:      rgba(0,200,83,.09);
+  --xa-primary:       #00C853;
+  --xa-primary-light: rgba(0,200,83,.09);
 
-  /* Couleurs sémantiques */
-  --xa-green:     #00C853;
-  --xa-greenbg:   rgba(0, 200, 83, 0.10);
-  --xa-amber:     #FF9800;
-  --xa-amberbg:   rgba(255, 152, 0, 0.10);
-  --xa-red:       #D62828;
-  --xa-redbg:     rgba(214, 40, 40, 0.09);
-  --xa-blue:      #00B4D8;
-  --xa-bluebg:    rgba(0, 180, 216, 0.10);
+  /* Sémantiques */
+  --xa-green:    #00C853;
+  --xa-greenbg:  rgba(0,200,83,.10);
+  --xa-amber:    #FF9800;
+  --xa-amberbg:  rgba(255,152,0,.10);
+  --xa-red:      #D62828;
+  --xa-redbg:    rgba(214,40,40,.09);
+  --xa-danger:   #D62828;
+  --xa-blue:     #2563EB;
+  --xa-bluebg:   rgba(37,99,235,.08);
+  --xa-purple:   #7C3AED;
+  --xa-purplebg: rgba(124,58,237,.08);
 
-  /* Aliases compatibilité Tailwind */
-  --xa-primary:       var(--xa-accent);
-  --xa-primary-light: #33D46A;
-  --xa-danger:        var(--xa-red);
-  --xa-ok:            var(--xa-green);
-  --xa-border:        var(--xa-rule2);
-  --xa-text:          var(--xa-ink);
+  /* Palette boutiques */
+  --xa-s0: #1DDB7B;
+  --xa-s1: #2563EB;
+  --xa-s2: #E53535;
+  --xa-s3: #D97706;
 
-  /* Couleurs sémantiques métier */
+  /* Sémantiques métier */
   --xa-color-montant:   #00C853;
+  --xa-color-ok:        #00C853;
   --xa-color-alerte:    #FF9800;
   --xa-color-danger:    #D62828;
-  --xa-color-ok:        #00C853;
-  --xa-color-titre:     #0A120A;
-  --xa-color-quantite:  #00B4D8;
-  --xa-color-personnel: #7C4DFF;
-  --xa-color-boutique:  #00B4D8;
-  --xa-color-date:      #4A6A4A;
-  --xa-color-transfert: #FF9800;
+  --xa-color-titre:     #0A0A08;
+  --xa-color-quantite:  #2563EB;
+  --xa-color-personnel: #7C3AED;
+  --xa-color-boutique:  #1DDB7B;
+  --xa-color-date:      #6E6E66;
+  --xa-color-transfert: #D97706;
 }
 
 /* ── MODE SOMBRE ── */
 .dark {
   /* Fonds */
-  --xa-bg:        #050C05;
-  --xa-bg2:       #0A140A;
-  --xa-bg3:       #101C10;
-  --xa-surface:   #070E07;
+  --xa-bg:       #0A0A08;
+  --xa-bg2:      #121210;
+  --xa-bg3:      #1C1C18;
+  --xa-surface:  #121210;
 
   /* Texte */
-  --xa-ink:       #E8F5E8;
-  --xa-ink2:      #C8E6C8;
-  --xa-muted:     #5A8A5A;
-  --xa-faint:     #1A2A1A;
+  --xa-ink:      #FAFAF5;
+  --xa-ink2:     #E8E8DF;
+  --xa-text:     #FAFAF5;
+  --xa-muted:    #ABABAA;
+  --xa-faint:    #6E6E66;
 
   /* Séparateurs */
-  --xa-rule:      rgba(232, 245, 232, 0.07);
-  --xa-rule2:     rgba(232, 245, 232, 0.12);
+  --xa-rule:     rgba(250,250,245,.08);
+  --xa-rule2:    rgba(250,250,245,.14);
+  --xa-border:   rgba(250,250,245,.14);
 
-  /* Accent principal */
-  --xa-accent:    #00E676;
-  --xa-accentbg:  rgba(0, 230, 118, 0.15);
+  /* Accent (vert vif) */
+  --xa-accent:        #00E676;
+  --xa-accentbg:      rgba(0,230,118,.15);
+  --xa-primary:       #00E676;
+  --xa-primary-light: rgba(0,230,118,.15);
 
-  /* Couleurs sémantiques */
-  --xa-green:     #00E676;
-  --xa-greenbg:   rgba(0, 230, 118, 0.12);
-  --xa-amber:     #FFB300;
-  --xa-amberbg:   rgba(255, 179, 0, 0.12);
-  --xa-red:       #FF4444;
-  --xa-redbg:     rgba(255, 68, 68, 0.12);
-  --xa-blue:      #00E5FF;
-  --xa-bluebg:    rgba(0, 229, 255, 0.12);
+  /* Sémantiques */
+  --xa-green:    #00E676;
+  --xa-greenbg:  rgba(0,230,118,.12);
+  --xa-amber:    #FFB300;
+  --xa-amberbg:  rgba(255,179,0,.12);
+  --xa-red:      #FF4444;
+  --xa-redbg:    rgba(255,68,68,.12);
+  --xa-danger:   #FF4444;
+  --xa-blue:     #60A5FA;
+  --xa-bluebg:   rgba(96,165,250,.12);
+  --xa-purple:   #A78BFA;
+  --xa-purplebg: rgba(167,139,250,.12);
 
-  /* Aliases */
-  --xa-primary:       var(--xa-accent);
-  --xa-primary-light: #33FFAA;
-  --xa-danger:        var(--xa-red);
-  --xa-ok:            var(--xa-green);
-  --xa-border:        var(--xa-rule2);
-  --xa-text:          var(--xa-ink);
+  /* Palette boutiques (mode sombre) */
+  --xa-s0: #1DDB7B;
+  --xa-s1: #60A5FA;
+  --xa-s2: #FF6B6B;
+  --xa-s3: #FBBF24;
 
-  /* Couleurs sémantiques métier */
+  /* Sémantiques métier */
   --xa-color-montant:   #00E676;
+  --xa-color-ok:        #00E676;
   --xa-color-alerte:    #FFB300;
   --xa-color-danger:    #FF4444;
-  --xa-color-ok:        #00E676;
-  --xa-color-titre:     #E8F5E8;
-  --xa-color-quantite:  #00E5FF;
-  --xa-color-personnel: #B39DDB;
-  --xa-color-boutique:  #00E5FF;
-  --xa-color-date:      #5A8A5A;
-  --xa-color-transfert: #FFB300;
+  --xa-color-titre:     #FAFAF5;
+  --xa-color-quantite:  #60A5FA;
+  --xa-color-personnel: #A78BFA;
+  --xa-color-boutique:  #1DDB7B;
+  --xa-color-date:      #ABABAA;
+  --xa-color-transfert: #FBBF24;
 }
 
 /* ================================================================
    RÉTROCOMPATIBILITÉ — composants legacy qui utilisent --sp-*
    ================================================================ */
 :root {
-  --sp-cream:       var(--xa-bg);
-  --sp-cream2:      var(--xa-bg2);
-  --sp-cream3:      var(--xa-bg3);
-  --sp-ink:         var(--xa-ink);
-  --sp-ink2:        var(--xa-ink2);
-  --sp-muted:       var(--xa-muted);
-  --sp-faint:       var(--xa-faint);
-  --sp-rule:        var(--xa-rule);
-  --sp-rule2:       var(--xa-rule2);
-  --sp-sky:         var(--xa-blue);
-  --sp-emerald:     var(--xa-green);
-  --sp-salmon:      var(--xa-red);
-  --sp-gold:        var(--xa-amber);
-  --sp-tang:        var(--xa-amber);
-  --sp-sky-bg:      var(--xa-bluebg);
-  --sp-emerald-bg:  var(--xa-greenbg);
-  --sp-salmon-bg:   var(--xa-redbg);
-  --sp-gold-bg:     var(--xa-amberbg);
+  --sp-cream:      var(--xa-bg);
+  --sp-cream2:     var(--xa-bg2);
+  --sp-cream3:     var(--xa-bg3);
+  --sp-ink:        var(--xa-ink);
+  --sp-ink2:       var(--xa-ink2);
+  --sp-muted:      var(--xa-muted);
+  --sp-faint:      var(--xa-faint);
+  --sp-rule:       var(--xa-rule);
+  --sp-rule2:      var(--xa-rule2);
+  --sp-sky:        var(--xa-blue);
+  --sp-emerald:    var(--xa-green);
+  --sp-salmon:     var(--xa-red);
+  --sp-gold:       var(--xa-amber);
+  --sp-tang:       var(--xa-amber);
+  --sp-sky-bg:     var(--xa-bluebg);
+  --sp-emerald-bg: var(--xa-greenbg);
+  --sp-salmon-bg:  var(--xa-redbg);
+  --sp-gold-bg:    var(--xa-amberbg);
 }
 
 /* ================================================================
@@ -143,21 +151,23 @@
    ================================================================ */
 body {
   background-color: var(--xa-bg);
-  color: var(--xa-ink);
-  font-family: 'DM Sans', sans-serif;
+  color: var(--xa-text);
+  font-family: var(--font-familjen), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color .2s ease, color .2s ease;
 }
 
 /* ================================================================
    TYPOGRAPHIE xà
    ================================================================ */
 .font-display {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: var(--font-familjen), sans-serif;
+  font-weight: 700;
+  letter-spacing: -.03em;
 }
 .font-mono {
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-plex-mono), 'IBM Plex Mono', monospace;
 }
 
 /* ================================================================
@@ -200,6 +210,11 @@ body {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+@keyframes xa-blink {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%     { opacity:.35; transform:scale(.65); }
 }
 
 /* ================================================================
