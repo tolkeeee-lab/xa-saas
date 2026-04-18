@@ -1,142 +1,261 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Space+Mono:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ===== MODE CLAIR (défaut) ===== */
+/* ================================================================
+   VOLTAGE DESIGN SYSTEM — variables unifiées
+   Remplace --xa-* et --sp-* par --v-* 
+   ================================================================ */
+
+/* ── MODE CLAIR (défaut) ── */
 :root {
-  /* Base */
-  --xa-primary:       #6c2ed1;
-  --xa-primary-light: #8a58da;
-  --xa-accent:        #14d9eb;
-  --xa-bg:            #f0eafa;
-  --xa-surface:       #ffffff;
-  --xa-text:          #0f061d;
-  --xa-muted:         #7c5aa8;
-  --xa-border:        #c4abed;
-  --xa-danger:        #ff0011;
+  /* Fonds */
+  --v-bg:        #F4F7F4;
+  --v-bg2:       #E8EEE8;
+  --v-bg3:       #DCE6DC;
+  --v-surface:   #FFFFFF;
+
+  /* Texte */
+  --v-ink:       #0A120A;
+  --v-ink2:      #162016;
+  --v-muted:     #4A6A4A;
+  --v-faint:     #98B898;
+
+  /* Séparateurs */
+  --v-rule:      rgba(10, 18, 10, 0.08);
+  --v-rule2:     rgba(10, 18, 10, 0.14);
+
+  /* Accent principal */
+  --v-accent:    #00C853;
+  --v-accentbg:  rgba(0, 200, 83, 0.08);
 
   /* Couleurs sémantiques */
-  --xa-color-montant:   #0c828d;
-  --xa-color-alerte:    #c45d08;
-  --xa-color-danger:    #ff0011;
-  --xa-color-ok:        #0e8b70;
-  --xa-color-titre:     #411c7d;
-  --xa-color-quantite:  #8e850b;
-  --xa-color-personnel: #1759b5;
-  --xa-color-boutique:  #0e6c8b;
-  --xa-color-date:      #5725a7;
-  --xa-color-transfert: #a7258f;
+  --v-green:     #00C853;
+  --v-greenbg:   rgba(0, 200, 83, 0.10);
+  --v-amber:     #FF9800;
+  --v-amberbg:   rgba(255, 152, 0, 0.10);
+  --v-red:       #D62828;
+  --v-redbg:     rgba(214, 40, 40, 0.09);
+  --v-blue:      #00B4D8;
+  --v-bluebg:    rgba(0, 180, 216, 0.10);
+
+  /* Aliases compatibilité Tailwind */
+  --v-primary:       var(--v-accent);
+  --v-primary-light: #33D46A;
+  --v-danger:        var(--v-red);
+  --v-ok:            var(--v-green);
+  --v-border:        var(--v-rule2);
+  --v-text:          var(--v-ink);
+
+  /* Couleurs sémantiques métier */
+  --v-color-montant:   #00C853;
+  --v-color-alerte:    #FF9800;
+  --v-color-danger:    #D62828;
+  --v-color-ok:        #00C853;
+  --v-color-titre:     #0A120A;
+  --v-color-quantite:  #00B4D8;
+  --v-color-personnel: #7C4DFF;
+  --v-color-boutique:  #00B4D8;
+  --v-color-date:      #4A6A4A;
+  --v-color-transfert: #FF9800;
 }
 
-/* ===== MODE SOMBRE ===== */
+/* ── MODE SOMBRE ── */
 .dark {
-  /* Base */
-  --xa-primary:       #8a58da;
-  --xa-primary-light: #a782e3;
-  --xa-accent:        #14d9eb;
-  --xa-bg:            #0f061d;
-  --xa-surface:       #16092a;
-  --xa-text:          #f0eafa;
-  --xa-muted:         #a782e3;
-  --xa-border:        #411c7d;
-  --xa-danger:        #ff3341;
+  /* Fonds */
+  --v-bg:        #050C05;
+  --v-bg2:       #0A140A;
+  --v-bg3:       #101C10;
+  --v-surface:   #070E07;
 
-  /* Couleurs sémantiques lumineuses pour fond sombre */
-  --xa-color-montant:   #14d9eb;
-  --xa-color-alerte:    #f5740a;
-  --xa-color-danger:    #ff3341;
-  --xa-color-ok:        #17e8bb;
-  --xa-color-titre:     #a782e3;
-  --xa-color-quantite:  #f0e442;
-  --xa-color-personnel: #4a8ce8;
-  --xa-color-boutique:  #45c3ed;
-  --xa-color-date:      #8a58da;
-  --xa-color-transfert: #da58c2;
+  /* Texte */
+  --v-ink:       #E8F5E8;
+  --v-ink2:      #C8E6C8;
+  --v-muted:     #5A8A5A;
+  --v-faint:     #1A2A1A;
+
+  /* Séparateurs */
+  --v-rule:      rgba(232, 245, 232, 0.07);
+  --v-rule2:     rgba(232, 245, 232, 0.12);
+
+  /* Accent principal */
+  --v-accent:    #00E676;
+  --v-accentbg:  rgba(0, 230, 118, 0.15);
+
+  /* Couleurs sémantiques */
+  --v-green:     #00E676;
+  --v-greenbg:   rgba(0, 230, 118, 0.12);
+  --v-amber:     #FFB300;
+  --v-amberbg:   rgba(255, 179, 0, 0.12);
+  --v-red:       #FF4444;
+  --v-redbg:     rgba(255, 68, 68, 0.12);
+  --v-blue:      #00E5FF;
+  --v-bluebg:    rgba(0, 229, 255, 0.12);
+
+  /* Aliases */
+  --v-primary:       var(--v-accent);
+  --v-primary-light: #33FFAA;
+  --v-danger:        var(--v-red);
+  --v-ok:            var(--v-green);
+  --v-border:        var(--v-rule2);
+  --v-text:          var(--v-ink);
+
+  /* Couleurs sémantiques métier */
+  --v-color-montant:   #00E676;
+  --v-color-alerte:    #FFB300;
+  --v-color-danger:    #FF4444;
+  --v-color-ok:        #00E676;
+  --v-color-titre:     #E8F5E8;
+  --v-color-quantite:  #00E5FF;
+  --v-color-personnel: #B39DDB;
+  --v-color-boutique:  #00E5FF;
+  --v-color-date:      #5A8A5A;
+  --v-color-transfert: #FFB300;
 }
 
+/* ================================================================
+   RÉTROCOMPATIBILITÉ — anciens composants qui utilisent --xa-* ou --sp-*
+   Pointer vers les nouvelles variables --v-* 
+   ================================================================ */
+:root {
+  /* --xa-* → --v-* */
+  --xa-primary:        var(--v-accent);
+  --xa-primary-light:  var(--v-primary-light);
+  --xa-accent:         var(--v-blue);
+  --xa-bg:             var(--v-bg);
+  --xa-surface:        var(--v-surface);
+  --xa-text:           var(--v-ink);
+  --xa-muted:          var(--v-muted);
+  --xa-border:         var(--v-rule2);
+  --xa-danger:         var(--v-red);
+
+  --xa-color-montant:   var(--v-color-montant);
+  --xa-color-alerte:    var(--v-color-alerte);
+  --xa-color-danger:    var(--v-color-danger);
+  --xa-color-ok:        var(--v-color-ok);
+  --xa-color-titre:     var(--v-color-titre);
+  --xa-color-quantite:  var(--v-color-quantite);
+  --xa-color-personnel: var(--v-color-personnel);
+  --xa-color-boutique:  var(--v-color-boutique);
+  --xa-color-date:      var(--v-color-date);
+  --xa-color-transfert: var(--v-color-transfert);
+
+  /* --sp-* → --v-* */
+  --sp-cream:       var(--v-bg);
+  --sp-cream2:      var(--v-bg2);
+  --sp-cream3:      var(--v-bg3);
+  --sp-ink:         var(--v-ink);
+  --sp-ink2:        var(--v-ink2);
+  --sp-muted:       var(--v-muted);
+  --sp-faint:       var(--v-faint);
+  --sp-rule:        var(--v-rule);
+  --sp-rule2:       var(--v-rule2);
+  --sp-sky:         var(--v-blue);
+  --sp-emerald:     var(--v-green);
+  --sp-salmon:      var(--v-red);
+  --sp-gold:        var(--v-amber);
+  --sp-tang:        var(--v-amber);
+  --sp-sky-bg:      var(--v-bluebg);
+  --sp-emerald-bg:  var(--v-greenbg);
+  --sp-salmon-bg:   var(--v-redbg);
+  --sp-gold-bg:     var(--v-amberbg);
+}
+
+/* ================================================================
+   BASE STYLES
+   ================================================================ */
 body {
-  background-color: var(--xa-bg);
-  color: var(--xa-text);
-  font-family: 'Inter', sans-serif;
+  background-color: var(--v-bg);
+  color: var(--v-ink);
+  font-family: 'DM Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* ===== ANIMATIONS XÀ ===== */
+/* ================================================================
+   TYPOGRAPHIE VOLTAGE
+   ================================================================ */
+.font-display {
+  font-family: 'Black Han Sans', sans-serif;
+}
+.font-mono {
+  font-family: 'Space Mono', monospace;
+}
 
+/* ================================================================
+   ANIMATIONS
+   ================================================================ */
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes v-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes v-bar-grow {
+  from { transform: scaleY(0); transform-origin: bottom; }
+  to   { transform: scaleY(1); transform-origin: bottom; }
+}
+
+@keyframes v-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes v-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 200, 83, 0.4); }
+  50%       { box-shadow: 0 0 0 10px rgba(0, 200, 83, 0); }
+}
+
+/* Aliases animations anciennes */
+@keyframes xa-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes xa-bar-grow {
+  from { transform: scaleY(0); transform-origin: bottom; }
+  to   { transform: scaleY(1); transform-origin: bottom; }
+}
+@keyframes xa-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes xa-ring-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 200, 83, 0.4); }
+  50%       { box-shadow: 0 0 0 12px rgba(0, 200, 83, 0); }
+}
+@keyframes xa-badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.2); }
+}
 @keyframes xa-gradient-rotate {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
-@keyframes xa-ring-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(108, 46, 209, 0.4); }
-  50%       { box-shadow: 0 0 0 12px rgba(108, 46, 209, 0); }
-}
-
-@keyframes xa-badge-pulse {
-  0%, 100% { transform: scale(1); }
-  50%       { transform: scale(1.2); }
-}
-
-@keyframes xa-shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-
-@keyframes xa-bar-grow {
-  from { transform: scaleY(0); transform-origin: bottom; }
-  to   { transform: scaleY(1); transform-origin: bottom; }
-}
-
-@keyframes xa-fade-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── StorePilot Premium Theme ── */
-:root {
-  --sp-cream:        #F7F3EC;
-  --sp-cream2:       #EDE8DF;
-  --sp-cream3:       #E3DCCF;
-  --sp-ink:          #1C1A16;
-  --sp-ink2:         #2E2B24;
-  --sp-muted:        #8C8679;
-  --sp-faint:        #C4BFB4;
-  --sp-rule:         rgba(28,26,22,.1);
-  --sp-rule2:        rgba(28,26,22,.18);
-  --sp-sky:          #3fa7d6;
-  --sp-emerald:      #59cd90;
-  --sp-salmon:       #f38a7c;
-  --sp-gold:         #fac05e;
-  --sp-tang:         #f79d84;
-  --sp-sky-bg:       rgba(63,167,214,.1);
-  --sp-emerald-bg:   rgba(89,205,144,.1);
-  --sp-salmon-bg:    rgba(243,138,124,.1);
-  --sp-gold-bg:      rgba(250,192,94,.1);
-}
-
-@keyframes riseIn {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Dashboard responsive ── */
+/* ================================================================
+   DASHBOARD RESPONSIVE
+   ================================================================ */
 @media (max-width: 767px) {
   .sp-left-panel {
     position: static !important;
     height: auto !important;
     width: 100% !important;
     border-right: none !important;
-    border-bottom: 1px solid var(--sp-rule2);
+    border-bottom: 1px solid var(--v-rule2);
   }
 }
 
-/* ===== IMPRESSION PDF ===== */
+/* ================================================================
+   IMPRESSION PDF
+   ================================================================ */
 @media print {
   nav, aside, header, [data-sidebar], .print\:hidden {
     display: none !important;
@@ -150,7 +269,9 @@ body {
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
-/* ===== IMPRESSION TICKET THERMIQUE 80mm ===== */
+/* ================================================================
+   IMPRESSION TICKET THERMIQUE 80mm
+   ================================================================ */
 @media print {
   body > * { display: none !important; }
   .ticket-print {
