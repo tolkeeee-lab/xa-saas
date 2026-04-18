@@ -235,4 +235,4 @@ export async function POST(request: NextRequest) {
     remise,
     mode_paiement,
   });
-}
+} 
