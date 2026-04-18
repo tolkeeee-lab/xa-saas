@@ -98,6 +98,28 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── StorePilot Premium Theme ── */
+.dashboard-premium {
+  --sp-cream:   #F7F3EC;
+  --sp-cream2:  #EDE8DF;
+  --sp-cream3:  #E3DCCF;
+  --sp-ink:     #1C1A16;
+  --sp-ink2:    #2E2B24;
+  --sp-muted:   #8C8679;
+  --sp-faint:   #C4BFB4;
+  --sp-rule:    rgba(28,26,22,.09);
+  --sp-rule2:   rgba(28,26,22,.16);
+  --sp-sky:     #3fa7d6;
+  --sp-emerald: #59cd90;
+  --sp-salmon:  #f38a7c;
+  --sp-gold:    #fac05e;
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ===== IMPRESSION PDF ===== */
 @media print {
   nav, aside, header, [data-sidebar], .print\:hidden {
