@@ -39,7 +39,6 @@ const CATEGORY_COLORS = ['#3fa7d6', '#f79d84', '#59cd90', '#fac05e', '#f38a7c'];
 const MAX_RECENT_TRANSACTIONS = 6;
 const MAX_STOCK_ALERTS = 4;
 
-const BOUTIQUE_NAMES_DEMO = ['Akpakpa', 'Zogbadjè', 'Cadjehoun', 'Fidjrossè'];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -395,11 +394,9 @@ function RevenueMultiLineChart({
   const chartRef = useRef<Chart | null>(null);
 
   const top4 = boutiques.slice(0, 4);
-  const top4Ca = top4.map((b) =>
-    weeklyStats.filter((s) => s.boutique_id === b.id).reduce((sum, s) => sum + s.ca, 0)
+  const totalCA = top4.reduce((sum, b) =>
+    sum + weeklyStats.filter((s) => s.boutique_id === b.id).reduce((s, st) => s + st.ca, 0), 0
   );
-  const totalCA = top4Ca.reduce((s, v) => s + v, 0);
-  const totalCaDelta: number | null = null; // simplified — computed externally
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -472,7 +469,7 @@ function RevenueMultiLineChart({
               {formatShort(totalCA)}
             </span>
             <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, color: 'var(--sp-muted)', marginBottom: 4 }}>
-              {totalCaDelta !== null ? (totalCaDelta >= 0 ? `+${totalCaDelta}%` : `${totalCaDelta}%`) : 'FCFA'}
+              FCFA
             </span>
           </div>
         </div>
@@ -526,10 +523,8 @@ function HourlyBarChart({ hourlyStats }: { hourlyStats: number[] }) {
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const values = hours.map((h) => hourlyStats[h] ?? 0);
 
-  const sorted = [...values.map((v, i) => ({ v, i }))].sort((a, b) => b.v - a.v);
-  const top2Indices = new Set(sorted.slice(0, 2).map((x) => x.i));
-
-  const peakIdx = sorted[0]?.i ?? 0;
+  const sortedForPeak = [...values.map((v, i) => ({ v, i }))].sort((a, b) => b.v - a.v);
+  const peakIdx = sortedForPeak[0]?.i ?? 0;
   const peakLabel = `${String(peakIdx).padStart(2, '0')}:00`;
 
   useEffect(() => {
@@ -539,13 +534,18 @@ function HourlyBarChart({ hourlyStats }: { hourlyStats: number[] }) {
       chartRef.current.destroy();
     }
 
+    const chartHours = Array.from({ length: 24 }, (_, i) => i);
+    const chartValues = chartHours.map((h) => hourlyStats[h] ?? 0);
+    const sorted = [...chartValues.map((v, i) => ({ v, i }))].sort((a, b) => b.v - a.v);
+    const top2Indices = new Set(sorted.slice(0, 2).map((x) => x.i));
+
     chartRef.current = new Chart(canvasRef.current, {
       type: 'bar',
       data: {
-        labels: hours.map((h) => `${String(h).padStart(2, '0')}h`),
+        labels: chartHours.map((h) => `${String(h).padStart(2, '0')}h`),
         datasets: [{
-          data: values,
-          backgroundColor: values.map((_, i) =>
+          data: chartValues,
+          backgroundColor: chartValues.map((_, i) =>
             top2Indices.has(i) ? 'rgba(63,167,214,.85)' : 'rgba(63,167,214,.18)'
           ),
           borderRadius: 4,
@@ -567,7 +567,6 @@ function HourlyBarChart({ hourlyStats }: { hourlyStats: number[] }) {
       chartRef.current?.destroy();
       chartRef.current = null;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hourlyStats]);
 
   return (
@@ -832,7 +831,7 @@ function PersonnelCard({ boutiques, weeklyStats }: { boutiques: Boutique[]; week
                   fontFamily: "'DM Mono', monospace",
                   flexShrink: 0,
                 }}>
-                  {(item.boutique.nom ?? BOUTIQUE_NAMES_DEMO[i] ?? '?').charAt(0).toUpperCase()}
+                  {item.boutique.nom.charAt(0).toUpperCase()}
                 </span>
                 <div>
                   <p style={{ fontSize: 12.5, color: 'var(--sp-ink)', fontWeight: 500 }}>{item.boutique.nom}</p>
