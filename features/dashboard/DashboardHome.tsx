@@ -79,8 +79,10 @@ function SectionTitle({ label }: { label: string }) {
     <p style={{
       fontFamily: "'Playfair Display', serif",
       fontStyle: 'italic',
-      fontSize: 15,
+      fontSize: 10.5,
       fontWeight: 700,
+      letterSpacing: '.1em',
+      textTransform: 'uppercase',
       color: 'var(--sp-ink)',
       marginBottom: '0.75rem',
     }}>
@@ -171,7 +173,7 @@ function LeftPanel({
         padding: '1.5rem 1.25rem',
         display: 'flex',
         flexDirection: 'column',
-        gap: '1.25rem',
+        gap: '1.5rem',
       }}
     >
       {/* Eyebrow */}
@@ -201,7 +203,7 @@ function LeftPanel({
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, marginTop: 6 }}>
           <span style={{
             fontFamily: "'Playfair Display', serif",
-            fontSize: 'clamp(36px, 5vw, 60px)',
+            fontSize: 52,
             fontWeight: 900,
             color: 'var(--sp-ink)',
             lineHeight: 1,
@@ -454,7 +456,7 @@ function RevenueMultiLineChart({
   }, [period, weeklyStats, boutiques]);
 
   return (
-    <div style={{ ...cardStyle(0), padding: '1.5rem' }}>
+    <div style={{ ...cardStyle(0), padding: '1.25rem' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: 8 }}>
         <div>
