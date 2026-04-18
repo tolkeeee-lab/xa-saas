@@ -9,6 +9,11 @@ import { formatFCFA } from '@/lib/format';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { enqueueSale, saveProduits, loadProduits, type OfflineSale } from '@/lib/offline/offlineQueue';
 import { calculatePrix, POINTS_REMISE_SEUIL } from '@/lib/pricing';
+import { useCaisseIdle } from '@/hooks/useCaisseIdle';
+import CaisseLockScreen, { type LockReason } from '@/features/caisse/CaisseLockScreen';
+
+/** Header name for caisse session token — mirrors lib/caisseSession.ts CAISSE_SESSION_HEADER. */
+const CAISSE_SESSION_HEADER = 'x-caisse-token';
 
 interface CaissePosProps {
   boutiques: Boutique[];
@@ -179,6 +184,37 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
   const [resumeRefreshKey, setResumeRefreshKey] = useState(0);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
+  // ── Caisse session + idle lock ──────────────────────────────────────────────
+  /** Caisse session token obtained after PIN verification (lock-screen re-auth). */
+  const [caisseToken, setCaisseToken] = useState<string | null>(null);
+  /** Token expiry as an ISO-8601 string (informational, not enforced client-side). */
+  const [caisseTokenExpiresAt, setCaisseTokenExpiresAt] = useState<string | null>(null);
+  /** Reason that triggered the current lock (drives the lock-screen message). */
+  const [lockReason, setLockReason] = useState<LockReason>('idle');
+
+  const { isLocked, lock, unlock } = useCaisseIdle({
+    onLock: () => setLockReason('idle'),
+  });
+
+  /** Manual lock — immediately show the lock screen. */
+  const handleManualLock = useCallback(() => {
+    setLockReason('manual');
+    lock();
+  }, [lock]);
+
+  /**
+   * Called by CaisseLockScreen on successful PIN verification.
+   * Stores the new caisse session token and resumes the POS.
+   */
+  const handleUnlock = useCallback(
+    (token: string, expiresAt: string) => {
+      setCaisseToken(token);
+      setCaisseTokenExpiresAt(expiresAt);
+      unlock();
+    },
+    [unlock],
+  );
+
   // Client fidélité
   const [clientSearch, setClientSearch] = useState('');
   const [clients, setClients] = useState<Client[]>([]);
@@ -297,6 +333,22 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
 
   async function validerVente() {
     if (cart.length === 0) return;
+
+    // Safety guard: refuse to process a sale when the caisse is locked.
+    // This should never happen in practice (buttons are disabled), but acts as
+    // a defense-in-depth measure.
+    if (isLocked) return;
+
+    // Synchronously check whether the stored caisse session token has expired.
+    // We do this inline rather than relying on a useCallback so we can return
+    // immediately — React state updates are async and isLocked would not have
+    // been updated yet if we called checkTokenExpiry() and then re-read it.
+    if (caisseTokenExpiresAt && new Date(caisseTokenExpiresAt) <= new Date()) {
+      setLockReason('expired');
+      lock();
+      return;
+    }
+
     setLoading(true);
 
     const clientHasRemise = Boolean(selectedClient && selectedClient.points >= POINTS_REMISE_SEUIL);
@@ -361,9 +413,15 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
 
     // En ligne → logique normale
     try {
+      // Include the caisse session token if available so server-side routes
+      // can optionally validate it.  The existing /api/transactions route does
+      // not require it, but future iterations will enforce it.
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (caisseToken) headers[CAISSE_SESSION_HEADER] = caisseToken;
+
       const res = await fetch('/api/transactions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(body),
       });
 
@@ -431,6 +489,15 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
   if (ticket) {
     return (
       <div className="h-[calc(100vh-120px)]">
+        {/* Lock screen may appear over the ticket view too */}
+        {isLocked && activeBoutique && (
+          <CaisseLockScreen
+            boutiqueId={activeBoutique.id}
+            boutiqueNom={activeBoutique.nom}
+            reason={lockReason}
+            onUnlock={handleUnlock}
+          />
+        )}
         <TicketCaisse ticket={ticket} onNouvelleVente={nouvelleVente} />
       </div>
     );
@@ -438,6 +505,16 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
 
   return (
     <div className="flex flex-col h-[calc(100vh-120px)]">
+      {/* ── Lock screen overlay ──────────────────────────────────────────── */}
+      {isLocked && activeBoutique && (
+        <CaisseLockScreen
+          boutiqueId={activeBoutique.id}
+          boutiqueNom={activeBoutique.nom}
+          reason={lockReason}
+          onUnlock={handleUnlock}
+        />
+      )}
+
       {/* Toast */}
       {toast && (
         <div
@@ -459,7 +536,7 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
         </div>
       )}
 
-      {/* Top bar: boutique selector */}
+      {/* Top bar: boutique selector + manual lock button */}
       <div className="flex flex-wrap items-center gap-3 mb-3">
         <div className="flex items-center gap-2">
           {activeBoutique && (
@@ -485,6 +562,15 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
             Caisse principale — {activeBoutique.nom}
           </span>
         )}
+        {/* Manual lock button — always visible for quick access */}
+        <button
+          type="button"
+          onClick={handleManualLock}
+          title="Verrouiller la caisse"
+          className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-xa-border bg-xa-surface text-xa-muted hover:text-xa-text hover:border-xa-primary text-xs font-medium transition-colors"
+        >
+          🔒 Verrouiller
+        </button>
       </div>
 
       {/* Main grid: catalogue | panier | résumé du jour */}
