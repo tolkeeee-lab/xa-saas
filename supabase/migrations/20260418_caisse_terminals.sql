@@ -16,7 +16,8 @@
 CREATE TABLE IF NOT EXISTS caisse_terminals (
   id            UUID        NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   boutique_id   UUID        NOT NULL REFERENCES boutiques(id) ON DELETE CASCADE,
-  terminal_id   TEXT        NOT NULL,
+  terminal_id   TEXT        NOT NULL
+                            CHECK (terminal_id ~ '^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'),
   label         TEXT,
   first_seen_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   last_seen_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
