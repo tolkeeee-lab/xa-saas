@@ -185,8 +185,8 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
     width: W,
     minWidth: W,
     height: '100vh',
-    background: 'var(--v-surface)',
-    borderRight: '1px solid var(--v-rule2)',
+    background: 'var(--xa-surface)',
+    borderRight: '1px solid var(--xa-rule2)',
     display: 'flex',
     flexDirection: 'column',
     transition: 'width 0.22s cubic-bezier(.4,0,.2,1), min-width 0.22s cubic-bezier(.4,0,.2,1)',
@@ -201,7 +201,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
       {/* ── TOP: Wordmark + toggle ── */}
       <div style={{
         padding: collapsed ? '1.25rem 0' : '1.25rem 1rem 1rem',
-        borderBottom: '1px solid var(--v-rule)',
+        borderBottom: '1px solid var(--xa-rule)',
         flexShrink: 0,
         display: 'flex',
         flexDirection: 'column',
@@ -219,7 +219,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
           justifyContent: collapsed ? 'center' : 'flex-start',
           width: '100%',
         }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--v-accent)" strokeWidth="2.5" strokeLinecap="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--xa-accent)" strokeWidth="2.5" strokeLinecap="round">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
             <polyline points="9,22 9,12 15,12 15,22"/>
           </svg>
@@ -228,10 +228,10 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
               fontFamily: "'Black Han Sans', sans-serif",
               fontSize: 20,
               fontWeight: 900,
-              color: 'var(--v-ink)',
+              color: 'var(--xa-ink)',
               letterSpacing: '-0.01em',
             }}>
-              Store<span style={{ color: 'var(--v-accent)' }}>Pilot</span>
+              xà
             </span>
           )}
         </Link>
@@ -242,7 +242,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
             fontFamily: "'Space Mono', monospace",
             fontSize: 9,
             letterSpacing: '0.10em',
-            color: 'var(--v-muted)',
+            color: 'var(--xa-muted)',
             marginTop: 2,
           }}>
             TABLEAU DE BORD
@@ -256,8 +256,8 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
             marginTop: 12,
             width: 28,
             height: 28,
-            background: 'var(--v-bg2)',
-            border: '1px solid var(--v-rule2)',
+            background: 'var(--xa-bg2)',
+            border: '1px solid var(--xa-rule2)',
             borderRadius: 5,
             cursor: 'pointer',
             display: 'flex',
@@ -270,7 +270,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
         >
           <svg
             width="14" height="14" viewBox="0 0 24 24" fill="none"
-            stroke="var(--v-muted)" strokeWidth="2" strokeLinecap="round"
+            stroke="var(--xa-muted)" strokeWidth="2" strokeLinecap="round"
             style={{ transform: collapsed ? 'rotate(180deg)' : 'none', transition: 'transform 0.22s' }}
           >
             <polyline points="15,18 9,12 15,6"/>
@@ -290,7 +290,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
                 fontSize: 9,
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
-                color: 'var(--v-faint)',
+                color: 'var(--xa-faint)',
                 padding: '0 1rem',
                 marginBottom: '0.4rem',
                 whiteSpace: 'nowrap',
@@ -317,9 +317,9 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
                     padding: collapsed ? '9px 0' : '9px 1rem',
                     justifyContent: collapsed ? 'center' : 'flex-start',
                     fontSize: 13,
-                    color: isActive ? 'var(--v-accent)' : 'var(--v-muted)',
-                    background: isActive ? 'var(--v-accentbg)' : 'transparent',
-                    borderLeft: `2px solid ${isActive ? 'var(--v-accent)' : 'transparent'}`,
+                    color: isActive ? 'var(--xa-accent)' : 'var(--xa-muted)',
+                    background: isActive ? 'var(--xa-accentbg)' : 'transparent',
+                    borderLeft: `2px solid ${isActive ? 'var(--xa-accent)' : 'transparent'}`,
                     textDecoration: 'none',
                     fontWeight: isActive ? 500 : 400,
                     whiteSpace: 'nowrap',
@@ -339,7 +339,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
                     <span style={{
                       width: 7, height: 7,
                       borderRadius: '50%',
-                      background: 'var(--v-red)',
+                      background: 'var(--xa-red)',
                       flexShrink: 0,
                       position: collapsed ? 'absolute' : 'relative',
                       top: collapsed ? 8 : 'auto',
@@ -360,7 +360,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
               fontSize: 9,
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
-              color: 'var(--v-faint)',
+              color: 'var(--xa-faint)',
               padding: '0 1rem',
               marginBottom: '0.4rem',
             }}>
@@ -374,13 +374,13 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
                   display: 'flex', alignItems: 'center', gap: 7,
                   padding: '6px 8px', borderRadius: 6,
                   fontSize: 12, cursor: 'pointer', border: '1px solid transparent',
-                  background: activeBoutiqueId === 'all' ? 'var(--v-accentbg)' : 'transparent',
-                  color: activeBoutiqueId === 'all' ? 'var(--v-ink)' : 'var(--v-muted)',
+                  background: activeBoutiqueId === 'all' ? 'var(--xa-accentbg)' : 'transparent',
+                  color: activeBoutiqueId === 'all' ? 'var(--xa-ink)' : 'var(--xa-muted)',
                   textAlign: 'left', width: '100%', transition: 'all 0.15s',
                   fontFamily: "'DM Sans', sans-serif",
                 }}
               >
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--v-accent)', flexShrink: 0 }} />
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--xa-accent)', flexShrink: 0 }} />
                 <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Toutes</span>
               </button>
 
@@ -392,9 +392,9 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
                     display: 'flex', alignItems: 'center', gap: 7,
                     padding: '6px 8px', borderRadius: 6,
                     fontSize: 12, cursor: 'pointer',
-                    border: activeBoutiqueId === b.id ? '1px solid var(--v-rule2)' : '1px solid transparent',
-                    background: activeBoutiqueId === b.id ? 'var(--v-accentbg)' : 'transparent',
-                    color: activeBoutiqueId === b.id ? 'var(--v-ink)' : 'var(--v-muted)',
+                    border: activeBoutiqueId === b.id ? '1px solid var(--xa-rule2)' : '1px solid transparent',
+                    background: activeBoutiqueId === b.id ? 'var(--xa-accentbg)' : 'transparent',
+                    color: activeBoutiqueId === b.id ? 'var(--xa-ink)' : 'var(--xa-muted)',
                     textAlign: 'left', width: '100%', transition: 'all 0.15s',
                     fontFamily: "'DM Sans', sans-serif",
                   }}
@@ -416,7 +416,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
         {isSuperAdmin && (
           <div style={{ padding: '0 0.5rem', marginTop: 4 }}>
             {!collapsed && (
-              <div style={{ height: 1, background: 'var(--v-rule2)', marginBottom: 8 }} />
+              <div style={{ height: 1, background: 'var(--xa-rule2)', marginBottom: 8 }} />
             )}
             <Link
               href="/admin"
@@ -446,7 +446,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
       {/* ── BOTTOM: avatar + logout ── */}
       <div style={{
         padding: collapsed ? '0.875rem 0' : '0.875rem 1rem',
-        borderTop: '1px solid var(--v-rule)',
+        borderTop: '1px solid var(--xa-rule)',
         flexShrink: 0,
         display: 'flex',
         alignItems: 'center',
@@ -457,7 +457,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
         {/* Avatar */}
         <div style={{
           width: 32, height: 32, borderRadius: 6,
-          background: 'var(--v-accent)', color: '#fff',
+          background: 'var(--xa-accent)', color: '#fff',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 11, fontWeight: 700, flexShrink: 0,
           fontFamily: "'Space Mono', monospace",
@@ -474,14 +474,14 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{
               fontSize: 12.5, fontWeight: 500,
-              color: 'var(--v-ink)',
+              color: 'var(--xa-ink)',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}>
               {profile?.nom_complet ?? 'Propriétaire'}
             </p>
             <p style={{
               fontSize: 10,
-              color: 'var(--v-muted)',
+              color: 'var(--xa-muted)',
               fontFamily: "'Space Mono', monospace",
             }}>
               PROPRIÉTAIRE
@@ -495,14 +495,14 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
             title="Déconnexion"
             style={{
               width: 28, height: 28, borderRadius: 5,
-              background: 'var(--v-bg2)',
-              border: '1px solid var(--v-rule2)',
+              background: 'var(--xa-bg2)',
+              border: '1px solid var(--xa-rule2)',
               cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0,
             }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--v-red)" strokeWidth="2" strokeLinecap="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--xa-red)" strokeWidth="2" strokeLinecap="round">
               <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
             </svg>
           </button>
