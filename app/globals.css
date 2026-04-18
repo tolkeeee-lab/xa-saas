@@ -5,170 +5,145 @@
 @tailwind utilities;
 
 /* ================================================================
-   VOLTAGE DESIGN SYSTEM — variables unifiées
-   Remplace --xa-* et --sp-* par --v-* 
+   xà DESIGN SYSTEM — variables unifiées
    ================================================================ */
 
 /* ── MODE CLAIR (défaut) ── */
 :root {
   /* Fonds */
-  --v-bg:        #F4F7F4;
-  --v-bg2:       #E8EEE8;
-  --v-bg3:       #DCE6DC;
-  --v-surface:   #FFFFFF;
+  --xa-bg:        #F4F7F4;
+  --xa-bg2:       #E8EEE8;
+  --xa-bg3:       #DCE6DC;
+  --xa-surface:   #FFFFFF;
 
   /* Texte */
-  --v-ink:       #0A120A;
-  --v-ink2:      #162016;
-  --v-muted:     #4A6A4A;
-  --v-faint:     #98B898;
+  --xa-ink:       #0A120A;
+  --xa-ink2:      #162016;
+  --xa-muted:     #4A6A4A;
+  --xa-faint:     #98B898;
 
   /* Séparateurs */
-  --v-rule:      rgba(10, 18, 10, 0.08);
-  --v-rule2:     rgba(10, 18, 10, 0.14);
+  --xa-rule:      rgba(10, 18, 10, 0.08);
+  --xa-rule2:     rgba(10, 18, 10, 0.14);
 
   /* Accent principal */
-  --v-accent:    #00C853;
-  --v-accentbg:  rgba(0, 200, 83, 0.08);
+  --xa-accent:    #00C853;
+  --xa-accentbg:  rgba(0, 200, 83, 0.08);
 
   /* Couleurs sémantiques */
-  --v-green:     #00C853;
-  --v-greenbg:   rgba(0, 200, 83, 0.10);
-  --v-amber:     #FF9800;
-  --v-amberbg:   rgba(255, 152, 0, 0.10);
-  --v-red:       #D62828;
-  --v-redbg:     rgba(214, 40, 40, 0.09);
-  --v-blue:      #00B4D8;
-  --v-bluebg:    rgba(0, 180, 216, 0.10);
+  --xa-green:     #00C853;
+  --xa-greenbg:   rgba(0, 200, 83, 0.10);
+  --xa-amber:     #FF9800;
+  --xa-amberbg:   rgba(255, 152, 0, 0.10);
+  --xa-red:       #D62828;
+  --xa-redbg:     rgba(214, 40, 40, 0.09);
+  --xa-blue:      #00B4D8;
+  --xa-bluebg:    rgba(0, 180, 216, 0.10);
 
   /* Aliases compatibilité Tailwind */
-  --v-primary:       var(--v-accent);
-  --v-primary-light: #33D46A;
-  --v-danger:        var(--v-red);
-  --v-ok:            var(--v-green);
-  --v-border:        var(--v-rule2);
-  --v-text:          var(--v-ink);
+  --xa-primary:       var(--xa-accent);
+  --xa-primary-light: #33D46A;
+  --xa-danger:        var(--xa-red);
+  --xa-ok:            var(--xa-green);
+  --xa-border:        var(--xa-rule2);
+  --xa-text:          var(--xa-ink);
 
   /* Couleurs sémantiques métier */
-  --v-color-montant:   #00C853;
-  --v-color-alerte:    #FF9800;
-  --v-color-danger:    #D62828;
-  --v-color-ok:        #00C853;
-  --v-color-titre:     #0A120A;
-  --v-color-quantite:  #00B4D8;
-  --v-color-personnel: #7C4DFF;
-  --v-color-boutique:  #00B4D8;
-  --v-color-date:      #4A6A4A;
-  --v-color-transfert: #FF9800;
+  --xa-color-montant:   #00C853;
+  --xa-color-alerte:    #FF9800;
+  --xa-color-danger:    #D62828;
+  --xa-color-ok:        #00C853;
+  --xa-color-titre:     #0A120A;
+  --xa-color-quantite:  #00B4D8;
+  --xa-color-personnel: #7C4DFF;
+  --xa-color-boutique:  #00B4D8;
+  --xa-color-date:      #4A6A4A;
+  --xa-color-transfert: #FF9800;
 }
 
 /* ── MODE SOMBRE ── */
 .dark {
   /* Fonds */
-  --v-bg:        #050C05;
-  --v-bg2:       #0A140A;
-  --v-bg3:       #101C10;
-  --v-surface:   #070E07;
+  --xa-bg:        #050C05;
+  --xa-bg2:       #0A140A;
+  --xa-bg3:       #101C10;
+  --xa-surface:   #070E07;
 
   /* Texte */
-  --v-ink:       #E8F5E8;
-  --v-ink2:      #C8E6C8;
-  --v-muted:     #5A8A5A;
-  --v-faint:     #1A2A1A;
+  --xa-ink:       #E8F5E8;
+  --xa-ink2:      #C8E6C8;
+  --xa-muted:     #5A8A5A;
+  --xa-faint:     #1A2A1A;
 
   /* Séparateurs */
-  --v-rule:      rgba(232, 245, 232, 0.07);
-  --v-rule2:     rgba(232, 245, 232, 0.12);
+  --xa-rule:      rgba(232, 245, 232, 0.07);
+  --xa-rule2:     rgba(232, 245, 232, 0.12);
 
   /* Accent principal */
-  --v-accent:    #00E676;
-  --v-accentbg:  rgba(0, 230, 118, 0.15);
+  --xa-accent:    #00E676;
+  --xa-accentbg:  rgba(0, 230, 118, 0.15);
 
   /* Couleurs sémantiques */
-  --v-green:     #00E676;
-  --v-greenbg:   rgba(0, 230, 118, 0.12);
-  --v-amber:     #FFB300;
-  --v-amberbg:   rgba(255, 179, 0, 0.12);
-  --v-red:       #FF4444;
-  --v-redbg:     rgba(255, 68, 68, 0.12);
-  --v-blue:      #00E5FF;
-  --v-bluebg:    rgba(0, 229, 255, 0.12);
+  --xa-green:     #00E676;
+  --xa-greenbg:   rgba(0, 230, 118, 0.12);
+  --xa-amber:     #FFB300;
+  --xa-amberbg:   rgba(255, 179, 0, 0.12);
+  --xa-red:       #FF4444;
+  --xa-redbg:     rgba(255, 68, 68, 0.12);
+  --xa-blue:      #00E5FF;
+  --xa-bluebg:    rgba(0, 229, 255, 0.12);
 
   /* Aliases */
-  --v-primary:       var(--v-accent);
-  --v-primary-light: #33FFAA;
-  --v-danger:        var(--v-red);
-  --v-ok:            var(--v-green);
-  --v-border:        var(--v-rule2);
-  --v-text:          var(--v-ink);
+  --xa-primary:       var(--xa-accent);
+  --xa-primary-light: #33FFAA;
+  --xa-danger:        var(--xa-red);
+  --xa-ok:            var(--xa-green);
+  --xa-border:        var(--xa-rule2);
+  --xa-text:          var(--xa-ink);
 
   /* Couleurs sémantiques métier */
-  --v-color-montant:   #00E676;
-  --v-color-alerte:    #FFB300;
-  --v-color-danger:    #FF4444;
-  --v-color-ok:        #00E676;
-  --v-color-titre:     #E8F5E8;
-  --v-color-quantite:  #00E5FF;
-  --v-color-personnel: #B39DDB;
-  --v-color-boutique:  #00E5FF;
-  --v-color-date:      #5A8A5A;
-  --v-color-transfert: #FFB300;
+  --xa-color-montant:   #00E676;
+  --xa-color-alerte:    #FFB300;
+  --xa-color-danger:    #FF4444;
+  --xa-color-ok:        #00E676;
+  --xa-color-titre:     #E8F5E8;
+  --xa-color-quantite:  #00E5FF;
+  --xa-color-personnel: #B39DDB;
+  --xa-color-boutique:  #00E5FF;
+  --xa-color-date:      #5A8A5A;
+  --xa-color-transfert: #FFB300;
 }
 
 /* ================================================================
-   RÉTROCOMPATIBILITÉ — anciens composants qui utilisent --xa-* ou --sp-*
-   Pointer vers les nouvelles variables --v-* 
+   RÉTROCOMPATIBILITÉ — composants legacy qui utilisent --sp-*
    ================================================================ */
 :root {
-  /* --xa-* → --v-* */
-  --xa-primary:        var(--v-accent);
-  --xa-primary-light:  var(--v-primary-light);
-  --xa-accent:         var(--v-blue);
-  --xa-bg:             var(--v-bg);
-  --xa-surface:        var(--v-surface);
-  --xa-text:           var(--v-ink);
-  --xa-muted:          var(--v-muted);
-  --xa-border:         var(--v-rule2);
-  --xa-danger:         var(--v-red);
-
-  --xa-color-montant:   var(--v-color-montant);
-  --xa-color-alerte:    var(--v-color-alerte);
-  --xa-color-danger:    var(--v-color-danger);
-  --xa-color-ok:        var(--v-color-ok);
-  --xa-color-titre:     var(--v-color-titre);
-  --xa-color-quantite:  var(--v-color-quantite);
-  --xa-color-personnel: var(--v-color-personnel);
-  --xa-color-boutique:  var(--v-color-boutique);
-  --xa-color-date:      var(--v-color-date);
-  --xa-color-transfert: var(--v-color-transfert);
-
-  /* --sp-* → --v-* */
-  --sp-cream:       var(--v-bg);
-  --sp-cream2:      var(--v-bg2);
-  --sp-cream3:      var(--v-bg3);
-  --sp-ink:         var(--v-ink);
-  --sp-ink2:        var(--v-ink2);
-  --sp-muted:       var(--v-muted);
-  --sp-faint:       var(--v-faint);
-  --sp-rule:        var(--v-rule);
-  --sp-rule2:       var(--v-rule2);
-  --sp-sky:         var(--v-blue);
-  --sp-emerald:     var(--v-green);
-  --sp-salmon:      var(--v-red);
-  --sp-gold:        var(--v-amber);
-  --sp-tang:        var(--v-amber);
-  --sp-sky-bg:      var(--v-bluebg);
-  --sp-emerald-bg:  var(--v-greenbg);
-  --sp-salmon-bg:   var(--v-redbg);
-  --sp-gold-bg:     var(--v-amberbg);
+  --sp-cream:       var(--xa-bg);
+  --sp-cream2:      var(--xa-bg2);
+  --sp-cream3:      var(--xa-bg3);
+  --sp-ink:         var(--xa-ink);
+  --sp-ink2:        var(--xa-ink2);
+  --sp-muted:       var(--xa-muted);
+  --sp-faint:       var(--xa-faint);
+  --sp-rule:        var(--xa-rule);
+  --sp-rule2:       var(--xa-rule2);
+  --sp-sky:         var(--xa-blue);
+  --sp-emerald:     var(--xa-green);
+  --sp-salmon:      var(--xa-red);
+  --sp-gold:        var(--xa-amber);
+  --sp-tang:        var(--xa-amber);
+  --sp-sky-bg:      var(--xa-bluebg);
+  --sp-emerald-bg:  var(--xa-greenbg);
+  --sp-salmon-bg:   var(--xa-redbg);
+  --sp-gold-bg:     var(--xa-amberbg);
 }
 
 /* ================================================================
    BASE STYLES
    ================================================================ */
 body {
-  background-color: var(--v-bg);
-  color: var(--v-ink);
+  background-color: var(--xa-bg);
+  color: var(--xa-ink);
   font-family: 'DM Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -176,7 +151,7 @@ body {
 }
 
 /* ================================================================
-   TYPOGRAPHIE VOLTAGE
+   TYPOGRAPHIE xà
    ================================================================ */
 .font-display {
   font-family: 'Black Han Sans', sans-serif;
@@ -193,39 +168,26 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes v-fade-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes v-bar-grow {
-  from { transform: scaleY(0); transform-origin: bottom; }
-  to   { transform: scaleY(1); transform-origin: bottom; }
-}
-
-@keyframes v-shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-
-@keyframes v-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 200, 83, 0.4); }
-  50%       { box-shadow: 0 0 0 10px rgba(0, 200, 83, 0); }
-}
-
-/* Aliases animations anciennes */
 @keyframes xa-fade-up {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
 @keyframes xa-bar-grow {
   from { transform: scaleY(0); transform-origin: bottom; }
   to   { transform: scaleY(1); transform-origin: bottom; }
 }
+
 @keyframes xa-shimmer {
   0%   { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
+
+@keyframes xa-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 200, 83, 0.4); }
+  50%       { box-shadow: 0 0 0 10px rgba(0, 200, 83, 0); }
+}
+
 @keyframes xa-ring-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(0, 200, 83, 0.4); }
   50%       { box-shadow: 0 0 0 12px rgba(0, 200, 83, 0); }
@@ -249,7 +211,7 @@ body {
     height: auto !important;
     width: 100% !important;
     border-right: none !important;
-    border-bottom: 1px solid var(--v-rule2);
+    border-bottom: 1px solid var(--xa-rule2);
   }
 }
 
