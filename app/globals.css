@@ -116,29 +116,29 @@
 }
 
 /* ================================================================
-   PALETTE VOLTAGE — tokens --xa-* (mode clair)
+   PALETTE FUSION V3 — tokens --xa-* (mode clair)
    ================================================================ */
 :root {
   --xa-primary:        #00C853;
-  --xa-primary-light:  rgba(0, 200, 83, 0.10);
+  --xa-primary-light:  rgba(0, 200, 83, 0.09);
   --xa-accent:         #00C853;
-  --xa-bg:             #F4F7F4;
+  --xa-bg:             #FAFAF5;
   --xa-surface:        #FFFFFF;
-  --xa-text:           #0A120A;
-  --xa-muted:          #4A6A4A;
-  --xa-border:         #DCE6DC;
+  --xa-text:           #0A0A08;
+  --xa-muted:          #6E6E66;
+  --xa-border:         #E8E8DF;
   --xa-danger:         #D62828;
 
   --xa-color-montant:   #00C853;
   --xa-color-alerte:    #FF9800;
   --xa-color-danger:    #D62828;
   --xa-color-ok:        #00C853;
-  --xa-color-titre:     #0A120A;
-  --xa-color-quantite:  #00B4D8;
-  --xa-color-personnel: #4A6A4A;
-  --xa-color-boutique:  #00E676;
-  --xa-color-date:      #4A6A4A;
-  --xa-color-transfert: #FFB300;
+  --xa-color-titre:     #0A0A08;
+  --xa-color-quantite:  #2563EB;
+  --xa-color-personnel: #7C3AED;
+  --xa-color-boutique:  #1DDB7B;
+  --xa-color-date:      #6E6E66;
+  --xa-color-transfert: #D97706;
 
   /* --sp-* → --v-* */
   --sp-cream:       var(--v-bg);
@@ -162,29 +162,29 @@
 }
 
 /* ================================================================
-   PALETTE VOLTAGE — tokens --xa-* (mode sombre)
+   PALETTE FUSION V3 — tokens --xa-* (mode sombre)
    ================================================================ */
 .dark {
   --xa-primary:        #00E676;
   --xa-primary-light:  rgba(0, 230, 118, 0.15);
   --xa-accent:         #00E676;
-  --xa-bg:             #050C05;
-  --xa-surface:        #070E07;
-  --xa-text:           #E8F5E8;
-  --xa-muted:          #5A8A5A;
-  --xa-border:         rgba(232, 245, 232, 0.12);
+  --xa-bg:             #0A0A08;
+  --xa-surface:        #121210;
+  --xa-text:           #FAFAF5;
+  --xa-muted:          #ABABAA;
+  --xa-border:         rgba(250, 250, 245, 0.12);
   --xa-danger:         #FF4444;
 
   --xa-color-montant:   #00E676;
   --xa-color-alerte:    #FFB300;
   --xa-color-danger:    #FF4444;
   --xa-color-ok:        #00E676;
-  --xa-color-titre:     #E8F5E8;
-  --xa-color-quantite:  #43E0EF;
-  --xa-color-personnel: #5A8A5A;
-  --xa-color-boutique:  #00E676;
-  --xa-color-date:      #5A8A5A;
-  --xa-color-transfert: #FFB300;
+  --xa-color-titre:     #FAFAF5;
+  --xa-color-quantite:  #60A5FA;
+  --xa-color-personnel: #A78BFA;
+  --xa-color-boutique:  #1DDB7B;
+  --xa-color-date:      #ABABAA;
+  --xa-color-transfert: #FBBF24;
 }
 
 /* ================================================================
