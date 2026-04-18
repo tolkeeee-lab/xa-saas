@@ -8,6 +8,11 @@
  * consecutive failures within 15 minutes the endpoint returns 429 with a
  * `Retry-After` header and the number of seconds until the lockout expires.
  *
+ * On success a short-lived caisse session token is created (8 h TTL) and
+ * returned alongside the boutique info. POS clients should store this token
+ * and send it as the `x-caisse-token` header on subsequent caisse requests
+ * instead of re-sending the PIN hash.
+ *
  * Security notes:
  *  - Error responses are intentionally generic to prevent boutique enumeration.
  *  - All security events are logged server-side for monitoring/audit.
@@ -15,7 +20,7 @@
  *
  * Body: { boutique_id: UUID, pin_hash: string (64-char hex SHA-256) }
  *
- * Response 200: { success: true, boutique: { id, nom, couleur_theme } }
+ * Response 200: { success: true, boutique: { id, nom, couleur_theme }, session: { token, expires_at } }
  * Response 401: { error: string }
  * Response 429: { error: string } + Retry-After header
  */
@@ -23,6 +28,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { isPinLocked, recordPinFailure, clearPinFailures } from '@/lib/rateLimit';
+import { createCaisseSession } from '@/lib/caisseSession';
 
 const PIN_HASH_RE = /^[0-9a-f]{64}$/i;
 
@@ -164,8 +170,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: ERR_INVALID_CREDENTIALS }, { status: 401 });
   }
 
-  // Success — clear brute-force counter and return boutique info (no PIN)
+  // Success — clear brute-force counter, create a short-lived caisse session,
+  // and return boutique info (no PIN) alongside the session token.
   await clearPinFailures(bruteKey);
+  const { token, expires_at } = createCaisseSession(boutique_id);
   console.info('[verify-pin] connexion_reussie', {
     ip,
     boutique_id,
@@ -178,6 +186,10 @@ export async function POST(request: NextRequest) {
       id: boutique.id,
       nom: boutique.nom,
       couleur_theme: boutique.couleur_theme,
+    },
+    session: {
+      token,
+      expires_at,
     },
   });
 }
