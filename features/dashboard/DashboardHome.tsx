@@ -68,7 +68,7 @@ function cardStyle(delay: number = 0): React.CSSProperties {
     background: 'var(--sp-cream)',
     border: '1px solid var(--sp-rule2)',
     borderRadius: 10,
-    padding: '1.35rem 1.4rem',
+    padding: '1.25rem',
     boxShadow: '0 1px 3px rgba(28,26,22,.06)',
     animation: `riseIn 0.5s cubic-bezier(.22,1,.36,1) ${delay}ms both`,
   };
@@ -163,20 +163,17 @@ function LeftPanel({
   const topAlerts = alertesStock.alertes.slice(0, MAX_STOCK_ALERTS);
 
   return (
-    <aside style={{
-      width: 380,
-      minHeight: '100vh',
-      background: 'var(--sp-cream2)',
-      borderRight: '1px solid var(--sp-rule2)',
-      padding: '2rem 1.5rem',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '1.5rem',
-      position: 'sticky',
-      top: 0,
-      height: '100vh',
-      overflowY: 'auto',
-    }}>
+    <aside
+      className="sp-left-panel w-full lg:w-80 lg:shrink-0 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto"
+      style={{
+        background: 'var(--sp-cream2)',
+        borderRight: '1px solid var(--sp-rule2)',
+        padding: '1.5rem 1.25rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1.25rem',
+      }}
+    >
       {/* Eyebrow */}
       <div style={{ animation: 'riseIn 0.5s cubic-bezier(.22,1,.36,1) 0ms both' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -204,7 +201,7 @@ function LeftPanel({
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, marginTop: 6 }}>
           <span style={{
             fontFamily: "'Playfair Display', serif",
-            fontSize: 60,
+            fontSize: 'clamp(36px, 5vw, 60px)',
             fontWeight: 900,
             color: 'var(--sp-ink)',
             lineHeight: 1,
@@ -230,7 +227,7 @@ function LeftPanel({
       {/* Sub-KPIs 2×2 */}
       <div style={{ animation: 'riseIn 0.5s cubic-bezier(.22,1,.36,1) 80ms both' }}>
         <SectionTitle label="Indicateurs clés" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+        <div className="grid grid-cols-2 gap-px" style={{ background: 'var(--sp-rule)', border: '1px solid var(--sp-rule)', borderRadius: 6, overflow: 'hidden' }}>
           {([
             {
               label: 'Commandes',
@@ -457,7 +454,7 @@ function RevenueMultiLineChart({
   }, [period, weeklyStats, boutiques]);
 
   return (
-    <div style={cardStyle(0)}>
+    <div style={{ ...cardStyle(0), padding: '1.5rem' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: 8 }}>
         <div>
@@ -507,7 +504,7 @@ function RevenueMultiLineChart({
         ))}
       </div>
 
-      <div style={{ height: 220, position: 'relative' }}>
+      <div style={{ height: 200, position: 'relative' }}>
         <canvas ref={canvasRef} />
       </div>
     </div>
@@ -572,7 +569,7 @@ function HourlyBarChart({ hourlyStats }: { hourlyStats: number[] }) {
   return (
     <div style={cardStyle(80)}>
       <SectionTitle label="Heures de pointe" />
-      <div style={{ height: 130, position: 'relative' }}>
+      <div style={{ height: 120, position: 'relative' }}>
         <canvas ref={canvasRef} />
       </div>
       {values[peakIdx] > 0 && (
@@ -1132,7 +1129,7 @@ export default function DashboardHome({
     <div
       style={{ background: 'var(--sp-cream)', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif", color: 'var(--sp-ink)', fontSize: 14 }}
     >
-      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr' }}>
+      <div className="flex flex-col lg:flex-row">
         {/* Left Panel */}
         <LeftPanel
           totalCA={totalCA}
@@ -1147,7 +1144,7 @@ export default function DashboardHome({
         />
 
         {/* Right Panel */}
-        <main style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0 }}>
+        <main className="flex-1 min-w-0 flex flex-col gap-6 p-4 md:p-6 lg:p-10">
 
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
@@ -1204,21 +1201,21 @@ export default function DashboardHome({
           <RevenueMultiLineChart weeklyStats={weeklyStats} moisStats={moisStats} boutiques={boutiques} />
 
           {/* Row 2 — Grid 3: Heures de pointe / Catégories / Heatmap */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             <HourlyBarChart hourlyStats={hourlyStats} />
             <CategoryDonut salesByCategory={salesByCategory} />
             <HeatmapFrequentation hourlyStats={hourlyStats} />
           </div>
 
           {/* Row 3 — Grid 3: Objectifs / Top produits / Personnel */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             <ObjectifsMois weeklyStats={weeklyStats} />
             <TopProduits salesByCategory={salesByCategory} />
             <PersonnelCard boutiques={boutiques} weeklyStats={weeklyStats} />
           </div>
 
           {/* Row 4 — Grid 2: Score santé / Prévision + CTA */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <ScoreSante boutiques={boutiques} weeklyStats={weeklyStats} alertesStock={alertesStock} />
             <PrevisionCard weeklyStats={weeklyStats} />
           </div>
