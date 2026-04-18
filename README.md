@@ -134,8 +134,24 @@ terminaux laissés sans surveillance.
 | Événement | Résultat |
 |---|---|
 | Inactivité ≥ 10 min | Verrouillage automatique (raison : *inactivité*) |
-| Bouton « 🔒 Verrouiller » | Verrouillage immédiat (raison : *manuel*) |
+| Bouton « 🔒 Verrouiller » | Verrouillage immédiat + révocation serveur (raison : *manuel*) |
 | Token de session expiré | Verrouillage automatique à la prochaine action (raison : *expiré*) |
+
+### Nettoyage d'état lors du verrouillage
+
+Quel que soit le déclencheur, le token caisse est **immédiatement effacé** de la mémoire du
+composant dès que le verrou se pose :
+
+- **Inactivité** : le token est vidé côté client ; l'ancien token peut encore être accepté
+  par le serveur jusqu'à son expiration naturelle (8 h).
+- **Verrouillage manuel** : le token est vidé côté client *et* une requête
+  `DELETE /api/caisse/session` est envoyée en arrière-plan pour révoquer la session
+  côté serveur (idempotent, échecs réseau ignorés silencieusement).
+- **Token expiré** : le token est vidé côté client (il est de toute façon rejeté par le
+  serveur).
+
+Ce nettoyage évite qu'un token résiduel ne soit transmis si l'écran de verrouillage était
+contourné d'une manière ou d'une autre.
 
 ### Déverrouillage
 
@@ -159,6 +175,8 @@ rétrograde) — la validation serveur sera activée dans une prochaine itérati
 - La session Supabase (auth patron) reste active indépendamment du verrouillage caisse.
 - Les routes API existantes (`/api/transactions`, etc.) n'imposent pas encore le token caisse côté
   serveur.
+- La révocation serveur lors du verrouillage par inactivité n'est pas déclenchée (le token expire
+  naturellement après 8 h) ; cela peut être activé dans une itération future si nécessaire.
 
 ### Hooks et composants
 

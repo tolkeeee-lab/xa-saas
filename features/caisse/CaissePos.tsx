@@ -192,15 +192,39 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
   /** Reason that triggered the current lock (drives the lock-screen message). */
   const [lockReason, setLockReason] = useState<LockReason>('idle');
 
+  /** Clears the caisse session state on any lock event. */
+  const clearCaisseSession = useCallback(() => {
+    setCaisseToken(null);
+    setCaisseTokenExpiresAt(null);
+  }, []);
+
   const { isLocked, lock, unlock } = useCaisseIdle({
-    onLock: () => setLockReason('idle'),
+    onLock: () => {
+      // Clear local session state on idle timeout so no stale token can be
+      // reused if the lock screen is somehow bypassed.
+      setLockReason('idle');
+      clearCaisseSession();
+    },
   });
 
-  /** Manual lock — immediately show the lock screen. */
+  /** Manual lock — revoke server-side session then immediately show the lock screen. */
   const handleManualLock = useCallback(() => {
+    // Capture before clearing so we can send the DELETE request.
+    const tokenToRevoke = caisseToken;
     setLockReason('manual');
+    clearCaisseSession();
     lock();
-  }, [lock]);
+    // Fire-and-forget: revoke the session server-side so it cannot be reused
+    // even on other server instances before its natural 8-hour TTL.
+    if (tokenToRevoke) {
+      fetch('/api/caisse/session', {
+        method: 'DELETE',
+        headers: { [CAISSE_SESSION_HEADER]: tokenToRevoke },
+      }).catch(() => {
+        // Ignore network errors — the short TTL provides the fallback guarantee.
+      });
+    }
+  }, [lock, caisseToken, clearCaisseSession]);
 
   /**
    * Called by CaisseLockScreen on successful PIN verification.
@@ -345,6 +369,7 @@ export default function CaissePos({ boutiques, produits: initialProduits }: Cais
     // been updated yet if we called checkTokenExpiry() and then re-read it.
     if (caisseTokenExpiresAt && new Date(caisseTokenExpiresAt) < new Date()) {
       setLockReason('expired');
+      clearCaisseSession();
       lock();
       return;
     }
