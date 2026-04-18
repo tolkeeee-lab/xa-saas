@@ -71,6 +71,59 @@ La vérification se fait côté serveur via `/api/caisse/verify-pin` (jamais exp
 
 ---
 
+## Session caisse courte
+
+Après validation du PIN, `POST /api/caisse/verify-pin` retourne un **token de session caisse** en plus
+des infos boutique :
+
+```json
+{
+  "success": true,
+  "boutique": { "id": "...", "nom": "...", "couleur_theme": "..." },
+  "session": {
+    "token": "<opaque-token>",
+    "expires_at": "2026-04-18T09:00:00.000Z"
+  }
+}
+```
+
+### Utilisation côté client
+
+Le terminal POS stocke le token et l'envoie dans le header `x-caisse-token` sur les appels caisse
+protégés :
+
+```http
+DELETE /api/caisse/session
+x-caisse-token: <token>
+```
+
+### Durée de vie
+
+8 heures (une journée de caisse type).  Le secret de signature est `CAISSE_SESSION_SECRET`.
+Faire tourner cette valeur invalide immédiatement toutes les sessions actives.
+
+### Déconnexion
+
+`DELETE /api/caisse/session` ajoute le token à la liste de révocation en mémoire et retourne
+`{ "success": true }`.  Le client doit supprimer son token local.
+
+### Protection des nouvelles routes caisse
+
+Utiliser le helper `lib/requireCaisseSession.ts` dans les route handlers :
+
+```typescript
+import { requireCaisseSession } from '@/lib/requireCaisseSession';
+
+export async function POST(request: NextRequest) {
+  const guard = requireCaisseSession(request);
+  if ('response' in guard) return guard.response; // 401/403
+  const { boutique_id } = guard.context;
+  // ...
+}
+```
+
+---
+
 ## Mode offline (PWA)
 
 Le mode offline repose sur **IndexedDB** et le Background Sync du Service Worker :
@@ -92,6 +145,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 
 # Requis pour les API routes caisse (service-role, jamais exposé au browser)
 SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+
+# Requis en production — signe les tokens de session caisse (HMAC-SHA256)
+# Générer avec : node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+CAISSE_SESSION_SECRET=<random-32-byte-hex>
 ```
 
 ---
@@ -110,6 +167,7 @@ SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 | `/dashboard/produits` | Authentifié | Gestion produits |
 | `/dashboard/parametres` | Authentifié | Paramètres (code, PIN, employés) |
 | `/api/caisse/*` | Public (service-role) | API routes caisse sécurisées |
+| `/api/caisse/session` | Public (token caisse) | Déconnexion session caisse (DELETE) |
 | `/api/transactions/sync` | Public (service-role) | Sync offline transactions |
 | `/dashboard/transferts` | Authentifié | Transferts inter-sites |
 | `/dashboard/perimes` | Authentifié | Péremptions produits |
