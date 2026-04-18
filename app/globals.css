@@ -1,138 +1,28 @@
-@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Familjen+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ================================================================
-   VOLTAGE DESIGN SYSTEM — variables unifiées
-   Remplace --xa-* et --sp-* par --v-* 
+   Design tokens — xà
    ================================================================ */
 
-/* ── MODE CLAIR (défaut) ── */
+/* ── Mode clair (défaut) ── */
 :root {
-  /* Fonds */
-  --v-bg:        #F4F7F4;
-  --v-bg2:       #E8EEE8;
-  --v-bg3:       #DCE6DC;
-  --v-surface:   #FFFFFF;
-
-  /* Texte */
-  --v-ink:       #0A120A;
-  --v-ink2:      #162016;
-  --v-muted:     #4A6A4A;
-  --v-faint:     #98B898;
-
-  /* Séparateurs */
-  --v-rule:      rgba(10, 18, 10, 0.08);
-  --v-rule2:     rgba(10, 18, 10, 0.14);
-
-  /* Accent principal */
-  --v-accent:    #00C853;
-  --v-accentbg:  rgba(0, 200, 83, 0.08);
-
-  /* Couleurs sémantiques */
-  --v-green:     #00C853;
-  --v-greenbg:   rgba(0, 200, 83, 0.10);
-  --v-amber:     #FF9800;
-  --v-amberbg:   rgba(255, 152, 0, 0.10);
-  --v-red:       #D62828;
-  --v-redbg:     rgba(214, 40, 40, 0.09);
-  --v-blue:      #00B4D8;
-  --v-bluebg:    rgba(0, 180, 216, 0.10);
-
-  /* Aliases compatibilité Tailwind */
-  --v-primary:       var(--v-accent);
-  --v-primary-light: #33D46A;
-  --v-danger:        var(--v-red);
-  --v-ok:            var(--v-green);
-  --v-border:        var(--v-rule2);
-  --v-text:          var(--v-ink);
-
-  /* Couleurs sémantiques métier */
-  --v-color-montant:   #00C853;
-  --v-color-alerte:    #FF9800;
-  --v-color-danger:    #D62828;
-  --v-color-ok:        #00C853;
-  --v-color-titre:     #0A120A;
-  --v-color-quantite:  #00B4D8;
-  --v-color-personnel: #7C4DFF;
-  --v-color-boutique:  #00B4D8;
-  --v-color-date:      #4A6A4A;
-  --v-color-transfert: #FF9800;
-}
-
-/* ── MODE SOMBRE ── */
-.dark {
-  /* Fonds */
-  --v-bg:        #050C05;
-  --v-bg2:       #0A140A;
-  --v-bg3:       #101C10;
-  --v-surface:   #070E07;
-
-  /* Texte */
-  --v-ink:       #E8F5E8;
-  --v-ink2:      #C8E6C8;
-  --v-muted:     #5A8A5A;
-  --v-faint:     #1A2A1A;
-
-  /* Séparateurs */
-  --v-rule:      rgba(232, 245, 232, 0.07);
-  --v-rule2:     rgba(232, 245, 232, 0.12);
-
-  /* Accent principal */
-  --v-accent:    #00E676;
-  --v-accentbg:  rgba(0, 230, 118, 0.15);
-
-  /* Couleurs sémantiques */
-  --v-green:     #00E676;
-  --v-greenbg:   rgba(0, 230, 118, 0.12);
-  --v-amber:     #FFB300;
-  --v-amberbg:   rgba(255, 179, 0, 0.12);
-  --v-red:       #FF4444;
-  --v-redbg:     rgba(255, 68, 68, 0.12);
-  --v-blue:      #00E5FF;
-  --v-bluebg:    rgba(0, 229, 255, 0.12);
-
-  /* Aliases */
-  --v-primary:       var(--v-accent);
-  --v-primary-light: #33FFAA;
-  --v-danger:        var(--v-red);
-  --v-ok:            var(--v-green);
-  --v-border:        var(--v-rule2);
-  --v-text:          var(--v-ink);
-
-  /* Couleurs sémantiques métier */
-  --v-color-montant:   #00E676;
-  --v-color-alerte:    #FFB300;
-  --v-color-danger:    #FF4444;
-  --v-color-ok:        #00E676;
-  --v-color-titre:     #E8F5E8;
-  --v-color-quantite:  #00E5FF;
-  --v-color-personnel: #B39DDB;
-  --v-color-boutique:  #00E5FF;
-  --v-color-date:      #5A8A5A;
-  --v-color-transfert: #FFB300;
-}
-
-/* ================================================================
-   PALETTE FUSION V3 — tokens --xa-* (mode clair)
-   ================================================================ */
-:root {
-  --xa-primary:        #00C853;
-  --xa-primary-light:  rgba(0, 200, 83, 0.09);
-  --xa-accent:         #00C853;
   --xa-bg:             #FAFAF5;
   --xa-surface:        #FFFFFF;
   --xa-text:           #0A0A08;
   --xa-muted:          #6E6E66;
   --xa-border:         #E8E8DF;
+  --xa-primary:        #00C853;
+  --xa-primary-light:  rgba(0, 200, 83, 0.09);
+  --xa-accent:         #00C853;
   --xa-danger:         #D62828;
 
   --xa-color-montant:   #00C853;
-  --xa-color-alerte:    #FF9800;
-  --xa-color-danger:    #D62828;
   --xa-color-ok:        #00C853;
+  --xa-color-alerte:    #FF9800;
   --xa-color-titre:     #0A0A08;
   --xa-color-quantite:  #2563EB;
   --xa-color-personnel: #7C3AED;
@@ -140,67 +30,104 @@
   --xa-color-date:      #6E6E66;
   --xa-color-transfert: #D97706;
 
-  /* --sp-* → --v-* */
-  --sp-cream:       var(--v-bg);
-  --sp-cream2:      var(--v-bg2);
-  --sp-cream3:      var(--v-bg3);
-  --sp-ink:         var(--v-ink);
-  --sp-ink2:        var(--v-ink2);
-  --sp-muted:       var(--v-muted);
-  --sp-faint:       var(--v-faint);
-  --sp-rule:        var(--v-rule);
-  --sp-rule2:       var(--v-rule2);
-  --sp-sky:         var(--v-blue);
-  --sp-emerald:     var(--v-green);
-  --sp-salmon:      var(--v-red);
-  --sp-gold:        var(--v-amber);
-  --sp-tang:        var(--v-amber);
-  --sp-sky-bg:      var(--v-bluebg);
-  --sp-emerald-bg:  var(--v-greenbg);
-  --sp-salmon-bg:   var(--v-redbg);
-  --sp-gold-bg:     var(--v-amberbg);
+  /* Aliases legacy --sp-* (compatibilité composants) */
+  --sp-cream:       var(--xa-bg);
+  --sp-cream2:      #F0F0EA;
+  --sp-cream3:      #E8E8E0;
+  --sp-ink:         var(--xa-text);
+  --sp-ink2:        #1C1C18;
+  --sp-muted:       var(--xa-muted);
+  --sp-faint:       #B0B0A8;
+  --sp-rule:        rgba(10, 10, 8, 0.08);
+  --sp-rule2:       var(--xa-border);
+  --sp-sky:         #2563EB;
+  --sp-emerald:     var(--xa-primary);
+  --sp-salmon:      var(--xa-danger);
+  --sp-gold:        #FF9800;
+  --sp-tang:        #FF9800;
+  --sp-sky-bg:      rgba(37, 99, 235, 0.10);
+  --sp-emerald-bg:  var(--xa-primary-light);
+  --sp-salmon-bg:   rgba(214, 40, 40, 0.09);
+  --sp-gold-bg:     rgba(255, 152, 0, 0.10);
+
+  /* Aliases legacy --v-* (compatibilité composants) */
+  --v-bg:      var(--xa-bg);
+  --v-bg2:     var(--sp-cream2);
+  --v-surface: var(--xa-surface);
+  --v-ink:     var(--xa-text);
+  --v-ink2:    var(--sp-ink2);
+  --v-muted:   var(--xa-muted);
+  --v-rule:    var(--sp-rule);
+  --v-rule2:   var(--xa-border);
 }
 
-/* ================================================================
-   PALETTE FUSION V3 — tokens --xa-* (mode sombre)
-   ================================================================ */
+/* ── Mode sombre ── */
 .dark {
-  --xa-primary:        #00E676;
-  --xa-primary-light:  rgba(0, 230, 118, 0.15);
-  --xa-accent:         #00E676;
   --xa-bg:             #0A0A08;
   --xa-surface:        #121210;
   --xa-text:           #FAFAF5;
   --xa-muted:          #ABABAA;
   --xa-border:         rgba(250, 250, 245, 0.12);
+  --xa-primary:        #00E676;
+  --xa-primary-light:  rgba(0, 230, 118, 0.15);
+  --xa-accent:         #00E676;
   --xa-danger:         #FF4444;
 
   --xa-color-montant:   #00E676;
-  --xa-color-alerte:    #FFB300;
-  --xa-color-danger:    #FF4444;
   --xa-color-ok:        #00E676;
+  --xa-color-alerte:    #FFB300;
   --xa-color-titre:     #FAFAF5;
   --xa-color-quantite:  #60A5FA;
   --xa-color-personnel: #A78BFA;
   --xa-color-boutique:  #1DDB7B;
   --xa-color-date:      #ABABAA;
   --xa-color-transfert: #FBBF24;
+
+  /* Aliases legacy --sp-* (compatibilité composants) */
+  --sp-cream:       var(--xa-bg);
+  --sp-cream2:      #181816;
+  --sp-cream3:      #202020;
+  --sp-ink:         var(--xa-text);
+  --sp-ink2:        #E8E8E0;
+  --sp-muted:       var(--xa-muted);
+  --sp-faint:       #404040;
+  --sp-rule:        rgba(250, 250, 245, 0.07);
+  --sp-rule2:       var(--xa-border);
+  --sp-sky:         #60A5FA;
+  --sp-emerald:     var(--xa-primary);
+  --sp-salmon:      var(--xa-danger);
+  --sp-gold:        #FFB300;
+  --sp-tang:        #FFB300;
+  --sp-sky-bg:      rgba(96, 165, 250, 0.12);
+  --sp-emerald-bg:  var(--xa-primary-light);
+  --sp-salmon-bg:   rgba(255, 68, 68, 0.12);
+  --sp-gold-bg:     rgba(255, 179, 0, 0.12);
+
+  /* Aliases legacy --v-* (compatibilité composants) */
+  --v-bg:      var(--xa-bg);
+  --v-bg2:     var(--sp-cream2);
+  --v-surface: var(--xa-surface);
+  --v-ink:     var(--xa-text);
+  --v-ink2:    var(--sp-ink2);
+  --v-muted:   var(--xa-muted);
+  --v-rule:    var(--sp-rule);
+  --v-rule2:   var(--xa-border);
 }
 
 /* ================================================================
    BASE STYLES
    ================================================================ */
 body {
-  background-color: var(--v-bg);
-  color: var(--v-ink);
-  font-family: 'DM Sans', sans-serif;
+  background-color: var(--xa-bg);
+  color: var(--xa-text);
+  font-family: 'Familjen Grotesk', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* ================================================================
-   TYPOGRAPHIE VOLTAGE
+   TYPOGRAPHIE
    ================================================================ */
 .font-display {
   font-family: 'Black Han Sans', sans-serif;
