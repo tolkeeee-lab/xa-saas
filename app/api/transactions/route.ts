@@ -12,7 +12,7 @@ import { revalidateUserCache } from '@/lib/revalidate';
  */
 export async function GET(request: NextRequest) {
   const limited = applyRateLimit(request);
-  if (limited) return limited;
+  if (limited !== null) return limited;
 
   const { error: authError } = await getAuthUser();
   if (authError) return authError;
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   const limited = applyRateLimit(request);
-  if (limited) return limited;
+  if (limited !== null) return limited;
 
   const { user, error: authError } = await getAuthUser();
   if (authError) return authError;
@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
     return {
       transaction_id: transaction.id,
       produit_id: ligne.produit_id,
-      nom_produit: '', // will be enriched below if needed
+      nom_produit: '',
       quantite: ligne.quantite,
       prix_vente_unitaire: ligne.prix_unitaire,
       prix_achat_unitaire: produit.prix_achat,
@@ -220,9 +220,7 @@ export async function POST(request: NextRequest) {
     sous_total: l.prix_unitaire * l.quantite,
   }));
 
-  // Invalidate all caches affected by a new transaction:
-  // stock levels, notifications, consolidated stocks, weekly stats, and rapports
-  // (monthly report data). If this is a credit sale, also invalidate dettes cache.
+  // Invalidate all caches affected by a new transaction
   const txCacheTags = ['alertes-stock', 'notifications', 'stocks-consolides', 'weekly-stats', 'rapports'];
   if (mode_paiement === 'credit') txCacheTags.push('dettes');
   revalidateUserCache(user.id, txCacheTags);
@@ -235,4 +233,4 @@ export async function POST(request: NextRequest) {
     remise,
     mode_paiement,
   });
-} 
+}
