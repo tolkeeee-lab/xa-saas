@@ -6,10 +6,6 @@ import { validateBody } from '@/lib/schemas/validate';
 import { transactionsPostSchema } from '@/lib/schemas/transactions';
 import { revalidateUserCache } from '@/lib/revalidate';
 
-/**
- * GET /api/transactions?boutique_id=UUID&date=YYYY-MM-DD
- * Returns validated transactions for a boutique on a given day, with an aggregate summary.
- */
 export async function GET(request: NextRequest) {
   const limited = applyRateLimit(request);
   if (limited !== null) return limited;
@@ -67,13 +63,6 @@ export async function GET(request: NextRequest) {
   });
 }
 
-
-/**
- * POST /api/transactions
- * Creates a transaction with its lines, updates stock, and returns a ticket.
- * prix_achat is fetched server-side only — never returned to client.
- * If mode_paiement === 'credit', a dette is automatically created.
- */
 export async function POST(request: NextRequest) {
   const limited = applyRateLimit(request);
   if (limited !== null) return limited;
@@ -96,7 +85,6 @@ export async function POST(request: NextRequest) {
 
   const supabase = createAdminClient();
 
-  // Fetch prix_achat for all products to compute benefice_total server-side
   const produitIds = lignes.map((l) => l.produit_id);
   const { data: produitsData, error: produitsError } = await supabase
     .from('produits')
@@ -109,7 +97,6 @@ export async function POST(request: NextRequest) {
 
   const produitMap = new Map((produitsData ?? []).map((p) => [p.id, p]));
 
-  // Validate stock and compute benefice
   for (const ligne of lignes) {
     const produit = produitMap.get(ligne.produit_id);
     if (!produit) {
@@ -126,7 +113,6 @@ export async function POST(request: NextRequest) {
     return sum + marge * ligne.quantite;
   }, 0);
 
-  // Insert transaction
   const { data: transaction, error: txError } = await supabase
     .from('transactions')
     .insert({
@@ -147,7 +133,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: txError?.message ?? 'Erreur transaction' }, { status: 500 });
   }
 
-  // Insert transaction lines
   const lignesInsert = lignes.map((ligne) => {
     const produit = produitMap.get(ligne.produit_id)!;
     return {
@@ -161,7 +146,6 @@ export async function POST(request: NextRequest) {
     };
   });
 
-  // Fetch product names for the ticket
   const { data: nomsProduits } = await supabase
     .from('produits')
     .select('id, nom')
@@ -182,7 +166,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: lignesError.message }, { status: 500 });
   }
 
-  // Update stock for each product
   for (const ligne of lignes) {
     const produit = produitMap.get(ligne.produit_id)!;
     await supabase
@@ -191,7 +174,6 @@ export async function POST(request: NextRequest) {
       .eq('id', ligne.produit_id);
   }
 
-  // If mode credit → create a dette automatically (J+30 by default)
   if (mode_paiement === 'credit') {
     const DEFAULT_CREDIT_DAYS = 30;
     const dateEcheance = new Date();
@@ -208,7 +190,6 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // Build ticket (no prix_achat returned)
   const sousTotal = lignes.reduce((s, l) => s + l.prix_unitaire * l.quantite, 0);
   const remise = sousTotal >= 50000 ? Math.round(sousTotal * 0.05) : 0;
 
@@ -220,7 +201,6 @@ export async function POST(request: NextRequest) {
     sous_total: l.prix_unitaire * l.quantite,
   }));
 
-  // Invalidate all caches affected by a new transaction
   const txCacheTags = ['alertes-stock', 'notifications', 'stocks-consolides', 'weekly-stats', 'rapports'];
   if (mode_paiement === 'credit') txCacheTags.push('dettes');
   revalidateUserCache(user.id, txCacheTags);
