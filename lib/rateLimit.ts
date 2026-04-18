@@ -13,8 +13,8 @@ const store = new Map<string, RateLimitEntry>();
 
 // ─── PIN brute-force store ────────────────────────────────────────────────────
 
-/** Maximum PIN attempts before a 15-minute lockout. */
-const PIN_MAX_ATTEMPTS = 5;
+/** Maximum PIN attempts before a 15-minute lockout. Lockout is triggered on the Nth failure. */
+export const PIN_MAX_ATTEMPTS = 5;
 /** Lockout window for failed PIN attempts (milliseconds). */
 export const PIN_WINDOW_MS = 15 * 60 * 1_000;
 
@@ -27,30 +27,26 @@ function pruneExpiredPin(): void {
   }
 }
 
-/**
- * Records a failed PIN attempt for the given key and returns whether the
- * caller should be blocked (true = blocked / too many failures).
- *
- * Key format recommended: `pin:${ip}:${boutique_id}`
- */
-export function recordPinFailure(key: string): boolean {
+// ─── In-memory implementations (single-instance / dev) ───────────────────────
+
+function recordPinFailureInMemory(key: string): { blocked: boolean; retryAfterSec: number } {
   pruneExpiredPin();
   const now = Date.now();
   const entry = pinStore.get(key);
 
   if (!entry || now > entry.resetAt) {
     pinStore.set(key, { count: 1, resetAt: now + PIN_WINDOW_MS });
-    return false;
+    return { blocked: false, retryAfterSec: 0 };
   }
 
   entry.count++;
-  return entry.count > PIN_MAX_ATTEMPTS;
+  if (entry.count >= PIN_MAX_ATTEMPTS) {
+    return { blocked: true, retryAfterSec: Math.ceil((entry.resetAt - now) / 1_000) };
+  }
+  return { blocked: false, retryAfterSec: 0 };
 }
 
-/**
- * Returns true if the key is currently locked out due to too many PIN failures.
- */
-export function isPinLocked(key: string): { locked: boolean; retryAfterSec: number } {
+function isPinLockedInMemory(key: string): { locked: boolean; retryAfterSec: number } {
   pruneExpiredPin();
   const now = Date.now();
   const entry = pinStore.get(key);
@@ -61,11 +57,61 @@ export function isPinLocked(key: string): { locked: boolean; retryAfterSec: numb
   return { locked: false, retryAfterSec: 0 };
 }
 
+function clearPinFailuresInMemory(key: string): void {
+  pinStore.delete(key);
+}
+
+// ─── Async public API (dispatches to distributed backend when enabled) ────────
+
+/**
+ * Records a failed PIN attempt for the given key.
+ * Returns `{ blocked: true, retryAfterSec }` when the caller should be blocked
+ * (i.e. the failure count has reached PIN_MAX_ATTEMPTS within the window).
+ *
+ * Key format: `pin:${ip}:${boutique_id}`
+ */
+export async function recordPinFailure(
+  key: string,
+): Promise<{ blocked: boolean; retryAfterSec: number }> {
+  if (
+    process.env.USE_DISTRIBUTED_RATE_LIMIT === 'true' &&
+    process.env.UPSTASH_REDIS_REST_URL
+  ) {
+    const { recordPinFailureDistributed } = await import('./rateLimitDistributed');
+    return recordPinFailureDistributed(key);
+  }
+  return recordPinFailureInMemory(key);
+}
+
+/**
+ * Returns `{ locked: true, retryAfterSec }` if the key is currently locked out
+ * due to too many PIN failures, `{ locked: false, retryAfterSec: 0 }` otherwise.
+ */
+export async function isPinLocked(
+  key: string,
+): Promise<{ locked: boolean; retryAfterSec: number }> {
+  if (
+    process.env.USE_DISTRIBUTED_RATE_LIMIT === 'true' &&
+    process.env.UPSTASH_REDIS_REST_URL
+  ) {
+    const { isPinLockedDistributed } = await import('./rateLimitDistributed');
+    return isPinLockedDistributed(key);
+  }
+  return isPinLockedInMemory(key);
+}
+
 /**
  * Clears the brute-force counter for a key after a successful PIN verification.
  */
-export function clearPinFailures(key: string): void {
-  pinStore.delete(key);
+export async function clearPinFailures(key: string): Promise<void> {
+  if (
+    process.env.USE_DISTRIBUTED_RATE_LIMIT === 'true' &&
+    process.env.UPSTASH_REDIS_REST_URL
+  ) {
+    const { clearPinFailuresDistributed } = await import('./rateLimitDistributed');
+    return clearPinFailuresDistributed(key);
+  }
+  clearPinFailuresInMemory(key);
 }
 
 /** Purge entries that have already passed their reset time to prevent unbounded growth. */
