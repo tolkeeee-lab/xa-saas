@@ -124,6 +124,51 @@ export async function POST(request: NextRequest) {
 
 ---
 
+## Idle timeout + lock screen caisse
+
+La page `/dashboard/caisse` inclut un mécanisme de verrouillage automatique pour sécuriser les
+terminaux laissés sans surveillance.
+
+### Comportement
+
+| Événement | Résultat |
+|---|---|
+| Inactivité ≥ 10 min | Verrouillage automatique (raison : *inactivité*) |
+| Bouton « 🔒 Verrouiller » | Verrouillage immédiat (raison : *manuel*) |
+| Token de session expiré | Verrouillage automatique à la prochaine action (raison : *expiré*) |
+
+### Déverrouillage
+
+L'écran de verrouillage demande le **PIN caisse** de la boutique active.  
+Une vérification via `POST /api/caisse/verify-pin` est effectuée ; en cas de succès :
+
+1. Un nouveau token de session caisse (8 h) est émis et stocké en mémoire.
+2. Le terminal reprend immédiatement là où il s'était arrêté.
+3. Le timer d'inactivité est réinitialisé.
+
+### Transmission du token aux API
+
+Après déverrouillage, le token caisse est envoyé dans le header `x-caisse-token` sur les appels
+`POST /api/transactions`.  L'endpoint existant ne valide pas encore ce header (compatibilité
+rétrograde) — la validation serveur sera activée dans une prochaine itération.
+
+### Limites connues
+
+- Le token caisse n'est pas persisté (sessionStorage / cookie) : un rechargement de page repart
+  sans token jusqu'au prochain déverrouillage.
+- La session Supabase (auth patron) reste active indépendamment du verrouillage caisse.
+- Les routes API existantes (`/api/transactions`, etc.) n'imposent pas encore le token caisse côté
+  serveur.
+
+### Hooks et composants
+
+| Fichier | Description |
+|---|---|
+| `hooks/useCaisseIdle.ts` | Détection d'inactivité ; `lock()`, `unlock()`, `isLocked` |
+| `features/caisse/CaisseLockScreen.tsx` | Overlay de verrouillage avec saisie PIN |
+
+---
+
 ## Mode offline (PWA)
 
 Le mode offline repose sur **IndexedDB** et le Background Sync du Service Worker :
