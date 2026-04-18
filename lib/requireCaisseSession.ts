@@ -28,6 +28,9 @@ const ERROR_MESSAGES: Record<CaisseSessionError, string> = {
   MISSING: 'Session caisse manquante',
   MALFORMED: 'Session caisse invalide',
   EXPIRED: 'Session caisse expirée — veuillez vous reconnecter',
+  // Surface REVOKED with the same generic message as EXPIRED so that callers
+  // cannot distinguish a naturally expired token from an explicitly revoked one.
+  REVOKED: 'Session caisse expirée — veuillez vous reconnecter',
   INVALID_SIGNATURE: 'Session caisse invalide',
   WRONG_BOUTIQUE: 'Session caisse invalide pour cette boutique',
 };
@@ -36,6 +39,7 @@ const ERROR_STATUS: Record<CaisseSessionError, number> = {
   MISSING: 401,
   MALFORMED: 401,
   EXPIRED: 401,
+  REVOKED: 401,
   INVALID_SIGNATURE: 401,
   WRONG_BOUTIQUE: 403,
 };

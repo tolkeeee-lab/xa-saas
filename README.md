@@ -99,7 +99,7 @@ x-caisse-token: <token>
 
 ### Durée de vie
 
-8 heures (une journée de caisse type).  Le secret de signature est `CAISSE_SESSION_SECRET`.
+8 heures (durée d'un service de caisse type).  Le secret de signature est `CAISSE_SESSION_SECRET`.
 Faire tourner cette valeur invalide immédiatement toutes les sessions actives.
 
 ### Déconnexion

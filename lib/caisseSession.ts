@@ -44,6 +44,7 @@ export type CaisseSessionError =
   | 'MISSING'
   | 'MALFORMED'
   | 'EXPIRED'
+  | 'REVOKED'
   | 'INVALID_SIGNATURE'
   | 'WRONG_BOUTIQUE';
 
@@ -180,7 +181,7 @@ export function validateCaisseSession(
   }
 
   if (denylist.has(signature)) {
-    return { valid: false, error: 'EXPIRED' };
+    return { valid: false, error: 'REVOKED' };
   }
 
   if (expectedBoutiqueId && payload.boutique_id !== expectedBoutiqueId) {
