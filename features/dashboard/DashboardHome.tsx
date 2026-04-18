@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Chart from 'chart.js/auto';
 import { formatFCFA } from '@/lib/format';
 import type { DayStat } from '@/lib/supabase/getWeeklyStats';
 import type { AlertesStockData } from '@/lib/supabase/getAlertesStock';
@@ -33,9 +34,11 @@ export type DashboardHomeProps = {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const CATEGORY_COLORS = ['#3fa7d6', '#59cd90', '#f38a7c', '#fac05e', '#f79d84'];
+const BOUTIQUE_COLORS = ['#3fa7d6', '#59cd90', '#f79d84', '#fac05e'];
+const CATEGORY_COLORS = ['#3fa7d6', '#f79d84', '#59cd90', '#fac05e', '#f38a7c'];
 const MAX_RECENT_TRANSACTIONS = 6;
-const MAX_STOCK_ALERTS_RIGHT = 6;
+const MAX_STOCK_ALERTS = 4;
+
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -52,56 +55,10 @@ function formatDayLabel(date: string): string {
   return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
 }
 
-/** Compute SVG area + line paths from a list of numeric values. */
-function buildAreaPaths(
-  values: number[],
-  w: number,
-  h: number,
-  padX: number = 4,
-  padY: number = 8,
-): { line: string; area: string } {
-  if (values.length < 2) return { line: '', area: '' };
-  const max = Math.max(...values, 1);
-  const pts = values.map((v, i) => ({
-    x: padX + (i / (values.length - 1)) * (w - 2 * padX),
-    y: padY + (1 - v / max) * (h - 2 * padY),
-  }));
-
-  let line = `M ${pts[0].x} ${pts[0].y}`;
-  for (let i = 1; i < pts.length; i++) {
-    const prev = pts[i - 1];
-    const cur = pts[i];
-    const cx1 = prev.x + (cur.x - prev.x) / 3;
-    const cx2 = cur.x - (cur.x - prev.x) / 3;
-    line += ` C ${cx1} ${prev.y} ${cx2} ${cur.y} ${cur.x} ${cur.y}`;
-  }
-
-  const area =
-    `${line} L ${pts[pts.length - 1].x} ${h} L ${pts[0].x} ${h} Z`;
-  return { line, area };
-}
-
-/** Build an SVG donut arc path for one segment. */
-function buildArcPath(
-  cx: number,
-  cy: number,
-  r: number,
-  innerR: number,
-  startAngle: number,
-  endAngle: number,
-): string {
-  const cos = Math.cos;
-  const sin = Math.sin;
-  const x1 = cx + r * cos(startAngle);
-  const y1 = cy + r * sin(startAngle);
-  const x2 = cx + r * cos(endAngle);
-  const y2 = cy + r * sin(endAngle);
-  const ix1 = cx + innerR * cos(endAngle);
-  const iy1 = cy + innerR * sin(endAngle);
-  const ix2 = cx + innerR * cos(startAngle);
-  const iy2 = cy + innerR * sin(startAngle);
-  const large = endAngle - startAngle > Math.PI ? 1 : 0;
-  return `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} L ${ix1} ${iy1} A ${innerR} ${innerR} 0 ${large} 0 ${ix2} ${iy2} Z`;
+function formatShort(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1000) return `${Math.round(n / 1000)}k`;
+  return String(Math.round(n));
 }
 
 // ─── Card style helper ────────────────────────────────────────────────────────
@@ -192,6 +149,9 @@ function LeftPanel({
   weeklyStats: DayStat[];
   alertesStock: AlertesStockData;
 }) {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+
   const boutiqueCA = boutiques
     .map((b) => ({
       boutique: b,
@@ -200,18 +160,11 @@ function LeftPanel({
     .sort((a, b) => b.ca - a.ca);
   const maxCA = Math.max(...boutiqueCA.map((x) => x.ca), 1);
   const top4Boutiques = boutiqueCA.slice(0, 4);
-  const topAlerts = alertesStock.alertes.slice(0, 4);
-
-  const formatShort = (n: number) =>
-    n >= 1_000_000
-      ? `${(n / 1_000_000).toFixed(1)}M`
-      : n >= 1000
-      ? `${Math.round(n / 1000)}k`
-      : String(Math.round(n));
+  const topAlerts = alertesStock.alertes.slice(0, MAX_STOCK_ALERTS);
 
   return (
-    <div style={{
-      width: 360,
+    <aside style={{
+      width: 380,
       minHeight: '100vh',
       background: 'var(--sp-cream2)',
       borderRight: '1px solid var(--sp-rule2)',
@@ -224,20 +177,48 @@ function LeftPanel({
       height: '100vh',
       overflowY: 'auto',
     }}>
-      {/* Hero KPI */}
+      {/* Eyebrow */}
       <div style={{ animation: 'riseIn 0.5s cubic-bezier(.22,1,.36,1) 0ms both' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <MutedLabel label={dateStr} />
+          <span style={{
+            fontSize: 10.5,
+            letterSpacing: '.1em',
+            color: 'var(--sp-emerald)',
+            textTransform: 'uppercase',
+            fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--sp-emerald)', display: 'inline-block' }} />
+            Temps réel
+          </span>
+        </div>
+      </div>
+
+      {/* Hero CA */}
+      <div style={{ animation: 'riseIn 0.5s cubic-bezier(.22,1,.36,1) 40ms both' }}>
         <MutedLabel label="CA — 7 derniers jours" />
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, marginTop: 6 }}>
           <span style={{
             fontFamily: "'Playfair Display', serif",
-            fontSize: 58,
+            fontSize: 60,
             fontWeight: 900,
             color: 'var(--sp-ink)',
             lineHeight: 1,
           }}>
-            {formatShort(totalCA)}
+            {totalCA >= 1000 ? (totalCA / 1000).toFixed(1) : String(totalCA)}
           </span>
-          <span style={{ fontSize: 13, color: 'var(--sp-muted)', marginBottom: 8 }}>FCFA</span>
+          <span style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 22,
+            color: 'var(--sp-muted)',
+            marginBottom: 8,
+          }}>
+            k F
+          </span>
         </div>
         <div style={{ marginTop: 6 }}>
           <EvoBadge delta={getDelta('ca')} />
@@ -284,7 +265,7 @@ function LeftPanel({
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
                 <span style={{
                   fontFamily: "'DM Mono', monospace",
-                  fontSize: 21,
+                  fontSize: 22,
                   fontWeight: 500,
                   color: 'var(--sp-ink)',
                   lineHeight: 1,
@@ -300,30 +281,32 @@ function LeftPanel({
 
       <div style={{ height: 1, background: 'var(--sp-rule2)' }} />
 
-      {/* Boutiques ranking */}
+      {/* Classement boutiques */}
       <div style={{ animation: 'riseIn 0.5s cubic-bezier(.22,1,.36,1) 160ms both' }}>
         <SectionTitle label="Classement boutiques" />
         {top4Boutiques.length === 0 ? (
           <p style={{ color: 'var(--sp-muted)', fontSize: 13 }}>Aucune boutique</p>
         ) : (
-          <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+          <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             {top4Boutiques.map((item, i) => {
               const pct = Math.round((item.ca / maxCA) * 100);
+              const color = BOUTIQUE_COLORS[i % BOUTIQUE_COLORS.length];
               return (
                 <li key={item.boutique.id}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontSize: 12.5, color: 'var(--sp-ink)', fontWeight: 500 }}>
-                      <span style={{ color: 'var(--sp-muted)', marginRight: 6, fontFamily: "'DM Mono', monospace" }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, alignItems: 'center' }}>
+                    <span style={{ fontSize: 12.5, color: 'var(--sp-ink)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontFamily: "'DM Mono', monospace", color: 'var(--sp-faint)', fontSize: 12 }}>
                         {String(i + 1).padStart(2, '0')}
                       </span>
+                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, display: 'inline-block', flexShrink: 0 }} />
                       {item.boutique.nom}
                     </span>
                     <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: 'var(--sp-ink2)' }}>
                       {formatShort(item.ca)}
                     </span>
                   </div>
-                  <div style={{ height: 4, background: 'var(--sp-rule2)', borderRadius: 2, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${pct}%`, background: 'var(--sp-sky)', borderRadius: 2 }} />
+                  <div style={{ height: 3, background: 'var(--sp-rule2)', borderRadius: 2, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 2 }} />
                   </div>
                 </li>
               );
@@ -334,9 +317,9 @@ function LeftPanel({
 
       <div style={{ height: 1, background: 'var(--sp-rule2)' }} />
 
-      {/* Stock alerts */}
+      {/* Alertes actives */}
       <div style={{ animation: 'riseIn 0.5s cubic-bezier(.22,1,.36,1) 240ms both' }}>
-        <SectionTitle label="Alertes stocks" />
+        <SectionTitle label="Alertes actives" />
         {topAlerts.length === 0 ? (
           <p style={{ color: 'var(--sp-muted)', fontSize: 13 }}>Aucune alerte</p>
         ) : (
@@ -347,21 +330,27 @@ function LeftPanel({
                 <li key={alerte.id} style={{
                   borderLeft: `3px solid ${isCritical ? 'var(--sp-salmon)' : 'var(--sp-gold)'}`,
                   paddingLeft: 10,
+                  background: isCritical ? 'var(--sp-salmon-bg)' : 'var(--sp-gold-bg)',
+                  borderRadius: '0 6px 6px 0',
+                  padding: '6px 8px 6px 10px',
                 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: 12.5, color: 'var(--sp-ink)', fontWeight: 500 }}>
-                      {alerte.nom}
-                    </span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 6 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: 12.5, color: 'var(--sp-ink)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {alerte.nom}
+                      </p>
+                      <p style={{ fontSize: 11, color: 'var(--sp-muted)', marginTop: 2 }}>{alerte.boutique_nom}</p>
+                    </div>
                     <span style={{
                       fontFamily: "'DM Mono', monospace",
                       fontSize: 11,
                       color: isCritical ? 'var(--sp-salmon)' : 'var(--sp-gold)',
-                      fontWeight: 600,
+                      fontWeight: 700,
+                      flexShrink: 0,
                     }}>
                       {alerte.stock_actuel}/{alerte.seuil_alerte}
                     </span>
                   </div>
-                  <span style={{ fontSize: 11, color: 'var(--sp-muted)' }}>{alerte.boutique_nom}</span>
                 </li>
               );
             })}
@@ -383,57 +372,109 @@ function LeftPanel({
           Réapprovisionner →
         </Link>
       </div>
-    </div>
+    </aside>
   );
 }
 
-// ─── Revenue Area Chart ───────────────────────────────────────────────────────
+// ─── Multi-line Revenue Chart (Chart.js) ─────────────────────────────────────
 
 type RevPeriod = '7J' | '30J' | 'MOIS' | 'ANNÉE';
 
-function RevenueChart({
+function RevenueMultiLineChart({
   weeklyStats,
   moisStats,
+  boutiques,
 }: {
   weeklyStats: DayStat[];
   moisStats: MoisStat[];
+  boutiques: Boutique[];
 }) {
-  const [period, setPeriod] = useState<RevPeriod>('30J');
+  const [period, setPeriod] = useState<RevPeriod>('7J');
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const chartRef = useRef<Chart | null>(null);
 
-  const chartData: Array<{ label: string; value: number }> = (() => {
-    if (period === '7J') {
-      return getDaysBack(7).map((date) => ({
-        label: formatDayLabel(date),
-        value: weeklyStats.filter((s) => s.date === date).reduce((sum, s) => sum + s.ca, 0),
-      }));
-    }
-    if (period === '30J') {
-      return getDaysBack(30).map((date) => ({
-        label: formatDayLabel(date),
-        value: weeklyStats.filter((s) => s.date === date).reduce((sum, s) => sum + s.ca, 0),
-      }));
-    }
-    if (period === 'MOIS') {
-      return moisStats.map((m) => ({ label: m.mois, value: m.ca }));
-    }
-    return moisStats.map((m) => ({ label: m.mois, value: m.ca }));
-  })();
+  const top4 = boutiques.slice(0, 4);
+  const totalCA = top4.reduce((sum, b) =>
+    sum + weeklyStats.filter((s) => s.boutique_id === b.id).reduce((s, st) => s + st.ca, 0), 0
+  );
 
-  const values = chartData.map((d) => d.value);
-  const W = 500;
-  const H = 180;
-  const { line, area } = buildAreaPaths(values, W, H, 0, 8);
+  useEffect(() => {
+    if (!canvasRef.current) return;
 
-  const maxVal = Math.max(...values, 1);
-  const yTicks = [0, Math.round(maxVal / 2), maxVal];
-  const step = period === '30J' ? 5 : 1;
+    const days = period === '7J' ? getDaysBack(7) : getDaysBack(30);
+    const labels = days.map(formatDayLabel);
+
+    const datasets = top4.map((b, i) => ({
+      label: b.nom,
+      data: days.map((date) =>
+        weeklyStats.filter((s) => s.boutique_id === b.id && s.date === date).reduce((sum, s) => sum + s.ca, 0)
+      ),
+      borderColor: BOUTIQUE_COLORS[i % BOUTIQUE_COLORS.length],
+      borderWidth: 2.5,
+      tension: 0.42,
+      pointRadius: 0,
+      fill: false,
+    }));
+
+    if (chartRef.current) {
+      chartRef.current.destroy();
+    }
+
+    chartRef.current = new Chart(canvasRef.current, {
+      type: 'line',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1C1A16',
+            titleColor: '#C4BFB4',
+            bodyColor: '#F7F3EC',
+            padding: 10,
+            cornerRadius: 6,
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#8C8679', font: { family: 'DM Mono', size: 10 }, maxRotation: 0 },
+          },
+          y: {
+            grid: { color: 'rgba(28,26,22,.06)' },
+            ticks: { color: '#8C8679', font: { family: 'DM Mono', size: 10 } },
+          },
+        },
+      },
+    });
+
+    return () => {
+      chartRef.current?.destroy();
+      chartRef.current = null;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period, weeklyStats, boutiques]);
 
   return (
-    <div style={{ ...cardStyle(0), gridColumn: 'span 2' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: 8 }}>
-        <SectionTitle label="Évolution des revenus" />
+    <div style={cardStyle(0)}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: 8 }}>
+        <div>
+          <p style={{ fontSize: 10.5, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--sp-muted)', fontFamily: "'DM Sans', sans-serif" }}>
+            Revenus multi-boutiques
+          </p>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginTop: 4 }}>
+            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 700, color: 'var(--sp-ink)', lineHeight: 1 }}>
+              {formatShort(totalCA)}
+            </span>
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, color: 'var(--sp-muted)', marginBottom: 4 }}>
+              FCFA
+            </span>
+          </div>
+        </div>
         <div style={{ display: 'flex', gap: 4 }}>
-          {(['7J', '30J', 'MOIS', 'ANNÉE'] as RevPeriod[]).map((p) => (
+          {(['7J', '30J'] as RevPeriod[]).map((p) => (
             <button
               key={p}
               type="button"
@@ -456,112 +497,508 @@ function RevenueChart({
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 12 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', textAlign: 'right', paddingBottom: 20, minWidth: 40 }}>
-          {[...yTicks].reverse().map((v) => (
-            <span key={v} style={{ fontSize: 11, color: 'var(--sp-muted)', fontFamily: "'DM Mono', monospace" }}>
-              {v >= 1000 ? `${Math.round(v / 1000)}k` : String(v)}
-            </span>
-          ))}
+      {/* Legend */}
+      <div style={{ display: 'flex', gap: 16, marginBottom: 12, flexWrap: 'wrap' }}>
+        {top4.map((b, i) => (
+          <span key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--sp-ink2)' }}>
+            <span style={{ width: 16, height: 3, borderRadius: 2, background: BOUTIQUE_COLORS[i % BOUTIQUE_COLORS.length], display: 'inline-block' }} />
+            {b.nom}
+          </span>
+        ))}
+      </div>
+
+      <div style={{ height: 220, position: 'relative' }}>
+        <canvas ref={canvasRef} />
+      </div>
+    </div>
+  );
+}
+
+// ─── Hourly Bar Chart (Chart.js) ──────────────────────────────────────────────
+
+function HourlyBarChart({ hourlyStats }: { hourlyStats: number[] }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const chartRef = useRef<Chart | null>(null);
+
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+  const values = hours.map((h) => hourlyStats[h] ?? 0);
+
+  const sortedForPeak = [...values.map((v, i) => ({ v, i }))].sort((a, b) => b.v - a.v);
+  const peakIdx = sortedForPeak[0]?.i ?? 0;
+  const peakLabel = `${String(peakIdx).padStart(2, '0')}:00`;
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    if (chartRef.current) {
+      chartRef.current.destroy();
+    }
+
+    const chartHours = Array.from({ length: 24 }, (_, i) => i);
+    const chartValues = chartHours.map((h) => hourlyStats[h] ?? 0);
+    const sorted = [...chartValues.map((v, i) => ({ v, i }))].sort((a, b) => b.v - a.v);
+    const top2Indices = new Set(sorted.slice(0, 2).map((x) => x.i));
+
+    chartRef.current = new Chart(canvasRef.current, {
+      type: 'bar',
+      data: {
+        labels: chartHours.map((h) => `${String(h).padStart(2, '0')}h`),
+        datasets: [{
+          data: chartValues,
+          backgroundColor: chartValues.map((_, i) =>
+            top2Indices.has(i) ? 'rgba(63,167,214,.85)' : 'rgba(63,167,214,.18)'
+          ),
+          borderRadius: 4,
+          borderSkipped: false,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1C1A16', bodyColor: '#F7F3EC', padding: 8 } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#8C8679', font: { family: 'DM Mono', size: 9 } } },
+          y: { display: false },
+        },
+      },
+    });
+
+    return () => {
+      chartRef.current?.destroy();
+      chartRef.current = null;
+    };
+  }, [hourlyStats]);
+
+  return (
+    <div style={cardStyle(80)}>
+      <SectionTitle label="Heures de pointe" />
+      <div style={{ height: 130, position: 'relative' }}>
+        <canvas ref={canvasRef} />
+      </div>
+      {values[peakIdx] > 0 && (
+        <div style={{ marginTop: 10 }}>
+          <span style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: 11,
+            fontWeight: 600,
+            background: 'var(--sp-sky-bg)',
+            color: 'var(--sp-sky)',
+            borderRadius: 999,
+            padding: '3px 10px',
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--sp-sky)', display: 'inline-block' }} />
+            PIC {peakLabel}
+          </span>
         </div>
+      )}
+    </div>
+  );
+}
 
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: H }} preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="revGradPremium" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgba(63,167,214,0.15)" />
-                <stop offset="100%" stopColor="rgba(63,167,214,0)" />
-              </linearGradient>
-            </defs>
-            {area && <path d={area} fill="url(#revGradPremium)" />}
-            {line && (
-              <path d={line} fill="none" stroke="#3fa7d6" strokeWidth="2.5" strokeLinecap="round" />
-            )}
-          </svg>
+// ─── Category Donut (Chart.js) ────────────────────────────────────────────────
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-            {chartData.map((d, i) => (
-              <span
-                key={i}
-                style={{
-                  fontSize: 10,
-                  color: 'var(--sp-muted)',
-                  display: i % step === 0 ? 'block' : 'none',
-                  fontFamily: "'DM Mono', monospace",
-                }}
-              >
-                {d.label}
+function CategoryDonut({ salesByCategory }: { salesByCategory: CategoryStat[] }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const chartRef = useRef<Chart | null>(null);
+  const top5 = salesByCategory.slice(0, 5);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    if (chartRef.current) {
+      chartRef.current.destroy();
+    }
+
+    chartRef.current = new Chart(canvasRef.current, {
+      type: 'doughnut',
+      data: {
+        labels: top5.map((c) => c.categorie),
+        datasets: [{
+          data: top5.map((c) => c.ca_total),
+          backgroundColor: CATEGORY_COLORS,
+          borderWidth: 0,
+        }],
+      },
+      options: {
+        responsive: false,
+        cutout: '70%',
+        plugins: {
+          legend: { display: false },
+          tooltip: { backgroundColor: '#1C1A16', bodyColor: '#F7F3EC', padding: 8 },
+        },
+      },
+    });
+
+    return () => {
+      chartRef.current?.destroy();
+      chartRef.current = null;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [salesByCategory]);
+
+  return (
+    <div style={cardStyle(160)}>
+      <SectionTitle label="Catégories" />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <canvas ref={canvasRef} width={96} height={96} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {top5.map((cat, i) => (
+            <div key={cat.categorie} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 0 }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: CATEGORY_COLORS[i % CATEGORY_COLORS.length], flexShrink: 0, display: 'inline-block' }} />
+                <span style={{ fontSize: 11.5, color: 'var(--sp-ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {cat.categorie}
+                </span>
+              </div>
+              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--sp-ink2)', flexShrink: 0, marginLeft: 8 }}>
+                {formatShort(cat.ca_total)}
               </span>
-            ))}
-          </div>
+            </div>
+          ))}
+          {top5.length === 0 && (
+            <p style={{ color: 'var(--sp-muted)', fontSize: 12 }}>Aucune donnée</p>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-// ─── Category Donut ───────────────────────────────────────────────────────────
+// ─── Heatmap fréquentation (pure divs) ───────────────────────────────────────
 
-function CategoryDonut({ salesByCategory }: { salesByCategory: CategoryStat[] }) {
+function HeatmapFrequentation({ hourlyStats }: { hourlyStats: number[] }) {
+  const OPACITIES = [0.1, 0.24, 0.42, 0.65, 1];
+  // Build 4×16 grid (4 weeks × 6h blocks approx)
+  const cells: number[] = [];
+  for (let row = 0; row < 16; row++) {
+    for (let col = 0; col < 4; col++) {
+      const hour = (row + col * 6) % 24;
+      cells.push(hourlyStats[hour] ?? 0);
+    }
+  }
+  const maxVal = Math.max(...cells, 1);
+
+  function opacityIndex(v: number): number {
+    const ratio = v / maxVal;
+    if (ratio < 0.2) return 0;
+    if (ratio < 0.4) return 1;
+    if (ratio < 0.6) return 2;
+    if (ratio < 0.8) return 3;
+    return 4;
+  }
+
+  return (
+    <div style={cardStyle(240)}>
+      <SectionTitle label="Heatmap fréquentation" />
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: 3,
+      }}>
+        {cells.map((v, i) => (
+          <div
+            key={i}
+            title={`${v} ventes`}
+            style={{
+              height: 16,
+              borderRadius: 2,
+              background: `rgba(63,167,214,${OPACITIES[opacityIndex(v)]})`,
+            }}
+          />
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: 4, marginTop: 10, alignItems: 'center' }}>
+        <span style={{ fontSize: 10, color: 'var(--sp-muted)' }}>Faible</span>
+        {OPACITIES.map((op, i) => (
+          <span key={i} style={{ width: 12, height: 12, borderRadius: 2, background: `rgba(63,167,214,${op})`, display: 'inline-block' }} />
+        ))}
+        <span style={{ fontSize: 10, color: 'var(--sp-muted)' }}>Élevé</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Objectifs du mois ────────────────────────────────────────────────────────
+
+function ObjectifsMois({ weeklyStats }: { weeklyStats: DayStat[] }) {
+  const now = new Date();
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+  const caMonth = weeklyStats
+    .filter((s) => s.date >= firstDay && s.date <= lastDay)
+    .reduce((sum, s) => sum + s.ca, 0);
+
+  const objectif = 5_000_000;
+  const pct = Math.min(Math.round((caMonth / objectif) * 100), 100);
+
+  return (
+    <div style={cardStyle(0)}>
+      <SectionTitle label="Objectifs du mois" />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <span style={{ fontSize: 12, color: 'var(--sp-muted)' }}>CA mensuel</span>
+        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: 'var(--sp-ink)', fontWeight: 600 }}>
+          {formatShort(caMonth)} / {formatShort(objectif)}
+        </span>
+      </div>
+      <div style={{ height: 8, background: 'var(--sp-rule2)', borderRadius: 4, overflow: 'hidden', marginBottom: 6 }}>
+        <div style={{
+          height: '100%',
+          width: `${pct}%`,
+          background: pct >= 80 ? 'var(--sp-emerald)' : pct >= 50 ? 'var(--sp-sky)' : 'var(--sp-gold)',
+          borderRadius: 4,
+          transition: 'width 0.6s ease',
+        }} />
+      </div>
+      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--sp-muted)' }}>
+        {pct}% atteint
+      </span>
+    </div>
+  );
+}
+
+// ─── Top Produits ─────────────────────────────────────────────────────────────
+
+function TopProduits({ salesByCategory }: { salesByCategory: CategoryStat[] }) {
   const top5 = salesByCategory.slice(0, 5);
-  const total = top5.reduce((s, c) => s + c.ca_total, 0);
-  const CX = 70;
-  const CY = 70;
-  const R = 55;
-  const INNER = 35;
-
-  let angle = -Math.PI / 2;
-  const arcs = top5.map((cat, i) => {
-    const sweep = total > 0 ? (cat.ca_total / total) * 2 * Math.PI : 0;
-    const startAngle = angle;
-    const endAngle = angle + sweep;
-    angle = endAngle;
-    return {
-      ...cat,
-      color: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
-      path: sweep > 0.01 ? buildArcPath(CX, CY, R, INNER, startAngle, endAngle) : '',
-    };
-  });
+  const maxQty = Math.max(...top5.map((c) => c.quantite_totale), 1);
 
   return (
     <div style={cardStyle(80)}>
-      <SectionTitle label="Ventes par catégorie" />
-
+      <SectionTitle label="Top catégories ventes" />
       {top5.length === 0 ? (
-        <p style={{ color: 'var(--sp-muted)', fontSize: 13, textAlign: 'center', padding: '2rem 0' }}>Aucune donnée</p>
+        <p style={{ color: 'var(--sp-muted)', fontSize: 13 }}>Aucune donnée</p>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-          <svg width={140} height={140} viewBox="0 0 140 140">
-            {arcs.map((arc) =>
-              arc.path ? (
-                <path key={arc.categorie} d={arc.path} fill={arc.color} />
-              ) : null,
-            )}
-            <text x="70" y="66" textAnchor="middle" style={{ fontSize: 11, fontWeight: 700, fill: 'var(--sp-ink)', fontFamily: 'DM Mono, monospace' }}>
-              {total >= 1000 ? `${Math.round(total / 1000)}k` : String(total)}
-            </text>
-            <text x="70" y="78" textAnchor="middle" style={{ fontSize: 8, fill: 'var(--sp-muted)' }}>
-              FCFA
-            </text>
-          </svg>
-
-          <div style={{ width: '100%' }}>
-            {arcs.map((arc) => (
-              <div key={arc.categorie} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: arc.color, flexShrink: 0, display: 'inline-block' }} />
-                  <span style={{ fontSize: 12, color: 'var(--sp-ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {arc.categorie}
+        <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+          {top5.map((cat, i) => {
+            const pct = Math.round((cat.quantite_totale / maxQty) * 100);
+            return (
+              <li key={cat.categorie}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 12, color: 'var(--sp-ink)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontFamily: "'DM Mono', monospace", color: 'var(--sp-faint)', fontSize: 11 }}>
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    {cat.categorie}
+                  </span>
+                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--sp-ink2)' }}>
+                    {cat.quantite_totale} u
                   </span>
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--sp-ink2)', marginLeft: 8, fontFamily: "'DM Mono', monospace", flexShrink: 0 }}>
-                  {formatFCFA(arc.ca_total)}
+                <div style={{ height: 3, background: 'var(--sp-rule2)', borderRadius: 2, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${pct}%`, background: CATEGORY_COLORS[i % CATEGORY_COLORS.length], borderRadius: 2 }} />
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+// ─── Personnel (boutiques avec badges) ───────────────────────────────────────
+
+function PersonnelCard({ boutiques, weeklyStats }: { boutiques: Boutique[]; weeklyStats: DayStat[] }) {
+  const boutiqueCA = boutiques.map((b) => ({
+    boutique: b,
+    ca: weeklyStats.filter((s) => s.boutique_id === b.id).reduce((sum, s) => sum + s.ca, 0),
+    tx: weeklyStats.filter((s) => s.boutique_id === b.id).reduce((sum, s) => sum + s.transactions, 0),
+  }));
+
+  return (
+    <div style={cardStyle(160)}>
+      <SectionTitle label="Personnel / Boutiques" />
+      {boutiques.length === 0 ? (
+        <p style={{ color: 'var(--sp-muted)', fontSize: 13 }}>Aucune boutique</p>
+      ) : (
+        <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+          {boutiqueCA.map((item, i) => (
+            <li key={item.boutique.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  background: BOUTIQUE_COLORS[i % BOUTIQUE_COLORS.length],
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: '#fff',
+                  fontFamily: "'DM Mono', monospace",
+                  flexShrink: 0,
+                }}>
+                  {item.boutique.nom.charAt(0).toUpperCase()}
                 </span>
+                <div>
+                  <p style={{ fontSize: 12.5, color: 'var(--sp-ink)', fontWeight: 500 }}>{item.boutique.nom}</p>
+                  <p style={{ fontSize: 10.5, color: 'var(--sp-muted)' }}>{item.tx} tx • {formatShort(item.ca)} F</p>
+                </div>
               </div>
-            ))}
+              <span style={{
+                fontSize: 10,
+                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: 999,
+                background: item.ca > 0 ? 'var(--sp-emerald-bg)' : 'var(--sp-rule)',
+                color: item.ca > 0 ? '#2d9e61' : 'var(--sp-muted)',
+                fontFamily: "'DM Mono', monospace",
+              }}>
+                {item.ca > 0 ? 'Actif' : 'Inactif'}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+// ─── Score santé boutiques ───────────────────────────────────────────────────
+
+function ScoreSante({
+  boutiques,
+  weeklyStats,
+  alertesStock,
+}: {
+  boutiques: Boutique[];
+  weeklyStats: DayStat[];
+  alertesStock: AlertesStockData;
+}) {
+  const totalBoutiques = boutiques.length;
+  const boutiqueActives = boutiques.filter((b) =>
+    weeklyStats.some((s) => s.boutique_id === b.id && s.ca > 0)
+  ).length;
+  const alertesCount = alertesStock.nb_ruptures + alertesStock.nb_bas;
+  const score = totalBoutiques === 0
+    ? 0
+    : Math.max(0, Math.round(
+        (boutiqueActives / Math.max(totalBoutiques, 1)) * 70
+        - alertesCount * 5
+        + 30
+      ));
+  const clamped = Math.min(score, 100);
+
+  const scoreColor = clamped >= 75 ? 'var(--sp-emerald)' : clamped >= 50 ? 'var(--sp-gold)' : 'var(--sp-salmon)';
+
+  return (
+    <div style={cardStyle(0)}>
+      <SectionTitle label="Score santé boutiques" />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ position: 'relative', width: 80, height: 80, flexShrink: 0 }}>
+          <svg width={80} height={80} viewBox="0 0 80 80">
+            <circle cx={40} cy={40} r={32} fill="none" stroke="var(--sp-rule2)" strokeWidth={8} />
+            <circle
+              cx={40} cy={40} r={32}
+              fill="none"
+              stroke={scoreColor}
+              strokeWidth={8}
+              strokeDasharray={`${(clamped / 100) * 2 * Math.PI * 32} ${2 * Math.PI * 32}`}
+              strokeDashoffset={2 * Math.PI * 32 * 0.25}
+              strokeLinecap="round"
+              style={{ transition: 'stroke-dasharray 0.8s ease' }}
+            />
+          </svg>
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'column',
+          }}>
+            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 18, fontWeight: 700, color: 'var(--sp-ink)' }}>{clamped}</span>
+            <span style={{ fontSize: 9, color: 'var(--sp-muted)', letterSpacing: '.05em' }}>/100</span>
           </div>
         </div>
-      )}
+        <div style={{ flex: 1 }}>
+          {[
+            { label: 'Boutiques actives', value: `${boutiqueActives}/${totalBoutiques}`, ok: boutiqueActives === totalBoutiques },
+            { label: 'Alertes stock', value: String(alertesCount), ok: alertesCount === 0 },
+          ].map(({ label, value, ok }) => (
+            <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <span style={{ fontSize: 12, color: 'var(--sp-muted)' }}>{label}</span>
+              <span style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: 12,
+                fontWeight: 600,
+                color: ok ? 'var(--sp-emerald)' : 'var(--sp-salmon)',
+              }}>
+                {value}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Prévision + CTA ──────────────────────────────────────────────────────────
+
+function PrevisionCard({ weeklyStats }: { weeklyStats: DayStat[] }) {
+  const last7 = getDaysBack(7);
+  const avgDay = weeklyStats
+    .filter((s) => last7.includes(s.date))
+    .reduce((sum, s) => sum + s.ca, 0) / 7;
+
+  const previsionMois = Math.round(avgDay * 30);
+
+  return (
+    <div style={{
+      ...cardStyle(80),
+      background: 'var(--sp-ink)',
+      borderColor: 'transparent',
+      color: 'var(--sp-cream)',
+    }}>
+      <p style={{
+        fontSize: 10.5,
+        letterSpacing: '.1em',
+        textTransform: 'uppercase',
+        color: 'var(--sp-faint)',
+        fontFamily: "'DM Sans', sans-serif",
+        marginBottom: 6,
+      }}>
+        Prévision mensuelle
+      </p>
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginBottom: 12 }}>
+        <span style={{
+          fontFamily: "'Playfair Display', serif",
+          fontSize: 36,
+          fontWeight: 700,
+          color: 'var(--sp-cream)',
+          lineHeight: 1,
+        }}>
+          {formatShort(previsionMois)}
+        </span>
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: 'var(--sp-muted)', marginBottom: 4 }}>
+          FCFA
+        </span>
+      </div>
+      <p style={{ fontSize: 11.5, color: 'var(--sp-faint)', marginBottom: 16, lineHeight: 1.5 }}>
+        Basé sur la moyenne des 7 derniers jours ({formatShort(Math.round(avgDay))} F/j)
+      </p>
+      <Link
+        href="/dashboard/rapports"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '8px 16px',
+          borderRadius: 8,
+          background: 'var(--sp-sky)',
+          color: '#fff',
+          fontSize: 12,
+          fontWeight: 600,
+          letterSpacing: '.04em',
+          textDecoration: 'none',
+        }}
+      >
+        Voir les rapports →
+      </Link>
     </div>
   );
 }
@@ -578,7 +1015,7 @@ function RecentOrders({
   const boutiqueMap = new Map(boutiques.map((b) => [b.id, b]));
 
   return (
-    <div style={cardStyle(160)}>
+    <div style={cardStyle(320)}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
         <SectionTitle label="Transactions récentes" />
         <Link href="/dashboard/transactions" style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--sp-sky)', letterSpacing: '.06em', textTransform: 'uppercase' }}>
@@ -637,203 +1074,6 @@ function RecentOrders({
   );
 }
 
-// ─── Peak Hours Bar Chart ─────────────────────────────────────────────────────
-
-function PeakHoursChart({ hourlyStats }: { hourlyStats: number[] }) {
-  const hours = Array.from({ length: 13 }, (_, i) => i + 8);
-  const values = hours.map((h) => hourlyStats[h] ?? 0);
-  const max = Math.max(...values, 1);
-
-  const sorted = [...values.map((v, i) => ({ v, i }))].sort((a, b) => b.v - a.v);
-  const top2Indices = new Set(sorted.slice(0, 2).map((x) => x.i));
-
-  const peakIdx = sorted[0]?.i ?? 0;
-  const peakHour = hours[peakIdx];
-  const peakLabel = `${String(peakHour).padStart(2, '0')}:00 — ${String(peakHour + 1).padStart(2, '0')}:00`;
-
-  const BAR_MAX_H = 96;
-
-  return (
-    <div style={cardStyle(240)}>
-      <SectionTitle label="Heures de pointe" />
-
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: BAR_MAX_H }}>
-        {values.map((v, i) => {
-          const barH = Math.max(Math.round((v / max) * (BAR_MAX_H - 8)), 6);
-          const isPeak = top2Indices.has(i);
-          return (
-            <div key={i} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', flex: 1, height: '100%' }}>
-              <div style={{
-                width: '100%',
-                borderRadius: 4,
-                height: `${barH}px`,
-                backgroundColor: isPeak ? 'var(--sp-gold)' : 'var(--sp-sky)',
-                boxShadow: isPeak ? '0 2px 6px rgba(250,192,94,0.4)' : 'none',
-                opacity: isPeak ? 1 : 0.7,
-              }} />
-            </div>
-          );
-        })}
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-        {hours.map((h, i) => (
-          <span
-            key={h}
-            style={{
-              fontSize: 10,
-              color: 'var(--sp-muted)',
-              flex: 1,
-              textAlign: 'center',
-              display: i % 2 === 0 ? 'block' : 'none',
-              fontFamily: "'DM Mono', monospace",
-            }}
-          >
-            {String(h).padStart(2, '0')}h
-          </span>
-        ))}
-      </div>
-
-      {max > 0 && (
-        <div style={{ marginTop: 10 }}>
-          <span style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            fontSize: 11,
-            fontWeight: 600,
-            background: 'rgba(250,192,94,0.12)',
-            color: '#a07800',
-            borderRadius: 999,
-            padding: '3px 10px',
-          }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--sp-gold)', display: 'inline-block' }} />
-            PIC {peakLabel}
-          </span>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Boutique Performance ─────────────────────────────────────────────────────
-
-function BoutiquePerformance({
-  boutiques,
-  weeklyStats,
-}: {
-  boutiques: Boutique[];
-  weeklyStats: DayStat[];
-}) {
-  const boutiqueCA = boutiques
-    .map((b) => ({
-      boutique: b,
-      ca: weeklyStats.filter((s) => s.boutique_id === b.id).reduce((sum, s) => sum + s.ca, 0),
-    }))
-    .sort((a, b) => b.ca - a.ca);
-  const maxCA = Math.max(...boutiqueCA.map((x) => x.ca), 1);
-  const top4 = boutiqueCA.slice(0, 4);
-
-  return (
-    <div style={cardStyle(320)}>
-      <SectionTitle label="Performance des boutiques" />
-
-      {top4.length === 0 ? (
-        <p style={{ color: 'var(--sp-muted)', fontSize: 13, textAlign: 'center', padding: '2rem 0' }}>Aucune boutique</p>
-      ) : (
-        <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {top4.map((item) => {
-            const pct = Math.round((item.ca / maxCA) * 100);
-            return (
-              <li key={item.boutique.id}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                  <span style={{ fontSize: 12.5, color: 'var(--sp-ink)', fontWeight: 500 }}>{item.boutique.nom}</span>
-                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: 'var(--sp-ink2)' }}>
-                    {formatFCFA(item.ca)}
-                  </span>
-                </div>
-                <div style={{ height: 5, background: 'var(--sp-rule2)', borderRadius: 3, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${pct}%`, background: 'var(--sp-sky)', borderRadius: 3 }} />
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-// ─── Stock Alerts (Right Panel) ───────────────────────────────────────────────
-
-function StockAlertsRight({ alertesStock }: { alertesStock: AlertesStockData }) {
-  const top6 = alertesStock.alertes.slice(0, MAX_STOCK_ALERTS_RIGHT);
-
-  return (
-    <div style={cardStyle(400)}>
-      <SectionTitle label="Alertes stocks critiques" />
-
-      {top6.length === 0 ? (
-        <p style={{ color: 'var(--sp-muted)', fontSize: 13, textAlign: 'center', padding: '2rem 0' }}>Aucune alerte</p>
-      ) : (
-        <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {top6.map((alerte) => {
-            const pct =
-              alerte.seuil_alerte > 0
-                ? Math.round((alerte.stock_actuel / alerte.seuil_alerte) * 100)
-                : 0;
-            const isCritical = alerte.stock_actuel === 0;
-            return (
-              <li key={alerte.id}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 12.5, color: 'var(--sp-ink)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>
-                    {alerte.nom}
-                  </span>
-                  <span style={{
-                    fontFamily: "'DM Mono', monospace",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: isCritical ? 'var(--sp-salmon)' : 'var(--sp-gold)',
-                    marginLeft: 8,
-                    flexShrink: 0,
-                  }}>
-                    {alerte.stock_actuel}/{alerte.seuil_alerte}
-                  </span>
-                </div>
-                <div style={{ height: 4, background: 'var(--sp-rule2)', borderRadius: 2, overflow: 'hidden' }}>
-                  <div style={{
-                    height: '100%',
-                    width: `${Math.min(pct, 100)}%`,
-                    background: isCritical ? 'var(--sp-salmon)' : 'var(--sp-gold)',
-                    borderRadius: 2,
-                  }} />
-                </div>
-                <p style={{ fontSize: 11, color: 'var(--sp-muted)', marginTop: 2 }}>{alerte.boutique_nom}</p>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-
-      <Link
-        href="/dashboard/alertes-stock"
-        style={{
-          display: 'block',
-          marginTop: '1rem',
-          textAlign: 'center',
-          fontSize: 11,
-          fontWeight: 600,
-          letterSpacing: '.08em',
-          textTransform: 'uppercase',
-          color: 'var(--sp-salmon)',
-        }}
-      >
-        Réapprovisionner →
-      </Link>
-    </div>
-  );
-}
-
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function DashboardHome({
@@ -885,12 +1125,14 @@ export default function DashboardHome({
     .filter((s) => last7Days.includes(s.date))
     .reduce((sum, s) => sum + s.benefice, 0);
 
+  const now = new Date();
+  const periodLabel = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+
   return (
     <div
-      className="dashboard-premium"
-      style={{ background: 'var(--sp-cream)', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif" }}
+      style={{ background: 'var(--sp-cream)', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif", color: 'var(--sp-ink)', fontSize: 14 }}
     >
-      <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr' }}>
         {/* Left Panel */}
         <LeftPanel
           totalCA={totalCA}
@@ -905,25 +1147,85 @@ export default function DashboardHome({
         />
 
         {/* Right Panel */}
-        <div style={{ padding: '2rem 1.75rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', overflowY: 'auto' }}>
-          {/* Row 1 — Revenue chart spanning 2 cols */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
-            <RevenueChart weeklyStats={weeklyStats} moisStats={moisStats} />
+        <main style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0 }}>
+
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <p style={{
+              fontFamily: "'Playfair Display', serif",
+              fontStyle: 'italic',
+              fontSize: 15,
+              color: 'var(--sp-muted)',
+              margin: 0,
+            }}>
+              Tableau de bord · {periodLabel}
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {(['7J', '30J', 'Mois', 'Année'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  style={{
+                    padding: '4px 12px',
+                    fontSize: 11,
+                    fontWeight: 600,
+                    borderRadius: 6,
+                    border: '1px solid var(--sp-rule2)',
+                    cursor: 'pointer',
+                    background: 'transparent',
+                    color: 'var(--sp-muted)',
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                >
+                  {tab}
+                </button>
+              ))}
+              <button
+                type="button"
+                style={{
+                  padding: '4px 14px',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  borderRadius: 6,
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: 'var(--sp-ink)',
+                  color: 'var(--sp-cream)',
+                  fontFamily: "'DM Sans', sans-serif",
+                  marginLeft: 4,
+                }}
+              >
+                Exporter
+              </button>
+            </div>
           </div>
 
-          {/* Row 2 — Donut + Recent Transactions + Peak Hours */}
+          {/* Row 1 — Revenue multi-line chart */}
+          <RevenueMultiLineChart weeklyStats={weeklyStats} moisStats={moisStats} boutiques={boutiques} />
+
+          {/* Row 2 — Grid 3: Heures de pointe / Catégories / Heatmap */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
+            <HourlyBarChart hourlyStats={hourlyStats} />
             <CategoryDonut salesByCategory={salesByCategory} />
-            <RecentOrders transactions={recentTransactions} boutiques={boutiques} />
-            <PeakHoursChart hourlyStats={hourlyStats} />
+            <HeatmapFrequentation hourlyStats={hourlyStats} />
           </div>
 
-          {/* Row 3 — Boutique performance + Stock alerts */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
-            <BoutiquePerformance boutiques={boutiques} weeklyStats={weeklyStats} />
-            <StockAlertsRight alertesStock={alertesStock} />
+          {/* Row 3 — Grid 3: Objectifs / Top produits / Personnel */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem' }}>
+            <ObjectifsMois weeklyStats={weeklyStats} />
+            <TopProduits salesByCategory={salesByCategory} />
+            <PersonnelCard boutiques={boutiques} weeklyStats={weeklyStats} />
           </div>
-        </div>
+
+          {/* Row 4 — Grid 2: Score santé / Prévision + CTA */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+            <ScoreSante boutiques={boutiques} weeklyStats={weeklyStats} alertesStock={alertesStock} />
+            <PrevisionCard weeklyStats={weeklyStats} />
+          </div>
+
+          {/* Row 5 — Recent transactions */}
+          <RecentOrders transactions={recentTransactions} boutiques={boutiques} />
+        </main>
       </div>
     </div>
   );
