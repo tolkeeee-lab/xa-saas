@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 import { createClient } from '@/lib/supabase-browser';
 import { hashPin } from '@/lib/pinHash';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -95,8 +96,14 @@ export default function EquipeView({ employes: initialEmployes, boutiques }: Equ
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<ReactNode>(null);
   const [reloading, setReloading] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  function showToast(message: string, type: 'success' | 'error') {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3500);
+  }
 
   const supabase = createClient();
 
@@ -143,7 +150,7 @@ export default function EquipeView({ employes: initialEmployes, boutiques }: Equ
     setReloading(false);
   }, [boutiques, supabase]);
 
-  async function handleAddEmploye(e: React.FormEvent<HTMLFormElement>) {
+  async function handleAddEmploye(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setFormError(null);
 
@@ -174,11 +181,31 @@ export default function EquipeView({ employes: initialEmployes, boutiques }: Equ
     });
 
     setSubmitting(false);
-    if (error) { setFormError(error.message); return; }
+    if (error) {
+      console.error('[add-employe]', error);
+      const isRls = /row-level security|violates policy/i.test(error.message);
+      if (isRls) {
+        setFormError(
+          <span>
+            ⚠ Table employés non configurée en base.
+            <br />
+            Exécutez la migration{' '}
+            <code>20260419_create_employes.sql</code> dans Supabase SQL Editor, puis réessayez.{' '}
+            <a href="/docs/migrations" className="underline">
+              Voir les migrations
+            </a>
+          </span>,
+        );
+      } else {
+        setFormError(error.message);
+      }
+      return;
+    }
 
     setShowModal(false);
     setForm(EMPTY_FORM);
     await reloadEmployes();
+    showToast('✅ Employé ajouté avec succès', 'success');
   }
 
   const filteredEmployes =
@@ -186,10 +213,19 @@ export default function EquipeView({ employes: initialEmployes, boutiques }: Equ
       ? employes
       : employes.filter((e) => e.boutique_id === selectedBoutiqueId);
 
-  const addButtonDisabled = selectedBoutiqueId === 'all';
-
   return (
     <div className="space-y-5">
+      {/* Toast */}
+      {toast && (
+        <div
+          onClick={() => setToast(null)}
+          className={`fixed bottom-20 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white cursor-pointer ${
+            toast.type === 'success' ? 'bg-aquamarine-600' : 'bg-xa-danger'
+          }`}
+        >
+          {toast.message}
+        </div>
+      )}
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex-1">
@@ -224,16 +260,23 @@ export default function EquipeView({ employes: initialEmployes, boutiques }: Equ
         </div>
 
         {/* Add button */}
-        <div title={addButtonDisabled ? 'Sélectionnez une boutique' : undefined}>
+        <div title={boutiques.length === 0 ? 'Créez d\'abord une boutique pour ajouter un employé' : undefined}>
           <button
             onClick={() => {
-              if (addButtonDisabled) return;
               setShowModal(true);
               setFormError(null);
-              setForm({ ...EMPTY_FORM, boutique_id: selectedBoutiqueId });
+              setForm({
+                ...EMPTY_FORM,
+                boutique_id:
+                  selectedBoutiqueId !== 'all'
+                    ? selectedBoutiqueId
+                    : boutiques.length === 1
+                      ? boutiques[0].id
+                      : '',
+              });
             }}
-            disabled={addButtonDisabled}
-            aria-label={addButtonDisabled ? 'Ajouter employé — sélectionnez une boutique d\'abord' : 'Ajouter employé'}
+            disabled={boutiques.length === 0}
+            aria-label="Ajouter employé"
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-xa-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -408,6 +451,18 @@ export default function EquipeView({ employes: initialEmployes, boutiques }: Equ
                   className="w-full px-3 py-2 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary"
                 />
                 <p className="text-xs text-xa-muted mt-1">Haché SHA-256 avant stockage.</p>
+                {process.env.NODE_ENV === 'development' && (
+                  <button
+                    type="button"
+                    onClick={() => setForm((f) => ({
+                      ...f,
+                      pin: String(Math.floor(1000 + Math.random() * 9000)),
+                    }))}
+                    className="text-xs text-xa-muted underline mt-1"
+                  >
+                    🎲 PIN aléatoire (dev)
+                  </button>
+                )}
               </div>
 
               <div className="flex gap-3 pt-2">

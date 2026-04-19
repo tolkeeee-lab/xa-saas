@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { formatFCFA } from '@/lib/format';
 import { hashPin } from '@/lib/pinHash';
 import { createClient } from '@/lib/supabase-browser';
@@ -43,7 +44,7 @@ export default function PersonnelTable({
     setTimeout(() => setToast(null), 3500);
   }
 
-  async function handleAddEmploye(e: React.FormEvent<HTMLFormElement>) {
+  async function handleAddEmploye(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setFormError(null);
 
@@ -93,7 +94,15 @@ export default function PersonnelTable({
     setSubmitting(false);
 
     if (error || !newEmp) {
-      setFormError(error?.message ?? 'Erreur lors de l\'ajout.');
+      console.error('[add-employe]', error);
+      const isRls = /row-level security|violates policy/i.test(error?.message ?? '');
+      if (isRls) {
+        setFormError(
+          '⚠ Table employés non configurée en base. Exécutez la migration 20260419_create_employes.sql dans Supabase SQL Editor, puis réessayez.',
+        );
+      } else {
+        setFormError(error?.message ?? 'Erreur lors de l\'ajout.');
+      }
       return;
     }
 
@@ -116,7 +125,8 @@ export default function PersonnelTable({
       {/* Toast */}
       {toast && (
         <div
-          className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white ${
+          onClick={() => setToast(null)}
+          className={`fixed bottom-20 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white cursor-pointer ${
             toast.type === 'success' ? 'bg-aquamarine-600' : 'bg-xa-danger'
           }`}
         >
@@ -130,15 +140,26 @@ export default function PersonnelTable({
           <h1 className="text-xl font-bold text-xa-text">Personnel avancé</h1>
           <p className="text-sm text-xa-muted mt-0.5">Équipes de votre réseau</p>
         </div>
-        <button
-          onClick={() => { setShowModal(true); setFormError(null); setForm(EMPTY_FORM); }}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-xa-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Ajouter
-        </button>
+        <div title={boutiques.length === 0 ? 'Créez d\'abord une boutique pour ajouter un employé' : undefined}>
+          <button
+            onClick={() => {
+              setShowModal(true);
+              setFormError(null);
+              setForm({
+                ...EMPTY_FORM,
+                boutique_id: boutiques.length === 1 ? boutiques[0].id : '',
+              });
+            }}
+            disabled={boutiques.length === 0}
+            aria-label="Ajouter employé"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-xa-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Ajouter
+          </button>
+        </div>
       </div>
 
       {/* Stat cards */}
@@ -356,6 +377,18 @@ export default function PersonnelTable({
                   className="w-full px-3 py-2 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary"
                 />
                 <p className="text-xs text-xa-muted mt-1">Haché SHA-256 avant stockage.</p>
+                {process.env.NODE_ENV === 'development' && (
+                  <button
+                    type="button"
+                    onClick={() => setForm((f) => ({
+                      ...f,
+                      pin: String(Math.floor(1000 + Math.random() * 9000)),
+                    }))}
+                    className="text-xs text-xa-muted underline mt-1"
+                  >
+                    🎲 PIN aléatoire (dev)
+                  </button>
+                )}
               </div>
 
               <div className="flex gap-3 pt-2">
