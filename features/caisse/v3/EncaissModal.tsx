@@ -75,7 +75,7 @@ export default function EncaissModal({
   onShowInvoice,
 }: EncaissModalProps) {
   const [saving, setSaving] = useState(false);
-  const [savedVente, setSavedVente] = useState<VenteResult | null>(null);
+  const [completedVente, setCompletedVente] = useState<VenteResult | null>(null);
   const firstFocusRef = useRef<HTMLButtonElement>(null);
   const rendu = payMode === 'especes' && montantRecu > 0 ? montantRecu - total : 0;
 
@@ -95,7 +95,7 @@ export default function EncaissModal({
     try {
       const result = await onNouvelleVente();
       if (result) {
-        setSavedVente(result);
+        setCompletedVente(result);
         // Auto close and show invoice after a brief moment
         setTimeout(() => {
           onClose();
@@ -133,11 +133,11 @@ export default function EncaissModal({
   }
 
   function handleWhatsApp() {
-    const data = savedVente
+    const data = completedVente
       ? {
           ...buildWaData(),
-          numero_facture: savedVente.numero_facture,
-          created_at: savedVente.created_at,
+          numero_facture: completedVente.numero_facture,
+          created_at: completedVente.created_at,
         }
       : buildWaData();
     const msg = buildWhatsAppMessage(data);
@@ -147,7 +147,7 @@ export default function EncaissModal({
 
   function handleShowInvoice() {
     // Build a provisional vente data for preview
-    const provisional: VenteResult = savedVente ?? {
+    const provisional: VenteResult = completedVente ?? {
       transaction_id: crypto.randomUUID(),
       numero_facture: 'APERÇU',
       created_at: new Date().toISOString(),

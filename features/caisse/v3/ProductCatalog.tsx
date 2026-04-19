@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, type RefObject } from 'react';
 import type { ProduitPublic } from '@/types/database';
 import ProductCard from './ProductCard';
 import { getCategoryEmoji } from './lib/categoryEmoji';
@@ -13,7 +13,7 @@ interface ProductCatalogProps {
   onCategorieChange: (c: string) => void;
   onAdd: (produit: ProduitPublic, emoji: string) => void;
   fetching?: boolean;
-  searchInputRef?: { current: HTMLInputElement | null };
+  searchInputRef?: RefObject<HTMLInputElement | null>;
 }
 
 export default function ProductCatalog({
@@ -58,8 +58,7 @@ export default function ProductCatalog({
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
           </svg>
           <input
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ref={inputRef as any}
+            ref={inputRef}
             id="caisse-search"
             className="c-search-input"
             type="search"

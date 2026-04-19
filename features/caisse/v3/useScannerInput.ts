@@ -63,7 +63,8 @@ export function useScannerInput(
         flushTimerRef.current = setTimeout(() => {
           const barcode = bufferRef.current.trim();
           bufferRef.current = '';
-          if (barcode.length >= 4 && gap < 200) {
+          // After the idle timeout, process any buffered barcode regardless of gap.
+          if (barcode.length >= 4) {
             onScan(barcode);
           }
         }, 100);

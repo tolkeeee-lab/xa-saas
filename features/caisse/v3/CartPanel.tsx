@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, type RefObject } from 'react';
 import type { CartItem } from './useCart';
 import CartItemRow from './CartItem';
 import CartTotals from './CartTotals';
@@ -24,8 +24,8 @@ interface CartPanelProps {
   onMontantRecuChange: (v: number) => void;
   onEncaisser: () => void;
   loading?: boolean;
-  clientNomRef?: { current: HTMLInputElement | null };
-  cashInputRef?: { current: HTMLInputElement | null };
+  clientNomRef?: RefObject<HTMLInputElement | null>;
+  cashInputRef?: RefObject<HTMLInputElement | null>;
   isMobile?: boolean;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
@@ -55,7 +55,7 @@ export default function CartPanel({
   onToggleCollapse,
 }: CartPanelProps) {
   const internalNomRef = useRef<HTMLInputElement>(null);
-  const nomRef = (clientNomRef ?? internalNomRef) as { current: HTMLInputElement | null };
+  const nomRef = clientNomRef ?? internalNomRef;
 
   const totalItems = items.reduce((s, i) => s + i.qty, 0);
   const sousTotal = items.reduce((s, i) => s + i.prix_vente * i.qty, 0);
@@ -106,8 +106,7 @@ export default function CartPanel({
       {/* Client row */}
       <div className="c-client-row" aria-label="Informations client">
         <input
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ref={nomRef as any}
+          ref={nomRef}
           id="client-nom"
           type="text"
           className="c-client-input"

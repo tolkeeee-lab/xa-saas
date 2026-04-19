@@ -1,5 +1,6 @@
 'use client';
 
+import { type RefObject } from 'react';
 import { formatFCFA } from '@/lib/format';
 
 export type PayMode = 'especes' | 'momo' | 'credit';
@@ -18,7 +19,7 @@ interface PaymentSectionProps {
   total: number;
   montantRecu: number;
   onMontantRecuChange: (v: number) => void;
-  cashInputRef?: { current: HTMLInputElement | null };
+  cashInputRef?: RefObject<HTMLInputElement | null>;
 }
 
 export default function PaymentSection({
@@ -83,8 +84,7 @@ export default function PaymentSection({
             <div className="c-cash-input-wrap">
               <span aria-hidden="true" style={{ color: 'var(--c-muted)', fontSize: 12 }}>F</span>
               <input
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                ref={cashInputRef as any}
+                ref={cashInputRef}
                 type="number"
                 min={0}
                 className="c-cash-input"
