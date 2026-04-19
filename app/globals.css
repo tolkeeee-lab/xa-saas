@@ -237,7 +237,7 @@ body {
 .xa-shell-wrap {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: calc(100vh - 52px);
 }
 .xa-dashboard-body {
   /* used for responsive override below */
@@ -480,6 +480,108 @@ body {
     padding: .5rem 1rem;
     flex-wrap: wrap;
   }
+}
+
+/* ================================================================
+   DASHBOARD TOPBAR — Common nav bar (PR 5)
+   ================================================================ */
+.xa-topbar-sticky {
+  position: sticky; top: 0; z-index: 40;
+  background: var(--xa-surface);
+  border-bottom: 1px solid var(--xa-rule2);
+  backdrop-filter: saturate(140%) blur(6px);
+}
+.xa-topbar-inner {
+  display: flex; align-items: center; gap: 1.25rem;
+  padding: .55rem 1rem;
+  max-width: 1600px; margin: 0 auto;
+}
+.xa-brand {
+  display: flex; align-items: center; gap: .5rem;
+  font-weight: 700; color: var(--xa-ink);
+  font-size: 17px; letter-spacing: -.02em;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.xa-brand em { font-style: normal; }
+.xa-nav { display: flex; align-items: center; gap: .15rem; flex: 1; }
+.xa-nav-link,
+.xa-nav-btn {
+  padding: .4rem .7rem; border-radius: 4px;
+  font-size: 12px; color: var(--xa-muted);
+  background: none; border: none;
+  cursor: pointer; font-weight: 500;
+  letter-spacing: 0;
+  transition: background .15s, color .15s;
+  display: inline-flex; align-items: center; gap: .35rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.xa-nav-link:hover,
+.xa-nav-btn:hover { background: var(--xa-bg2); color: var(--xa-ink); }
+.xa-nav-active { color: var(--xa-ink); background: var(--xa-bg2); }
+
+.xa-nav-dropdown {
+  position: relative;
+}
+.xa-nav-menu {
+  position: absolute; top: calc(100% + 4px); left: 0;
+  min-width: 200px;
+  background: var(--xa-surface);
+  border: 1px solid var(--xa-rule2);
+  border-radius: 5px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.06);
+  padding: 4px;
+  display: flex; flex-direction: column;
+  z-index: 50;
+}
+.xa-nav-item {
+  padding: .45rem .65rem; border-radius: 3px;
+  font-size: 12px; color: var(--xa-ink2);
+  text-decoration: none;
+  transition: background .12s;
+  display: block;
+}
+.xa-nav-item:hover { background: var(--xa-bg2); color: var(--xa-ink); }
+.xa-nav-item-active { background: var(--xa-bg2); color: var(--xa-ink); font-weight: 500; }
+
+.xa-topbar-right {
+  display: flex; align-items: center; gap: .5rem;
+  margin-left: auto;
+}
+.xa-topbar-icon {
+  width: 32px; height: 32px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 4px; color: var(--xa-muted);
+  transition: background .15s, color .15s;
+  text-decoration: none;
+  font-size: 16px;
+}
+.xa-topbar-icon:hover { background: var(--xa-bg2); color: var(--xa-ink); }
+
+/* Dashboard content area (below the sticky topbar) */
+.xa-dashboard-content {
+  min-height: calc(100vh - 52px);
+}
+
+/* Mobile nav */
+@media (max-width: 860px) {
+  .xa-nav { display: none; }
+  .xa-nav-mobile-btn { display: inline-flex !important; }
+}
+@media (min-width: 861px) {
+  .xa-nav-mobile-btn { display: none !important; }
+}
+.xa-nav-drawer {
+  position: fixed; inset: 0; top: 52px; z-index: 50;
+  background: var(--xa-surface);
+  padding: 1rem; overflow-y: auto;
+  display: flex; flex-direction: column; gap: .25rem;
+  border-top: 1px solid var(--xa-rule2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xa-nav-menu { animation: none; }
 }
 
 /* ================================================================
