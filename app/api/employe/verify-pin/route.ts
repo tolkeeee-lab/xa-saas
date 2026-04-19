@@ -174,7 +174,10 @@ export async function POST(request: NextRequest) {
 
   await clearPinFailures(bruteKey);
 
-  const nomInitial = matchedEmploye.nom ? matchedEmploye.nom.charAt(0) + '.' : '';
+  const nomInitial =
+    matchedEmploye.nom && matchedEmploye.nom.trim()
+      ? matchedEmploye.nom.trim().charAt(0) + '.'
+      : '';
   const displayNom = `${matchedEmploye.prenom}${nomInitial ? ' ' + nomInitial : ''}`.trim();
   const role = (matchedEmploye.role ?? 'caissier') as EmployeRole;
 

@@ -21,7 +21,7 @@
 import crypto from 'crypto';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { base64urlDecode } from './base64url';
+import { base64urlDecode, base64urlEncode } from './base64url';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -61,13 +61,7 @@ function getSecret(): Buffer {
   return Buffer.from(secret, 'utf8');
 }
 
-function base64urlEncode(input: string): string {
-  return Buffer.from(input, 'utf8')
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
-}
+  // Remove the local base64urlEncode in favour of the shared utility
 
 function computeHmac(encodedPayload: string): string {
   return crypto
