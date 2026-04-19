@@ -376,6 +376,23 @@ export type Database = {
         Args: { inv_id: string };
         Returns: Inventaire[];
       };
+      process_sale_v2: {
+        Args: {
+          p_boutique_id: string;
+          p_lignes: unknown;
+          p_montant_total: number;
+          p_benefice_total: number;
+          p_mode_paiement: string;
+          p_remise_pct?: number;
+          p_montant_recu?: number | null;
+          p_monnaie_rendue?: number | null;
+          p_client_id?: string | null;
+          p_client_nom?: string | null;
+          p_client_telephone?: string | null;
+          p_local_id?: string | null;
+        };
+        Returns: { transaction_id: string; duplicate: boolean; numero_facture: string };
+      };
     };
     Enums: { [_ in never]: never };
   };
