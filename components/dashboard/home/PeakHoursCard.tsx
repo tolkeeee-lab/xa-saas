@@ -38,7 +38,7 @@ export default function PeakHoursCard({ data }: Props) {
                 borderRadius: 4,
                 fontSize: 11,
               }}
-              formatter={(v: number) => [v, 'transactions']}
+              formatter={(v) => [v as number, 'transactions']}
             />
             <Bar dataKey="count" radius={[2, 2, 0, 0]}>
               {chartData.map((entry) => (

@@ -34,16 +34,19 @@ function buildLabels(period: PeriodKey): { labels: string[]; buckets: number } {
   }
 }
 
+/** Milliseconds in one day — used for date bucket calculations. */
+const MS_PER_DAY = 86_400_000;
+
 function getBucketIndex(period: PeriodKey, dateStr: string): number {
   const date = new Date(dateStr);
   const now = new Date();
   switch (period) {
     case '7J': {
-      const daysAgo = Math.floor((now.getTime() - date.getTime()) / 86400000);
+      const daysAgo = Math.floor((now.getTime() - date.getTime()) / MS_PER_DAY);
       return 6 - daysAgo;
     }
     case '30J': {
-      const daysAgo = Math.floor((now.getTime() - date.getTime()) / 86400000);
+      const daysAgo = Math.floor((now.getTime() - date.getTime()) / MS_PER_DAY);
       return 29 - daysAgo;
     }
     case 'Mois': {

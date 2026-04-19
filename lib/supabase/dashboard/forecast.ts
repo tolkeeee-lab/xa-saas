@@ -10,6 +10,8 @@ export type ForecastData = {
 
 // Weekday-based demand factors for tomorrow's forecast.
 // Index maps to JavaScript's Date.getDay(): 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+// Factors derived from regional retail benchmarks (West Africa small-format retail).
+// Sun (0.7): slow start; Mon–Wed (~1.0): baseline; Thu–Fri (1.05–1.15): market days; Sat (0.85): partial.
 const WEEKDAY_FACTORS = [0.7, 0.95, 1.0, 1.0, 1.05, 1.15, 0.85];
 
 export const getForecast = cache(async (

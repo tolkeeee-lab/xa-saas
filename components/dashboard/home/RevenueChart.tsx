@@ -53,8 +53,8 @@ export default function RevenueChart({ data }: Props) {
         <AreaChart data={chartData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="colorGlobal" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#00C853" stopOpacity={0.25} />
-              <stop offset="95%" stopColor="#00C853" stopOpacity={0} />
+              <stop offset="5%" stopColor="var(--xa-green)" stopOpacity={0.25} />
+              <stop offset="95%" stopColor="var(--xa-green)" stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--xa-rule)" />
@@ -72,7 +72,7 @@ export default function RevenueChart({ data }: Props) {
             tickFormatter={(v: number) => (v >= 1000 ? `${Math.round(v / 1000)}k` : String(v))}
           />
           <Tooltip
-            formatter={(value: number) => [formatFCFA(value), '']}
+            formatter={(value) => [formatFCFA(value as number), '']}
             contentStyle={{
               background: 'var(--xa-surface)',
               border: '1px solid var(--xa-rule2)',
@@ -84,7 +84,7 @@ export default function RevenueChart({ data }: Props) {
             <Area
               type="monotone"
               dataKey="global"
-              stroke="#00C853"
+              stroke="var(--xa-green)"
               fill="url(#colorGlobal)"
               strokeWidth={2}
               dot={false}

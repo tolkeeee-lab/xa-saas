@@ -4,6 +4,8 @@ import type { CategoryData } from '@/lib/supabase/dashboard/categories';
 import { CATEGORY_COLORS } from '@/lib/supabase/dashboard/chart-colors';
 import { formatFCFA } from '@/lib/format';
 
+type Props = { data: CategoryData };
+
 type LegendPayload = {
   value?: string;
   payload?: { percent?: number };
@@ -43,7 +45,7 @@ export default function CategoriesDonut({ data }: Props) {
             ))}
           </Pie>
           <Tooltip
-            formatter={(value: number) => [formatFCFA(value), '']}
+            formatter={(value) => [formatFCFA(value as number), '']}
             contentStyle={{
               background: 'var(--xa-surface)',
               border: '1px solid var(--xa-rule2)',

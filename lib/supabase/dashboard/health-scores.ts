@@ -65,7 +65,8 @@ export const getHealthScores = cache(async (userId: string): Promise<HealthScore
     const stockScore = totalProducts > 0 ? Math.round((okProducts / totalProducts) * 25) : 25;
 
     // 25 pts: sales vs 80% of 7-day daily average
-    const avgDaily7d = bTxs7d.length / 7;
+    const DAYS_IN_WEEK = 7;
+    const avgDaily7d = bTxs7d.length / DAYS_IN_WEEK;
     const todayCount = bTxsToday.length;
     const salesScore =
       avgDaily7d === 0 || todayCount >= avgDaily7d * 0.8

@@ -171,6 +171,16 @@ export type DetteProprio = {
   updated_at: string;
 };
 
+export type BoutiqueObjectif = {
+  id: string;
+  boutique_id: string;
+  proprietaire_id: string;
+  mois: string;
+  objectif_ca: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ClotureCaisse = {
   id: string;
   boutique_id: string;
@@ -278,6 +288,13 @@ export type Database = {
         Insert: Omit<ClotureCaisse, 'id' | 'ecart' | 'created_at'> &
           Partial<Pick<ClotureCaisse, 'id' | 'created_at'>>;
         Update: Partial<Omit<ClotureCaisse, 'id' | 'ecart'>>;
+        Relationships: [];
+      };
+      boutique_objectifs: {
+        Row: BoutiqueObjectif;
+        Insert: Omit<BoutiqueObjectif, 'id' | 'created_at' | 'updated_at'> &
+          Partial<Pick<BoutiqueObjectif, 'id' | 'created_at' | 'updated_at'>>;
+        Update: Partial<Omit<BoutiqueObjectif, 'id'>>;
         Relationships: [];
       };
       clients: {

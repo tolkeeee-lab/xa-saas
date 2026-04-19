@@ -3,11 +3,15 @@ import type { HeatmapData } from '@/lib/supabase/dashboard/heatmap';
 
 type Props = { data: HeatmapData };
 
+/** Intensity thresholds for heatmap color mapping (high / medium / low). */
+const HIGH_INTENSITY = 0.7;
+const MED_INTENSITY = 0.4;
+
 function getColor(value: number, max: number): string {
   if (max === 0 || value === 0) return 'var(--xa-bg3)';
   const intensity = value / max;
-  if (intensity > 0.7) return 'var(--xa-accent)';
-  if (intensity > 0.4) return 'var(--xa-amber)';
+  if (intensity > HIGH_INTENSITY) return 'var(--xa-accent)';
+  if (intensity > MED_INTENSITY) return 'var(--xa-amber)';
   return 'var(--xa-accentbg)';
 }
 
