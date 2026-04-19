@@ -150,7 +150,7 @@ export default function EquipeView({ employes: initialEmployes, boutiques }: Equ
     if (!form.boutique_id) { setFormError('Sélectionnez une boutique.'); return; }
     if (!form.nom.trim()) { setFormError('Le nom est obligatoire.'); return; }
     if (!form.prenom.trim()) { setFormError('Le prénom est obligatoire.'); return; }
-    if (!/^\d{4}$/.test(form.pin)) { setFormError('Le PIN doit contenir exactement 4 chiffres.'); return; }
+    if (!/^\d{4}$/.test(form.pin)) { setFormError('Le PIN doit contenir exactement 4 chiffres numériques.'); return; }
 
     setSubmitting(true);
 
@@ -233,6 +233,7 @@ export default function EquipeView({ employes: initialEmployes, boutiques }: Equ
               setForm({ ...EMPTY_FORM, boutique_id: selectedBoutiqueId });
             }}
             disabled={addButtonDisabled}
+            aria-label={addButtonDisabled ? 'Ajouter employé — sélectionnez une boutique d\'abord' : 'Ajouter employé'}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-xa-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
