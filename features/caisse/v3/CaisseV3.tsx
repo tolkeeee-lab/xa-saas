@@ -354,7 +354,6 @@ export default function CaisseV3({ boutiques, produits: initialProduits, userId 
         caissier_nom: undefined,
       };
       setLoading(false);
-      resetAfterSale();
       showToast('⚠ Vente hors-ligne enregistrée', 'success');
       return result;
     }
@@ -409,8 +408,7 @@ export default function CaisseV3({ boutiques, produits: initialProduits, userId 
         caissier_nom: undefined,
       };
 
-      resetAfterSale();
-      showToast('✅ Vente enregistrée', 'success');
+      showToast(`✅ Vente ${result.numero_facture} enregistrée`, 'success');
       return result;
     } catch {
       showToast('Erreur réseau — vérifiez votre connexion', 'error');
@@ -432,9 +430,9 @@ export default function CaisseV3({ boutiques, produits: initialProduits, userId 
     localIdRef.current = crypto.randomUUID();
   }
 
-  function handleShowInvoice(vente: VenteResult) {
+  function handleShowInvoice(vente: VenteResult, autoPrintFlag?: boolean) {
     setInvoiceVente(vente);
-    setAutoPrint(false);
+    setAutoPrint(autoPrintFlag ?? false);
     setShowInvoice(true);
   }
 
@@ -543,12 +541,13 @@ export default function CaisseV3({ boutiques, produits: initialProduits, userId 
           clientTelephone={clientTelephone}
           boutique_nom={activeBoutique?.nom ?? 'Boutique'}
           boutique_ville={activeBoutique?.ville}
-          onClose={() => setShowEncaiss(false)}
-          onNouvelleVente={performSale}
-          onShowInvoice={(vente) => {
+          onValider={performSale}
+          onNouvelleVente={() => {
+            resetAfterSale();
             setShowEncaiss(false);
-            handleShowInvoice(vente);
           }}
+          onClose={() => setShowEncaiss(false)}
+          onShowInvoice={(vente, autoPrintFlag) => handleShowInvoice(vente, autoPrintFlag)}
         />
       )}
 
