@@ -868,6 +868,84 @@
   margin-top: 6px;
 }
 
+/* Invoice number line inside amount box (State 2) */
+.xa-caisse-v3 .c-amount-facture {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-accent-dk);
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 200, 83, 0.25);
+}
+
+/* Validate button (State 1) */
+.xa-caisse-v3 .c-btn-valider {
+  width: 100%;
+  margin-top: 18px;
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  background: var(--c-accent);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all .15s;
+  animation: btnPulse 2s infinite;
+}
+
+.xa-caisse-v3 .c-btn-valider:disabled {
+  background: var(--c-bg3);
+  color: var(--c-faint);
+  cursor: not-allowed;
+  animation: none;
+}
+
+.xa-caisse-v3 .c-btn-valider:not(:disabled):hover {
+  background: var(--c-accent-dk);
+}
+
+.xa-caisse-v3 .c-btn-valider .valider-label {
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.xa-caisse-v3 .c-btn-valider .valider-amount {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Keyboard shortcut pills (State 2) */
+.xa-caisse-v3 .c-kbd-hints {
+  margin-top: 12px;
+  text-align: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--c-faint);
+  letter-spacing: 0.3px;
+  line-height: 1.6;
+}
+
+.xa-caisse-v3 .c-kbd-hints kbd {
+  display: inline-block;
+  background: var(--c-bg2);
+  border: 1px solid var(--c-rule2);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--c-muted);
+}
+
 /* Summary lines in modal */
 .xa-caisse-v3 .c-summary-line {
   display: flex;
