@@ -1,42 +1,63 @@
-export default function ActivitePage() {
+import { redirect } from 'next/navigation';
+import { createClient } from '@/lib/supabase-server';
+import { getBoutiques } from '@/lib/supabase/getBoutiques';
+import { getActivityJournal } from '@/lib/supabase/getActivityJournal';
+import ActivityJournalPage from '@/features/activite/ActivityJournalPage';
+
+export const metadata = { title: "Journal d'activité — xà" };
+
+type SearchParams = {
+  boutique?: string;
+  type?: string;
+  from?: string;
+  to?: string;
+  q?: string;
+  page?: string;
+};
+
+const PAGE_SIZE = 50;
+
+export default async function ActivitePage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  const params = await searchParams;
+  const page = Math.max(1, parseInt(params.page ?? '1', 10) || 1);
+
+  const [boutiques, journal] = await Promise.all([
+    getBoutiques(user.id),
+    getActivityJournal(user.id, {
+      boutiqueId: params.boutique && params.boutique !== 'all' ? params.boutique : null,
+      type: params.type && params.type !== 'all' ? params.type : null,
+      from: params.from ?? null,
+      to: params.to ?? null,
+      search: params.q ?? null,
+      page,
+      pageSize: PAGE_SIZE,
+    }),
+  ]);
+
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '4rem 2rem',
-        gap: '1rem',
-        textAlign: 'center',
+    <ActivityJournalPage
+      boutiques={boutiques}
+      events={journal.events}
+      totalCount={journal.totalCount}
+      page={page}
+      pageSize={PAGE_SIZE}
+      filters={{
+        boutique: params.boutique ?? 'all',
+        type: params.type ?? 'all',
+        from: params.from ?? '',
+        to: params.to ?? '',
+        q: params.q ?? '',
       }}
-    >
-      <div
-        style={{
-          fontFamily: 'var(--font-plex-mono), monospace',
-          fontSize: 10,
-          letterSpacing: '.12em',
-          color: 'var(--xa-accent)',
-          textTransform: 'uppercase',
-        }}
-      >
-        Bientôt disponible
-      </div>
-      <h1
-        style={{
-          fontFamily: 'var(--font-familjen), sans-serif',
-          fontSize: 28,
-          fontWeight: 700,
-          color: 'var(--xa-ink)',
-          letterSpacing: '-.03em',
-          margin: 0,
-        }}
-      >
-        Activité
-      </h1>
-      <p style={{ fontSize: 14, color: 'var(--xa-muted)', maxWidth: 340, margin: 0 }}>
-        La vue Activité sera disponible dans une prochaine version de xà.
-      </p>
-    </div>
+    />
   );
 }
