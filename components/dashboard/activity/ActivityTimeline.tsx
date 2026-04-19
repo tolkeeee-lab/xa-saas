@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase-browser';
 import { useDashboardFilter } from '@/context/DashboardFilterContext';
+import { dbTypeFromChip } from '@/lib/dashboard/filters';
 import type { ActivityEvent } from '@/lib/supabase/dashboard/activity';
 import ActivityItem from './ActivityItem';
 import DayGroup from './DayGroup';
@@ -51,6 +52,12 @@ export default function ActivityTimeline({ initialEvents, userId }: Props) {
 
   const { activeStoreId, activeType } = useDashboardFilter();
 
+  // Keep refs so Realtime handler can read latest values without recreating the channel
+  const activeStoreIdRef = useRef(activeStoreId);
+  const activeTypeRef = useRef(activeType);
+  useEffect(() => { activeStoreIdRef.current = activeStoreId; }, [activeStoreId]);
+  useEffect(() => { activeTypeRef.current = activeType; }, [activeType]);
+
   // Auto-refresh relative times every 15s
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 15_000);
@@ -73,6 +80,21 @@ export default function ActivityTimeline({ initialEvents, userId }: Props) {
         },
         (payload) => {
           const raw = payload.new as Record<string, unknown>;
+
+          // Filter incoming events by active store filter
+          const currentStore = activeStoreIdRef.current;
+          if (
+            currentStore !== 'all' &&
+            raw.boutique_id != null &&
+            raw.boutique_id !== currentStore
+          ) {
+            return;
+          }
+
+          // Filter incoming events by active type filter
+          const expectedDbType = dbTypeFromChip(activeTypeRef.current);
+          if (expectedDbType && raw.type !== expectedDbType) return;
+
           const newEvent: ActivityEvent = {
             id: raw.id as string,
             type: raw.type as ActivityEvent['type'],
@@ -96,12 +118,13 @@ export default function ActivityTimeline({ initialEvents, userId }: Props) {
 
   // Apply client-side filters
   const filtered = useMemo(() => {
+    const expectedDbType = dbTypeFromChip(activeType);
     return events.filter((ev) => {
       if (activeStoreId !== 'all' && ev.boutique?.id !== activeStoreId) {
         // Allow events without boutique link (system events) when filtering
         if (ev.boutique !== null) return false;
       }
-      if (activeType !== 'all' && ev.type !== activeType) return false;
+      if (expectedDbType && ev.type !== expectedDbType) return false;
       return true;
     });
   }, [events, activeStoreId, activeType]);

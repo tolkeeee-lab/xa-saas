@@ -15,6 +15,7 @@ export type DashboardFilter = {
   activeType: string;
   setStoreFilter: (storeId: string) => void;
   setTypeFilter: (type: string) => void;
+  clearFilters: () => void;
 };
 
 const DashboardFilterContext = createContext<DashboardFilter>({
@@ -22,6 +23,7 @@ const DashboardFilterContext = createContext<DashboardFilter>({
   activeType: 'all',
   setStoreFilter: () => {},
   setTypeFilter: () => {},
+  clearFilters: () => {},
 });
 
 export function DashboardFilterProvider({ children }: { children: ReactNode }) {
@@ -70,9 +72,18 @@ export function DashboardFilterProvider({ children }: { children: ReactNode }) {
     [router, pathname, searchParams],
   );
 
+  const clearFilters = useCallback(() => {
+    setActiveStoreId('all');
+    setActiveType('all');
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('store');
+    params.delete('type');
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [router, pathname, searchParams]);
+
   return (
     <DashboardFilterContext.Provider
-      value={{ activeStoreId, activeType, setStoreFilter, setTypeFilter }}
+      value={{ activeStoreId, activeType, setStoreFilter, setTypeFilter, clearFilters }}
     >
       {children}
     </DashboardFilterContext.Provider>
