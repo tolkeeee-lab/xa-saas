@@ -9,8 +9,8 @@ import { getCategoryBreakdown } from '@/lib/supabase/dashboard/categories';
 import { getHeatmap } from '@/lib/supabase/dashboard/heatmap';
 import { getStoresRanking } from '@/lib/supabase/dashboard/stores-ranking';
 import { getTopProducts } from '@/lib/supabase/dashboard/top-products';
-import { getStaffStatus } from '@/lib/supabase/dashboard/staff-status';
 import { getAlerts } from '@/lib/supabase/dashboard/alerts';
+import { getPersonnelActivity } from '@/lib/supabase/getPersonnelActivity';
 import { getHealthScores } from '@/lib/supabase/dashboard/health-scores';
 import { getForecast } from '@/lib/supabase/dashboard/forecast';
 import { getObjectives } from '@/lib/supabase/dashboard/objectives';
@@ -24,8 +24,8 @@ import CategoriesDonut from '@/components/dashboard/home/CategoriesDonut';
 import HeatmapCard from '@/components/dashboard/home/HeatmapCard';
 import StoresRankingCard from '@/components/dashboard/home/StoresRankingCard';
 import TopProductsCard from '@/components/dashboard/home/TopProductsCard';
-import StaffCard from '@/components/dashboard/home/StaffCard';
 import ActiveAlertsCard from '@/components/dashboard/home/ActiveAlertsCard';
+import PersonnelWidget from '@/features/dashboard/widgets/PersonnelWidget';
 import HealthScoresCard from '@/components/dashboard/home/HealthScoresCard';
 import ForecastCard from '@/components/dashboard/home/ForecastCard';
 import MonthObjectivesCard from '@/components/dashboard/home/MonthObjectivesCard';
@@ -86,9 +86,9 @@ async function TopProductsSection({ userId, storeIds }: { userId: string; storeI
   return <TopProductsCard data={data} />;
 }
 
-async function StaffSection({ userId, storeIds }: { userId: string; storeIds: string[] }) {
-  const data = await getStaffStatus(userId, storeIds);
-  return <StaffCard data={data} />;
+async function PersonnelActivitySection({ userId }: { userId: string }) {
+  const data = await getPersonnelActivity(userId);
+  return <PersonnelWidget data={data} />;
 }
 
 async function AlertsSection({ userId, storeIds }: { userId: string; storeIds: string[] }) {
@@ -173,6 +173,10 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               <HeatmapSection userId={user.id} storeIds={storeIds} />
             </Suspense>
 
+            <Suspense fallback={<GridSkeleton cols={1} height={280} />}>
+              <PersonnelActivitySection userId={user.id} />
+            </Suspense>
+
             <div className="xa-row-2col">
               <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
                 <StoresRankingSection userId={user.id} />
@@ -182,14 +186,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               </Suspense>
             </div>
 
-            <div className="xa-row-2col">
-              <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
-                <StaffSection userId={user.id} storeIds={storeIds} />
-              </Suspense>
-              <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
-                <AlertsSection userId={user.id} storeIds={storeIds} />
-              </Suspense>
-            </div>
+            <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
+              <AlertsSection userId={user.id} storeIds={storeIds} />
+            </Suspense>
 
             <Suspense fallback={<GridSkeleton cols={1} height={180} />}>
               <HealthScoresSection userId={user.id} />
