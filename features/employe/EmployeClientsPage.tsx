@@ -37,6 +37,11 @@ export default function EmployeClientsPage({ initialData, session }: Props) {
     );
   }, [clients, recherche]);
 
+  function handleCancelCreate() {
+    setShowCreate(false);
+    setForm({ nom: '', telephone: '' });
+  }
+
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!form.nom.trim()) return;
@@ -230,7 +235,7 @@ export default function EmployeClientsPage({ initialData, session }: Props) {
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               type="button"
-              onClick={() => { setShowCreate(false); setForm({ nom: '', telephone: '' }); }}
+              onClick={handleCancelCreate}
               style={{
                 padding: '9px 14px',
                 borderRadius: 10,

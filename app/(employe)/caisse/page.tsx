@@ -38,7 +38,7 @@ export default async function EmployeCaissePage() {
     <CaisseV3
       boutiques={[boutique as Boutique]}
       produits={produits}
-      userId=""
+      userId={session.employe_id}
       lockedBoutiqueId={session.boutique_id}
       disableLock={true}
     />

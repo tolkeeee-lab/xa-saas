@@ -11,13 +11,17 @@ const EMPLOYE_API_PREFIX = '/api/employe';
 /** Routes in the (employe) group that DON'T require an employee session. */
 const EMPLOYE_PUBLIC_PATHS = ['/caisse/lock'];
 
+function isEmployePublicPath(pathname: string): boolean {
+  return EMPLOYE_PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
+}
+
 /** Routes in the (employe) group that DO require an employee session. */
 const EMPLOYE_PROTECTED_PREFIXES = ['/caisse', '/stock', '/ventes', '/dettes', '/clients', '/cloture', '/inventaire'];
 
 function isPublicRoute(pathname: string): boolean {
   if (PUBLIC_ROUTES.includes(pathname)) return true;
   if (pathname.startsWith(CAISSE_PREFIX)) return true;
-  if (EMPLOYE_PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))) return true;
+  if (isEmployePublicPath(pathname)) return true;
   return false;
 }
 
@@ -52,7 +56,7 @@ export async function middleware(request: NextRequest) {
   // ── Employee protected page routes ───────────────────────────────────────────
   if (isEmployeRoute(pathname)) {
     // If it's the lock screen, always allow
-    if (EMPLOYE_PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))) {
+    if (isEmployePublicPath(pathname)) {
       return NextResponse.next({ request });
     }
 

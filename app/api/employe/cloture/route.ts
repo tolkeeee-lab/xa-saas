@@ -153,9 +153,9 @@ export async function POST(request: NextRequest) {
     .select('id, ecart')
     .single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error || !cloture) {
+    return NextResponse.json({ error: error?.message ?? 'Erreur lors de la clôture' }, { status: 500 });
   }
 
-  return NextResponse.json({ success: true, cloture: { id: cloture?.id, ecart: cloture?.ecart } });
+  return NextResponse.json({ success: true, cloture: { id: cloture.id, ecart: cloture.ecart } });
 }

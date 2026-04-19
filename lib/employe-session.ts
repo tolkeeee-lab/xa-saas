@@ -21,6 +21,7 @@
 import crypto from 'crypto';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { base64urlDecode } from './base64url';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -66,15 +67,6 @@ function base64urlEncode(input: string): string {
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=/g, '');
-}
-
-function base64urlDecode(input: string): string | null {
-  try {
-    const padded = input + '='.repeat((4 - (input.length % 4)) % 4);
-    return Buffer.from(padded.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
-  } catch {
-    return null;
-  }
 }
 
 function computeHmac(encodedPayload: string): string {

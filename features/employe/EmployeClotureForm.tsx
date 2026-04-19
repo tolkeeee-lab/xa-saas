@@ -62,7 +62,7 @@ export default function EmployeClotureForm({ session }: Props) {
     } finally {
       setLoadingLive(false);
     }
-  }, [date, session.boutique_id]);
+  }, [date]);
 
   useEffect(() => {
     void fetchLiveData();

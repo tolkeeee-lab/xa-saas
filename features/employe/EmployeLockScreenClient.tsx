@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import EmployeLockScreen from './EmployeLockScreen';
 import { EMPLOYE_STORAGE_KEY } from '@/lib/employe-session';
+import { base64urlDecode } from '@/lib/base64url';
 
 type BoutiqueInfo = { id: string; nom: string };
 
@@ -27,15 +28,14 @@ export default function EmployeLockScreenClient() {
         try {
           const raw = localStorage.getItem(EMPLOYE_STORAGE_KEY);
           if (raw) {
-            // Parse stored token to get boutique_id
-            const parts = raw.split('.');
-            if (parts.length >= 1) {
-              const decoded = atob(
-                parts[0].replace(/-/g, '+').replace(/_/g, '/') +
-                  '='.repeat((4 - (parts[0].length % 4)) % 4),
-              );
-              const payload = JSON.parse(decoded) as { boutique_id?: string };
-              storedBoutiqueId = payload.boutique_id ?? null;
+            const dotIdx = raw.lastIndexOf('.');
+            if (dotIdx > 0) {
+              const encodedPayload = raw.slice(0, dotIdx);
+              const decoded = base64urlDecode(encodedPayload);
+              if (decoded) {
+                const payload = JSON.parse(decoded) as { boutique_id?: string };
+                storedBoutiqueId = payload.boutique_id ?? null;
+              }
             }
           }
         } catch {
