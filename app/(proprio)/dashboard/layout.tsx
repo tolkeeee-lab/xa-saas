@@ -5,8 +5,10 @@ import { getBoutiques } from '@/lib/supabase/getBoutiques';
 import KeyboardShortcuts from '@/components/ui/KeyboardShortcuts';
 import OfflineBanner from '@/components/ui/OfflineBanner';
 import DashboardShell from '@/components/dashboard/shell/DashboardShell';
-import LeftColumnPlaceholder from '@/components/dashboard/shell/LeftColumnPlaceholder';
-import RightColumnPlaceholder from '@/components/dashboard/shell/RightColumnPlaceholder';
+import LeftColumnServer from '@/components/dashboard/shell/LeftColumnServer';
+import RightColumnServer from '@/components/dashboard/shell/RightColumnServer';
+import LeftColumnSkeleton from '@/components/dashboard/shell/LeftColumnSkeleton';
+import RightColumnSkeleton from '@/components/dashboard/shell/RightColumnSkeleton';
 import DashboardLoading from './loading';
 import type { Profile } from '@/types/database';
 
@@ -44,13 +46,21 @@ export default async function DashboardLayout({
       <DashboardShell
         userInitials={initials}
         boutiques={boutiques}
-        leftColumn={<LeftColumnPlaceholder boutiques={boutiques} />}
+        leftColumn={
+          <Suspense fallback={<LeftColumnSkeleton />}>
+            <LeftColumnServer userId={user.id} />
+          </Suspense>
+        }
         centerColumn={
           <Suspense fallback={<DashboardLoading />}>
             <main className="p-4 md:p-6">{children}</main>
           </Suspense>
         }
-        rightColumn={<RightColumnPlaceholder />}
+        rightColumn={
+          <Suspense fallback={<RightColumnSkeleton />}>
+            <RightColumnServer userId={user.id} />
+          </Suspense>
+        }
       />
       <KeyboardShortcuts />
     </>

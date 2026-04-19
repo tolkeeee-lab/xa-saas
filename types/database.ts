@@ -181,6 +181,19 @@ export type BoutiqueObjectif = {
   updated_at: string;
 };
 
+export type ActivityEventRow = {
+  id: string;
+  proprietaire_id: string;
+  boutique_id: string | null;
+  type: 'sale' | 'alert' | 'stock' | 'staff' | 'goal' | 'system';
+  severity: 'info' | 'success' | 'warning' | 'danger';
+  title: string;
+  description: string | null;
+  metadata: Record<string, unknown>;
+  amount: number | null;
+  created_at: string;
+};
+
 export type ClotureCaisse = {
   id: string;
   boutique_id: string;
@@ -302,6 +315,13 @@ export type Database = {
         Insert: Omit<Client, 'id' | 'created_at' | 'updated_at' | 'points' | 'total_achats' | 'nb_visites' | 'actif'> &
           Partial<Pick<Client, 'id' | 'created_at' | 'updated_at' | 'points' | 'total_achats' | 'nb_visites' | 'actif'>>;
         Update: Partial<Omit<Client, 'id'>>;
+        Relationships: [];
+      };
+      activity_events: {
+        Row: ActivityEventRow;
+        Insert: Omit<ActivityEventRow, 'id' | 'created_at'> &
+          Partial<Pick<ActivityEventRow, 'id' | 'created_at'>>;
+        Update: Partial<Omit<ActivityEventRow, 'id'>>;
         Relationships: [];
       };
     };
