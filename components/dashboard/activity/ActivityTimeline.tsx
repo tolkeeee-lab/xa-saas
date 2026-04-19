@@ -86,7 +86,7 @@ export default function ActivityTimeline({ initialEvents, userId }: Props) {
           if (
             currentStore !== 'all' &&
             raw.boutique_id != null &&
-            raw.boutique_id !== currentStore
+            (raw.boutique_id as string) !== currentStore
           ) {
             return;
           }

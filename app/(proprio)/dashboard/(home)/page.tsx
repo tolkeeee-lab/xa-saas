@@ -146,8 +146,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       : 'Tableau de bord';
 
   const centerColumn = (
-    <Suspense fallback={<DashboardLoading />}>
-      <main className="p-4 md:p-6">
+    <main className="p-4 md:p-6">
+      <Suspense fallback={<DashboardLoading />}>
         <div className="xa-dashboard-center">
           <PageHeader storeName={activeStoreName} initialPeriod={period} />
 
@@ -209,8 +209,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             </Suspense>
           </div>
         </div>
-      </main>
-    </Suspense>
+      </Suspense>
+    </main>
   );
 
   return (
