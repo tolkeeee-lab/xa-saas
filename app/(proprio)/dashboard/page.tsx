@@ -1,15 +1,118 @@
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getBoutiques } from '@/lib/supabase/getBoutiques';
-import { getWeeklyStats } from '@/lib/supabase/getWeeklyStats';
-import { getRapports } from '@/lib/supabase/getRapports';
-import { getAlertesStock } from '@/lib/supabase/getAlertesStock';
-import { getSalesByCategory } from '@/lib/supabase/getSalesByCategory';
-import { getClients } from '@/lib/supabase/getClients';
-import DashboardHome from '@/features/dashboard/DashboardHome';
-import type { RecentTx } from '@/features/dashboard/DashboardHome';
+import { getKPIs } from '@/lib/supabase/dashboard/kpis';
+import { getRevenueSeries } from '@/lib/supabase/dashboard/revenue';
+import { getPeakHours } from '@/lib/supabase/dashboard/peak-hours';
+import { getCategoryBreakdown } from '@/lib/supabase/dashboard/categories';
+import { getHeatmap } from '@/lib/supabase/dashboard/heatmap';
+import { getStoresRanking } from '@/lib/supabase/dashboard/stores-ranking';
+import { getTopProducts } from '@/lib/supabase/dashboard/top-products';
+import { getStaffStatus } from '@/lib/supabase/dashboard/staff-status';
+import { getAlerts } from '@/lib/supabase/dashboard/alerts';
+import { getHealthScores } from '@/lib/supabase/dashboard/health-scores';
+import { getForecast } from '@/lib/supabase/dashboard/forecast';
+import { getObjectives } from '@/lib/supabase/dashboard/objectives';
+import { getQuickSummary } from '@/lib/supabase/dashboard/quick-summary';
+import type { PeriodKey } from '@/lib/supabase/dashboard/kpis';
+import PageHeader from '@/components/dashboard/home/PageHeader';
+import KPIGrid from '@/components/dashboard/home/KPIGrid';
+import RevenueChart from '@/components/dashboard/home/RevenueChart';
+import PeakHoursCard from '@/components/dashboard/home/PeakHoursCard';
+import CategoriesDonut from '@/components/dashboard/home/CategoriesDonut';
+import HeatmapCard from '@/components/dashboard/home/HeatmapCard';
+import StoresRankingCard from '@/components/dashboard/home/StoresRankingCard';
+import TopProductsCard from '@/components/dashboard/home/TopProductsCard';
+import StaffCard from '@/components/dashboard/home/StaffCard';
+import ActiveAlertsCard from '@/components/dashboard/home/ActiveAlertsCard';
+import HealthScoresCard from '@/components/dashboard/home/HealthScoresCard';
+import ForecastCard from '@/components/dashboard/home/ForecastCard';
+import MonthObjectivesCard from '@/components/dashboard/home/MonthObjectivesCard';
+import QuickSummaryCard from '@/components/dashboard/home/QuickSummaryCard';
+import KPIGridSkeleton from '@/components/dashboard/home/KPIGridSkeleton';
+import RevenueChartSkeleton from '@/components/dashboard/home/RevenueChartSkeleton';
+import GridSkeleton from '@/components/dashboard/home/GridSkeleton';
 
-export default async function DashboardPage() {
+const VALID_PERIODS: PeriodKey[] = ['7J', '30J', 'Mois', 'An'];
+const DEFAULT_PERIOD: PeriodKey = '7J';
+
+type PageProps = {
+  searchParams: Promise<{ period?: string; store?: string }>;
+};
+
+// ── Async server-component wrappers ──────────────────────────────────────────
+// Each wrapper fetches its own data independently so Suspense boundaries
+// stream each widget as soon as its data resolves (true progressive rendering).
+
+async function KPIGridSection({ userId, storeIds, period }: { userId: string; storeIds: string[]; period: PeriodKey }) {
+  const data = await getKPIs(userId, storeIds, period);
+  return <KPIGrid data={data} />;
+}
+
+async function RevenueChartSection({ userId, storeIds, period }: { userId: string; storeIds: string[]; period: PeriodKey }) {
+  const data = await getRevenueSeries(userId, storeIds, period);
+  return <RevenueChart data={data} />;
+}
+
+async function PeakHoursSection({ userId, storeIds }: { userId: string; storeIds: string[] }) {
+  const data = await getPeakHours(userId, storeIds);
+  return <PeakHoursCard data={data} />;
+}
+
+async function CategoriesSection({ userId, storeIds, period }: { userId: string; storeIds: string[]; period: PeriodKey }) {
+  const data = await getCategoryBreakdown(userId, storeIds, period);
+  return <CategoriesDonut data={data} />;
+}
+
+async function HeatmapSection({ userId, storeIds }: { userId: string; storeIds: string[] }) {
+  const data = await getHeatmap(userId, storeIds);
+  return <HeatmapCard data={data} />;
+}
+
+async function StoresRankingSection({ userId }: { userId: string }) {
+  const data = await getStoresRanking(userId);
+  return <StoresRankingCard data={data} />;
+}
+
+async function TopProductsSection({ userId, storeIds }: { userId: string; storeIds: string[] }) {
+  const data = await getTopProducts(userId, storeIds);
+  return <TopProductsCard data={data} />;
+}
+
+async function StaffSection({ userId, storeIds }: { userId: string; storeIds: string[] }) {
+  const data = await getStaffStatus(userId, storeIds);
+  return <StaffCard data={data} />;
+}
+
+async function AlertsSection({ userId, storeIds }: { userId: string; storeIds: string[] }) {
+  const data = await getAlerts(userId, storeIds);
+  return <ActiveAlertsCard data={data} />;
+}
+
+async function HealthScoresSection({ userId }: { userId: string }) {
+  const data = await getHealthScores(userId);
+  return <HealthScoresCard data={data} />;
+}
+
+async function ForecastSection({ userId, storeIds }: { userId: string; storeIds: string[] }) {
+  const data = await getForecast(userId, storeIds);
+  return <ForecastCard data={data} />;
+}
+
+async function ObjectivesSection({ userId }: { userId: string }) {
+  const data = await getObjectives(userId);
+  return <MonthObjectivesCard data={data} />;
+}
+
+async function QuickSummarySection({ userId, storeIds, period }: { userId: string; storeIds: string[]; period: PeriodKey }) {
+  const data = await getQuickSummary(userId, storeIds, period);
+  return <QuickSummaryCard data={data} />;
+}
+
+// ── Page ─────────────────────────────────────────────────────────────────────
+
+export default async function DashboardPage({ searchParams }: PageProps) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -17,72 +120,82 @@ export default async function DashboardPage() {
 
   if (!user) redirect('/login');
 
-  const now = new Date();
-  const dateDebut = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
-  const dateFin = now.toISOString().slice(0, 10);
+  const resolvedParams = await searchParams;
+  const rawPeriod = resolvedParams.period ?? DEFAULT_PERIOD;
+  const period: PeriodKey = VALID_PERIODS.includes(rawPeriod as PeriodKey)
+    ? (rawPeriod as PeriodKey)
+    : DEFAULT_PERIOD;
+
+  const rawStore = resolvedParams.store ?? 'all';
+  const storeIds = rawStore !== 'all' ? [rawStore] : [];
 
   const boutiques = await getBoutiques(user.id);
-  const boutiqueIds = boutiques.map((b) => b.id);
-
-  // Fetch all data in parallel
-  const [weeklyStats, rapports, alertesStock, salesByCategory, clientsData] =
-    await Promise.all([
-      getWeeklyStats(user.id),
-      getRapports(user.id),
-      getAlertesStock(user.id),
-      getSalesByCategory(user.id, dateDebut, dateFin),
-      getClients(user.id),
-    ]);
-
-  // Recent transactions (last 4, any status)
-  const recentTxResult = boutiqueIds.length > 0
-    ? await supabase
-        .from('transactions')
-        .select('id, client_nom, montant_total, created_at, statut, boutique_id')
-        .in('boutique_id', boutiqueIds)
-        .order('created_at', { ascending: false })
-        .limit(4)
-    : { data: [] };
-
-  const recentTransactions: RecentTx[] = (recentTxResult.data ?? []).map((t) => ({
-    id: t.id as string,
-    client_nom: t.client_nom as string | null,
-    montant_total: (t.montant_total as number) ?? 0,
-    created_at: t.created_at as string,
-    statut: t.statut as 'validee' | 'annulee',
-    boutique_id: t.boutique_id as string,
-  }));
-
-  // Hourly distribution of transactions (last 7 days)
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-  const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
-
-  const hourlyResult = boutiqueIds.length > 0
-    ? await supabase
-        .from('transactions')
-        .select('created_at')
-        .in('boutique_id', boutiqueIds)
-        .eq('statut', 'validee')
-        .gte('created_at', sevenDaysAgoStr)
-    : { data: [] };
-
-  const hourlyStats: number[] = Array<number>(24).fill(0);
-  for (const tx of hourlyResult.data ?? []) {
-    const hour = new Date(tx.created_at as string).getHours();
-    hourlyStats[hour]++;
-  }
+  const activeStoreName =
+    storeIds.length === 1
+      ? (boutiques.find((b) => b.id === storeIds[0])?.nom ?? 'Tableau de bord')
+      : 'Tableau de bord';
 
   return (
-    <DashboardHome
-      weeklyStats={weeklyStats}
-      moisStats={rapports.moisStats}
-      alertesStock={alertesStock}
-      salesByCategory={salesByCategory}
-      boutiques={boutiques}
-      recentTransactions={recentTransactions}
-      clientsCount={clientsData.total_clients}
-      hourlyStats={hourlyStats}
-    />
+    <div className="xa-dashboard-center">
+      <PageHeader storeName={activeStoreName} initialPeriod={period} />
+
+      <div className="xa-center-content">
+        <Suspense fallback={<KPIGridSkeleton />}>
+          <KPIGridSection userId={user.id} storeIds={storeIds} period={period} />
+        </Suspense>
+
+        <Suspense fallback={<RevenueChartSkeleton />}>
+          <RevenueChartSection userId={user.id} storeIds={storeIds} period={period} />
+        </Suspense>
+
+        <div className="xa-row-2col">
+          <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
+            <PeakHoursSection userId={user.id} storeIds={storeIds} />
+          </Suspense>
+          <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
+            <CategoriesSection userId={user.id} storeIds={storeIds} period={period} />
+          </Suspense>
+        </div>
+
+        <Suspense fallback={<GridSkeleton cols={1} height={220} />}>
+          <HeatmapSection userId={user.id} storeIds={storeIds} />
+        </Suspense>
+
+        <div className="xa-row-2col">
+          <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
+            <StoresRankingSection userId={user.id} />
+          </Suspense>
+          <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
+            <TopProductsSection userId={user.id} storeIds={storeIds} />
+          </Suspense>
+        </div>
+
+        <div className="xa-row-2col">
+          <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
+            <StaffSection userId={user.id} storeIds={storeIds} />
+          </Suspense>
+          <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
+            <AlertsSection userId={user.id} storeIds={storeIds} />
+          </Suspense>
+        </div>
+
+        <Suspense fallback={<GridSkeleton cols={1} height={180} />}>
+          <HealthScoresSection userId={user.id} />
+        </Suspense>
+
+        <div className="xa-row-2col">
+          <Suspense fallback={<GridSkeleton cols={1} height={180} />}>
+            <ForecastSection userId={user.id} storeIds={storeIds} />
+          </Suspense>
+          <Suspense fallback={<GridSkeleton cols={1} height={180} />}>
+            <ObjectivesSection userId={user.id} />
+          </Suspense>
+        </div>
+
+        <Suspense fallback={<GridSkeleton cols={1} height={160} />}>
+          <QuickSummarySection userId={user.id} storeIds={storeIds} period={period} />
+        </Suspense>
+      </div>
+    </div>
   );
 }
