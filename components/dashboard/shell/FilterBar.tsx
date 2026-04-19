@@ -17,7 +17,9 @@ type FilterBarProps = {
 };
 
 export default function FilterBar({ boutiques }: FilterBarProps) {
-  const { activeStoreId, activeType, setStoreFilter, setTypeFilter } = useDashboardFilter();
+  const { activeStoreId, activeType, setStoreFilter, setTypeFilter, clearFilters } = useDashboardFilter();
+
+  const hasActiveFilter = activeStoreId !== 'all' || activeType !== 'all';
 
   return (
     <div className="xa-filter-bar">
@@ -60,6 +62,13 @@ export default function FilterBar({ boutiques }: FilterBarProps) {
           </button>
         ))}
       </div>
+
+      {/* Clear filters */}
+      {hasActiveFilter && (
+        <button className="xa-fchip" onClick={clearFilters} style={{ opacity: 0.75 }}>
+          ↻ Effacer
+        </button>
+      )}
 
       {/* Live pill */}
       <div className="xa-live-pill">TEMPS RÉEL</div>

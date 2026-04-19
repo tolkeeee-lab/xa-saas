@@ -4,13 +4,18 @@ import LeftColumnClient from '@/components/dashboard/hero/LeftColumnClient';
 
 type Props = {
   userId: string;
+  storeFilter?: string | null;
 };
 
-export default async function LeftColumnServer({ userId }: Props) {
+export default async function LeftColumnServer({ userId, storeFilter }: Props) {
   const [boutiques, globalSummary, activityEvents] = await Promise.all([
     getBoutiquesSummary(userId),
     getGlobalSummary(userId),
-    getActivityEvents(userId, { types: ['alert', 'stock'], limit: 20 }),
+    getActivityEvents(userId, {
+      boutiqueIds: storeFilter ? [storeFilter] : undefined,
+      types: ['alert', 'stock'],
+      limit: 20,
+    }),
   ]);
 
   return (

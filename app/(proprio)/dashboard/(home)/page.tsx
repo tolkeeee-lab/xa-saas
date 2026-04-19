@@ -33,12 +33,18 @@ import QuickSummaryCard from '@/components/dashboard/home/QuickSummaryCard';
 import KPIGridSkeleton from '@/components/dashboard/home/KPIGridSkeleton';
 import RevenueChartSkeleton from '@/components/dashboard/home/RevenueChartSkeleton';
 import GridSkeleton from '@/components/dashboard/home/GridSkeleton';
+import DashboardShell from '@/components/dashboard/shell/DashboardShell';
+import LeftColumnServer from '@/components/dashboard/shell/LeftColumnServer';
+import RightColumnServer from '@/components/dashboard/shell/RightColumnServer';
+import LeftColumnSkeleton from '@/components/dashboard/shell/LeftColumnSkeleton';
+import RightColumnSkeleton from '@/components/dashboard/shell/RightColumnSkeleton';
+import DashboardLoading from '../loading';
 
 const VALID_PERIODS: PeriodKey[] = ['7J', '30J', 'Mois', 'An'];
 const DEFAULT_PERIOD: PeriodKey = '7J';
 
 type PageProps = {
-  searchParams: Promise<{ period?: string; store?: string }>;
+  searchParams: Promise<{ period?: string; store?: string; type?: string }>;
 };
 
 // ── Async server-component wrappers ──────────────────────────────────────────
@@ -127,7 +133,11 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     : DEFAULT_PERIOD;
 
   const rawStore = resolvedParams.store ?? 'all';
-  const storeIds = rawStore !== 'all' ? [rawStore] : [];
+  const storeFilter = rawStore !== 'all' ? rawStore : null;
+  const storeIds = storeFilter ? [storeFilter] : [];
+
+  const rawType = resolvedParams.type ?? 'all';
+  const typeFilter = rawType !== 'all' ? rawType : null;
 
   const boutiques = await getBoutiques(user.id);
   const activeStoreName =
@@ -135,67 +145,88 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       ? (boutiques.find((b) => b.id === storeIds[0])?.nom ?? 'Tableau de bord')
       : 'Tableau de bord';
 
+  const centerColumn = (
+    <main className="p-4 md:p-6">
+      <Suspense fallback={<DashboardLoading />}>
+        <div className="xa-dashboard-center">
+          <PageHeader storeName={activeStoreName} initialPeriod={period} />
+
+          <div className="xa-center-content">
+            <Suspense fallback={<KPIGridSkeleton />}>
+              <KPIGridSection userId={user.id} storeIds={storeIds} period={period} />
+            </Suspense>
+
+            <Suspense fallback={<RevenueChartSkeleton />}>
+              <RevenueChartSection userId={user.id} storeIds={storeIds} period={period} />
+            </Suspense>
+
+            <div className="xa-row-2col">
+              <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
+                <PeakHoursSection userId={user.id} storeIds={storeIds} />
+              </Suspense>
+              <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
+                <CategoriesSection userId={user.id} storeIds={storeIds} period={period} />
+              </Suspense>
+            </div>
+
+            <Suspense fallback={<GridSkeleton cols={1} height={220} />}>
+              <HeatmapSection userId={user.id} storeIds={storeIds} />
+            </Suspense>
+
+            <div className="xa-row-2col">
+              <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
+                <StoresRankingSection userId={user.id} />
+              </Suspense>
+              <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
+                <TopProductsSection userId={user.id} storeIds={storeIds} />
+              </Suspense>
+            </div>
+
+            <div className="xa-row-2col">
+              <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
+                <StaffSection userId={user.id} storeIds={storeIds} />
+              </Suspense>
+              <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
+                <AlertsSection userId={user.id} storeIds={storeIds} />
+              </Suspense>
+            </div>
+
+            <Suspense fallback={<GridSkeleton cols={1} height={180} />}>
+              <HealthScoresSection userId={user.id} />
+            </Suspense>
+
+            <div className="xa-row-2col">
+              <Suspense fallback={<GridSkeleton cols={1} height={180} />}>
+                <ForecastSection userId={user.id} storeIds={storeIds} />
+              </Suspense>
+              <Suspense fallback={<GridSkeleton cols={1} height={180} />}>
+                <ObjectivesSection userId={user.id} />
+              </Suspense>
+            </div>
+
+            <Suspense fallback={<GridSkeleton cols={1} height={160} />}>
+              <QuickSummarySection userId={user.id} storeIds={storeIds} period={period} />
+            </Suspense>
+          </div>
+        </div>
+      </Suspense>
+    </main>
+  );
+
   return (
-    <div className="xa-dashboard-center">
-      <PageHeader storeName={activeStoreName} initialPeriod={period} />
-
-      <div className="xa-center-content">
-        <Suspense fallback={<KPIGridSkeleton />}>
-          <KPIGridSection userId={user.id} storeIds={storeIds} period={period} />
+    <DashboardShell
+      boutiques={boutiques}
+      leftColumn={
+        <Suspense fallback={<LeftColumnSkeleton />}>
+          <LeftColumnServer userId={user.id} storeFilter={storeFilter} />
         </Suspense>
-
-        <Suspense fallback={<RevenueChartSkeleton />}>
-          <RevenueChartSection userId={user.id} storeIds={storeIds} period={period} />
+      }
+      centerColumn={centerColumn}
+      rightColumn={
+        <Suspense fallback={<RightColumnSkeleton />}>
+          <RightColumnServer userId={user.id} storeFilter={storeFilter} typeFilter={typeFilter} />
         </Suspense>
-
-        <div className="xa-row-2col">
-          <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
-            <PeakHoursSection userId={user.id} storeIds={storeIds} />
-          </Suspense>
-          <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
-            <CategoriesSection userId={user.id} storeIds={storeIds} period={period} />
-          </Suspense>
-        </div>
-
-        <Suspense fallback={<GridSkeleton cols={1} height={220} />}>
-          <HeatmapSection userId={user.id} storeIds={storeIds} />
-        </Suspense>
-
-        <div className="xa-row-2col">
-          <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
-            <StoresRankingSection userId={user.id} />
-          </Suspense>
-          <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
-            <TopProductsSection userId={user.id} storeIds={storeIds} />
-          </Suspense>
-        </div>
-
-        <div className="xa-row-2col">
-          <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
-            <StaffSection userId={user.id} storeIds={storeIds} />
-          </Suspense>
-          <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
-            <AlertsSection userId={user.id} storeIds={storeIds} />
-          </Suspense>
-        </div>
-
-        <Suspense fallback={<GridSkeleton cols={1} height={180} />}>
-          <HealthScoresSection userId={user.id} />
-        </Suspense>
-
-        <div className="xa-row-2col">
-          <Suspense fallback={<GridSkeleton cols={1} height={180} />}>
-            <ForecastSection userId={user.id} storeIds={storeIds} />
-          </Suspense>
-          <Suspense fallback={<GridSkeleton cols={1} height={180} />}>
-            <ObjectivesSection userId={user.id} />
-          </Suspense>
-        </div>
-
-        <Suspense fallback={<GridSkeleton cols={1} height={160} />}>
-          <QuickSummarySection userId={user.id} storeIds={storeIds} period={period} />
-        </Suspense>
-      </div>
-    </div>
+      }
+    />
   );
 }
