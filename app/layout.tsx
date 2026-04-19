@@ -1,5 +1,21 @@
 import type { Metadata, Viewport } from 'next';
+import { Familjen_Grotesk, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
+
+const familjen = Familjen_Grotesk({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-familjen',
+  display: 'swap',
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--font-plex-mono',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'xà — Solution de Gestion',
@@ -13,7 +29,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#6c2ed1',
+  themeColor: '#00C853',
 };
 
 export default function RootLayout({
@@ -22,14 +38,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
+    <html lang="fr" className={`${familjen.variable} ${plexMono.variable}`}>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/icon.svg" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <script dangerouslySetInnerHTML={{

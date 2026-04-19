@@ -225,7 +225,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
           </svg>
           {!collapsed && (
             <span style={{
-              fontFamily: "'Black Han Sans', sans-serif",
+              fontFamily: "var(--font-familjen), sans-serif",
               fontSize: 20,
               fontWeight: 900,
               color: 'var(--xa-ink)',
@@ -239,7 +239,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
         {/* Sub-label */}
         {!collapsed && (
           <p style={{
-            fontFamily: "'Space Mono', monospace",
+            fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace",
             fontSize: 9,
             letterSpacing: '0.10em',
             color: 'var(--xa-muted)',
@@ -286,7 +286,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
             {/* Section label */}
             {!collapsed && (
               <p style={{
-                fontFamily: "'Space Mono', monospace",
+                fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace",
                 fontSize: 9,
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
@@ -356,7 +356,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
         {!collapsed && boutiques.length > 0 && (
           <div style={{ marginBottom: '1.25rem' }}>
             <p style={{
-              fontFamily: "'Space Mono', monospace",
+              fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace",
               fontSize: 9,
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
@@ -377,7 +377,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
                   background: activeBoutiqueId === 'all' ? 'var(--xa-accentbg)' : 'transparent',
                   color: activeBoutiqueId === 'all' ? 'var(--xa-ink)' : 'var(--xa-muted)',
                   textAlign: 'left', width: '100%', transition: 'all 0.15s',
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "var(--font-familjen), system-ui, sans-serif",
                 }}
               >
                 <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--xa-accent)', flexShrink: 0 }} />
@@ -396,7 +396,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
                     background: activeBoutiqueId === b.id ? 'var(--xa-accentbg)' : 'transparent',
                     color: activeBoutiqueId === b.id ? 'var(--xa-ink)' : 'var(--xa-muted)',
                     textAlign: 'left', width: '100%', transition: 'all 0.15s',
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: "var(--font-familjen), system-ui, sans-serif",
                   }}
                 >
                   <span style={{
@@ -460,7 +460,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
           background: 'var(--xa-accent)', color: '#fff',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 11, fontWeight: 700, flexShrink: 0,
-          fontFamily: "'Space Mono', monospace",
+          fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace",
           letterSpacing: '0.04em',
           cursor: 'pointer',
         }}
@@ -482,7 +482,7 @@ export default function Sidebar({ boutiques, profile, isSuperAdmin = false }: Si
             <p style={{
               fontSize: 10,
               color: 'var(--xa-muted)',
-              fontFamily: "'Space Mono', monospace",
+              fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace",
             }}>
               PROPRIÉTAIRE
             </p>

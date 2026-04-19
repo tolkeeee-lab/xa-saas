@@ -76,7 +76,7 @@ function cardStyle(delay: number = 0): React.CSSProperties {
 function SectionTitle({ label }: { label: string }) {
   return (
     <p style={{
-      fontFamily: "'Playfair Display', serif",
+      fontFamily: "var(--font-familjen), sans-serif",
       fontStyle: 'italic',
       fontSize: 15,
       fontWeight: 700,
@@ -95,7 +95,7 @@ function MutedLabel({ label }: { label: string }) {
       letterSpacing: '.1em',
       color: 'var(--sp-muted)',
       textTransform: 'uppercase',
-      fontFamily: "'DM Sans', sans-serif",
+      fontFamily: "var(--font-familjen), system-ui, sans-serif",
     }}>
       {label}
     </span>
@@ -118,7 +118,7 @@ function EvoBadge({ delta }: { delta: number | null }) {
       borderRadius: 999,
       backgroundColor: positive ? 'rgba(89,205,144,0.15)' : 'rgba(243,138,124,0.15)',
       color: positive ? '#2d9e61' : '#c0392b',
-      fontFamily: "'DM Mono', monospace",
+      fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace",
     }}>
       {positive ? '▲' : '▼'} {Math.abs(delta)}%
     </span>
@@ -185,7 +185,7 @@ function LeftPanel({
             letterSpacing: '.1em',
             color: 'var(--sp-emerald)',
             textTransform: 'uppercase',
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "var(--font-familjen), system-ui, sans-serif",
             fontWeight: 600,
             display: 'flex',
             alignItems: 'center',
@@ -202,7 +202,7 @@ function LeftPanel({
         <MutedLabel label="CA — 7 derniers jours" />
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, marginTop: 6 }}>
           <span style={{
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: "var(--font-familjen), sans-serif",
             fontSize: 60,
             fontWeight: 900,
             color: 'var(--sp-ink)',
@@ -211,7 +211,7 @@ function LeftPanel({
             {totalCA >= 1000 ? (totalCA / 1000).toFixed(1) : String(totalCA)}
           </span>
           <span style={{
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "var(--font-familjen), system-ui, sans-serif",
             fontSize: 22,
             color: 'var(--sp-muted)',
             marginBottom: 8,
@@ -263,7 +263,7 @@ function LeftPanel({
               <MutedLabel label={label} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
                 <span style={{
-                  fontFamily: "'DM Mono', monospace",
+                  fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace",
                   fontSize: 22,
                   fontWeight: 500,
                   color: 'var(--sp-ink)',
@@ -294,13 +294,13 @@ function LeftPanel({
                 <li key={item.boutique.id}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, alignItems: 'center' }}>
                     <span style={{ fontSize: 12.5, color: 'var(--sp-ink)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontFamily: "'DM Mono', monospace", color: 'var(--sp-faint)', fontSize: 12 }}>
+                      <span style={{ fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace", color: 'var(--sp-faint)', fontSize: 12 }}>
                         {String(i + 1).padStart(2, '0')}
                       </span>
                       <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, display: 'inline-block', flexShrink: 0 }} />
                       {item.boutique.nom}
                     </span>
-                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: 'var(--sp-ink2)' }}>
+                    <span style={{ fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace", fontSize: 12, color: 'var(--sp-ink2)' }}>
                       {formatShort(item.ca)}
                     </span>
                   </div>
@@ -341,7 +341,7 @@ function LeftPanel({
                       <p style={{ fontSize: 11, color: 'var(--sp-muted)', marginTop: 2 }}>{alerte.boutique_nom}</p>
                     </div>
                     <span style={{
-                      fontFamily: "'DM Mono', monospace",
+                      fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace",
                       fontSize: 11,
                       color: isCritical ? 'var(--sp-salmon)' : 'var(--sp-gold)',
                       fontWeight: 700,
@@ -438,11 +438,11 @@ function RevenueMultiLineChart({
         scales: {
           x: {
             grid: { display: false },
-            ticks: { color: '#8C8679', font: { family: 'DM Mono', size: 10 }, maxRotation: 0 },
+            ticks: { color: '#8C8679', font: { family: 'IBM Plex Mono', size: 10 }, maxRotation: 0 },
           },
           y: {
             grid: { color: 'rgba(28,26,22,.06)' },
-            ticks: { color: '#8C8679', font: { family: 'DM Mono', size: 10 } },
+            ticks: { color: '#8C8679', font: { family: 'IBM Plex Mono', size: 10 } },
           },
         },
       },
@@ -459,14 +459,14 @@ function RevenueMultiLineChart({
     <div style={cardStyle(0)}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: 8 }}>
         <div>
-          <p style={{ fontSize: 10.5, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--sp-muted)', fontFamily: "'DM Sans', sans-serif" }}>
+          <p style={{ fontSize: 10.5, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--sp-muted)', fontFamily: "var(--font-familjen), system-ui, sans-serif" }}>
             Revenus multi-boutiques
           </p>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginTop: 4 }}>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 700, color: 'var(--sp-ink)', lineHeight: 1 }}>
+            <span style={{ fontFamily: "var(--font-familjen), sans-serif", fontSize: 32, fontWeight: 700, color: 'var(--sp-ink)', lineHeight: 1 }}>
               {formatShort(totalCA)}
             </span>
-            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, color: 'var(--sp-muted)', marginBottom: 4 }}>
+            <span style={{ fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace", fontSize: 13, color: 'var(--sp-muted)', marginBottom: 4 }}>
               FCFA
             </span>
           </div>
@@ -486,7 +486,7 @@ function RevenueMultiLineChart({
                 cursor: 'pointer',
                 background: period === p ? 'var(--sp-sky)' : 'transparent',
                 color: period === p ? '#fff' : 'var(--sp-muted)',
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: "var(--font-familjen), system-ui, sans-serif",
               }}
             >
               {p}
@@ -554,7 +554,7 @@ function HourlyBarChart({ hourlyStats }: { hourlyStats: number[] }) {
         maintainAspectRatio: false,
         plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1C1A16', bodyColor: '#F7F3EC', padding: 8 } },
         scales: {
-          x: { grid: { display: false }, ticks: { color: '#8C8679', font: { family: 'DM Mono', size: 9 } } },
+          x: { grid: { display: false }, ticks: { color: '#8C8679', font: { family: 'IBM Plex Mono', size: 9 } } },
           y: { display: false },
         },
       },
@@ -649,7 +649,7 @@ function CategoryDonut({ salesByCategory }: { salesByCategory: CategoryStat[] })
                   {cat.categorie}
                 </span>
               </div>
-              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--sp-ink2)', flexShrink: 0, marginLeft: 8 }}>
+              <span style={{ fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace", fontSize: 11, color: 'var(--sp-ink2)', flexShrink: 0, marginLeft: 8 }}>
                 {formatShort(cat.ca_total)}
               </span>
             </div>
@@ -730,7 +730,7 @@ function ObjectifsMois({ weeklyStats }: { weeklyStats: DayStat[] }) {
       <SectionTitle label="Objectifs du mois" />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
         <span style={{ fontSize: 12, color: 'var(--sp-muted)' }}>CA mensuel</span>
-        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: 'var(--sp-ink)', fontWeight: 600 }}>
+        <span style={{ fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace", fontSize: 12, color: 'var(--sp-ink)', fontWeight: 600 }}>
           {formatShort(caMonth)} / {formatShort(objectif)}
         </span>
       </div>
@@ -743,7 +743,7 @@ function ObjectifsMois({ weeklyStats }: { weeklyStats: DayStat[] }) {
           transition: 'width 0.6s ease',
         }} />
       </div>
-      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--sp-muted)' }}>
+      <span style={{ fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace", fontSize: 11, color: 'var(--sp-muted)' }}>
         {pct}% atteint
       </span>
     </div>
@@ -769,12 +769,12 @@ function TopProduits({ salesByCategory }: { salesByCategory: CategoryStat[] }) {
               <li key={cat.categorie}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontSize: 12, color: 'var(--sp-ink)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontFamily: "'DM Mono', monospace", color: 'var(--sp-faint)', fontSize: 11 }}>
+                    <span style={{ fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace", color: 'var(--sp-faint)', fontSize: 11 }}>
                       {String(i + 1).padStart(2, '0')}
                     </span>
                     {cat.categorie}
                   </span>
-                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--sp-ink2)' }}>
+                  <span style={{ fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace", fontSize: 11, color: 'var(--sp-ink2)' }}>
                     {cat.quantite_totale} u
                   </span>
                 </div>
@@ -820,7 +820,7 @@ function PersonnelCard({ boutiques, weeklyStats }: { boutiques: Boutique[]; week
                   fontSize: 11,
                   fontWeight: 700,
                   color: '#fff',
-                  fontFamily: "'DM Mono', monospace",
+                  fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace",
                   flexShrink: 0,
                 }}>
                   {item.boutique.nom.charAt(0).toUpperCase()}
@@ -837,7 +837,7 @@ function PersonnelCard({ boutiques, weeklyStats }: { boutiques: Boutique[]; week
                 borderRadius: 999,
                 background: item.ca > 0 ? 'var(--sp-emerald-bg)' : 'var(--sp-rule)',
                 color: item.ca > 0 ? '#2d9e61' : 'var(--sp-muted)',
-                fontFamily: "'DM Mono', monospace",
+                fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace",
               }}>
                 {item.ca > 0 ? 'Actif' : 'Inactif'}
               </span>
@@ -894,7 +894,7 @@ function ScoreSante({
             />
           </svg>
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-            <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 18, fontWeight: 700, color: 'var(--sp-ink)' }}>{clamped}</span>
+            <span style={{ fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace", fontSize: 18, fontWeight: 700, color: 'var(--sp-ink)' }}>{clamped}</span>
             <span style={{ fontSize: 9, color: 'var(--sp-muted)', letterSpacing: '.05em' }}>/100</span>
           </div>
         </div>
@@ -905,7 +905,7 @@ function ScoreSante({
           ].map(({ label, value, ok }) => (
             <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
               <span style={{ fontSize: 12, color: 'var(--sp-muted)' }}>{label}</span>
-              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, fontWeight: 600, color: ok ? 'var(--sp-emerald)' : 'var(--sp-salmon)' }}>
+              <span style={{ fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 600, color: ok ? 'var(--sp-emerald)' : 'var(--sp-salmon)' }}>
                 {value}
               </span>
             </div>
@@ -927,14 +927,14 @@ function PrevisionCard({ weeklyStats }: { weeklyStats: DayStat[] }) {
 
   return (
     <div style={{ ...cardStyle(80), background: 'var(--sp-ink)', borderColor: 'transparent', color: 'var(--sp-cream)' }}>
-      <p style={{ fontSize: 10.5, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--sp-faint)', fontFamily: "'DM Sans', sans-serif", marginBottom: 6 }}>
+      <p style={{ fontSize: 10.5, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--sp-faint)', fontFamily: "var(--font-familjen), system-ui, sans-serif", marginBottom: 6 }}>
         Prévision mensuelle
       </p>
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginBottom: 12 }}>
-        <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 36, fontWeight: 700, color: 'var(--sp-cream)', lineHeight: 1 }}>
+        <span style={{ fontFamily: "var(--font-familjen), sans-serif", fontSize: 36, fontWeight: 700, color: 'var(--sp-cream)', lineHeight: 1 }}>
           {formatShort(previsionMois)}
         </span>
-        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 14, color: 'var(--sp-muted)', marginBottom: 4 }}>FCFA</span>
+        <span style={{ fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace", fontSize: 14, color: 'var(--sp-muted)', marginBottom: 4 }}>FCFA</span>
       </div>
       <p style={{ fontSize: 11.5, color: 'var(--sp-faint)', marginBottom: 16, lineHeight: 1.5 }}>
         Basé sur la moyenne des 7 derniers jours ({formatShort(Math.round(avgDay))} F/j)
@@ -973,7 +973,7 @@ function RecentOrders({ transactions, boutiques }: { transactions: RecentTx[]; b
             const timeStr = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
             return (
               <li key={tx.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: 'var(--sp-faint)', minWidth: 18 }}>
+                <span style={{ fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace", fontSize: 11, color: 'var(--sp-faint)', minWidth: 18 }}>
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -983,7 +983,7 @@ function RecentOrders({ transactions, boutiques }: { transactions: RecentTx[]; b
                   <p style={{ fontSize: 11, color: 'var(--sp-muted)' }}>{dateStr} · {timeStr}</p>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
-                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, fontWeight: 500, color: 'var(--sp-ink)' }}>
+                  <span style={{ fontFamily: "var(--font-plex-mono), 'IBM Plex Mono', monospace", fontSize: 12, fontWeight: 500, color: 'var(--sp-ink)' }}>
                     {formatFCFA(tx.montant_total)}
                   </span>
                   <span style={{
@@ -1040,7 +1040,7 @@ export default function DashboardHome({
   const periodLabel = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
 
   return (
-    <div style={{ background: 'var(--sp-cream)', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif", color: 'var(--sp-ink)', fontSize: 14 }}>
+    <div style={{ background: 'var(--sp-cream)', minHeight: '100vh', fontFamily: "var(--font-familjen), system-ui, sans-serif", color: 'var(--sp-ink)', fontSize: 14 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr' }}>
         <LeftPanel
           totalCA={totalCA}
@@ -1055,16 +1055,16 @@ export default function DashboardHome({
         />
         <main style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'italic', fontSize: 15, color: 'var(--sp-muted)', margin: 0 }}>
+            <p style={{ fontFamily: "var(--font-familjen), sans-serif", fontStyle: 'italic', fontSize: 15, color: 'var(--sp-muted)', margin: 0 }}>
               Tableau de bord · {periodLabel}
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               {(['7J', '30J', 'Mois', 'Année'] as const).map((tab) => (
-                <button key={tab} type="button" style={{ padding: '4px 12px', fontSize: 11, fontWeight: 600, borderRadius: 6, border: '1px solid var(--sp-rule2)', cursor: 'pointer', background: 'transparent', color: 'var(--sp-muted)', fontFamily: "'DM Sans', sans-serif" }}>
+                <button key={tab} type="button" style={{ padding: '4px 12px', fontSize: 11, fontWeight: 600, borderRadius: 6, border: '1px solid var(--sp-rule2)', cursor: 'pointer', background: 'transparent', color: 'var(--sp-muted)', fontFamily: "var(--font-familjen), system-ui, sans-serif" }}>
                   {tab}
                 </button>
               ))}
-              <button type="button" style={{ padding: '4px 14px', fontSize: 11, fontWeight: 600, borderRadius: 6, border: 'none', cursor: 'pointer', background: 'var(--sp-ink)', color: 'var(--sp-cream)', fontFamily: "'DM Sans', sans-serif", marginLeft: 4 }}>
+              <button type="button" style={{ padding: '4px 14px', fontSize: 11, fontWeight: 600, borderRadius: 6, border: 'none', cursor: 'pointer', background: 'var(--sp-ink)', color: 'var(--sp-cream)', fontFamily: "var(--font-familjen), system-ui, sans-serif", marginLeft: 4 }}>
                 Exporter
               </button>
             </div>
