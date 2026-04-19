@@ -1,9 +1,7 @@
 import type { ReactNode } from 'react';
 import { Suspense } from 'react';
-import TopBar from './TopBar';
 import FilterBar from './FilterBar';
 import { DashboardFilterProvider } from '@/context/DashboardFilterContext';
-import { NotifProvider } from '@/context/NotifContext';
 import type { Boutique } from '@/types/database';
 
 type DashboardShellProps = {
@@ -16,33 +14,26 @@ type DashboardShellProps = {
 };
 
 export default function DashboardShell({
-  userInitials,
-  unreadCount = 0,
   boutiques,
   leftColumn,
   centerColumn,
   rightColumn,
 }: DashboardShellProps) {
   return (
-    <NotifProvider>
-      <DashboardFilterProvider>
-        <div className="xa-shell-wrap xa-dashboard-body">
-          {/* Top bar */}
-          <TopBar userInitials={userInitials} unreadCount={unreadCount} />
+    <DashboardFilterProvider>
+      <div className="xa-shell-wrap xa-dashboard-body">
+        {/* Filter bar */}
+        <Suspense>
+          <FilterBar boutiques={boutiques} />
+        </Suspense>
 
-          {/* Filter bar */}
-          <Suspense>
-            <FilterBar boutiques={boutiques} />
-          </Suspense>
-
-          {/* 3-column grid */}
-          <div className="xa-shell">
-            <div className="xa-col xa-col-left">{leftColumn}</div>
-            <div className="xa-col xa-col-center">{centerColumn}</div>
-            <div className="xa-col xa-col-right">{rightColumn}</div>
-          </div>
+        {/* 3-column grid */}
+        <div className="xa-shell">
+          <div className="xa-col xa-col-left">{leftColumn}</div>
+          <div className="xa-col xa-col-center">{centerColumn}</div>
+          <div className="xa-col xa-col-right">{rightColumn}</div>
         </div>
-      </DashboardFilterProvider>
-    </NotifProvider>
+      </div>
+    </DashboardFilterProvider>
   );
 }
