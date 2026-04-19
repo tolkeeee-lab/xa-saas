@@ -361,7 +361,7 @@ export default function ActivityJournalPage({
 
 function EventRow({ event }: { event: ActivityEventJournal }) {
   const icon = TYPE_ICON[event.type] ?? '📋';
-  const boutiqueName = (event.boutiques as { nom: string } | null)?.nom ?? null;
+  const boutiqueName = event.boutiques?.nom ?? null;
 
   return (
     <div className="xa-journal-event">

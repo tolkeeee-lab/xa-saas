@@ -52,7 +52,7 @@ export async function getActivityJournal(
   if (filters.to) q = q.lte('created_at', `${filters.to}T23:59:59.999`);
 
   if (filters.search && filters.search.trim()) {
-    const s = filters.search.trim().replace(/[%_]/g, '\\$&');
+    const s = filters.search.trim().replace(/\\/g, '\\\\').replace(/[%_]/g, '\\$&');
     q = q.or(`title.ilike.%${s}%,description.ilike.%${s}%`);
   }
 

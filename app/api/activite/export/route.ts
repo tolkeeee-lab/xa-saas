@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
   const headers = ['Date', 'Heure', 'Type', 'Boutique', 'Titre', 'Description', 'Montant (FCFA)'];
   const rows = events.map((e) => {
     const d = new Date(e.created_at);
-    const boutiqueName = (e.boutiques as { nom: string } | null)?.nom ?? '';
+    const boutiqueName = e.boutiques?.nom ?? '';
     return [
       d.toISOString().slice(0, 10),
       d.toISOString().slice(11, 19),
