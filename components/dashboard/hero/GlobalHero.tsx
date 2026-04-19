@@ -35,7 +35,7 @@ export default function GlobalHero({ summary }: Props) {
         </div>
         <div className="xa-hero-kpi" style={{ flex: 1 }}>
           <div className="xa-hero-kpi-lbl">Boutiques</div>
-          <div className="xa-hero-kpi-val">{summary.top3.length > 0 ? '≥' + summary.top3.length : '—'}</div>
+          <div className="xa-hero-kpi-val">{summary.top3.length > 0 ? summary.top3.length : '—'}</div>
         </div>
       </div>
 

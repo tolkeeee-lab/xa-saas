@@ -104,7 +104,7 @@ export default function ActivityTimeline({ initialEvents, userId }: Props) {
       if (activeType !== 'all' && ev.type !== activeType) return false;
       return true;
     });
-  }, [events, activeStoreId, activeType]); // tick state change causes component re-render which refreshes time labels
+  }, [events, activeStoreId, activeType]);
 
   const groups = useMemo(() => groupByDay(filtered), [filtered]);
   const visibleCount = filtered.length;
