@@ -2,12 +2,11 @@ import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getBoutiques } from '@/lib/supabase/getBoutiques';
-import Sidebar from '@/components/layout/Sidebar';
-import Topbar from '@/components/layout/Topbar';
-import MobileNav from '@/components/layout/MobileNav';
 import KeyboardShortcuts from '@/components/ui/KeyboardShortcuts';
 import OfflineBanner from '@/components/ui/OfflineBanner';
-import { NotifProvider } from '@/context/NotifContext';
+import DashboardShell from '@/components/dashboard/shell/DashboardShell';
+import LeftColumnPlaceholder from '@/components/dashboard/shell/LeftColumnPlaceholder';
+import RightColumnPlaceholder from '@/components/dashboard/shell/RightColumnPlaceholder';
 import DashboardLoading from './loading';
 import type { Profile } from '@/types/database';
 
@@ -29,24 +28,31 @@ export default async function DashboardLayout({
   ]);
 
   const profile = profileData as Profile | null;
-  const isSuperAdmin = user.email === process.env.SUPER_ADMIN_EMAIL;
+
+  // Compute user initials for the avatar
+  const fullName = profile?.nom_complet ?? user.email ?? '';
+  const initials = fullName
+    .split(' ')
+    .filter((part: string) => part.trim().length > 0)
+    .map((part: string) => part.charAt(0).toUpperCase())
+    .slice(0, 2)
+    .join('') || 'XA';
 
   return (
-    <NotifProvider>
-      <div className="flex h-screen bg-xa-bg overflow-hidden">
-        <Sidebar boutiques={boutiques} profile={profile} isSuperAdmin={isSuperAdmin} />
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-          <Topbar />
-          <OfflineBanner />
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-20 md:pb-6">
-            <Suspense fallback={<DashboardLoading />}>
-              {children}
-            </Suspense>
-          </main>
-        </div>
-        <MobileNav />
-        <KeyboardShortcuts />
-      </div>
-    </NotifProvider>
+    <>
+      <OfflineBanner />
+      <DashboardShell
+        userInitials={initials}
+        boutiques={boutiques}
+        leftColumn={<LeftColumnPlaceholder boutiques={boutiques} />}
+        centerColumn={
+          <Suspense fallback={<DashboardLoading />}>
+            <main className="p-4 md:p-6">{children}</main>
+          </Suspense>
+        }
+        rightColumn={<RightColumnPlaceholder />}
+      />
+      <KeyboardShortcuts />
+    </>
   );
 } 
