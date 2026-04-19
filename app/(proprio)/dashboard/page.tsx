@@ -41,6 +41,77 @@ type PageProps = {
   searchParams: Promise<{ period?: string; store?: string }>;
 };
 
+// ── Async server-component wrappers ──────────────────────────────────────────
+// Each wrapper fetches its own data independently so Suspense boundaries
+// stream each widget as soon as its data resolves (true progressive rendering).
+
+async function KPIGridSection({ userId, storeIds, period }: { userId: string; storeIds: string[]; period: PeriodKey }) {
+  const data = await getKPIs(userId, storeIds, period);
+  return <KPIGrid data={data} />;
+}
+
+async function RevenueChartSection({ userId, storeIds, period }: { userId: string; storeIds: string[]; period: PeriodKey }) {
+  const data = await getRevenueSeries(userId, storeIds, period);
+  return <RevenueChart data={data} />;
+}
+
+async function PeakHoursSection({ userId, storeIds }: { userId: string; storeIds: string[] }) {
+  const data = await getPeakHours(userId, storeIds);
+  return <PeakHoursCard data={data} />;
+}
+
+async function CategoriesSection({ userId, storeIds, period }: { userId: string; storeIds: string[]; period: PeriodKey }) {
+  const data = await getCategoryBreakdown(userId, storeIds, period);
+  return <CategoriesDonut data={data} />;
+}
+
+async function HeatmapSection({ userId, storeIds }: { userId: string; storeIds: string[] }) {
+  const data = await getHeatmap(userId, storeIds);
+  return <HeatmapCard data={data} />;
+}
+
+async function StoresRankingSection({ userId }: { userId: string }) {
+  const data = await getStoresRanking(userId);
+  return <StoresRankingCard data={data} />;
+}
+
+async function TopProductsSection({ userId, storeIds }: { userId: string; storeIds: string[] }) {
+  const data = await getTopProducts(userId, storeIds);
+  return <TopProductsCard data={data} />;
+}
+
+async function StaffSection({ userId, storeIds }: { userId: string; storeIds: string[] }) {
+  const data = await getStaffStatus(userId, storeIds);
+  return <StaffCard data={data} />;
+}
+
+async function AlertsSection({ userId, storeIds }: { userId: string; storeIds: string[] }) {
+  const data = await getAlerts(userId, storeIds);
+  return <ActiveAlertsCard data={data} />;
+}
+
+async function HealthScoresSection({ userId }: { userId: string }) {
+  const data = await getHealthScores(userId);
+  return <HealthScoresCard data={data} />;
+}
+
+async function ForecastSection({ userId, storeIds }: { userId: string; storeIds: string[] }) {
+  const data = await getForecast(userId, storeIds);
+  return <ForecastCard data={data} />;
+}
+
+async function ObjectivesSection({ userId }: { userId: string }) {
+  const data = await getObjectives(userId);
+  return <MonthObjectivesCard data={data} />;
+}
+
+async function QuickSummarySection({ userId, storeIds, period }: { userId: string; storeIds: string[]; period: PeriodKey }) {
+  const data = await getQuickSummary(userId, storeIds, period);
+  return <QuickSummaryCard data={data} />;
+}
+
+// ── Page ─────────────────────────────────────────────────────────────────────
+
 export default async function DashboardPage({ searchParams }: PageProps) {
   const supabase = await createClient();
   const {
@@ -64,97 +135,65 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       ? (boutiques.find((b) => b.id === storeIds[0])?.nom ?? 'Tableau de bord')
       : 'Tableau de bord';
 
-  const [
-    kpiData,
-    revenueData,
-    peakHoursData,
-    categoryData,
-    heatmapData,
-    storesRankingData,
-    topProductsData,
-    staffData,
-    alertsData,
-    healthScoresData,
-    forecastData,
-    objectivesData,
-    quickSummaryData,
-  ] = await Promise.all([
-    getKPIs(user.id, storeIds, period),
-    getRevenueSeries(user.id, storeIds, period),
-    getPeakHours(user.id, storeIds),
-    getCategoryBreakdown(user.id, storeIds, period),
-    getHeatmap(user.id, storeIds),
-    getStoresRanking(user.id),
-    getTopProducts(user.id, storeIds),
-    getStaffStatus(user.id, storeIds),
-    getAlerts(user.id, storeIds),
-    getHealthScores(user.id),
-    getForecast(user.id, storeIds),
-    getObjectives(user.id),
-    getQuickSummary(user.id, storeIds, period),
-  ]);
-
   return (
     <div className="xa-dashboard-center">
-      <Suspense fallback={null}>
-        <PageHeader storeName={activeStoreName} initialPeriod={period} />
-      </Suspense>
+      <PageHeader storeName={activeStoreName} initialPeriod={period} />
 
       <div className="xa-center-content">
         <Suspense fallback={<KPIGridSkeleton />}>
-          <KPIGrid data={kpiData} />
+          <KPIGridSection userId={user.id} storeIds={storeIds} period={period} />
         </Suspense>
 
         <Suspense fallback={<RevenueChartSkeleton />}>
-          <RevenueChart data={revenueData} />
+          <RevenueChartSection userId={user.id} storeIds={storeIds} period={period} />
         </Suspense>
 
         <div className="xa-row-2col">
           <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
-            <PeakHoursCard data={peakHoursData} />
+            <PeakHoursSection userId={user.id} storeIds={storeIds} />
           </Suspense>
           <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
-            <CategoriesDonut data={categoryData} />
+            <CategoriesSection userId={user.id} storeIds={storeIds} period={period} />
           </Suspense>
         </div>
 
         <Suspense fallback={<GridSkeleton cols={1} height={220} />}>
-          <HeatmapCard data={heatmapData} />
+          <HeatmapSection userId={user.id} storeIds={storeIds} />
         </Suspense>
 
         <div className="xa-row-2col">
           <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
-            <StoresRankingCard data={storesRankingData} />
+            <StoresRankingSection userId={user.id} />
           </Suspense>
           <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
-            <TopProductsCard data={topProductsData} />
+            <TopProductsSection userId={user.id} storeIds={storeIds} />
           </Suspense>
         </div>
 
         <div className="xa-row-2col">
           <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
-            <StaffCard data={staffData} />
+            <StaffSection userId={user.id} storeIds={storeIds} />
           </Suspense>
           <Suspense fallback={<GridSkeleton cols={1} height={200} />}>
-            <ActiveAlertsCard data={alertsData} />
+            <AlertsSection userId={user.id} storeIds={storeIds} />
           </Suspense>
         </div>
 
         <Suspense fallback={<GridSkeleton cols={1} height={180} />}>
-          <HealthScoresCard data={healthScoresData} />
+          <HealthScoresSection userId={user.id} />
         </Suspense>
 
         <div className="xa-row-2col">
           <Suspense fallback={<GridSkeleton cols={1} height={180} />}>
-            <ForecastCard data={forecastData} />
+            <ForecastSection userId={user.id} storeIds={storeIds} />
           </Suspense>
           <Suspense fallback={<GridSkeleton cols={1} height={180} />}>
-            <MonthObjectivesCard data={objectivesData} />
+            <ObjectivesSection userId={user.id} />
           </Suspense>
         </div>
 
         <Suspense fallback={<GridSkeleton cols={1} height={160} />}>
-          <QuickSummaryCard data={quickSummaryData} />
+          <QuickSummarySection userId={user.id} storeIds={storeIds} period={period} />
         </Suspense>
       </div>
     </div>
