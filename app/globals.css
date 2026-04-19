@@ -231,6 +231,258 @@ body {
 }
 
 /* ================================================================
+   DASHBOARD SHELL — Fusion v3 cockpit layout (PR 2/4)
+   ================================================================ */
+
+.xa-shell-wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.xa-dashboard-body {
+  /* used for responsive override below */
+}
+.xa-topbar {
+  height: 52px;
+  background: var(--xa-surface);
+  border-bottom: 1.5px solid var(--xa-ink);
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+.xa-wordmark {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--xa-ink);
+  letter-spacing: -.03em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.xa-wordmark em {
+  font-style: italic;
+  font-weight: 400;
+}
+.xa-wm-pill {
+  background: var(--xa-accent);
+  color: var(--xa-surface);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 3px;
+  letter-spacing: .08em;
+  font-family: var(--font-plex-mono), monospace;
+}
+.xa-topbar-nav {
+  display: flex;
+}
+.xa-tnav {
+  padding: 6px 13px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--xa-muted);
+  background: none;
+  border: none;
+  font-family: var(--font-familjen), sans-serif;
+  transition: color .15s;
+}
+.xa-tnav:hover {
+  color: var(--xa-ink);
+}
+.xa-tnav-active {
+  color: var(--xa-ink);
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+}
+.xa-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.xa-tb-btn {
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid var(--xa-rule2);
+  border-radius: 4px;
+  background: var(--xa-bg2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color .15s;
+  position: relative;
+}
+.xa-tb-btn:hover {
+  border-color: var(--xa-ink);
+}
+.xa-ndot {
+  width: 6px;
+  height: 6px;
+  background: var(--xa-red);
+  border-radius: 50%;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  border: 1.5px solid var(--xa-surface);
+}
+.xa-tb-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background: var(--xa-ink);
+  color: var(--xa-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font-plex-mono), monospace;
+}
+
+.xa-filter-bar {
+  height: 46px;
+  background: var(--xa-bg);
+  border-bottom: 1px solid var(--xa-rule2);
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+.xa-filter-bar::-webkit-scrollbar {
+  display: none;
+}
+.xa-fb-label {
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: var(--xa-muted);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.xa-filter-group {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.xa-fchip {
+  padding: 4px 11px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1.5px solid var(--xa-rule2);
+  background: var(--xa-surface);
+  color: var(--xa-muted);
+  transition: all .15s;
+  white-space: nowrap;
+  font-family: var(--font-familjen), sans-serif;
+}
+.xa-fchip:hover {
+  border-color: var(--xa-ink);
+  color: var(--xa-ink);
+}
+.xa-fchip-active {
+  background: var(--xa-accent);
+  color: var(--xa-surface);
+  border-color: var(--xa-accent);
+}
+.xa-fb-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--xa-rule2);
+  flex-shrink: 0;
+}
+.xa-live-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  flex-shrink: 0;
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 10px;
+  color: var(--xa-accent);
+  font-weight: 500;
+  letter-spacing: .06em;
+}
+.xa-live-pill::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--xa-accent);
+  animation: xa-blink 1.8s ease-in-out infinite;
+}
+
+.xa-shell {
+  display: grid;
+  grid-template-columns: 300px 1fr 360px;
+  flex: 1;
+  overflow: hidden;
+}
+.xa-col {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+}
+.xa-col::-webkit-scrollbar {
+  width: 3px;
+}
+.xa-col::-webkit-scrollbar-thumb {
+  background: var(--xa-bg3);
+  border-radius: 2px;
+}
+.xa-col-left {
+  background: var(--xa-surface);
+  border-right: 1px solid var(--xa-rule2);
+}
+.xa-col-center {
+  border-right: 1px solid var(--xa-rule2);
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .xa-shell {
+    grid-template-columns: 260px 1fr 320px;
+  }
+}
+@media (max-width: 860px) {
+  .xa-dashboard-body {
+    height: auto;
+    overflow: auto;
+  }
+  .xa-shell {
+    grid-template-columns: 1fr;
+  }
+  .xa-col {
+    height: auto;
+    overflow: visible;
+  }
+  .xa-col-left {
+    border-right: none;
+    border-bottom: 1px solid var(--xa-rule2);
+  }
+  .xa-col-right {
+    border-top: 1px solid var(--xa-rule2);
+  }
+  .xa-topbar-nav {
+    display: none;
+  }
+  .xa-filter-bar {
+    height: auto;
+    padding: .5rem 1rem;
+    flex-wrap: wrap;
+  }
+}
+
+/* ================================================================
    IMPRESSION PDF
    ================================================================ */
 @media print {
