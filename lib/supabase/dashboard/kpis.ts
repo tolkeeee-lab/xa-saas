@@ -118,9 +118,12 @@ export const getKPIs = cache(async (
   const ordersDelta =
     prevOrders > 0 ? Math.round(((currentOrders - prevOrders) / prevOrders) * 100) : 0;
 
-  // Visitors: approximated as transactions × 1.47
-  const currentVisitors = Math.round(currentOrders * 1.47);
-  const prevVisitors = Math.round(prevOrders * 1.47);
+  // Visitors are estimated from transaction count. Each transaction
+  // is assumed to involve ~1.47 unique visitors on average (foot traffic
+  // includes browsers who don't purchase plus multi-item group buyers).
+  const VISITOR_ESTIMATION_FACTOR = 1.47;
+  const currentVisitors = Math.round(currentOrders * VISITOR_ESTIMATION_FACTOR);
+  const prevVisitors = Math.round(prevOrders * VISITOR_ESTIMATION_FACTOR);
   const visitorsDelta =
     prevVisitors > 0 ? Math.round(((currentVisitors - prevVisitors) / prevVisitors) * 100) : 0;
 

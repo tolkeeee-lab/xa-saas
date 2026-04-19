@@ -8,6 +8,8 @@ export type ForecastData = {
   restockCount: number;
 };
 
+// Weekday-based demand factors for tomorrow's forecast.
+// Index maps to JavaScript's Date.getDay(): 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
 const WEEKDAY_FACTORS = [0.7, 0.95, 1.0, 1.0, 1.05, 1.15, 0.85];
 
 export const getForecast = cache(async (

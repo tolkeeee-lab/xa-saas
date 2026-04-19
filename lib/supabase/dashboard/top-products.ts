@@ -9,6 +9,9 @@ export type TopProductRow = {
 };
 export type TopProductsData = TopProductRow[];
 
+/** Prefix for synthetic product keys when produit_id is null (freeform name entry). */
+const FREEFORM_PRODUCT_PREFIX = '__nom__';
+
 export const getTopProducts = cache(async (
   userId: string,
   storeIds: string[],
@@ -50,7 +53,7 @@ export const getTopProducts = cache(async (
 
   const quantMap: Record<string, { qty: number; name: string }> = {};
   for (const l of lignes) {
-    const pid = (l.produit_id as string | null) ?? `__nom__${l.nom_produit as string}`;
+    const pid = (l.produit_id as string | null) ?? `${FREEFORM_PRODUCT_PREFIX}${l.nom_produit as string}`;
     const existing = quantMap[pid];
     if (existing) {
       existing.qty += (l.quantite as number) ?? 0;
@@ -71,7 +74,7 @@ export const getTopProducts = cache(async (
   // Fetch categories for real product IDs
   const realIds = topEntries
     .map(([id]) => id)
-    .filter((id) => !id.startsWith('__nom__'));
+    .filter((id) => !id.startsWith(FREEFORM_PRODUCT_PREFIX));
 
   const { data: produits } = realIds.length
     ? await supabase.from('produits').select('id, categorie').in('id', realIds)

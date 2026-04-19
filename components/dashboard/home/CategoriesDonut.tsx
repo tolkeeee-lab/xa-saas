@@ -1,11 +1,8 @@
 'use client';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import type { CategoryData } from '@/lib/supabase/dashboard/categories';
+import { CATEGORY_COLORS } from '@/lib/supabase/dashboard/chart-colors';
 import { formatFCFA } from '@/lib/format';
-
-type Props = { data: CategoryData };
-
-const COLORS = ['#00C853', '#2563EB', '#E53535', '#D97706', '#7C3AED', '#1DDB7B'];
 
 type LegendPayload = {
   value?: string;
@@ -42,7 +39,7 @@ export default function CategoriesDonut({ data }: Props) {
             nameKey="name"
           >
             {data.map((entry, index) => (
-              <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
+              <Cell key={entry.name} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
             ))}
           </Pie>
           <Tooltip

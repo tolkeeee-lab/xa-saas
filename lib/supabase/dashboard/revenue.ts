@@ -1,6 +1,7 @@
 import { cache } from 'react';
 import { createClient } from '@/lib/supabase-server';
 import type { PeriodKey } from './kpis';
+import { CHART_COLORS } from './chart-colors';
 
 export type RevenueSeries = {
   labels: string[];
@@ -76,8 +77,6 @@ function getPeriodStart(period: PeriodKey): Date {
   }
 }
 
-const STORE_COLORS = ['#1DDB7B', '#2563EB', '#E53535', '#D97706', '#7C3AED'];
-
 export const getRevenueSeries = cache(async (
   userId: string,
   storeIds: string[],
@@ -131,7 +130,7 @@ export const getRevenueSeries = cache(async (
   const byStore = filteredBoutiques.map((b, i) => ({
     id: b.id as string,
     name: b.nom as string,
-    color: (b.couleur_theme as string) || STORE_COLORS[i % STORE_COLORS.length],
+    color: (b.couleur_theme as string) || CHART_COLORS[i % CHART_COLORS.length],
     data: storeData[b.id as string] ?? Array<number>(buckets).fill(0),
   }));
 
