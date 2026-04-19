@@ -867,6 +867,93 @@ body {
 .xa-staff-boutique { font-size: .65rem; color: var(--xa-muted); display: block; }
 .xa-staff-status { font-family: var(--font-plex-mono), monospace; font-size: .65rem; font-weight: 700; flex-shrink: 0; }
 
+/* Personnel widget */
+.xa-personnel-widget { cursor: default; }
+.xa-personnel-header { cursor: pointer; margin-bottom: .75rem; }
+.xa-personnel-header:hover .xa-card-title { color: var(--xa-accent); }
+.xa-personnel-counter {
+  font-family: var(--font-plex-mono), monospace;
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--xa-green);
+}
+.xa-personnel-empty { display: flex; flex-direction: column; align-items: center; gap: .75rem; }
+.xa-personnel-cta {
+  padding: .3rem .75rem;
+  border-radius: 6px;
+  border: 1px solid var(--xa-green);
+  color: var(--xa-green);
+  background: var(--xa-greenbg);
+  cursor: pointer;
+  font-size: .75rem;
+  font-weight: 600;
+}
+.xa-personnel-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.xa-personnel-row {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  padding: .5rem 0;
+  cursor: pointer;
+}
+.xa-personnel-row:hover { opacity: .8; }
+.xa-personnel-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-plex-mono), monospace;
+  font-size: .7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.xa-personnel-info { flex: 1; min-width: 0; }
+.xa-personnel-name { font-size: .85rem; font-weight: 500; color: var(--xa-ink); display: block; }
+.xa-personnel-sub {
+  font-family: var(--font-plex-mono), monospace;
+  font-size: .6rem;
+  color: var(--xa-muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  display: block;
+  margin-top: 1px;
+}
+.xa-personnel-pill {
+  font-family: var(--font-plex-mono), monospace;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  padding: .2rem .5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.xa-personnel-see-all {
+  margin-top: .5rem;
+  padding: .35rem 0;
+  font-size: .65rem;
+  font-family: var(--font-plex-mono), monospace;
+  color: var(--xa-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  width: 100%;
+  text-align: left;
+}
+.xa-personnel-see-all:hover { color: var(--xa-accent); }
+
 /* Alerts */
 .xa-badge {
   display: inline-flex;
