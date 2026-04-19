@@ -8,6 +8,8 @@ interface CaisseTopbarProps {
   onBoutiqueChange: (id: string) => void;
   caissierNom?: string;
   onLock: () => void;
+  /** When true, the boutique selector is replaced by a static boutique name pill. */
+  hideBoutiqueSelector?: boolean;
 }
 
 export default function CaisseTopbar({
@@ -16,6 +18,7 @@ export default function CaisseTopbar({
   onBoutiqueChange,
   caissierNom,
   onLock,
+  hideBoutiqueSelector,
 }: CaisseTopbarProps) {
   const initiales = caissierNom
     ? caissierNom
@@ -36,31 +39,48 @@ export default function CaisseTopbar({
       {/* CAISSE tag */}
       <span className="c-tag-caisse">CAISSE</span>
 
-      {/* Boutique selector */}
+      {/* Boutique selector or static name */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <span aria-hidden="true" style={{ fontSize: 14 }}>📍</span>
-        <select
-          value={boutiqueActive}
-          onChange={(e) => onBoutiqueChange(e.target.value)}
-          aria-label="Sélectionner la boutique"
-          style={{
-            fontFamily: 'DM Sans, sans-serif',
-            fontSize: 13,
-            border: '1px solid var(--c-rule2)',
-            background: 'var(--c-bg)',
-            color: 'var(--c-ink)',
-            borderRadius: 6,
-            padding: '4px 8px',
-            outline: 'none',
-            cursor: 'pointer',
-          }}
-        >
-          {boutiques.map((b) => (
-            <option key={b.id} value={b.id}>
-              {b.nom}
-            </option>
-          ))}
-        </select>
+        {hideBoutiqueSelector ? (
+          <span
+            style={{
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 13,
+              fontWeight: 600,
+              color: 'var(--c-ink)',
+              padding: '4px 8px',
+              border: '1px solid var(--c-rule2)',
+              borderRadius: 6,
+              background: 'var(--c-bg)',
+            }}
+          >
+            {boutiques.find((b) => b.id === boutiqueActive)?.nom ?? '—'}
+          </span>
+        ) : (
+          <select
+            value={boutiqueActive}
+            onChange={(e) => onBoutiqueChange(e.target.value)}
+            aria-label="Sélectionner la boutique"
+            style={{
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 13,
+              border: '1px solid var(--c-rule2)',
+              background: 'var(--c-bg)',
+              color: 'var(--c-ink)',
+              borderRadius: 6,
+              padding: '4px 8px',
+              outline: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            {boutiques.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.nom}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Spacer */}

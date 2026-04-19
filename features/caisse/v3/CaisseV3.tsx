@@ -35,6 +35,16 @@ interface CaisseV3Props {
   boutiques: Boutique[];
   produits: ProduitPublic[];
   userId: string;
+  /**
+   * If provided, the boutique selector is hidden and the active boutique is
+   * locked to this ID.  Used by the employee dashboard (app/(employe)/caisse).
+   */
+  lockedBoutiqueId?: string;
+  /**
+   * When true, the idle-lock screen is disabled.  The employee dashboard
+   * handles session expiry at the layout level (requireEmployeSession).
+   */
+  disableLock?: boolean;
 }
 
 // ─── Toast types ──────────────────────────────────────────────────────────────
@@ -47,9 +57,10 @@ type ToastData = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function CaisseV3({ boutiques, produits: initialProduits, userId }: CaisseV3Props) {
+export default function CaisseV3({ boutiques, produits: initialProduits, userId, lockedBoutiqueId, disableLock }: CaisseV3Props) {
   // ── Boutique active ──────────────────────────────────────────────────────────
   const [boutiqueActive, setBoutiqueActive] = useState<string>(() => {
+    if (lockedBoutiqueId) return lockedBoutiqueId;
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(BOUTIQUE_STORAGE_KEY);
       if (stored && boutiques.some((b) => b.id === stored)) return stored;
@@ -127,6 +138,7 @@ export default function CaisseV3({ boutiques, produits: initialProduits, userId 
 
   const { isLocked, lock, unlock } = useCaisseIdle({
     onLock: () => {
+      if (disableLock) return;
       setLockReason('idle');
       clearCaisseSession();
     },
@@ -442,7 +454,7 @@ export default function CaisseV3({ boutiques, produits: initialProduits, userId 
   return (
     <div className="xa-caisse-v3">
       {/* Lock screen overlay */}
-      {isLocked && activeBoutique && (
+      {isLocked && !disableLock && activeBoutique && (
         <CaisseLockScreen
           boutiqueId={activeBoutique.id}
           boutiqueNom={activeBoutique.nom}
@@ -456,10 +468,12 @@ export default function CaisseV3({ boutiques, produits: initialProduits, userId 
         boutiques={boutiques}
         boutiqueActive={boutiqueActive}
         onBoutiqueChange={(id) => {
+          if (lockedBoutiqueId) return;
           setBoutiqueActive(id);
           clearCart();
         }}
         onLock={handleManualLock}
+        hideBoutiqueSelector={!!lockedBoutiqueId}
       />
 
       {/* Online/offline indicator */}
