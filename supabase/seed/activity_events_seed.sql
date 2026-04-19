@@ -1,0 +1,40 @@
+-- Seed de données de test pour activity_events
+-- À exécuter manuellement dans Supabase SQL editor (ou via psql)
+-- Remplacer <PROPRIETAIRE_ID> et <BOUTIQUE_ID> par les vraies valeurs
+
+-- do $$
+-- declare
+--   v_owner  uuid := '<PROPRIETAIRE_ID>';
+--   v_boutique uuid := '<BOUTIQUE_ID>';
+-- begin
+--
+--   insert into public.activity_events
+--     (proprietaire_id, boutique_id, type, severity, title, description, amount, metadata, created_at)
+--   values
+--     -- Ventes du jour
+--     (v_owner, v_boutique, 'sale', 'success', 'Vente #001', 'Mode : especes', 12500, '{"mode_paiement":"especes"}', now() - interval '5 minutes'),
+--     (v_owner, v_boutique, 'sale', 'success', 'Vente #002', 'Mode : momo', 8750,  '{"mode_paiement":"momo"}',    now() - interval '12 minutes'),
+--     (v_owner, v_boutique, 'sale', 'success', 'Vente #003', 'Mode : especes', 22000,'{"mode_paiement":"especes"}', now() - interval '25 minutes'),
+--     (v_owner, v_boutique, 'sale', 'success', 'Vente #004', 'Mode : carte',   5500, '{"mode_paiement":"carte"}',   now() - interval '45 minutes'),
+--     (v_owner, v_boutique, 'sale', 'success', 'Vente #005', 'Mode : momo',   17800,'{"mode_paiement":"momo"}',    now() - interval '1 hour'),
+--     (v_owner, v_boutique, 'sale', 'success', 'Vente #006', 'Mode : especes',  9300,'{"mode_paiement":"especes"}', now() - interval '2 hours'),
+--     (v_owner, v_boutique, 'sale', 'success', 'Vente #007', 'Mode : credit',  34500,'{"mode_paiement":"credit"}',  now() - interval '3 hours'),
+--     -- Alertes stock
+--     (v_owner, v_boutique, 'stock', 'warning', 'Stock bas (3) : Riz Parfumé 5kg', 'Seuil d''alerte : 5', null, '{"produit_id":null,"stock_actuel":3,"seuil_alerte":5}', now() - interval '1 hour 30 minutes'),
+--     (v_owner, v_boutique, 'stock', 'danger',  'Rupture de stock : Huile Palme 1L',  'Seuil d''alerte : 10', null, '{"produit_id":null,"stock_actuel":0,"seuil_alerte":10}', now() - interval '4 hours'),
+--     (v_owner, v_boutique, 'stock', 'warning', 'Stock bas (2) : Savon Lux x6',  'Seuil d''alerte : 5', null, '{"produit_id":null,"stock_actuel":2,"seuil_alerte":5}', now() - interval '6 hours'),
+--     -- Alertes système
+--     (v_owner, v_boutique, 'alert', 'warning', 'Connexion lente détectée', 'La caisse signale une latence réseau élevée', null, '{}', now() - interval '2 hours'),
+--     (v_owner, v_boutique, 'system','info',    'Sauvegarde automatique effectuée', null, null, '{}', now() - interval '5 hours'),
+--     -- Ventes hier
+--     (v_owner, v_boutique, 'sale', 'success', 'Vente #H01', 'Mode : especes', 15000,'{"mode_paiement":"especes"}', now() - interval '1 day 2 hours'),
+--     (v_owner, v_boutique, 'sale', 'success', 'Vente #H02', 'Mode : momo',   28000,'{"mode_paiement":"momo"}',    now() - interval '1 day 4 hours'),
+--     (v_owner, v_boutique, 'sale', 'success', 'Vente #H03', 'Mode : especes', 11200,'{"mode_paiement":"especes"}', now() - interval '1 day 6 hours'),
+--     (v_owner, v_boutique, 'sale', 'success', 'Vente #H04', 'Mode : carte',    6800,'{"mode_paiement":"carte"}',   now() - interval '1 day 8 hours'),
+--     -- Ventes il y a 2 jours
+--     (v_owner, v_boutique, 'sale', 'success', 'Vente #A01', 'Mode : especes', 19500,'{"mode_paiement":"especes"}', now() - interval '2 days 1 hour'),
+--     (v_owner, v_boutique, 'sale', 'success', 'Vente #A02', 'Mode : momo',   42000,'{"mode_paiement":"momo"}',    now() - interval '2 days 3 hours'),
+--     -- Objectif atteint
+--     (v_owner, v_boutique, 'goal', 'success', 'Objectif journalier atteint !', 'CA du jour dépasse l''objectif fixé', null, '{}', now() - interval '3 hours');
+--
+-- end $$;

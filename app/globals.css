@@ -897,3 +897,50 @@ body {
 .xa-skeleton-short { width: 40%; }
 .xa-skeleton-tall { height: 1.5rem; width: 70%; }
 .xa-skeleton-rect { background: var(--xa-bg3); border-radius: 4px; width: 100%; }
+
+/* ================================================================
+   ACTIVITY TIMELINE — PR 4/4
+   ================================================================ */
+.xa-timeline { padding: 1rem; }
+.xa-tl-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .9rem; }
+.xa-tl-title { font-size: 11px; font-weight: 600; color: var(--xa-ink); font-family: var(--font-plex-mono), monospace; letter-spacing: .08em; display: flex; align-items: center; gap: 7px; }
+.xa-tl-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--xa-accent); animation: xa-blink 1.8s ease-in-out infinite; }
+.xa-day-label { font-family: var(--font-plex-mono), monospace; font-size: 9px; letter-spacing: .12em; color: var(--xa-muted); margin: .8rem 0 .5rem; text-transform: uppercase; }
+.xa-event { position: relative; padding: .6rem 0 .6rem 1.2rem; border-left: 1.5px solid var(--xa-rule2); margin-left: .2rem; }
+.xa-event-dot { position: absolute; left: -5px; top: .8rem; width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--xa-surface); }
+.xa-event-dot-sale { background: var(--xa-green); }
+.xa-event-dot-alert { background: var(--xa-red); }
+.xa-event-dot-stock { background: var(--xa-amber); }
+.xa-event-dot-staff { background: var(--xa-blue); }
+.xa-event-dot-goal { background: var(--xa-purple); }
+.xa-event-dot-system { background: var(--xa-faint); }
+.xa-event-title { font-size: 12px; font-weight: 500; color: var(--xa-ink); display: flex; justify-content: space-between; gap: .5rem; }
+.xa-event-amount { font-family: var(--font-plex-mono), monospace; font-size: 11px; color: var(--xa-ink); font-weight: 600; }
+.xa-event-desc { font-size: 11px; color: var(--xa-muted); margin-top: 2px; line-height: 1.4; }
+.xa-event-meta { font-family: var(--font-plex-mono), monospace; font-size: 9px; color: var(--xa-faint); letter-spacing: .04em; margin-top: 3px; text-transform: uppercase; }
+.xa-tl-empty { padding: 2rem 1rem; text-align: center; color: var(--xa-muted); font-size: 12px; }
+
+/* ================================================================
+   LEFT COLUMN HERO — PR 4/4
+   ================================================================ */
+.xa-hero { padding: 1rem; }
+.xa-hero-title { font-size: 26px; font-weight: 700; letter-spacing: -.03em; color: var(--xa-ink); line-height: 1.05; }
+.xa-hero-sub { font-family: var(--font-plex-mono), monospace; font-size: 9px; color: var(--xa-muted); letter-spacing: .08em; margin-top: 4px; text-transform: uppercase; }
+.xa-hero-ca { font-size: 32px; font-weight: 700; color: var(--xa-accent); letter-spacing: -.02em; margin-top: .9rem; line-height: 1; }
+.xa-hero-delta { font-family: var(--font-plex-mono), monospace; font-size: 10px; color: var(--xa-green); margin-top: 4px; }
+.xa-hero-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: .9rem; }
+.xa-hero-kpi { padding: .55rem .6rem; background: var(--xa-bg); border: 1px solid var(--xa-rule); border-radius: 4px; }
+.xa-hero-kpi-lbl { font-family: var(--font-plex-mono), monospace; font-size: 8px; letter-spacing: .1em; color: var(--xa-muted); text-transform: uppercase; }
+.xa-hero-kpi-val { font-size: 16px; font-weight: 700; color: var(--xa-ink); margin-top: 2px; }
+
+.xa-bl-head { font-family: var(--font-plex-mono), monospace; font-size: 9px; letter-spacing: .12em; color: var(--xa-muted); text-transform: uppercase; padding: .8rem 1rem .4rem; }
+.xa-bl-item { padding: .6rem .8rem; margin: 0 .5rem; border: 1px solid transparent; border-radius: 4px; cursor: pointer; transition: all .15s; }
+.xa-bl-item:hover { background: var(--xa-bg2); }
+.xa-bl-item-active { background: var(--xa-bg2); border-color: var(--xa-ink); }
+.xa-bl-row { display: flex; align-items: center; gap: 8px; }
+.xa-bl-chip { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.xa-bl-name { font-size: 13px; font-weight: 500; color: var(--xa-ink); flex: 1; }
+.xa-bl-ca { font-family: var(--font-plex-mono), monospace; font-size: 11px; color: var(--xa-muted); }
+.xa-bl-meta { margin-top: 4px; display: flex; justify-content: space-between; align-items: center; padding-left: 16px; }
+.xa-bl-status { font-family: var(--font-plex-mono), monospace; font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
+.xa-bl-score { font-family: var(--font-plex-mono), monospace; font-size: 10px; color: var(--xa-ink); font-weight: 600; }
