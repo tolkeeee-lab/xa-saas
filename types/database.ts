@@ -194,6 +194,37 @@ export type ActivityEventRow = {
   created_at: string;
 };
 
+export type Inventaire = {
+  id: string;
+  boutique_id: string;
+  proprietaire_id: string;
+  created_by: string | null;
+  started_at: string;
+  validated_at: string | null;
+  statut: 'en_cours' | 'valide' | 'annule';
+  perimetre: 'complet' | 'categorie' | 'selection';
+  categorie: string | null;
+  nb_produits: number;
+  nb_ecarts_negatifs: number;
+  nb_ecarts_positifs: number;
+  valeur_ecart_total: number;
+  note: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type InventaireLigne = {
+  id: string;
+  inventaire_id: string;
+  produit_id: string;
+  stock_theorique: number;
+  stock_compte: number | null;
+  ecart: number;
+  prix_vente_snapshot: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ClotureCaisse = {
   id: string;
   boutique_id: string;
@@ -324,9 +355,28 @@ export type Database = {
         Update: Partial<Omit<ActivityEventRow, 'id'>>;
         Relationships: [];
       };
+      inventaires: {
+        Row: Inventaire;
+        Insert: Omit<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut' | 'perimetre'> &
+          Partial<Pick<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut' | 'perimetre'>>;
+        Update: Partial<Omit<Inventaire, 'id'>>;
+        Relationships: [];
+      };
+      inventaire_lignes: {
+        Row: InventaireLigne;
+        Insert: Omit<InventaireLigne, 'id' | 'created_at' | 'updated_at' | 'ecart' | 'stock_compte'> &
+          Partial<Pick<InventaireLigne, 'id' | 'created_at' | 'updated_at' | 'stock_compte'>>;
+        Update: Partial<Omit<InventaireLigne, 'id' | 'ecart'>>;
+        Relationships: [];
+      };
     };
     Views: { [_ in never]: never };
-    Functions: { [_ in never]: never };
+    Functions: {
+      validate_inventaire: {
+        Args: { inv_id: string };
+        Returns: Inventaire[];
+      };
+    };
     Enums: { [_ in never]: never };
   };
 };
