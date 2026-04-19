@@ -57,7 +57,13 @@ export default function TopBar({ userInitials, unreadCount = 0 }: TopBarProps) {
         <ThemeToggle />
 
         {/* Notification button */}
-        <div className="xa-tb-btn" role="button" tabIndex={0} aria-label="Notifications">
+        <div
+          className="xa-tb-btn"
+          role="button"
+          tabIndex={0}
+          aria-label="Notifications"
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') e.currentTarget.click(); }}
+        >
           🔔
           {totalUnread > 0 && <div className="xa-ndot" />}
         </div>

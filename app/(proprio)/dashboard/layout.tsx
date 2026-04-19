@@ -33,8 +33,8 @@ export default async function DashboardLayout({
   const fullName = profile?.nom_complet ?? user.email ?? '';
   const initials = fullName
     .split(' ')
+    .filter((part: string) => part.trim().length > 0)
     .map((part: string) => part.charAt(0).toUpperCase())
-    .filter(Boolean)
     .slice(0, 2)
     .join('') || 'XA';
 
