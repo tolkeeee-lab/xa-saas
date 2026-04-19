@@ -8,7 +8,6 @@ import RightColumnServer from '@/components/dashboard/shell/RightColumnServer';
 import LeftColumnSkeleton from '@/components/dashboard/shell/LeftColumnSkeleton';
 import RightColumnSkeleton from '@/components/dashboard/shell/RightColumnSkeleton';
 import DashboardLoading from '../loading';
-import type { Profile } from '@/types/database';
 
 export default async function HomeLayout({
   children,
@@ -22,25 +21,10 @@ export default async function HomeLayout({
 
   if (!user) redirect('/login');
 
-  const [{ data: profileData }, boutiques] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', user.id).single(),
-    getBoutiques(user.id),
-  ]);
-
-  const profile = profileData as Profile | null;
-
-  const fullName = profile?.nom_complet ?? user.email ?? '';
-  const initials =
-    fullName
-      .split(' ')
-      .filter((part: string) => part.trim().length > 0)
-      .map((part: string) => part.charAt(0).toUpperCase())
-      .slice(0, 2)
-      .join('') || 'XA';
+  const boutiques = await getBoutiques(user.id);
 
   return (
     <DashboardShell
-      userInitials={initials}
       boutiques={boutiques}
       leftColumn={
         <Suspense fallback={<LeftColumnSkeleton />}>

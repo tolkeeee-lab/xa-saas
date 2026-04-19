@@ -5,8 +5,6 @@ import { DashboardFilterProvider } from '@/context/DashboardFilterContext';
 import type { Boutique } from '@/types/database';
 
 type DashboardShellProps = {
-  userInitials: string;
-  unreadCount?: number;
   boutiques: Boutique[];
   leftColumn: ReactNode;
   centerColumn: ReactNode;

@@ -182,8 +182,7 @@ function MobileDrawer({
   // Close drawer on navigation
   useEffect(() => {
     onClose();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [pathname, onClose]);
 
   // Focus trap + ESC
   const drawerRef = useRef<HTMLDivElement>(null);

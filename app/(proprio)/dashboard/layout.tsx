@@ -4,6 +4,7 @@ import KeyboardShortcuts from '@/components/ui/KeyboardShortcuts';
 import OfflineBanner from '@/components/ui/OfflineBanner';
 import DashboardTopbar from '@/components/dashboard/shell/DashboardTopbar';
 import { NotifProvider } from '@/context/NotifContext';
+import { computeInitials } from '@/lib/initials';
 import type { Profile } from '@/types/database';
 
 export default async function DashboardLayout({
@@ -26,15 +27,8 @@ export default async function DashboardLayout({
 
   const profile = profileData as Profile | null;
 
-  // Compute user initials for the avatar
   const fullName = profile?.nom_complet ?? user.email ?? '';
-  const initials =
-    fullName
-      .split(' ')
-      .filter((part: string) => part.trim().length > 0)
-      .map((part: string) => part.charAt(0).toUpperCase())
-      .slice(0, 2)
-      .join('') || 'XA';
+  const initials = computeInitials(fullName);
 
   return (
     <NotifProvider>
@@ -45,4 +39,5 @@ export default async function DashboardLayout({
     </NotifProvider>
   );
 }
+
 
