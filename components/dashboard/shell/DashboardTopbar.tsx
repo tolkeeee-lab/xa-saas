@@ -25,7 +25,6 @@ const NAV_DROPDOWN_GROUPS: NavDropdownDef[] = [
     items: [
       { href: '/dashboard/caisse', label: 'Caisse' },
       { href: '/dashboard/ventes', label: 'Ventes' },
-      { href: '/dashboard/transactions', label: 'Transactions' },
       { href: '/dashboard/clients', label: 'Clients' },
       { href: '/dashboard/dettes', label: 'Dettes clients' },
       { href: '/dashboard/cloture-caisse', label: 'Clôture caisse' },
@@ -41,13 +40,6 @@ const NAV_DROPDOWN_GROUPS: NavDropdownDef[] = [
       { href: '/dashboard/perimes', label: 'Produits périmés' },
       { href: '/dashboard/fournisseurs', label: 'Fournisseurs' },
       { href: '/dashboard/transferts', label: 'Transferts' },
-    ],
-  },
-  {
-    label: '👥 Équipe',
-    items: [
-      { href: '/dashboard/personnel', label: 'Personnel' },
-      { href: '/dashboard/employes', label: 'Employés' },
     ],
   },
   {
@@ -241,6 +233,14 @@ function MobileDrawer({
       })}
 
       <Link
+        href="/dashboard/equipe"
+        className={`xa-nav-link${pathname.startsWith('/dashboard/equipe') ? ' xa-nav-active' : ''}`}
+        onClick={onClose}
+      >
+        👥 Équipe
+      </Link>
+
+      <Link
         href="/dashboard/boutiques"
         className={`xa-nav-link${pathname.startsWith('/dashboard/boutiques') ? ' xa-nav-active' : ''}`}
         onClick={onClose}
@@ -284,6 +284,13 @@ export default function DashboardTopbar({ userInitials }: DashboardTopbarProps) 
             {NAV_DROPDOWN_GROUPS.map((group) => (
               <NavDropdown key={group.label} group={group} />
             ))}
+
+            <Link
+              href="/dashboard/equipe"
+              className={`xa-nav-link${pathname.startsWith('/dashboard/equipe') ? ' xa-nav-active' : ''}`}
+            >
+              👥 Équipe
+            </Link>
 
             <Link
               href="/dashboard/boutiques"

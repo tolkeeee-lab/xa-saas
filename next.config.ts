@@ -15,6 +15,13 @@ const nextConfig: NextConfig = {
       allowedOrigins: ['localhost:3000'],
     },
   },
+  async redirects() {
+    return [
+      { source: '/dashboard/transactions', destination: '/dashboard/ventes', permanent: true },
+      { source: '/dashboard/personnel', destination: '/dashboard/equipe', permanent: true },
+      { source: '/dashboard/employes', destination: '/dashboard/equipe', permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

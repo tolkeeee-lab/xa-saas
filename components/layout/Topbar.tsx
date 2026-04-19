@@ -12,7 +12,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/dashboard/boutiques': 'Boutiques',
   '/dashboard/boutiques/new': 'Nouvelle boutique',
   '/dashboard/produits': 'Produits',
-  '/dashboard/employes': 'Employés',
+  '/dashboard/equipe': 'Équipe',
   '/dashboard/parametres': 'Paramètres',
   '/dashboard/caisse': 'Caisse POS',
   '/dashboard/cloture-caisse': 'Clôture de caisse',
@@ -24,9 +24,8 @@ const PAGE_TITLES: Record<string, string> = {
   '/dashboard/fournisseurs': 'Fournisseurs',
   '/dashboard/rapports': 'Rapports',
   '/dashboard/charges': 'Charges fixes',
-  '/dashboard/personnel': 'Personnel',
   '/dashboard/alertes-stock': 'Alertes Stock',
-  '/dashboard/transactions': 'Transactions',
+  '/dashboard/ventes': 'Ventes',
   '/dashboard/mes-dettes': 'Mes dettes',
 };
 
