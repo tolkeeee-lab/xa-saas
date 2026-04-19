@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getBoutiques } from '@/lib/supabase/getBoutiques';
 import { getProduits } from '@/lib/supabase/getProduits';
-import CaissePos from '@/features/caisse/CaissePos';
+import CaisseV3 from '@/features/caisse/v3/CaisseV3';
 
 export const metadata = { title: 'Caisse POS — xà' };
 
@@ -32,5 +32,5 @@ export default async function CaissePage() {
 
   const produits = await getProduits(boutiques[0].id);
 
-  return <CaissePos boutiques={boutiques} produits={produits} userId={user.id} />;
+  return <CaisseV3 boutiques={boutiques} produits={produits} userId={user.id} />;
 }
