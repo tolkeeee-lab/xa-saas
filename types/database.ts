@@ -390,6 +390,7 @@ export type Database = {
           p_client_nom?: string | null;
           p_client_telephone?: string | null;
           p_local_id?: string | null;
+          p_employe_id?: string | null;
         };
         Returns: { transaction_id: string; duplicate: boolean; numero_facture: string };
       };

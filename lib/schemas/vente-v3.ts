@@ -21,6 +21,10 @@ export const venteV3Schema = z.object({
   local_id: z.string().uuid().optional(),
   /** Loyalty client — for point tracking */
   client_id: z.string().uuid().optional(),
+  /** Name of the cashier performing the sale */
+  caissier_nom: z.string().max(120).optional(),
+  /** Employee UUID — for DB traceability (transactions.employe_id) */
+  employe_id: z.string().uuid().optional(),
 });
 
 export type VenteV3Body = z.infer<typeof venteV3Schema>;
