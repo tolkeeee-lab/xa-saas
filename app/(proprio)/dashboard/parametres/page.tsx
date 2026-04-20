@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase-browser';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import type { Profile, Boutique } from '@/types/database';
@@ -313,6 +314,26 @@ export default function ParametresPage() {
           </form>
         </section>
       )}
+
+      {/* Categories section */}
+      <section className="bg-xa-surface border border-xa-border rounded-xl p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-sm font-semibold text-xa-text uppercase tracking-wider">
+              Catégories de produits
+            </h2>
+            <p className="text-sm text-xa-muted mt-1">
+              Personnalisez les catégories disponibles lors de l&apos;ajout de produits.
+            </p>
+          </div>
+          <Link
+            href="/dashboard/parametres/categories"
+            className="px-4 py-2 rounded-lg bg-xa-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity"
+          >
+            Gérer
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

@@ -231,6 +231,17 @@ export type InventaireLigne = {
   updated_at: string;
 };
 
+export type CategorieProduit = {
+  id: string;
+  proprietaire_id: string;
+  nom: string;
+  couleur: string;
+  icone: string;
+  ordre: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ClotureCaisse = {
   id: string;
   boutique_id: string;
@@ -373,6 +384,13 @@ export type Database = {
         Insert: Omit<InventaireLigne, 'id' | 'created_at' | 'updated_at' | 'ecart' | 'stock_compte'> &
           Partial<Pick<InventaireLigne, 'id' | 'created_at' | 'updated_at' | 'stock_compte'>>;
         Update: Partial<Omit<InventaireLigne, 'id' | 'ecart'>>;
+        Relationships: [];
+      };
+      categories_produits: {
+        Row: CategorieProduit;
+        Insert: Omit<CategorieProduit, 'id' | 'created_at' | 'updated_at'> &
+          Partial<Pick<CategorieProduit, 'id' | 'created_at' | 'updated_at'>>;
+        Update: Partial<Omit<CategorieProduit, 'id'>>;
         Relationships: [];
       };
     };
