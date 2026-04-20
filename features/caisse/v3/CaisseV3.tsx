@@ -26,6 +26,7 @@ import CartPanel from './CartPanel';
 import EncaissModal, { type VenteResult } from './EncaissModal';
 import InvoiceModal from './InvoiceModal';
 import type { PayMode } from './PaymentSection';
+import { formatFCFA } from '@/lib/format';
 import './caisse-v3.css';
 
 const CAISSE_SESSION_HEADER = 'x-caisse-token';
@@ -556,6 +557,20 @@ export default function CaisseV3({ boutiques, produits: initialProduits, userId,
           onToggleCollapse={() => setCartCollapsed((c) => !c)}
         />
       </div>
+
+      {/* Mobile FAB — visible when cart is collapsed and has items */}
+      {isMobile && items.length > 0 && cartCollapsed && (
+        <button
+          type="button"
+          className="c-mobile-fab"
+          onClick={() => setCartCollapsed(false)}
+          aria-label={`Voir panier et encaisser ${formatFCFA(total)}`}
+        >
+          <span className="c-mobile-fab-count">{items.reduce((s, i) => s + i.qty, 0)}</span>
+          <span className="c-mobile-fab-label">ENCAISSER</span>
+          <span className="c-mobile-fab-amount">{formatFCFA(total)}</span>
+        </button>
+      )}
 
       {/* Encaissement modal */}
       {showEncaiss && (

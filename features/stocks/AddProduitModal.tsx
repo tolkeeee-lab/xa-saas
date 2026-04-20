@@ -3,15 +3,18 @@
 import { useState } from 'react';
 import type { Boutique } from '@/types/database';
 import type { ProduitPublic } from '@/types/database';
+import type { CategorieProduit } from '@/types/database';
 
 interface AddProduitModalProps {
   boutiques: Boutique[];
   defaultBoutiqueId?: string;
   onClose: () => void;
   onSuccess: (produit: ProduitPublic) => void;
+  categories?: CategorieProduit[];
+  onCategoryCreated?: (cat: CategorieProduit) => void;
 }
 
-const CATEGORIES = ['Épicerie', 'Boissons', 'Hygiène', 'Frais', 'Boulangerie', 'Général', 'Autre'];
+const DEFAULT_CATEGORIES = ['Épicerie', 'Boissons', 'Hygiène', 'Frais', 'Boulangerie', 'Général', 'Autre'];
 
 const EMPTY_FORM = {
   nom: '',
@@ -29,13 +32,47 @@ export default function AddProduitModal({
   defaultBoutiqueId,
   onClose,
   onSuccess,
+  categories,
+  onCategoryCreated,
 }: AddProduitModalProps) {
   const [form, setForm] = useState({ ...EMPTY_FORM, boutique_id: defaultBoutiqueId ?? boutiques[0]?.id ?? '' });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Inline new category creation
+  const [showNewCat, setShowNewCat] = useState(false);
+  const [newCatNom, setNewCatNom] = useState('');
+  const [newCatIcone, setNewCatIcone] = useState('📦');
+  const [creatingCat, setCreatingCat] = useState(false);
+  const [catError, setCatError] = useState<string | null>(null);
+
   function setField(key: keyof typeof EMPTY_FORM, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  async function handleCreateCategory() {
+    if (!newCatNom.trim()) { setCatError('Le nom est obligatoire.'); return; }
+    setCatError(null);
+    setCreatingCat(true);
+    try {
+      const res = await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nom: newCatNom.trim(), icone: newCatIcone }),
+      });
+      const data = await res.json() as CategorieProduit & { error?: string };
+      if (!res.ok) {
+        setCatError(data.error ?? 'Erreur lors de la création');
+        return;
+      }
+      onCategoryCreated?.(data);
+      setForm((f) => ({ ...f, categorie: data.nom }));
+      setShowNewCat(false);
+      setNewCatNom('');
+      setNewCatIcone('📦');
+    } finally {
+      setCreatingCat(false);
+    }
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -80,6 +117,10 @@ export default function AddProduitModal({
       setSubmitting(false);
     }
   }
+
+  const categoryOptions = categories && categories.length > 0
+    ? categories.map((c) => c.nom)
+    : DEFAULT_CATEGORIES;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-4">
@@ -130,15 +171,64 @@ export default function AddProduitModal({
           {/* Catégorie */}
           <div>
             <label className="block text-sm font-medium text-xa-text mb-1">Catégorie</label>
-            <select
-              value={form.categorie}
-              onChange={(e) => setField('categorie', e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary"
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+            <div className="flex gap-2">
+              <select
+                value={form.categorie}
+                onChange={(e) => setField('categorie', e.target.value)}
+                className="flex-1 px-3 py-2 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary"
+              >
+                {categoryOptions.map((c) => (
+                  <option key={c} value={c}>
+                    {categories
+                      ? (categories.find((cat) => cat.nom === c)?.icone ?? '') + ' ' + c
+                      : c}
+                  </option>
+                ))}
+              </select>
+              {categories !== undefined && (
+                <button
+                  type="button"
+                  onClick={() => { setShowNewCat((v) => !v); setCatError(null); }}
+                  className="px-3 py-2 rounded-lg border border-xa-border bg-xa-bg text-xa-muted text-sm hover:text-xa-text transition-colors whitespace-nowrap"
+                  title="Ajouter une catégorie"
+                >
+                  ➕
+                </button>
+              )}
+            </div>
+
+            {/* Inline new category form */}
+            {showNewCat && (
+              <div className="mt-2 p-3 rounded-lg border border-xa-border bg-xa-bg space-y-2">
+                {catError && (
+                  <p className="text-xs text-xa-danger">{catError}</p>
+                )}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newCatIcone}
+                    onChange={(e) => setNewCatIcone(e.target.value)}
+                    placeholder="📦"
+                    className="w-14 px-2 py-1.5 rounded-lg border border-xa-border bg-xa-surface text-xa-text text-sm text-center focus:outline-none focus:ring-1 focus:ring-xa-primary"
+                  />
+                  <input
+                    type="text"
+                    value={newCatNom}
+                    onChange={(e) => setNewCatNom(e.target.value)}
+                    placeholder="Nom de la catégorie"
+                    className="flex-1 px-3 py-1.5 rounded-lg border border-xa-border bg-xa-surface text-xa-text text-sm focus:outline-none focus:ring-1 focus:ring-xa-primary"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCreateCategory}
+                    disabled={creatingCat}
+                    className="px-3 py-1.5 rounded-lg bg-xa-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+                  >
+                    {creatingCat ? '…' : 'OK'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Prix */}

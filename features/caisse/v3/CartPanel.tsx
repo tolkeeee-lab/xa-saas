@@ -80,6 +80,11 @@ export default function CartPanel({
           onKeyDown={(e) => e.key === 'Enter' && onToggleCollapse?.()}
         >
           <div className="drag-handle" />
+          {isCollapsed && totalItems > 0 && (
+            <span className="c-cart-toggle-hint">
+              ↑ {totalItems} article{totalItems > 1 ? 's' : ''} — Tirer pour voir
+            </span>
+          )}
         </div>
       )}
 

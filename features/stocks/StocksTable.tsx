@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { formatFCFA } from '@/lib/format';
-import type { Boutique, ProduitPublic } from '@/types/database';
+import type { Boutique, ProduitPublic, CategorieProduit } from '@/types/database';
 import type { StocksConsolidesData, StockConsolideRow } from '@/lib/supabase/getStocksConsolides';
 import AddProduitModal from '@/features/stocks/AddProduitModal';
 
@@ -36,6 +36,14 @@ export default function StocksTable({ data, boutiques }: StocksTableProps) {
   const [rows, setRows] = useState<StockConsolideRow[]>(data.produits);
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [categories, setCategories] = useState<CategorieProduit[]>([]);
+
+  useEffect(() => {
+    fetch('/api/categories')
+      .then((r) => r.json())
+      .then((d: CategorieProduit[]) => { if (Array.isArray(d)) setCategories(d); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -233,6 +241,8 @@ export default function StocksTable({ data, boutiques }: StocksTableProps) {
           defaultBoutiqueId={filterBoutique !== 'all' ? filterBoutique : boutiques[0]?.id}
           onClose={() => setShowModal(false)}
           onSuccess={handleProduitAdded}
+          categories={categories}
+          onCategoryCreated={(cat) => setCategories((prev) => [...prev, cat])}
         />
       )}
     </div>
