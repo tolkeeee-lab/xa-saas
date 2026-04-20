@@ -36,6 +36,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     .in('id', produitIds);
 
   if (produitsError) {
+    console.error('[api/caisse/vente]', { step: 'fetch_produits', error: produitsError.message });
     return NextResponse.json({ error: produitsError.message }, { status: 500 });
   }
 
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   }));
 
   // ── Call process_sale_v2 RPC ──────────────────────────────────────────────────
-  const { data: rpcResult, error: rpcError } = await supabase.rpc('process_sale_v2', {
+  const baseRpcArgs = {
     p_boutique_id:      body.boutique_id,
     p_lignes:           lignesPayload,
     p_montant_total:    body.montant_total,
@@ -89,19 +90,42 @@ export async function POST(request: NextRequest): Promise<Response> {
     p_client_nom:       body.client_nom ?? null,
     p_client_telephone: body.client_telephone ?? null,
     p_local_id:         body.local_id ?? null,
-    p_employe_id:       body.employe_id ?? null,
+  };
+
+  // First attempt: with p_employe_id (requires migration 20260420_process_sale_v2_employe)
+  let rpcAttempt = await supabase.rpc('process_sale_v2', {
+    ...baseRpcArgs,
+    p_employe_id: body.employe_id ?? null,
   });
+
+  // Defensive fallback: DB may not have the migration applied yet.
+  // PGRST202 = "Could not find a function matching the request" — the p_employe_id
+  // argument is rejected when migration 20260420_process_sale_v2_employe hasn't run.
+  if (rpcAttempt.error) {
+    if (rpcAttempt.error.code === 'PGRST202') {
+      console.warn('[api/caisse/vente] p_employe_id rejected by DB (PGRST202) — migration pending, retrying without employe_id', {
+        step: 'rpc_fallback',
+        code: rpcAttempt.error.code,
+        message: rpcAttempt.error.message,
+      });
+      rpcAttempt = await supabase.rpc('process_sale_v2', baseRpcArgs);
+    }
+  }
+
+  const { data: rpcResult, error: rpcError } = rpcAttempt;
 
   if (rpcError) {
     // Surface user-friendly stock/not-found errors from the RPC
     const msg = rpcError.message ?? 'Erreur lors de la validation de la vente';
     const status = msg.includes('Stock insuffisant') || msg.includes('introuvable') ? 422 : 500;
+    console.error('[api/caisse/vente]', { step: 'rpc_error', code: rpcError.code, message: msg });
     return NextResponse.json({ error: msg }, { status });
   }
 
   const rpc = rpcResult as { transaction_id: string; duplicate: boolean; numero_facture: string } | null;
 
   if (!rpc) {
+    console.error('[api/caisse/vente]', { step: 'rpc_null', message: 'RPC returned null result' });
     return NextResponse.json({ error: 'Réponse RPC invalide' }, { status: 500 });
   }
 

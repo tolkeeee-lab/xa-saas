@@ -558,6 +558,15 @@ export default function CaisseV3({ boutiques, produits: initialProduits, userId,
         />
       </div>
 
+      {/* Mobile cart backdrop — close side-sheet when tapping catalogue area */}
+      {isMobile && !cartCollapsed && (
+        <div
+          className="c-cart-backdrop"
+          onClick={() => setCartCollapsed(true)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Mobile FAB — visible when cart is collapsed and has items */}
       {isMobile && items.length > 0 && cartCollapsed && (
         <button
