@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { requireEmployeSession } from '@/lib/employe-session';
+import { requireEmployeSession } from '@/lib/employe-session-server';
 import { getProduitsForEmploye, getProduitsCompletForGerant } from '@/lib/supabase/getProduitsForEmploye';
 import EmployeStockPage from '@/features/employe/EmployeStockPage';
 

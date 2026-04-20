@@ -1,4 +1,4 @@
-import { getEmployeSession } from '@/lib/employe-session';
+import { getEmployeSession } from '@/lib/employe-session-server';
 import EmployeTopbar from '@/features/employe/EmployeTopbar';
 
 export default async function EmployeLayout({ children }: { children: React.ReactNode }) {

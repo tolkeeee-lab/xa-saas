@@ -10,7 +10,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getEmployeSession } from '@/lib/employe-session';
+import { getEmployeSession } from '@/lib/employe-session-server';
 import { createAdminClient } from '@/lib/supabase-admin';
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;

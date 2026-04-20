@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { requireEmployeSession } from '@/lib/employe-session';
+import { requireEmployeSession } from '@/lib/employe-session-server';
 import EmployeClotureForm from '@/features/employe/EmployeClotureForm';
 
 export const metadata: Metadata = { title: 'Clôture — xà' };
