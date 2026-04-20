@@ -60,13 +60,14 @@ export default function AddProduitModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nom: newCatNom.trim(), icone: newCatIcone }),
       });
-      const data = await res.json() as CategorieProduit & { error?: string };
+      const json = await res.json() as Record<string, unknown>;
       if (!res.ok) {
-        setCatError(data.error ?? 'Erreur lors de la création');
+        setCatError(typeof json.error === 'string' ? json.error : 'Erreur lors de la création');
         return;
       }
-      onCategoryCreated?.(data);
-      setForm((f) => ({ ...f, categorie: data.nom }));
+      const cat = json as unknown as CategorieProduit;
+      onCategoryCreated?.(cat);
+      setForm((f) => ({ ...f, categorie: cat.nom }));
       setShowNewCat(false);
       setNewCatNom('');
       setNewCatIcone('📦');

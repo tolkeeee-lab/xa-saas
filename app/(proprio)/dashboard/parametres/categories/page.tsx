@@ -52,9 +52,13 @@ export default function CategoriesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nom: newNom.trim(), icone: newIcone, couleur: newCouleur }),
       });
-      const data = await res.json() as CategorieProduit & { error?: string };
-      if (!res.ok) { setCreateError(data.error ?? 'Erreur'); return; }
-      setCategories((prev) => [...prev, data]);
+      const json = await res.json() as Record<string, unknown>;
+      if (!res.ok) {
+        setCreateError(typeof json.error === 'string' ? json.error : 'Erreur');
+        return;
+      }
+      const cat = json as unknown as CategorieProduit;
+      setCategories((prev) => [...prev, cat]);
       setNewNom('');
       setNewIcone('📦');
       setNewCouleur('#999999');
@@ -79,9 +83,13 @@ export default function CategoriesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nom: editNom.trim(), icone: editIcone, couleur: editCouleur }),
       });
-      const data = await res.json() as CategorieProduit & { error?: string };
-      if (!res.ok) { setError(data.error ?? 'Erreur'); return; }
-      setCategories((prev) => prev.map((c) => (c.id === id ? data : c)));
+      const json = await res.json() as Record<string, unknown>;
+      if (!res.ok) {
+        setError(typeof json.error === 'string' ? json.error : 'Erreur');
+        return;
+      }
+      const updated = json as unknown as CategorieProduit;
+      setCategories((prev) => prev.map((c) => (c.id === id ? updated : c)));
       setEditingId(null);
     } finally {
       setSaving(false);
@@ -92,8 +100,11 @@ export default function CategoriesPage() {
     setDeleting(true);
     try {
       const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
-      const data = await res.json() as { success?: boolean; error?: string };
-      if (!res.ok) { setError(data.error ?? 'Erreur'); return; }
+      const json = await res.json() as Record<string, unknown>;
+      if (!res.ok) {
+        setError(typeof json.error === 'string' ? json.error : 'Erreur');
+        return;
+      }
       setCategories((prev) => prev.filter((c) => c.id !== id));
       setDeletingId(null);
     } finally {
@@ -107,25 +118,38 @@ export default function CategoriesPage() {
     const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
     if (swapIdx < 0 || swapIdx >= categories.length) return;
 
+    // Capture the original ordre values before modifying the array
+    const ordreA = categories[idx].ordre;
+    const ordreB = categories[swapIdx].ordre;
+
     const updated = [...categories];
-    const temp = updated[idx];
-    updated[idx] = { ...updated[swapIdx], ordre: temp.ordre };
-    updated[swapIdx] = { ...temp, ordre: updated[swapIdx].ordre };
+    updated[idx] = { ...categories[idx], ordre: ordreB };
+    updated[swapIdx] = { ...categories[swapIdx], ordre: ordreA };
     setCategories(updated);
 
-    // Persist both in parallel
-    await Promise.all([
-      fetch(`/api/categories/${updated[idx].id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ordre: updated[idx].ordre }),
-      }),
-      fetch(`/api/categories/${updated[swapIdx].id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ordre: updated[swapIdx].ordre }),
-      }),
-    ]);
+    // Persist both in parallel; revert on failure
+    try {
+      const [resA, resB] = await Promise.all([
+        fetch(`/api/categories/${updated[idx].id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ordre: ordreB }),
+        }),
+        fetch(`/api/categories/${updated[swapIdx].id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ordre: ordreA }),
+        }),
+      ]);
+      if (!resA.ok || !resB.ok) {
+        // Revert local state on error
+        setCategories(categories);
+        setError('Impossible de réordonner les catégories.');
+      }
+    } catch {
+      setCategories(categories);
+      setError('Impossible de réordonner les catégories.');
+    }
   }
 
   if (loading) {
