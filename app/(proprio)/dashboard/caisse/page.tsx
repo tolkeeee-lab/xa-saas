@@ -32,5 +32,11 @@ export default async function CaissePage() {
 
   const produits = await getProduits(boutiques[0].id);
 
-  return <CaisseV3 boutiques={boutiques} produits={produits} userId={user.id} />;
+  const caissierNom =
+    (user.user_metadata as Record<string, string> | undefined)?.full_name ??
+    (user.user_metadata as Record<string, string> | undefined)?.nom_complet ??
+    user.email?.split('@')[0] ??
+    'Caissier';
+
+  return <CaisseV3 boutiques={boutiques} produits={produits} userId={user.id} caissierNom={caissierNom} />;
 }

@@ -35,6 +35,10 @@ interface CaisseV3Props {
   boutiques: Boutique[];
   produits: ProduitPublic[];
   userId: string;
+  /** Explicit cashier name override — used by employee mode (PR 14) */
+  caissierNom?: string;
+  /** Employee UUID to persist in transactions.employe_id */
+  employeId?: string;
 }
 
 // ─── Toast types ──────────────────────────────────────────────────────────────
@@ -47,7 +51,7 @@ type ToastData = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function CaisseV3({ boutiques, produits: initialProduits, userId }: CaisseV3Props) {
+export default function CaisseV3({ boutiques, produits: initialProduits, userId, caissierNom, employeId }: CaisseV3Props) {
   // ── Boutique active ──────────────────────────────────────────────────────────
   const [boutiqueActive, setBoutiqueActive] = useState<string>(() => {
     if (typeof window !== 'undefined') {
@@ -86,6 +90,30 @@ export default function CaisseV3({ boutiques, produits: initialProduits, userId 
   // ── Catalogue filters ─────────────────────────────────────────────────────────
   const [recherche, setRecherche] = useState('');
   const [categorie, setCategorie] = useState('Tout');
+
+  // ── Caissier name (resolved once at mount) ───────────────────────────────────
+  const [resolvedCaissierNom, setResolvedCaissierNom] = useState<string | undefined>(caissierNom);
+
+  useEffect(() => {
+    if (caissierNom) {
+      setResolvedCaissierNom(caissierNom);
+      return;
+    }
+    // Proprio mode: fetch from Supabase Auth (runs once at mount when no caissierNom prop)
+    import('@/lib/supabase-browser').then(({ createClient }) => {
+      const supabase = createClient();
+      supabase.auth.getUser().then((resp: { data: { user: { email?: string; user_metadata?: Record<string, string> } | null }; error: unknown }) => {
+        const authUser = resp.data.user;
+        const meta = authUser?.user_metadata;
+        const nom =
+          meta?.full_name ??
+          meta?.nom_complet ??
+          authUser?.email?.split('@')[0] ??
+          'Caissier';
+        setResolvedCaissierNom(nom);
+      }).catch((err: unknown) => { console.error('[CaisseV3] auth.getUser failed', err); });
+    }).catch((err: unknown) => { console.error('[CaisseV3] supabase-browser import failed', err); });
+  }, [caissierNom]);
 
   // ── Loading ───────────────────────────────────────────────────────────────────
   const [loading, setLoading] = useState(false);
@@ -314,6 +342,8 @@ export default function CaisseV3({ boutiques, produits: initialProduits, userId 
       client_nom: clientNom || undefined,
       client_telephone: clientTelephone || undefined,
       local_id: localIdRef.current,
+      caissier_nom: resolvedCaissierNom,
+      employe_id: employeId ?? undefined,
     };
 
     // Offline handling
@@ -351,7 +381,7 @@ export default function CaisseV3({ boutiques, produits: initialProduits, userId 
         client_telephone: clientTelephone || undefined,
         boutique_nom: boutique?.nom ?? 'Boutique',
         boutique_ville: boutique?.ville,
-        caissier_nom: undefined,
+        caissier_nom: resolvedCaissierNom,
       };
       setLoading(false);
       showToast('⚠ Vente hors-ligne enregistrée', 'success');
@@ -405,7 +435,7 @@ export default function CaisseV3({ boutiques, produits: initialProduits, userId 
         client_telephone: clientTelephone || undefined,
         boutique_nom: boutique?.nom ?? 'Boutique',
         boutique_ville: boutique?.ville,
-        caissier_nom: undefined,
+        caissier_nom: resolvedCaissierNom,
       };
 
       showToast(`✅ Vente ${result.numero_facture} enregistrée`, 'success');
@@ -541,6 +571,7 @@ export default function CaisseV3({ boutiques, produits: initialProduits, userId 
           clientTelephone={clientTelephone}
           boutique_nom={activeBoutique?.nom ?? 'Boutique'}
           boutique_ville={activeBoutique?.ville}
+          caissier_nom={resolvedCaissierNom}
           onValider={performSale}
           onNouvelleVente={() => {
             resetAfterSale();

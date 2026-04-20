@@ -89,6 +89,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     p_client_nom:       body.client_nom ?? null,
     p_client_telephone: body.client_telephone ?? null,
     p_local_id:         body.local_id ?? null,
+    p_employe_id:       body.employe_id ?? null,
   });
 
   if (rpcError) {

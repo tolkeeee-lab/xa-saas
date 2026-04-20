@@ -242,6 +242,11 @@ export default function EncaissModal({
                 N° {completedVente.numero_facture}
               </p>
             )}
+            {isCompleted && completedVente.caissier_nom && (
+              <p className="c-amount-meta" style={{ fontSize: 11, marginTop: 2 }}>
+                Caissier : {completedVente.caissier_nom}
+              </p>
+            )}
             <p className="c-amount-meta">
               {totalArticles} article{totalArticles > 1 ? 's' : ''} · {nbProduits} produit{nbProduits > 1 ? 's' : ''}
             </p>
@@ -281,6 +286,12 @@ export default function EncaissModal({
               <div className="c-summary-line">
                 <span>Client</span>
                 <span>{clientNom}</span>
+              </div>
+            )}
+            {caissier_nom && (
+              <div className="c-summary-line" style={{ color: 'var(--c-muted)', fontSize: 11 }}>
+                <span>Caissier</span>
+                <span>{caissier_nom}</span>
               </div>
             )}
             <div style={{ height: 1, background: 'var(--c-rule2)', margin: '6px 0' }} />
