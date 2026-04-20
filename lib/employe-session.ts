@@ -19,8 +19,6 @@
  */
 
 import crypto from 'crypto';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 import { base64urlDecode, base64urlEncode } from './base64url';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -60,8 +58,6 @@ function getSecret(): Buffer {
   }
   return Buffer.from(secret, 'utf8');
 }
-
-  // Remove the local base64urlEncode in favour of the shared utility
 
 function computeHmac(encodedPayload: string): string {
   return crypto
@@ -134,28 +130,4 @@ export function validateEmployeSessionToken(
   if (Math.floor(Date.now() / 1_000) > payload.exp) return null;
 
   return payload;
-}
-
-// ─── Server Component utilities ───────────────────────────────────────────────
-
-/**
- * Server Component — reads the `xa_employe_session` cookie and returns the
- * validated session, or null if absent / expired / invalid.
- */
-export async function getEmployeSession(): Promise<EmployeSession | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(EMPLOYE_COOKIE_NAME)?.value ?? null;
-  return validateEmployeSessionToken(token);
-}
-
-/**
- * Server Component guard — redirects to `/caisse/lock` if no valid session.
- * Use at the top of each protected page server component.
- */
-export async function requireEmployeSession(): Promise<EmployeSession> {
-  const session = await getEmployeSession();
-  if (!session) {
-    redirect('/caisse/lock');
-  }
-  return session;
 }

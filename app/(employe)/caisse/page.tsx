@@ -1,4 +1,4 @@
-import { requireEmployeSession } from '@/lib/employe-session';
+import { requireEmployeSession } from '@/lib/employe-session-server';
 import { getProduitsForEmploye } from '@/lib/supabase/getProduitsForEmploye';
 import { createAdminClient } from '@/lib/supabase-admin';
 import CaisseV3 from '@/features/caisse/v3/CaisseV3';

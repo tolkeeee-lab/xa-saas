@@ -9,7 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getEmployeSession } from '@/lib/employe-session';
+import { getEmployeSession } from '@/lib/employe-session-server';
 import { createAdminClient } from '@/lib/supabase-admin';
 
 export async function POST(request: NextRequest) {

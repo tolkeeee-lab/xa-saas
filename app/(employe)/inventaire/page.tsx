@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { requireEmployeSession } from '@/lib/employe-session';
+import { requireEmployeSession } from '@/lib/employe-session-server';
 import InventaireGerantPage from '@/features/employe/InventaireGerantPage';
 
 export const metadata: Metadata = { title: 'Inventaire — xà' };

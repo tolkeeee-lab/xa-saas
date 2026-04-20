@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { requireEmployeSession } from '@/lib/employe-session';
+import { requireEmployeSession } from '@/lib/employe-session-server';
 import { getClientsForEmploye } from '@/lib/supabase/getClientsForEmploye';
 import EmployeClientsPage from '@/features/employe/EmployeClientsPage';
 

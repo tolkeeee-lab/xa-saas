@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getEmployeSession } from '@/lib/employe-session';
+import { getEmployeSession } from '@/lib/employe-session-server';
 import { getVentesForEmploye } from '@/lib/supabase/getVentesForEmploye';
 
 export async function GET(request: NextRequest) {
