@@ -558,20 +558,6 @@ export default function CaisseV3({ boutiques, produits: initialProduits, userId,
         />
       </div>
 
-      {/* Mobile FAB — visible when cart is collapsed and has items */}
-      {isMobile && items.length > 0 && cartCollapsed && (
-        <button
-          type="button"
-          className="c-mobile-fab"
-          onClick={() => setCartCollapsed(false)}
-          aria-label={`Voir panier et encaisser ${formatFCFA(total)}`}
-        >
-          <span className="c-mobile-fab-count">{items.reduce((s, i) => s + i.qty, 0)}</span>
-          <span className="c-mobile-fab-label">ENCAISSER</span>
-          <span className="c-mobile-fab-amount">{formatFCFA(total)}</span>
-        </button>
-      )}
-
       {/* Encaissement modal */}
       {showEncaiss && (
         <EncaissModal

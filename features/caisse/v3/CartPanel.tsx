@@ -69,21 +69,51 @@ export default function CartPanel({
       className={`c-cart${isMobile && isCollapsed ? ' collapsed' : ''}`}
       aria-label="Panier"
     >
-      {/* Mobile drag handle */}
+      {/* Mobile peek bar */}
       {isMobile && (
         <div
-          className="c-cart-toggle-bar"
+          className="c-cart-peek-bar"
           onClick={onToggleCollapse}
           role="button"
           tabIndex={0}
-          aria-label={isCollapsed ? 'Ouvrir le panier' : 'Réduire le panier'}
+          aria-label={isCollapsed ? 'Ouvrir le panier' : 'Fermer le panier'}
           onKeyDown={(e) => e.key === 'Enter' && onToggleCollapse?.()}
         >
-          <div className="drag-handle" />
-          {isCollapsed && totalItems > 0 && (
-            <span className="c-cart-toggle-hint">
-              ↑ {totalItems} article{totalItems > 1 ? 's' : ''} — Tirer pour voir
+          <div className="c-cart-peek-handle" aria-hidden="true" />
+          <div className="c-cart-peek-info">
+            {items.length === 0 ? (
+              <>
+                <span className="c-cart-peek-icon">🛒</span>
+                <span className="c-cart-peek-label">Panier vide · ajoute un produit</span>
+              </>
+            ) : (
+              <>
+                <span className="c-cart-peek-icon">🛒</span>
+                <span className="c-cart-peek-count">
+                  {totalItems} article{totalItems > 1 ? 's' : ''}
+                </span>
+                <span className="c-cart-peek-dot">·</span>
+                <span className="c-cart-peek-amount">{formatFCFA(total)}</span>
+              </>
+            )}
+            <span className="c-cart-peek-chevron" aria-hidden="true">
+              {isCollapsed ? '▲' : '▼'}
             </span>
+          </div>
+
+          {isCollapsed && items.length > 0 && (
+            <button
+              type="button"
+              className="c-cart-peek-encaisser"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEncaisser();
+              }}
+              disabled={!canEncaisser}
+              aria-label={`Encaisser ${formatFCFA(total)}`}
+            >
+              {loading ? 'Traitement…' : `ENCAISSER ${formatFCFA(total)}`}
+            </button>
           )}
         </div>
       )}
