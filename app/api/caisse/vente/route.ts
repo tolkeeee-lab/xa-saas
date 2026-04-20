@@ -99,14 +99,14 @@ export async function POST(request: NextRequest): Promise<Response> {
   });
 
   // Defensive fallback: DB may not have the migration applied yet.
-  // PGRST202 = function overload not found / unexpected argument.
+  // PGRST202 = "Could not find a function matching the request" — the p_employe_id
+  // argument is rejected when migration 20260420_process_sale_v2_employe hasn't run.
   if (rpcAttempt.error) {
-    const errMsg = rpcAttempt.error.message ?? '';
-    if (errMsg.includes('p_employe_id') || rpcAttempt.error.code === 'PGRST202') {
-      console.warn('[api/caisse/vente] p_employe_id rejected by DB — migration pending, retrying without employe_id', {
+    if (rpcAttempt.error.code === 'PGRST202') {
+      console.warn('[api/caisse/vente] p_employe_id rejected by DB (PGRST202) — migration pending, retrying without employe_id', {
         step: 'rpc_fallback',
         code: rpcAttempt.error.code,
-        message: errMsg,
+        message: rpcAttempt.error.message,
       });
       rpcAttempt = await supabase.rpc('process_sale_v2', baseRpcArgs);
     }
