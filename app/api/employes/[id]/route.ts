@@ -11,6 +11,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { generateInviteCode } from '@/lib/inviteCode';
+import type { Employe } from '@/types/database';
+
+type EmployeUpdate = Partial<Omit<Employe, 'id'>>;
 
 export async function PATCH(
   request: NextRequest,
@@ -55,11 +58,11 @@ export async function PATCH(
   }
 
   const updates = body as Record<string, unknown>;
-  const patch: Record<string, unknown> = {};
+  const patch: EmployeUpdate = {};
 
   if (typeof updates.actif === 'boolean') patch.actif = updates.actif;
   if (typeof updates.role === 'string' && ['caissier', 'gerant'].includes(updates.role)) {
-    patch.role = updates.role;
+    patch.role = updates.role as 'caissier' | 'gerant';
   }
   if (typeof updates.nom === 'string' && updates.nom.trim()) {
     patch.nom = updates.nom.trim();
