@@ -5,12 +5,15 @@ import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { categoriesPatchSchema } from '@/lib/schemas/categories';
 import { revalidateUserCache } from '@/lib/revalidate';
+import type { CategorieProduit } from '@/types/database';
 
 /**
  * PATCH /api/categories/[id] → update { nom?, icone?, couleur?, ordre? }
  * DELETE /api/categories/[id] → supprime la catégorie;
  *   les produits utilisant cette catégorie sont basculés vers "Général"
  */
+
+type CategorieUpdate = Partial<Omit<CategorieProduit, 'id' | 'proprietaire_id' | 'created_at'>>;
 
 export async function PATCH(
   request: NextRequest,
@@ -54,7 +57,7 @@ export async function PATCH(
     return NextResponse.json({ error: 'Catégorie introuvable' }, { status: 404 });
   }
 
-  const updatePayload: Record<string, unknown> = {
+  const updatePayload: CategorieUpdate = {
     updated_at: new Date().toISOString(),
   };
   if (body.nom !== undefined) updatePayload.nom = body.nom.trim();
