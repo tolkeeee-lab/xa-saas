@@ -4,10 +4,16 @@ import type { Database } from '@/types/database';
 
 const PUBLIC_ROUTES = ['/login', '/register', '/offline'];
 const CAISSE_PREFIX = '/api/caisse';
+const EMPLOYE_API_PREFIX = '/api/employe';
+const EMPLOYE_INVITE_PREFIX = '/e/';
 
 function isPublicRoute(pathname: string): boolean {
   if (PUBLIC_ROUTES.includes(pathname)) return true;
   if (pathname.startsWith(CAISSE_PREFIX)) return true;
+  if (pathname.startsWith(EMPLOYE_API_PREFIX)) return true;
+  if (pathname.startsWith(EMPLOYE_INVITE_PREFIX)) return true;
+  // /caisse is accessible with an employee session cookie (validated in the page)
+  if (pathname === '/caisse') return true;
   return false;
 }
 

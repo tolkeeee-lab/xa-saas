@@ -8,6 +8,10 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import PersonnelTable from '@/features/personnel/PersonnelTable';
 import type { EmployePersonnel } from '@/lib/supabase/getPersonnel';
 import type { Boutique } from '@/types/database';
+import {
+  buildEmployeInviteMessage,
+  buildEmployeInviteUrl,
+} from '@/lib/whatsapp/employeInvite';
 
 type ViewMode = 'grille' | 'table';
 
@@ -20,6 +24,15 @@ const EMPTY_FORM = {
   telephone: '',
   role: 'caissier' as 'caissier' | 'gerant',
   pin: '',
+};
+
+type InviteSuccessInfo = {
+  prenom: string;
+  nom: string;
+  invite_code: string;
+  pin: string;
+  boutique_nom: string;
+  telephone: string | null;
 };
 
 function getInitialsColor(index: number): string {
@@ -79,9 +92,25 @@ function EmployeCard({ employe, color }: { employe: EmployePersonnel; color: str
             <span className="text-xs text-xa-muted">Inactif</span>
           </>
         )}
+        {employe.last_login_at && (
+          <span className="text-xs text-xa-muted ml-auto">
+            🟢 {timeAgo(employe.last_login_at)}
+          </span>
+        )}
       </div>
     </div>
   );
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return 'À l\'instant';
+  if (minutes < 60) return `il y a ${minutes}min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `il y a ${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `il y a ${days}j`;
 }
 
 type EquipeViewProps = {
@@ -99,6 +128,8 @@ export default function EquipeView({ employes: initialEmployes, boutiques }: Equ
   const [formError, setFormError] = useState<ReactNode>(null);
   const [reloading, setReloading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [inviteSuccess, setInviteSuccess] = useState<InviteSuccessInfo | null>(null);
+  const [pinVisible, setPinVisible] = useState(true);
 
   function showToast(message: string, type: 'success' | 'error') {
     setToast({ message, type });
@@ -130,7 +161,7 @@ export default function EquipeView({ employes: initialEmployes, boutiques }: Equ
 
     const { data: empData } = await supabase
       .from('employes')
-      .select('id, boutique_id, proprietaire_id, nom, prenom, telephone, role, pin, actif, created_at, updated_at')
+      .select('id, boutique_id, proprietaire_id, nom, prenom, telephone, role, pin, actif, created_at, updated_at, invite_code, invite_created_at, last_login_at, last_login_ip, failed_pin_attempts, locked_until')
       .in('boutique_id', boutiqueIds)
       .order('nom', { ascending: true });
 
@@ -168,22 +199,32 @@ export default function EquipeView({ employes: initialEmployes, boutiques }: Equ
     if (!user) { setFormError('Non authentifié.'); setSubmitting(false); return; }
 
     const pinHash = await hashPin(form.pin);
+    const boutique = boutiques.find((b) => b.id === form.boutique_id);
 
-    const { error } = await supabase.from('employes').insert({
-      boutique_id: form.boutique_id,
-      proprietaire_id: user.id,
-      nom: form.nom.trim(),
-      prenom: form.prenom.trim(),
-      telephone: form.telephone.trim() || null,
-      role: form.role,
-      pin: pinHash,
-      actif: true,
+    const res = await fetch('/api/employes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        boutique_id: form.boutique_id,
+        nom: form.nom.trim(),
+        prenom: form.prenom.trim(),
+        telephone: form.telephone.trim() || null,
+        role: form.role,
+        pin_hash: pinHash,
+        boutique_nom: boutique?.nom ?? '',
+      }),
     });
 
+    const data = (await res.json()) as {
+      employe?: { id: string; invite_code: string | null; nom: string; prenom: string; telephone: string | null };
+      error?: string;
+    };
+
     setSubmitting(false);
-    if (error) {
-      console.error('[add-employe]', error);
-      const isRls = /row-level security|violates policy/i.test(error.message);
+
+    if (!res.ok || !data.employe) {
+      console.error('[add-employe]', data.error);
+      const isRls = /row-level security|violates policy/i.test(data.error ?? '');
       if (isRls) {
         setFormError(
           <span>
@@ -197,15 +238,45 @@ export default function EquipeView({ employes: initialEmployes, boutiques }: Equ
           </span>,
         );
       } else {
-        setFormError(error.message);
+        setFormError(data.error ?? 'Erreur lors de la création.');
       }
       return;
     }
 
     setShowModal(false);
+
+    // Show invite success modal with code + PIN
+    if (data.employe.invite_code) {
+      setInviteSuccess({
+        prenom: data.employe.prenom ?? form.prenom,
+        nom: data.employe.nom ?? form.nom,
+        invite_code: data.employe.invite_code,
+        pin: form.pin,
+        boutique_nom: boutique?.nom ?? '',
+        telephone: data.employe.telephone,
+      });
+      setPinVisible(true);
+    }
+
     setForm(EMPTY_FORM);
     await reloadEmployes();
-    showToast('✅ Employé ajouté avec succès', 'success');
+  }
+
+  function copyLink(inviteCode: string) {
+    const url = `https://xa.app/e/${inviteCode}`;
+    void navigator.clipboard.writeText(url).then(() => showToast('🔗 Lien copié !', 'success'));
+  }
+
+  function sendWhatsApp(info: InviteSuccessInfo) {
+    const invite_url = `https://xa.app/e/${info.invite_code}`;
+    const message = buildEmployeInviteMessage({
+      prenom: info.prenom,
+      boutique_nom: info.boutique_nom,
+      invite_url,
+      pin: info.pin,
+    });
+    const url = buildEmployeInviteUrl(info.telephone, message);
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   const filteredEmployes =
@@ -226,6 +297,7 @@ export default function EquipeView({ employes: initialEmployes, boutiques }: Equ
           {toast.message}
         </div>
       )}
+
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex-1">
@@ -327,7 +399,7 @@ export default function EquipeView({ employes: initialEmployes, boutiques }: Equ
           <LoadingSpinner size="lg" />
         </div>
       ) : view === 'table' ? (
-        <PersonnelTable employes={filteredEmployes} boutiques={boutiques} />
+        <PersonnelTable employes={filteredEmployes} boutiques={boutiques} onReload={reloadEmployes} />
       ) : filteredEmployes.length === 0 ? (
         <div className="bg-xa-surface border border-xa-border rounded-xl p-12 text-center">
           <p className="text-xa-muted">Aucun employé dans cette sélection.</p>
@@ -450,7 +522,7 @@ export default function EquipeView({ employes: initialEmployes, boutiques }: Equ
                   placeholder="••••"
                   className="w-full px-3 py-2 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary"
                 />
-                <p className="text-xs text-xa-muted mt-1">Haché SHA-256 avant stockage.</p>
+                <p className="text-xs text-xa-muted mt-1">Haché SHA-256 avant stockage. Affiché <strong>une seule fois</strong> à la création.</p>
                 {process.env.NODE_ENV === 'development' && (
                   <button
                     type="button"
@@ -482,6 +554,90 @@ export default function EquipeView({ employes: initialEmployes, boutiques }: Equ
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Invite success modal */}
+      {inviteSuccess && (
+        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-4">
+          <div className="bg-xa-surface border border-xa-border rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-xa-border">
+              <h2 className="font-semibold text-xa-text">
+                ✅ {inviteSuccess.prenom} ajouté(e) à l&apos;équipe
+              </h2>
+              <button
+                onClick={() => setInviteSuccess(null)}
+                className="text-xa-muted hover:text-xa-text transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4">
+              {/* Link display */}
+              <div className="bg-xa-bg rounded-lg p-3 space-y-2">
+                <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider">🔗 Lien d&apos;accès</p>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 text-sm text-xa-text font-mono break-all">
+                    xa.app/e/{inviteSuccess.invite_code}
+                  </code>
+                  <button
+                    type="button"
+                    onClick={() => copyLink(inviteSuccess.invite_code)}
+                    className="px-2 py-1 rounded border border-xa-border text-xs text-xa-muted hover:bg-xa-surface transition-colors shrink-0"
+                  >
+                    📋 Copier
+                  </button>
+                </div>
+              </div>
+
+              {/* PIN display (shown once) */}
+              {pinVisible && (
+                <div className="bg-xa-bg rounded-lg p-3 space-y-2">
+                  <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider">🔢 PIN</p>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 text-xl font-bold text-xa-text font-mono tracking-widest">
+                      {inviteSuccess.pin}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void navigator.clipboard.writeText(inviteSuccess.pin).then(() =>
+                          showToast('🔢 PIN copié !', 'success'),
+                        );
+                      }}
+                      className="px-2 py-1 rounded border border-xa-border text-xs text-xa-muted hover:bg-xa-surface transition-colors shrink-0"
+                    >
+                      📋 Copier
+                    </button>
+                  </div>
+                  <p className="text-xs text-xa-muted">
+                    ⚠️ Le PIN ne sera plus affiché après fermeture de cette fenêtre.
+                  </p>
+                </div>
+              )}
+
+              {/* WhatsApp button */}
+              <button
+                type="button"
+                onClick={() => sendWhatsApp(inviteSuccess)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-white text-sm font-semibold transition-opacity hover:opacity-90"
+                style={{ backgroundColor: '#25D366' }}
+              >
+                📱 Envoyer par WhatsApp{inviteSuccess.telephone ? ` à ${inviteSuccess.telephone}` : ''}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setInviteSuccess(null)}
+                className="w-full px-4 py-2.5 rounded-lg border border-xa-border text-xa-text text-sm font-medium hover:bg-xa-bg transition-colors"
+              >
+                Fermer
+              </button>
+            </div>
           </div>
         </div>
       )}

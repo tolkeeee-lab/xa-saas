@@ -1,39 +1,52 @@
 'use client';
 
 import { useState } from 'react';
-import type { FormEvent } from 'react';
 import { formatFCFA } from '@/lib/format';
-import { hashPin } from '@/lib/pinHash';
-import { createClient } from '@/lib/supabase-browser';
+import {
+  buildEmployeInviteMessage,
+  buildEmployeInviteUrl,
+} from '@/lib/whatsapp/employeInvite';
 import type { EmployePersonnel } from '@/lib/supabase/getPersonnel';
 import type { Boutique } from '@/types/database';
 
 type PersonnelTableProps = {
   employes: EmployePersonnel[];
   boutiques: Boutique[];
+  onReload?: () => Promise<void>;
 };
 
 type ToastState = { message: string; type: 'success' | 'error' } | null;
 
-const EMPTY_FORM = {
-  boutique_id: '',
-  nom: '',
-  prenom: '',
-  telephone: '',
-  role: 'caissier' as 'caissier' | 'gerant',
-  pin: '',
+type ResetPinInfo = {
+  employe_id: string;
+  prenom: string;
+  nom: string;
+  telephone: string | null;
+  boutique_nom: string;
+  invite_code: string | null;
+  new_pin: string;
 };
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return "À l'instant";
+  if (minutes < 60) return `il y a ${minutes}min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `il y a ${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `il y a ${days}j`;
+}
 
 export default function PersonnelTable({
   employes: initialEmployes,
   boutiques,
+  onReload,
 }: PersonnelTableProps) {
   const [employes, setEmployes] = useState<EmployePersonnel[]>(initialEmployes);
-  const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState(EMPTY_FORM);
-  const [submitting, setSubmitting] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [resetPinInfo, setResetPinInfo] = useState<ResetPinInfo | null>(null);
 
   const total = employes.length;
   const presents = employes.filter((e) => e.actif).length;
@@ -44,80 +57,86 @@ export default function PersonnelTable({
     setTimeout(() => setToast(null), 3500);
   }
 
-  async function handleAddEmploye(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setFormError(null);
+  async function handleToggleActif(emp: EmployePersonnel) {
+    setLoadingId(emp.id);
+    const res = await fetch(`/api/employes/${emp.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ actif: !emp.actif }),
+    });
+    setLoadingId(null);
+    if (res.ok) {
+      setEmployes((prev) =>
+        prev.map((e) => (e.id === emp.id ? { ...e, actif: !emp.actif } : e)),
+      );
+      showToast(
+        emp.actif ? `${emp.prenom} désactivé(e)` : `${emp.prenom} réactivé(e)`,
+        'success',
+      );
+      if (onReload) await onReload();
+    } else {
+      showToast('Erreur lors de la mise à jour', 'error');
+    }
+  }
 
-    if (!form.boutique_id) {
-      setFormError('Sélectionnez une boutique.');
+  async function handleRegenerateCode(emp: EmployePersonnel) {
+    setLoadingId(emp.id + '-code');
+    const res = await fetch(`/api/employes/${emp.id}/regenerate-code`, { method: 'POST' });
+    setLoadingId(null);
+    if (res.ok) {
+      const data = (await res.json()) as { invite_code: string };
+      setEmployes((prev) =>
+        prev.map((e) => (e.id === emp.id ? { ...e, invite_code: data.invite_code } : e)),
+      );
+      showToast(`Nouveau code : ${data.invite_code}`, 'success');
+    } else {
+      showToast('Erreur lors de la regénération', 'error');
+    }
+  }
+
+  async function handleResetPin(emp: EmployePersonnel) {
+    setLoadingId(emp.id + '-pin');
+    const res = await fetch(`/api/employes/${emp.id}/reset-pin`, { method: 'POST' });
+    setLoadingId(null);
+    if (res.ok) {
+      const data = (await res.json()) as { pin: string };
+      const boutique = boutiques.find((b) => b.id === emp.boutique_id);
+      setResetPinInfo({
+        employe_id: emp.id,
+        prenom: emp.prenom,
+        nom: emp.nom,
+        telephone: emp.telephone ?? null,
+        boutique_nom: boutique?.nom ?? emp.boutique_nom,
+        invite_code: emp.invite_code ?? null,
+        new_pin: data.pin,
+      });
+    } else {
+      showToast('Erreur lors du reset PIN', 'error');
+    }
+  }
+
+  function handleRenvoieLien(emp: EmployePersonnel) {
+    if (!emp.invite_code) {
+      showToast("Cet employé n'a pas encore de lien d'accès", 'error');
       return;
     }
-    if (!form.nom.trim()) {
-      setFormError('Le nom est obligatoire.');
-      return;
-    }
-    if (!form.prenom.trim()) {
-      setFormError('Le prénom est obligatoire.');
-      return;
-    }
-    if (!/^\d{4}$/.test(form.pin)) {
-      setFormError('Le PIN doit contenir exactement 4 chiffres.');
-      return;
-    }
+    const invite_url = `https://xa.app/e/${emp.invite_code}`;
+    const message = `Bonjour ${emp.prenom} 👋\n\nTon lien d'accès *xà Caisse* :\n🔗 ${invite_url}\n\n⚠️ Contacte le propriétaire si tu as oublié ton PIN.`;
+    const url = buildEmployeInviteUrl(emp.telephone ?? null, message);
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
 
-    setSubmitting(true);
-
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) { setFormError('Non authentifié.'); setSubmitting(false); return; }
-
-    const pinHash = await hashPin(form.pin);
-
-    const { data: newEmp, error } = await supabase
-      .from('employes')
-      .insert({
-        boutique_id: form.boutique_id,
-        proprietaire_id: user.id,
-        nom: form.nom.trim(),
-        prenom: form.prenom.trim(),
-        telephone: form.telephone.trim() || null,
-        role: form.role,
-        pin: pinHash,
-        actif: true,
-      })
-      .select('*')
-      .single();
-
-    setSubmitting(false);
-
-    if (error || !newEmp) {
-      console.error('[add-employe]', error);
-      const isRls = /row-level security|violates policy/i.test(error?.message ?? '');
-      if (isRls) {
-        setFormError(
-          '⚠ Table employés non configurée en base. Exécutez la migration 20260419_create_employes.sql dans Supabase SQL Editor, puis réessayez.',
-        );
-      } else {
-        setFormError(error?.message ?? 'Erreur lors de l\'ajout.');
-      }
-      return;
-    }
-
-    const boutique = boutiques.find((b) => b.id === newEmp.boutique_id);
-    const enriched: EmployePersonnel = {
-      ...newEmp,
-      boutique_nom: boutique?.nom ?? '',
-      boutique_couleur: boutique?.couleur_theme ?? '#999',
-      ca_mois: 0,
-    };
-
-    setEmployes((prev) => [...prev, enriched]);
-    setShowModal(false);
-    setForm(EMPTY_FORM);
-    showToast('Employé ajouté avec succès.', 'success');
+  function sendResetPinWhatsApp(info: ResetPinInfo) {
+    if (!info.invite_code) return;
+    const invite_url = `https://xa.app/e/${info.invite_code}`;
+    const message = buildEmployeInviteMessage({
+      prenom: info.prenom,
+      boutique_nom: info.boutique_nom,
+      invite_url,
+      pin: info.new_pin,
+    });
+    const url = buildEmployeInviteUrl(info.telephone, message);
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 
   return (
@@ -140,26 +159,6 @@ export default function PersonnelTable({
           <h1 className="text-xl font-bold text-xa-text">Personnel avancé</h1>
           <p className="text-sm text-xa-muted mt-0.5">Équipes de votre réseau</p>
         </div>
-        <div title={boutiques.length === 0 ? 'Créez d\'abord une boutique pour ajouter un employé' : undefined}>
-          <button
-            onClick={() => {
-              setShowModal(true);
-              setFormError(null);
-              setForm({
-                ...EMPTY_FORM,
-                boutique_id: boutiques.length === 1 ? boutiques[0].id : '',
-              });
-            }}
-            disabled={boutiques.length === 0}
-            aria-label="Ajouter employé"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-xa-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Ajouter
-          </button>
-        </div>
       </div>
 
       {/* Stat cards */}
@@ -172,13 +171,13 @@ export default function PersonnelTable({
         </div>
         <div className="bg-aquamarine-100 dark:bg-aquamarine-900/20 border border-xa-border rounded-xl p-4">
           <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-1">
-            Présents aujourd&apos;hui
+            Actifs
           </p>
           <p className="text-2xl font-bold text-aquamarine-700">{presents}</p>
         </div>
         <div className="bg-xa-surface border border-xa-border rounded-xl p-4">
           <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-1">
-            Absents
+            Inactifs
           </p>
           <p className="text-2xl font-bold text-xa-muted">{absents}</p>
         </div>
@@ -195,11 +194,11 @@ export default function PersonnelTable({
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-xa-border bg-xa-bg">
-                  {['Employé', 'Boutique', 'Poste', 'Présence', 'CA généré (mois)', 'Action'].map(
+                  {['Employé', 'Boutique', 'Poste', 'Statut', 'CA (mois)', 'Dernier login', 'Actions'].map(
                     (h) => (
                       <th
                         key={h}
-                        className="text-left px-4 py-2.5 text-xs font-semibold text-xa-muted uppercase tracking-wider"
+                        className="text-left px-4 py-2.5 text-xs font-semibold text-xa-muted uppercase tracking-wider whitespace-nowrap"
                       >
                         {h}
                       </th>
@@ -211,6 +210,9 @@ export default function PersonnelTable({
                 {employes.map((emp) => {
                   const initials =
                     `${emp.prenom.charAt(0)}${emp.nom.charAt(0)}`.toUpperCase();
+                  const isLoadingCode = loadingId === emp.id + '-code';
+                  const isLoadingPin = loadingId === emp.id + '-pin';
+                  const isLoadingActif = loadingId === emp.id;
                   return (
                     <tr
                       key={emp.id}
@@ -239,21 +241,69 @@ export default function PersonnelTable({
                       <td className="px-4 py-3">
                         {emp.actif ? (
                           <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-aquamarine-100 text-aquamarine-700 dark:bg-aquamarine-900/20">
-                            Présent
+                            Actif
                           </span>
                         ) : (
                           <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-xa-border text-xa-muted">
-                            Absent
+                            Inactif
                           </span>
                         )}
                       </td>
                       <td className="px-4 py-3 font-semibold text-xa-text">
                         {formatFCFA(emp.ca_mois)}
                       </td>
+                      <td className="px-4 py-3 text-xa-muted text-xs whitespace-nowrap">
+                        {emp.last_login_at ? (
+                          <span className="text-aquamarine-600">
+                            🟢 {timeAgo(emp.last_login_at)}
+                          </span>
+                        ) : (
+                          <span>⚪ Jamais connecté</span>
+                        )}
+                      </td>
                       <td className="px-4 py-3">
-                        <button className="px-3 py-1.5 rounded-lg border border-xa-border text-xa-text text-xs font-medium hover:bg-xa-bg transition-colors">
-                          Voir
-                        </button>
+                        <div className="flex items-center gap-1 flex-wrap">
+                          <button
+                            type="button"
+                            onClick={() => handleRenvoieLien(emp)}
+                            disabled={!emp.invite_code}
+                            title="Renvoyer le lien par WhatsApp"
+                            className="px-2 py-1 rounded border border-xa-border text-xa-muted text-xs hover:bg-xa-bg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                          >
+                            🔗 Lien
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void handleRegenerateCode(emp)}
+                            disabled={isLoadingCode}
+                            title="Régénérer le code d'invitation (invalide l'ancien)"
+                            className="px-2 py-1 rounded border border-xa-border text-xa-muted text-xs hover:bg-xa-bg transition-colors disabled:opacity-40"
+                          >
+                            {isLoadingCode ? '…' : '🔄 Code'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void handleResetPin(emp)}
+                            disabled={isLoadingPin}
+                            title="Réinitialiser le PIN"
+                            className="px-2 py-1 rounded border border-xa-border text-xa-muted text-xs hover:bg-xa-bg transition-colors disabled:opacity-40"
+                          >
+                            {isLoadingPin ? '…' : '🔢 PIN'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void handleToggleActif(emp)}
+                            disabled={isLoadingActif}
+                            title={emp.actif ? 'Désactiver' : 'Réactiver'}
+                            className={`px-2 py-1 rounded border text-xs transition-colors disabled:opacity-40 ${
+                              emp.actif
+                                ? 'border-xa-danger text-xa-danger hover:bg-red-50 dark:hover:bg-red-900/10'
+                                : 'border-aquamarine-500 text-aquamarine-600 hover:bg-aquamarine-50 dark:hover:bg-aquamarine-900/10'
+                            }`}
+                          >
+                            {isLoadingActif ? '…' : emp.actif ? '❌ Désact.' : '✅ Réact.'}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -264,150 +314,51 @@ export default function PersonnelTable({
         </div>
       )}
 
-      {/* Add employee modal */}
-      {showModal && (
+      {/* Reset PIN success modal */}
+      {resetPinInfo && (
         <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-4">
-          <div className="bg-xa-surface border border-xa-border rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="bg-xa-surface border border-xa-border rounded-xl w-full max-w-sm">
             <div className="flex items-center justify-between px-5 py-4 border-b border-xa-border">
-              <h2 className="font-semibold text-xa-text">Nouvel employé</h2>
+              <h2 className="font-semibold text-xa-text">🔢 Nouveau PIN</h2>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => setResetPinInfo(null)}
                 className="text-xa-muted hover:text-xa-text transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-
-            <form onSubmit={handleAddEmploye} className="p-5 space-y-4">
-              {formError && (
-                <div className="p-3 rounded-lg border border-xa-danger text-xa-danger text-sm">
-                  {formError}
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-medium text-xa-text mb-1">
-                  Boutique <span className="text-xa-danger">*</span>
-                </label>
-                <select
-                  value={form.boutique_id}
-                  onChange={(e) => setForm((f) => ({ ...f, boutique_id: e.target.value }))}
-                  className="w-full px-3 py-2 rounded-lg border border-xa-border bg-xa-surface text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary"
-                >
-                  <option value="">— Sélectionner —</option>
-                  {boutiques.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {b.nom}
-                    </option>
-                  ))}
-                </select>
+            <div className="p-5 space-y-4">
+              <div className="bg-xa-bg rounded-lg p-3">
+                <p className="text-xs font-semibold text-xa-muted uppercase tracking-wider mb-2">
+                  PIN de {resetPinInfo.prenom}
+                </p>
+                <code className="text-2xl font-bold text-xa-text font-mono tracking-widest">
+                  {resetPinInfo.new_pin}
+                </code>
+                <p className="text-xs text-xa-muted mt-2">
+                  ⚠️ Affiché une seule fois. Envoyez-le par WhatsApp immédiatement.
+                </p>
               </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-xa-text mb-1">
-                    Nom <span className="text-xa-danger">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={form.nom}
-                    onChange={(e) => setForm((f) => ({ ...f, nom: e.target.value }))}
-                    className="w-full px-3 py-2 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-xa-text mb-1">
-                    Prénom <span className="text-xa-danger">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={form.prenom}
-                    onChange={(e) => setForm((f) => ({ ...f, prenom: e.target.value }))}
-                    className="w-full px-3 py-2 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-xa-text mb-1">Téléphone</label>
-                <input
-                  type="tel"
-                  value={form.telephone}
-                  onChange={(e) => setForm((f) => ({ ...f, telephone: e.target.value }))}
-                  placeholder="+229 …"
-                  className="w-full px-3 py-2 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-xa-text mb-1">Rôle</label>
-                <select
-                  value={form.role}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      role: e.target.value as 'caissier' | 'gerant',
-                    }))
-                  }
-                  className="w-full px-3 py-2 rounded-lg border border-xa-border bg-xa-surface text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary"
-                >
-                  <option value="caissier">Caissier</option>
-                  <option value="gerant">Gérant</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-xa-text mb-1">
-                  PIN caisse (4 chiffres) <span className="text-xa-danger">*</span>
-                </label>
-                <input
-                  type="password"
-                  inputMode="numeric"
-                  maxLength={4}
-                  value={form.pin}
-                  onChange={(e) => setForm((f) => ({ ...f, pin: e.target.value }))}
-                  placeholder="••••"
-                  className="w-full px-3 py-2 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary"
-                />
-                <p className="text-xs text-xa-muted mt-1">Haché SHA-256 avant stockage.</p>
-                {process.env.NODE_ENV === 'development' && (
-                  <button
-                    type="button"
-                    onClick={() => setForm((f) => ({
-                      ...f,
-                      pin: String(Math.floor(1000 + Math.random() * 9000)),
-                    }))}
-                    className="text-xs text-xa-muted underline mt-1"
-                  >
-                    🎲 PIN aléatoire (dev)
-                  </button>
-                )}
-              </div>
-
-              <div className="flex gap-3 pt-2">
+              {resetPinInfo.invite_code && (
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-2.5 rounded-lg border border-xa-border text-xa-text text-sm font-medium hover:bg-xa-bg transition-colors"
+                  onClick={() => sendResetPinWhatsApp(resetPinInfo)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-white text-sm font-semibold transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: '#25D366' }}
                 >
-                  Annuler
+                  📱 Envoyer par WhatsApp{resetPinInfo.telephone ? ` à ${resetPinInfo.telephone}` : ''}
                 </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 px-4 py-2.5 rounded-lg bg-xa-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
-                >
-                  {submitting ? 'Ajout…' : 'Ajouter'}
-                </button>
-              </div>
-            </form>
+              )}
+              <button
+                type="button"
+                onClick={() => setResetPinInfo(null)}
+                className="w-full px-4 py-2.5 rounded-lg border border-xa-border text-xa-text text-sm font-medium hover:bg-xa-bg transition-colors"
+              >
+                Fermer
+              </button>
+            </div>
           </div>
         </div>
       )}

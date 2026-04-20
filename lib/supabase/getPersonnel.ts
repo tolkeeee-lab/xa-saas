@@ -26,7 +26,7 @@ export const getPersonnel = cache(async (userId: string): Promise<EmployePersonn
 
   const { data: employes } = await supabase
     .from('employes')
-    .select('id, boutique_id, proprietaire_id, nom, prenom, telephone, role, pin, actif, created_at, updated_at')
+    .select('id, boutique_id, proprietaire_id, nom, prenom, telephone, role, pin, actif, created_at, updated_at, invite_code, invite_created_at, last_login_at, last_login_ip, failed_pin_attempts, locked_until')
     .in('boutique_id', boutiqueIds)
     .order('nom', { ascending: true });
 

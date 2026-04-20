@@ -31,6 +31,12 @@ export type Employe = {
   role: 'caissier' | 'gerant';
   pin: string;
   actif: boolean;
+  invite_code: string | null;
+  invite_created_at: string | null;
+  last_login_at: string | null;
+  last_login_ip: string | null;
+  failed_pin_attempts: number;
+  locked_until: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -259,8 +265,8 @@ export type Database = {
       };
       employes: {
         Row: Employe;
-        Insert: Omit<Employe, 'id' | 'created_at' | 'updated_at'> &
-          Partial<Pick<Employe, 'id' | 'created_at' | 'updated_at'>>;
+        Insert: Omit<Employe, 'id' | 'created_at' | 'updated_at' | 'failed_pin_attempts' | 'invite_code' | 'invite_created_at' | 'last_login_at' | 'last_login_ip' | 'locked_until'> &
+          Partial<Pick<Employe, 'id' | 'created_at' | 'updated_at' | 'failed_pin_attempts' | 'invite_code' | 'invite_created_at' | 'last_login_at' | 'last_login_ip' | 'locked_until'>>;
         Update: Partial<Omit<Employe, 'id'>>;
         Relationships: [];
       };
