@@ -45,9 +45,7 @@
 }
 
 /* ─── Typography helpers ─────────────────────────────────────────────────────── */
-.xa-caisse-v3 .font-display  { font-family: 'Black Han Sans', sans-serif; }
 .xa-caisse-v3 .font-mono     { font-family: 'Space Mono', monospace; }
-.xa-caisse-v3 .font-body     { font-family: 'DM Sans', sans-serif; }
 
 /* ─── Topbar ─────────────────────────────────────────────────────────────────── */
 .xa-caisse-v3 .c-topbar {
@@ -1156,13 +1154,6 @@
 }
 
 /* ─── Invoice action bar ─────────────────────────────────────────────────────── */
-.xa-caisse-v3 .c-inv-actions {
-  display: flex;
-  gap: 8px;
-  padding: 12px 18px;
-  border-top: 1px solid var(--c-rule);
-}
-
 .xa-caisse-v3 .c-inv-btn {
   flex: 1;
   font-family: 'DM Sans', sans-serif;
@@ -1338,7 +1329,6 @@
     overflow: visible !important;
   }
 
-  .xa-caisse-v3 .c-inv-actions,
   .xa-caisse-v3 .c-modal-header {
     display: none !important;
   }

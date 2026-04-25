@@ -38,10 +38,3 @@ export function formatDateTime(dateStr: string): string {
   }).format(new Date(dateStr));
 }
 
-/**
- * Calculate the change to return to the customer.
- * Returns 0 if the amount received is less than the total.
- */
-export function calcMonnaie(recu: number, total: number): number {
-  return Math.max(0, recu - total);
-}
