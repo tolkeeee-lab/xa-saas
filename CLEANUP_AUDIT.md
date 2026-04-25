@@ -213,3 +213,76 @@ Les doublons ci-dessous existent principalement dans les fichiers orphelins. Ils
 7. Vérifier que `npm run build` et `npm run lint` passent toujours après suppression.
 
 > **Rappel :** Aucun fichier n'a été supprimé dans cette PR. Ce rapport est purement informatif.
+
+---
+
+## ✅ Cleanup applied on 2026-04-25
+
+> PR : `chore: dead code cleanup + copilot instructions`
+> Build status : ✅ `npm run type-check` passe · ✅ `npm run lint` passe
+
+### 🗑️ Fichiers supprimés (23 fichiers — ~210 KB)
+
+**Cluster caisse racine**
+- `features/caisse/CaissePos.tsx` — remplacé par `features/caisse/v3/CaisseV3.tsx`
+- `features/caisse/Panier.tsx` — importé uniquement par CaissePos.tsx (orphelin)
+- `features/caisse/TicketCaisse.tsx` — importé uniquement par CaissePos.tsx (orphelin)
+
+**Cluster caisse legacy**
+- `features/caisse/legacy/CaissePos.tsx` — `@deprecated`, jamais importé
+- `features/caisse/legacy/Panier.tsx` — importé uniquement par legacy/CaissePos.tsx (orphelin)
+- `features/caisse/legacy/TicketCaisse.tsx` — importé uniquement par legacy/CaissePos.tsx (orphelin)
+
+**Dashboard monolithique**
+- `features/dashboard/DashboardHome.tsx` — remplacé par `components/dashboard/home/`
+- `features/dashboard/DashboardCharts.tsx` — remplacé par `components/dashboard/home/RevenueChart.tsx`
+
+**Rapports abandonnés**
+- `features/rapports/TransactionFlux.tsx` — non importé, aucun remplacement identifié
+- `features/rapports/WeeklyChart.tsx` — remplacé par `components/dashboard/home/RevenueChart.tsx`
+
+**Composants dashboard non utilisés**
+- `components/dashboard/home/StaffCard.tsx` — non importé
+- `components/dashboard/shell/LeftColumnPlaceholder.tsx` — remplacé par `LeftColumnSkeleton.tsx`
+- `components/dashboard/shell/RightColumnPlaceholder.tsx` — remplacé par `RightColumnSkeleton.tsx`
+- `components/dashboard/shell/TopBar.tsx` — remplacé par `DashboardTopbar.tsx`
+
+**Layout ancienne navigation**
+- `components/layout/MobileNav.tsx` — non importé
+- `components/layout/Sidebar.tsx` — remplacé par `components/dashboard/shell/DashboardShell.tsx`
+- `components/layout/Topbar.tsx` — remplacé par `components/dashboard/shell/DashboardTopbar.tsx`
+
+**UI non utilisé**
+- `components/ui/BoutiqueCard.tsx` — non importé
+
+**Lib helpers orphelins**
+- `lib/supabase/createTransfert.ts` — logique déplacée dans `app/api/transferts/route.ts`
+- `lib/supabase/getCategories.ts` — remplacé par `lib/supabase/dashboard/categories.ts`
+- `lib/supabase/getDailyStats.ts` — remplacé par `lib/supabase/dashboard/kpis.ts` + `revenue.ts`
+- `lib/supabase/getSalesByCategory.ts` — importé uniquement par DashboardHome.tsx (orphelin)
+- `lib/requireCaisseSession.ts` — jamais appelé par aucune route API active
+
+### 🎨 Classes CSS supprimées (`features/caisse/v3/caisse-v3.css`)
+
+- `.c-inv-actions` — wrapper jamais utilisé dans les TSX (InvoiceModal utilise `.c-inv-btn` directement). Supprimé : bloc lignes ~1159–1165 + référence dans `@media print`
+- `.font-display` — helper typographique jamais appliqué dans les composants JSX (remplacé par `var(--font-display)`)
+- `.font-body` — même situation que `.font-display`
+
+### 📤 Exports supprimés
+
+- `calcMonnaie()` dans `lib/format.ts` — logique reproduite inline dans `features/caisse/v3/EncaissModal.tsx`
+- `requireCaisseSession()` + `CaisseSessionContext` dans `lib/requireCaisseSession.ts` — fichier entier supprimé (jamais appelé)
+
+### 📁 Fichiers créés
+
+- `.github/copilot-instructions.md` — règles pour Copilot Coding Agent (suppression code remplacé, conventions CSS/Supabase, mobile-first)
+- `supabase/migrations/README.md` — note sur les migrations obsolètes + tableau des migrations actives
+
+### ⚠️ Conservés (faux positifs / décision explicite)
+
+Aucun faux positif détecté. Tous les items supprimés ont été confirmés orphelins par le type-check (`tsc --noEmit` passe sans erreur après suppression).
+
+### 🗄️ Migrations SQL — non supprimées (par policy)
+
+- `supabase/migrations/20260417_process_sale_rpc.sql` — documentée dans `supabase/migrations/README.md`
+- `supabase/migrations/20260420_process_sale_v2.sql` — documentée dans `supabase/migrations/README.md`
