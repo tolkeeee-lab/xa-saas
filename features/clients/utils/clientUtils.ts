@@ -1,10 +1,16 @@
 /** Number of days without activity before a client is considered inactive */
 export const INACTIVE_DAYS_THRESHOLD = 30;
 
+/** Returns the ISO date threshold for inactive client filtering */
+export function getInactiveThresholdDate(): string {
+  return new Date(Date.now() - INACTIVE_DAYS_THRESHOLD * 24 * 60 * 60 * 1000).toISOString();
+}
+
+
 export function getInitials(nom: string, prenom: string | null): string {
   const p = prenom?.trim()[0]?.toUpperCase() ?? '';
   const n = nom.trim()[0]?.toUpperCase() ?? '';
-  return (p + n) || n || '?';
+  return (p + n) || '?';
 }
 
 const AVATAR_COLORS = [

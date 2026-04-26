@@ -1,7 +1,7 @@
 'use client';
 
 import type { Client } from '@/types/database';
-import { INACTIVE_DAYS_THRESHOLD } from '@/features/clients/utils/clientUtils';
+import { getInactiveThresholdDate } from '@/features/clients/utils/clientUtils';
 
 export type ClientsTab = 'tous' | 'avec_credit' | 'opt_in_whatsapp' | 'inactifs';
 
@@ -55,7 +55,7 @@ export default function ClientsTabs({ active, onChange, counts }: Props) {
 
 // Utility: compute tab counts from client list
 export function computeTabCounts(clients: Client[]): Record<ClientsTab, number> {
-  const threshold = new Date(Date.now() - INACTIVE_DAYS_THRESHOLD * 24 * 60 * 60 * 1000).toISOString();
+  const threshold = getInactiveThresholdDate();
   return {
     tous: clients.length,
     avec_credit: clients.filter((c) => (c.credit_actuel ?? 0) > 0).length,

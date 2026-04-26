@@ -1,6 +1,11 @@
 import { z } from 'zod';
 
+/** Phone number: must start with optional +, contain 7-20 allowed chars, and include at least 7 digits */
 export const PHONE_REGEX = /^\+?[\d\s\-().]{7,20}$/;
+/** Validates that a phone string contains at least 7 digit characters */
+export function isValidPhoneDigits(tel: string): boolean {
+  return (tel.match(/\d/g)?.length ?? 0) >= 7;
+}
 
 export const clientsPostSchema = z.object({
   nom: z.string().min(1, 'Le nom est requis').max(100),
@@ -8,6 +13,7 @@ export const clientsPostSchema = z.object({
   telephone: z
     .string()
     .regex(PHONE_REGEX, 'Format téléphone invalide')
+    .refine((tel) => isValidPhoneDigits(tel), 'Le numéro doit contenir au moins 7 chiffres')
     .nullable()
     .optional(),
   email: z.string().email('Email invalide').nullable().optional(),
@@ -28,6 +34,7 @@ export const clientsPatchSchema = z.object({
   telephone: z
     .string()
     .regex(PHONE_REGEX, 'Format téléphone invalide')
+    .refine((tel) => isValidPhoneDigits(tel), 'Le numéro doit contenir au moins 7 chiffres')
     .nullable()
     .optional(),
   email: z.string().email('Email invalide').nullable().optional(),

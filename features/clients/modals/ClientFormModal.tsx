@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import type { Client } from '@/types/database';
-import { PHONE_REGEX } from '@/lib/schemas/clients';
+import { PHONE_REGEX, isValidPhoneDigits } from '@/lib/schemas/clients';
 
 type Props = {
   mode: 'create' | 'edit';
@@ -35,11 +35,9 @@ export default function ClientFormModal({ mode, client, onClose, onSaved }: Prop
   function validate(): boolean {
     const errs: Record<string, string> = {};
     if (!nom.trim()) errs.nom = 'Le nom est requis';
-    if (telephone.trim() && !PHONE_REGEX.test(telephone.trim())) {
-      errs.telephone = 'Format téléphone invalide';
-    }
-    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      errs.email = 'Email invalide';
+    const tel = telephone.trim();
+    if (tel && (!PHONE_REGEX.test(tel) || !isValidPhoneDigits(tel))) {
+      errs.telephone = 'Format téléphone invalide (min. 7 chiffres)';
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
