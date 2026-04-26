@@ -249,18 +249,7 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-6 text-center text-sm" style={{ color: '#a782e3' }}>
-            Pas encore de compte ?{' '}
-            <Link
-              href="/register"
-              style={{ color: '#14d9eb', fontWeight: '500' }}
-              className="hover:underline"
-            >
-              Créer un compte
-            </Link>
-          </p>
-
-          <p className="mt-3 text-center text-sm" style={{ color: '#a782e3' }}>
-            Pas encore partenaire ?{' '}
+            Pas encore partenaire&nbsp;?{' '}
             <Link
               href="/inscription"
               style={{ color: '#14d9eb', fontWeight: '500' }}
