@@ -130,7 +130,7 @@ export async function GET(request: NextRequest) {
       0,
     );
 
-  const cash_theorique = Math.max(0, cash_transactions - credits_accordes);
+  const cash_theorique = Math.max(0, cash_transactions - credits_accordes - retraits_valides);
 
   return NextResponse.json({
     nb_transactions,

@@ -83,7 +83,6 @@ export default function ClotureCard({ cloture, onClick }: Props) {
         </span>
       </div>
 
-      {!cloture.valide_par && cloture.statut !== 'a_valider' && null}
       {cloture.statut === 'a_valider' && (
         <div className="mt-1 text-xs text-amber-600 font-medium">⚠ En attente de validation</div>
       )}

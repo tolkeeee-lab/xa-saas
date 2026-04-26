@@ -60,7 +60,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     .update({
       valide_par: user.id,
       valide_at: new Date().toISOString(),
-      statut: 'equilibree',
     })
     .eq('id', id)
     .select()
