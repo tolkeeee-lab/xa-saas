@@ -36,6 +36,7 @@ export default function B2BScreen({
   const [confirmOrderOpen, setConfirmOrderOpen] = useState(false);
   const [detailCommandeId, setDetailCommandeId] = useState<string | null>(null);
   const [toast, setToast] = useState<Toast>(null);
+  const [commandesEnCours, setCommandesEnCours] = useState(0);
 
   const showToast = useCallback((msg: string, type: 'ok' | 'err') => {
     setToast({ msg, type });
@@ -98,7 +99,7 @@ export default function B2BScreen({
         onPanierOpen={() => setPanierOpen(true)}
       />
 
-      <B2BTabs active={tab} onChange={handleTabChange} commandesEnCours={0} />
+      <B2BTabs active={tab} onChange={handleTabChange} commandesEnCours={commandesEnCours} />
 
       {tab === 'catalogue' && (
         <B2BCatalogueGrid
@@ -114,6 +115,7 @@ export default function B2BScreen({
         <B2BCommandesList
           activeBoutiqueId={activeBoutiqueId}
           onSelectCommande={setDetailCommandeId}
+          onCommandesEnCoursChange={setCommandesEnCours}
         />
       )}
 

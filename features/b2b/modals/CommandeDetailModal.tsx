@@ -42,7 +42,7 @@ const PAIEMENT_LABELS: Record<CommandeB2B['paiement_status'], string> = {
   paye: 'Payé',
 };
 
-function fmtDate(d: string | null) {
+function formatDate(d: string | null) {
   if (!d) return '—';
   return new Date(d).toLocaleDateString('fr-FR', {
     day: '2-digit',
@@ -120,24 +120,24 @@ export default function CommandeDetailModal({ commandeId, onClose }: Props) {
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <p className="text-xa-muted text-xs">Créée le</p>
-                  <p className="text-xa-text">{fmtDate(detail.commande.created_at)}</p>
+                  <p className="text-xa-text">{formatDate(detail.commande.created_at)}</p>
                 </div>
                 {detail.commande.confirmed_at && (
                   <div>
                     <p className="text-xa-muted text-xs">Confirmée le</p>
-                    <p className="text-xa-text">{fmtDate(detail.commande.confirmed_at)}</p>
+                    <p className="text-xa-text">{formatDate(detail.commande.confirmed_at)}</p>
                   </div>
                 )}
                 {detail.commande.livraison_prevue_at && (
                   <div>
                     <p className="text-xa-muted text-xs">Livraison prévue</p>
-                    <p className="text-xa-text">{fmtDate(detail.commande.livraison_prevue_at)}</p>
+                    <p className="text-xa-text">{formatDate(detail.commande.livraison_prevue_at)}</p>
                   </div>
                 )}
                 {detail.commande.livree_at && (
                   <div>
                     <p className="text-xa-muted text-xs">Livrée le</p>
-                    <p className="text-xa-text">{fmtDate(detail.commande.livree_at)}</p>
+                    <p className="text-xa-text">{formatDate(detail.commande.livree_at)}</p>
                   </div>
                 )}
               </div>
@@ -233,7 +233,7 @@ export default function CommandeDetailModal({ commandeId, onClose }: Props) {
                     <p className="text-sm text-xa-muted">
                       Parti le:{' '}
                       <span className="text-xa-text">
-                        {fmtDate(detail.livraison.parti_at)}
+                        {formatDate(detail.livraison.parti_at)}
                       </span>
                     </p>
                   )}
@@ -241,7 +241,7 @@ export default function CommandeDetailModal({ commandeId, onClose }: Props) {
                     <p className="text-sm text-xa-muted">
                       Livré le:{' '}
                       <span className="text-xa-text">
-                        {fmtDate(detail.livraison.livre_at)}
+                        {formatDate(detail.livraison.livre_at)}
                       </span>
                     </p>
                   )}

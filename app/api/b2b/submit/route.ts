@@ -56,7 +56,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Commande non créée' }, { status: 500 });
   }
 
-  // Patch mode_paiement since the RPC uses the default value
+  // Update mode_paiement after creation since the RPC only supports the default 'a_la_livraison'.
+  // TODO: update submit_b2b_order RPC to accept p_mode_paiement to avoid this extra call.
   if (mode_paiement !== 'a_la_livraison') {
     const { error: updateError } = await admin
       .from('commandes_b2b')

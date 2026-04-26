@@ -50,9 +50,10 @@ export default function ConfirmOrderModal({
     })
     .filter((l): l is NonNullable<typeof l> => l !== null);
 
-  const FRAIS_LIVRAISON = 0;
+  // Delivery fees are currently free for all B2B orders
+  const FRAIS_LIVRAISON_DEFAULT = 0;
   const sousTotal = lignes.reduce((s, l) => s + l.total_ligne, 0);
-  const total = sousTotal + FRAIS_LIVRAISON;
+  const total = sousTotal + FRAIS_LIVRAISON_DEFAULT;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -144,7 +145,7 @@ export default function ConfirmOrderModal({
             </div>
             <div className="flex justify-between text-xa-muted">
               <span>Frais de livraison</span>
-              <span>{FRAIS_LIVRAISON.toLocaleString('fr-FR')} FCFA</span>
+              <span>{FRAIS_LIVRAISON_DEFAULT.toLocaleString('fr-FR')} FCFA</span>
             </div>
             <div className="flex justify-between font-bold text-xa-text border-t border-xa-border pt-1">
               <span>Total</span>

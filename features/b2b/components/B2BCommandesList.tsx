@@ -8,9 +8,14 @@ import B2BCommandeCard from '@/features/b2b/components/B2BCommandeCard';
 type Props = {
   activeBoutiqueId: string;
   onSelectCommande: (id: string) => void;
+  onCommandesEnCoursChange?: (count: number) => void;
 };
 
-export default function B2BCommandesList({ activeBoutiqueId, onSelectCommande }: Props) {
+export default function B2BCommandesList({
+  activeBoutiqueId,
+  onSelectCommande,
+  onCommandesEnCoursChange,
+}: Props) {
   const [commandes, setCommandes] = useState<CommandeB2B[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,9 +40,13 @@ export default function B2BCommandesList({ activeBoutiqueId, onSelectCommande }:
           total: number;
           page: number;
         };
-        if (p === 1) setCommandes(d.data);
-        else setCommandes((prev) => [...prev, ...d.data]);
+        const allCommandes = p === 1 ? d.data : [...commandes, ...d.data];
+        setCommandes(allCommandes);
         setTotal(d.total);
+        const enCours = allCommandes.filter(
+          (c) => !['livree', 'annulee'].includes(c.statut),
+        ).length;
+        onCommandesEnCoursChange?.(enCours);
       } catch {
         setError('Erreur réseau');
       } finally {
