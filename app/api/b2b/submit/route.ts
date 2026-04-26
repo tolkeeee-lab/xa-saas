@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Update mode_paiement after creation since the RPC only supports the default 'a_la_livraison'.
-  // TODO: update submit_b2b_order RPC to accept p_mode_paiement to avoid this extra call.
+  // TODO 2026-04-26: update submit_b2b_order RPC to accept p_mode_paiement to avoid this extra call.
   if (mode_paiement !== 'a_la_livraison') {
     const { error: updateError } = await admin
       .from('commandes_b2b')

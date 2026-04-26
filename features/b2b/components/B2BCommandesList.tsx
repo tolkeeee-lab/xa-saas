@@ -40,20 +40,22 @@ export default function B2BCommandesList({
           total: number;
           page: number;
         };
-        const allCommandes = p === 1 ? d.data : [...commandes, ...d.data];
-        setCommandes(allCommandes);
+        setCommandes((prev) => {
+          const allCommandes = p === 1 ? d.data : [...prev, ...d.data];
+          const enCours = allCommandes.filter(
+            (c) => !['livree', 'annulee'].includes(c.statut),
+          ).length;
+          onCommandesEnCoursChange?.(enCours);
+          return allCommandes;
+        });
         setTotal(d.total);
-        const enCours = allCommandes.filter(
-          (c) => !['livree', 'annulee'].includes(c.statut),
-        ).length;
-        onCommandesEnCoursChange?.(enCours);
       } catch {
         setError('Erreur réseau');
       } finally {
         setLoading(false);
       }
     },
-    [activeBoutiqueId],
+    [activeBoutiqueId, onCommandesEnCoursChange],
   );
 
   useEffect(() => {
