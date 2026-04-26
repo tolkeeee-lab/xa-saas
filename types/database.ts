@@ -274,7 +274,7 @@ export type ClotureCaisse = {
   created_at: string;
 };
 
-// ─── MAFRO v4 types ───────────────────────────────────────────────────────────
+// ─── MAFRO v4 types ──────────────────────────────────────────────────────────
 
 export type UserRole = 'admin' | 'owner' | 'manager' | 'staff';
 
@@ -515,6 +515,16 @@ type EmployeOptionalKeys =
   | 'bloque'
   | 'motif_blocage';
 
+// Mouvements de stock — toutes les colonnes nullables sont optionnelles à l'INSERT
+type MouvementStockOptionalKeys =
+  | 'id'
+  | 'created_at'
+  | 'motif'
+  | 'note'
+  | 'reference_id'
+  | 'reference_type'
+  | 'created_by';
+
 export type Database = {
   public: {
     Tables: {
@@ -632,8 +642,8 @@ export type Database = {
       };
       inventaires: {
         Row: Inventaire;
-        Insert: Omit<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut'> &
-          Partial<Pick<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut'>>;
+        Insert: Omit<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut' | 'created_by' | 'note' | 'categorie'> &
+          Partial<Pick<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut' | 'created_by' | 'note' | 'categorie'>>;
         Update: Partial<Omit<Inventaire, 'id'>>;
         Relationships: [];
       };
@@ -730,8 +740,8 @@ export type Database = {
       };
       mouvements_stock: {
         Row: MouvementStock;
-        Insert: Omit<MouvementStock, 'id' | 'created_at'> &
-          Partial<Pick<MouvementStock, 'id' | 'created_at'>>;
+        Insert: Omit<MouvementStock, MouvementStockOptionalKeys> &
+          Partial<Pick<MouvementStock, MouvementStockOptionalKeys>>;
         Update: Partial<Omit<MouvementStock, 'id'>>;
         Relationships: [];
       };
