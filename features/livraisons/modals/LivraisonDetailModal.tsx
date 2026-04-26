@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { X, Phone, ExternalLink } from 'lucide-react';
 import type { Livraison, CommandeB2B } from '@/types/database';
+import { STATUT_CONFIG, getETA, getLastPingLabel } from '@/features/livraisons/utils';
 import StatutTimeline from '@/features/livraisons/components/StatutTimeline';
 import MiniMap from '@/features/livraisons/components/MiniMap';
 import RetardBadge from '@/features/livraisons/components/RetardBadge';
@@ -22,41 +23,6 @@ type TrackingData = {
   position_actuelle_lng: number | null;
   last_ping: string | null;
 };
-
-const STATUT_CONFIG: Record<Livraison['statut'], { label: string; classes: string }> = {
-  preparation: {
-    label: 'Préparation',
-    classes: 'bg-amber-100 text-amber-700 border-amber-200',
-  },
-  en_route: {
-    label: 'En route',
-    classes: 'bg-violet-100 text-violet-700 border-violet-200',
-  },
-  livree: {
-    label: 'Livrée',
-    classes: 'bg-green-100 text-green-700 border-green-200',
-  },
-  retournee: {
-    label: 'Retournée',
-    classes: 'bg-red-100 text-red-700 border-red-200',
-  },
-};
-
-function getLastPingLabel(lastPing: string | null): string {
-  if (!lastPing) return 'Jamais mise à jour';
-  const diffMs = Date.now() - new Date(lastPing).getTime();
-  const diffMin = Math.floor(diffMs / 60_000);
-  if (diffMin < 1) return 'Position MAJ il y a moins de 1 min';
-  if (diffMin < 60) return `Position MAJ il y a ${diffMin} min`;
-  const diffH = Math.floor(diffMin / 60);
-  return `Position MAJ il y a ${diffH}h`;
-}
-
-function getETA(partiAt: string | null): string | null {
-  if (!partiAt) return null;
-  const eta = new Date(new Date(partiAt).getTime() + 2 * 60 * 60 * 1000);
-  return eta.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-}
 
 export default function LivraisonDetailModal({ livraisonId, onClose }: Props) {
   const [detail, setDetail] = useState<LivraisonDetail | null>(null);
