@@ -66,12 +66,14 @@ export async function PATCH(
   const newStatut = body.statut as CommandeB2B['statut'];
   const now = new Date().toISOString();
 
+  const updatePayload: Partial<Omit<CommandeB2B, 'id'>> = { statut: newStatut };
+  if (newStatut === 'confirmee' && existing.statut !== 'confirmee' && !existing.confirmed_at) {
+    updatePayload.confirmed_at = now;
+  }
+
   const { data: updated, error } = await admin
     .from('commandes_b2b')
-    .update({
-      statut: newStatut,
-      confirmed_at: newStatut === 'confirmee' && !existing.confirmed_at ? now : undefined,
-    })
+    .update(updatePayload)
     .eq('id', id)
     .select()
     .single();

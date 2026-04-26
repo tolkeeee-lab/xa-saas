@@ -29,7 +29,7 @@ export async function PATCH(
 
   const { data: existing } = await admin
     .from('commandes_b2b')
-    .select('statut')
+    .select('statut, confirmed_at')
     .eq('id', id)
     .maybeSingle();
 
@@ -41,7 +41,7 @@ export async function PATCH(
   const now = new Date().toISOString();
 
   const updatePayload: Partial<Omit<CommandeB2B, 'id'>> = { statut: newStatut };
-  if (newStatut === 'confirmee' && !existing.statut) {
+  if (newStatut === 'confirmee' && existing.statut !== 'confirmee' && !existing.confirmed_at) {
     updatePayload.confirmed_at = now;
   }
 
