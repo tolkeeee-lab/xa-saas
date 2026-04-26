@@ -57,10 +57,7 @@ function getIp(request: NextRequest): string {
 }
 
 function getMax(method: string, pathname: string): number {
-  if (
-    pathname.startsWith('/api/notifications') ||
-    pathname.startsWith('/api/cloture-caisse')
-  ) {
+  if (pathname.startsWith('/api/notifications')) {
     return 10;
   }
   if (method === 'GET') return 60;

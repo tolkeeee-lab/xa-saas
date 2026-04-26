@@ -184,12 +184,11 @@ function getIp(request: NextRequest): string {
  *
  * Rate limits:
  *  - /api/notifications  → 10/min (all methods)
- *  - /api/cloture-caisse → 10/min (all methods)
  *  - GET                 → 60/min
  *  - POST / PATCH / DELETE → 30/min
  */
 function getOptions(method: string, pathname: string): RateLimitOptions {
-  if (pathname.startsWith('/api/notifications') || pathname.startsWith('/api/cloture-caisse')) {
+  if (pathname.startsWith('/api/notifications')) {
     return { windowMs: 60_000, max: 10 };
   }
   if (method === 'GET') {
