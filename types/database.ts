@@ -754,6 +754,23 @@ export type Database = {
         Args: Record<string, never>;
         Returns: void;
       };
+      // MAFRO v4 helpers
+      is_mafro_admin: {
+        Args: Record<string, never>;
+        Returns: boolean;
+      };
+      is_owner_of_boutique: {
+        Args: { p_boutique_id: string };
+        Returns: boolean;
+      };
+      is_assigned_to_boutique: {
+        Args: { p_boutique_id: string };
+        Returns: boolean;
+      };
+      current_employe_role: {
+        Args: { p_boutique_id: string };
+        Returns: UserRole | null;
+      };
     };
     Enums: {
       user_role: UserRole;

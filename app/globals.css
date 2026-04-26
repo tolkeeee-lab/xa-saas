@@ -1438,3 +1438,49 @@ body {
   .xa-journal-header { flex-direction: column; align-items: flex-start; }
   .xa-journal-event-top { flex-direction: column; gap: .2rem; }
 }
+
+/* ================================================================
+   SETTINGS MODULE — MAFRO v4
+   ================================================================ */
+.xa-settings { padding-bottom: 5rem; }
+
+/* Modal */
+.xa-modal-backdrop {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(2px);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 0;
+}
+@media (min-width: 600px) {
+  .xa-modal-backdrop { align-items: center; padding: 1rem; }
+}
+.xa-modal-box {
+  background: var(--xa-surface);
+  border-radius: 1rem 1rem 0 0;
+  width: 100%; max-width: 28rem;
+  max-height: 92dvh;
+  overflow-y: auto;
+  box-shadow: 0 -4px 32px rgba(0,0,0,.12);
+  display: flex; flex-direction: column;
+}
+@media (min-width: 600px) {
+  .xa-modal-box { border-radius: 1rem; max-height: 85dvh; box-shadow: 0 8px 40px rgba(0,0,0,.14); }
+}
+.xa-modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 1.25rem .75rem;
+  border-bottom: 1px solid var(--xa-rule2);
+  position: sticky; top: 0;
+  background: var(--xa-surface);
+  z-index: 1;
+}
+.xa-modal-close {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 6px; border: none;
+  background: none; color: var(--xa-muted);
+  cursor: pointer; transition: background .15s, color .15s;
+}
+.xa-modal-close:hover { background: var(--xa-bg2); color: var(--xa-ink); }
+.xa-modal-body { padding: 1.25rem; }
