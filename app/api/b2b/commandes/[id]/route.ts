@@ -40,14 +40,14 @@ export async function GET(
     return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
   }
 
-  const [{ data: lignes, error: lignesError }, { data: livraison, error: livraisonsError }] =
+  const [{ data: lignes, error: lignesError }, { data: livraison, error: livraisonError }] =
     await Promise.all([
       admin.from('commandes_b2b_lignes').select('*').eq('commande_id', id),
       admin.from('livraisons').select('*').eq('commande_b2b_id', id).maybeSingle(),
     ]);
 
   if (lignesError) return NextResponse.json({ error: lignesError.message }, { status: 500 });
-  if (livraisonsError) return NextResponse.json({ error: livraisonsError.message }, { status: 500 });
+  if (livraisonError) return NextResponse.json({ error: livraisonError.message }, { status: 500 });
 
   return NextResponse.json({
     commande,

@@ -74,7 +74,7 @@ export default function B2BHeader({
       </div>
 
       {/* Row 3: category pills */}
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+      <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
         {(['', ...categories] as string[]).map((cat) => (
           <button
             key={cat || '__all__'}
