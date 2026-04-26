@@ -126,10 +126,9 @@ export async function POST(request: NextRequest) {
   const body = validation.data as ClientsPostInput;
 
   const admin = createAdminClient();
-  // Note: derniere_visite_at is non-nullable in the generated Insert type
-  // but DB-side it is a nullable column with no default — we must send null
-  // explicitly. Cast through `unknown` to satisfy the Insert type which marks
-  // it as required (the type generation lags behind schema).
+  // Note: the generated Insert type marks `derniere_visite_at` as required
+  // (type generation lags the schema). We send `null` explicitly and cast
+  // the payload through `unknown` to bypass the over-strict generated type.
   const insertPayload = {
     proprietaire_id: user.id,
     nom: body.nom.trim(),
@@ -139,11 +138,12 @@ export async function POST(request: NextRequest) {
     opt_in_whatsapp: body.opt_in_whatsapp ?? false,
     note: body.note?.trim() ?? null,
     derniere_visite_at: null,
-  } as unknown as Parameters<ReturnType<typeof admin.from<'clients'>>['insert']>[0];
+  };
 
   const { data, error } = await admin
     .from('clients')
-    .insert(insertPayload)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .insert(insertPayload as any)
     .select()
     .single();
 
