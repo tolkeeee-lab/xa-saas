@@ -28,7 +28,6 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient();
 
-  // Verify the commande is in 'preparee' state
   const { data: commande } = await admin
     .from('commandes_b2b')
     .select('id, statut, numero')
@@ -45,13 +44,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Generate a unique livraison number
   const numero = `LIV-${commande.numero}-${Date.now().toString(36).toUpperCase()}`;
 
-  // Note: generated Insert type marks several nullable columns as required
-  // (parti_at, livre_at, destination_lat, etc.) — type generation lags schema.
-  // We send null explicitly for nullable fields and bypass the over-strict
-  // generated type with `as any`. Runtime is safe (DB column nullability).
+  // Note: generated Insert types mark several nullable columns as required
+  // (type generation lags schema). We bypass with `as any` — runtime safe.
   const livraisonPayload = {
     commande_b2b_id: body.commande_b2b_id,
     numero,
@@ -78,29 +74,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Erreur création livraison' }, { status: 500 });
   }
 
-  // Update commande statut → en_route
+  const updatePayload = { statut: 'en_route' };
   await admin
     .from('commandes_b2b')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .update({ statut: 'en_route' } as any)
+    .update(updatePayload as any)
     .eq('id', body.commande_b2b_id);
 
-  // Audit log
+  const auditPayload = {
+    action: 'dispatch_livraison',
+    target_table: 'livraisons',
+    target_id: livraison.id,
+    actor_id: user.id,
+    metadata: {
+      commande_b2b_id: body.commande_b2b_id,
+      chauffeur: body.chauffeur,
+      vehicule: body.vehicule ?? null,
+    },
+  };
   await admin
     .from('audit_log')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .insert({
-      action: 'dispatch_livraison',
-      target_table: 'livraisons',
-      target_id: livraison.id,
-      actor_id: user.id,
-      metadata: {
-        commande_b2b_id: body.commande_b2b_id,
-        chauffeur: body.chauffeur,
-        vehicule: body.vehicule ?? null,
-      },
-    } as any);
+    .insert(auditPayload as any);
 
   return NextResponse.json({ livraison }, { status: 201 });
 }
- 

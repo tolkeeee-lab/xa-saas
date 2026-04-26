@@ -10,7 +10,7 @@ type TransfertStatut = TransfertStock['statut'];
 const VALID_STATUTS: readonly TransfertStatut[] = ['en_attente', 'recu', 'annule'] as const;
 
 /**
- * GET /api/transferts?source_id=X&dest_id=Y&statut=en_attente&q=search&page=1
+ * GET /api/transferts?source_id=X&dest_id=Y&statut=en_attente&page=1
  * Returns paginated list of transferts_stock for the authenticated user.
  */
 export async function GET(request: NextRequest) {
@@ -27,7 +27,6 @@ export async function GET(request: NextRequest) {
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10));
   const sourceId = searchParams.get('source_id');
   const destId = searchParams.get('dest_id');
-  const q = searchParams.get('q')?.trim() ?? '';
   const tab = searchParams.get('tab') ?? '';
 
   const statutRaw = searchParams.get('statut');
@@ -72,12 +71,10 @@ export async function GET(request: NextRequest) {
 
   // Tab filtering
   if (tab === 'a_recevoir') {
-    // en_attente AND destination accessible
     query = query
       .eq('statut', 'en_attente')
       .in('boutique_destination_id', accessibleIds);
   } else if (tab === 'envoyes') {
-    // en_attente AND source owned
     query = query
       .eq('statut', 'en_attente')
       .in('boutique_source_id', ownedIds.length ? ownedIds : accessibleIds);
