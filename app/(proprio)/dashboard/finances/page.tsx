@@ -12,12 +12,10 @@ const FINANCES_LINKS = [
 
 export default function FinancesHubPage() {
   return (
-    <div className="p-4">
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--xa-ink)' }}>Finances</h1>
-        <p style={{ color: 'var(--xa-muted)', fontSize: '14px', marginTop: '4px' }}>
-          Choisis un module
-        </p>
+    <div>
+      <div className="xa-hub-header">
+        <h1>Finances</h1>
+        <p>Choisis un module</p>
       </div>
       <HubQuickLinks items={FINANCES_LINKS} />
     </div>

@@ -38,12 +38,10 @@ const PLUS_LINKS = [
 
 export default function PlusHubPage() {
   return (
-    <div className="p-4">
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--xa-ink)' }}>Plus</h1>
-        <p style={{ color: 'var(--xa-muted)', fontSize: '14px', marginTop: '4px' }}>
-          Configuration & annuaires
-        </p>
+    <div>
+      <div className="xa-hub-header">
+        <h1>Plus</h1>
+        <p>Configuration & annuaires</p>
       </div>
       <HubQuickLinks items={PLUS_LINKS} />
     </div>

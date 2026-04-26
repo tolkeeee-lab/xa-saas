@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import type { LucideIcon } from 'lucide-react';
 import {
   Home,
   ShoppingCart,
@@ -16,7 +17,7 @@ type MatchType = 'exact' | 'prefix' | 'group';
 
 type NavItem = {
   href: string;
-  icon: React.ComponentType<{ size?: number; strokeWidth?: number; 'aria-hidden'?: boolean }>;
+  icon: LucideIcon;
   label: string;
   match: MatchType;
   groupRoutes?: string[];

@@ -492,6 +492,21 @@ body {
   padding-bottom: calc(var(--xa-bottom-bar-height) + env(safe-area-inset-bottom));
 }
 
+/* Hub page header (title + subtitle) */
+.xa-hub-header {
+  padding: 1rem 1rem .25rem;
+}
+.xa-hub-header h1 {
+  font-size: 1.5rem; font-weight: 700;
+  color: var(--xa-ink);
+  line-height: 1.2;
+}
+.xa-hub-header p {
+  font-size: .875rem;
+  color: var(--xa-muted);
+  margin-top: .25rem;
+}
+
 /* ================================================================
    DASHBOARD BOTTOM BAR v2 — 7 hubs fixes, pas de scroll
    ================================================================ */
