@@ -44,6 +44,7 @@ const NAV_DROPDOWN_GROUPS: NavDropdownDef[] = [
       { href: '/dashboard/fournisseurs', label: 'Fournisseurs' },
       { href: '/dashboard/transferts', label: 'Transferts' },
       { href: '/dashboard/b2b', label: 'Commander MAFRO' },
+      { href: '/dashboard/livraisons', label: 'Livraisons' },
       { href: '/dashboard/retraits', label: 'Retraits clients' },
       { href: '/dashboard/pertes', label: 'Pertes' },
     ],
