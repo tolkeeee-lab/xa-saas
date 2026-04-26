@@ -1,45 +1,57 @@
 import { redirect } from 'next/navigation';
+import { getEffectiveRole } from '@/lib/auth/getEffectiveRole';
 import { createClient } from '@/lib/supabase-server';
-import { getBoutiques } from '@/lib/supabase/getBoutiques';
-import { getTransferts } from '@/lib/supabase/getTransferts';
-import TransfertsPage from '@/features/transferts/TransfertsPage';
-import type { Produit } from '@/types/database';
+import TransfertsScreen from '@/features/transferts/TransfertsScreen';
+import type { Boutique } from '@/types/database';
 
-export const metadata = { title: 'Transferts inter-sites — xà' };
+export const metadata = { title: 'Transferts inter-boutiques — xà' };
 
-async function getProduitsSansPrixAchat(
-  boutiqueIds: string[],
-): Promise<Omit<Produit, 'prix_achat'>[]> {
-  if (!boutiqueIds.length) return [];
+export default async function TransfertsPage() {
+  const role = await getEffectiveRole();
+  if (!role) redirect('/login');
+
   const supabase = await createClient();
-  const { data } = await supabase
+
+  let boutiquesData: Boutique[] = [];
+
+  if (role.role === 'owner') {
+    const { data } = await supabase
+      .from('boutiques')
+      .select('*')
+      .eq('proprietaire_id', role.userId)
+      .order('created_at');
+    boutiquesData = (data ?? []) as Boutique[];
+  } else if (role.role === 'manager' || role.role === 'staff') {
+    if (!role.boutiqueIdAssignee) redirect('/dashboard');
+    const { data } = await supabase
+      .from('boutiques')
+      .select('*')
+      .eq('id', role.boutiqueIdAssignee)
+      .order('created_at');
+    boutiquesData = (data ?? []) as Boutique[];
+  } else {
+    const { data } = await supabase.from('boutiques').select('*').order('created_at');
+    boutiquesData = (data ?? []) as Boutique[];
+  }
+
+  if (boutiquesData.length === 0) {
+    redirect('/dashboard/settings');
+  }
+
+  // Pre-load produits for all accessible boutiques (for name display in list)
+  const boutiqueIds = boutiquesData.map((b) => b.id);
+  const { data: produitsData } = await supabase
     .from('produits')
-    .select(
-      'id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, created_at, updated_at',
-    )
+    .select('id, nom, categorie')
     .in('boutique_id', boutiqueIds)
     .eq('actif', true)
     .order('nom', { ascending: true });
-  return data ?? [];
-}
 
-export default async function Page() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const produits = (produitsData ?? []).map((p: { id: string; nom: string; categorie: string | null }) => ({
+    id: p.id,
+    nom: p.nom,
+    categorie: p.categorie,
+  }));
 
-  if (!user) redirect('/login');
-
-  const [boutiques, transferts] = await Promise.all([
-    getBoutiques(user.id),
-    getTransferts(user.id),
-  ]);
-
-  const boutiqueIds = boutiques.map((b) => b.id);
-  const produits = await getProduitsSansPrixAchat(boutiqueIds);
-
-  return (
-    <TransfertsPage boutiques={boutiques} produits={produits} transferts={transferts} />
-  );
+  return <TransfertsScreen boutiques={boutiquesData} produits={produits} />;
 }

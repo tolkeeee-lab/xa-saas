@@ -1,144 +1,140 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase-server';
 import { createAdminClient } from '@/lib/supabase-admin';
-import { getAuthUser } from '@/lib/auth/getAuthUser';
 import { applyRateLimit } from '@/lib/rateLimit';
-import { validateBody } from '@/lib/schemas/validate';
-import { transfertsPostSchema } from '@/lib/schemas/transferts';
-import { revalidateUserCache } from '@/lib/revalidate';
+import type { TransfertStock } from '@/types/database';
+
+const PAGE_SIZE = 30;
+
+type TransfertStatut = TransfertStock['statut'];
+const VALID_STATUTS: readonly TransfertStatut[] = ['en_attente', 'recu', 'annule'] as const;
 
 /**
- * GET /api/transferts?boutique_ids=id1,id2
- * Returns transfers involving the given boutique IDs.
+ * GET /api/transferts?source_id=X&dest_id=Y&statut=en_attente&q=search&page=1
+ * Returns paginated list of transferts_stock for the authenticated user.
  */
 export async function GET(request: NextRequest) {
   const limited = await applyRateLimit(request);
   if (limited) return limited;
 
-  const { error: authError } = await getAuthUser();
-  if (authError) return authError;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
-  const boutiqueIds = request.nextUrl.searchParams.get('boutique_ids');
-  if (!boutiqueIds) {
-    return NextResponse.json({ error: 'boutique_ids requis' }, { status: 400 });
+  const { searchParams } = new URL(request.url);
+  const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10));
+  const sourceId = searchParams.get('source_id');
+  const destId = searchParams.get('dest_id');
+  const q = searchParams.get('q')?.trim() ?? '';
+  const tab = searchParams.get('tab') ?? '';
+
+  const statutRaw = searchParams.get('statut');
+  const statut: TransfertStatut | null =
+    statutRaw && (VALID_STATUTS as readonly string[]).includes(statutRaw)
+      ? (statutRaw as TransfertStatut)
+      : null;
+
+  const admin = createAdminClient();
+
+  // Get all boutique IDs accessible by this user (owned or assigned)
+  const [{ data: ownedBoutiques }, { data: assignedBoutiques }] = await Promise.all([
+    admin.from('boutiques').select('id').eq('proprietaire_id', user.id),
+    admin
+      .from('employes')
+      .select('boutique_id')
+      .eq('proprietaire_id', user.id)
+      .eq('actif', true),
+  ]);
+
+  const ownedIds = (ownedBoutiques ?? []).map((b: { id: string }) => b.id);
+  const assignedIds = (assignedBoutiques ?? []).map((e: { boutique_id: string }) => e.boutique_id);
+  const accessibleIds = [...new Set([...ownedIds, ...assignedIds])];
+
+  if (!accessibleIds.length) {
+    return NextResponse.json({
+      data: [],
+      page,
+      counts: { a_recevoir: 0, envoyes: 0, recus: 0, annules: 0 },
+    });
   }
 
-  const ids = boutiqueIds.split(',').filter(Boolean);
-  if (!ids.length) {
-    return NextResponse.json([], { status: 200 });
-  }
-
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
-    .from('transferts')
+  // Build base query
+  let query = admin
+    .from('transferts_stock')
     .select('*')
     .or(
-      `boutique_source_id.in.(${ids.join(',')}),boutique_destination_id.in.(${ids.join(',')})`,
+      `boutique_source_id.in.(${accessibleIds.join(',')}),boutique_destination_id.in.(${accessibleIds.join(',')})`,
     )
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  // Tab filtering
+  if (tab === 'a_recevoir') {
+    // en_attente AND destination accessible
+    query = query
+      .eq('statut', 'en_attente')
+      .in('boutique_destination_id', accessibleIds);
+  } else if (tab === 'envoyes') {
+    // en_attente AND source owned
+    query = query
+      .eq('statut', 'en_attente')
+      .in('boutique_source_id', ownedIds.length ? ownedIds : accessibleIds);
+  } else if (tab === 'recus') {
+    query = query.eq('statut', 'recu');
+  } else if (tab === 'annules') {
+    query = query.eq('statut', 'annule');
+  } else if (statut) {
+    query = query.eq('statut', statut);
   }
 
-  return NextResponse.json(data ?? []);
-}
-
-/**
- * POST /api/transferts
- * Creates a new inter-site transfer.
- * Body: { produit_id, boutique_source_id, boutique_destination_id, quantite, note? }
- */
-export async function POST(request: NextRequest) {
-  const limited = await applyRateLimit(request);
-  if (limited) return limited;
-
-  const { user, error: authError } = await getAuthUser();
-  if (authError) return authError;
-
-  let rawBody: unknown;
-
-  try {
-    rawBody = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'JSON invalide' }, { status: 400 });
+  if (sourceId) {
+    query = query.eq('boutique_source_id', sourceId);
+  }
+  if (destId) {
+    query = query.eq('boutique_destination_id', destId);
   }
 
-  const { data: body, error: validationError } = validateBody(transfertsPostSchema, rawBody);
-  if (validationError) return validationError;
+  const { data, error } = await query;
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  const { produit_id, boutique_source_id, boutique_destination_id, quantite, note } = body;
+  // Counts per tab
+  const baseFilter = `boutique_source_id.in.(${accessibleIds.join(',')}),boutique_destination_id.in.(${accessibleIds.join(',')})`;
 
-  const supabase = createAdminClient();
+  const [aRecevoirCount, envoyesCount, recusCount, annulesCount] = await Promise.all([
+    admin
+      .from('transferts_stock')
+      .select('id', { count: 'exact', head: true })
+      .or(baseFilter)
+      .eq('statut', 'en_attente')
+      .in('boutique_destination_id', accessibleIds),
+    admin
+      .from('transferts_stock')
+      .select('id', { count: 'exact', head: true })
+      .or(baseFilter)
+      .eq('statut', 'en_attente')
+      .in('boutique_source_id', ownedIds.length ? ownedIds : accessibleIds),
+    admin
+      .from('transferts_stock')
+      .select('id', { count: 'exact', head: true })
+      .or(baseFilter)
+      .eq('statut', 'recu'),
+    admin
+      .from('transferts_stock')
+      .select('id', { count: 'exact', head: true })
+      .or(baseFilter)
+      .eq('statut', 'annule'),
+  ]);
 
-  // Verify source stock
-  const { data: produit, error: produitError } = await supabase
-    .from('produits')
-    .select('id, stock_actuel, boutique_id')
-    .eq('id', produit_id)
-    .eq('boutique_id', boutique_source_id)
-    .single();
-
-  if (produitError || !produit) {
-    return NextResponse.json(
-      { error: 'Produit introuvable dans la boutique source' },
-      { status: 404 },
-    );
-  }
-
-  if (produit.stock_actuel < quantite) {
-    return NextResponse.json(
-      { error: `Stock insuffisant (disponible : ${produit.stock_actuel})` },
-      { status: 422 },
-    );
-  }
-
-  // Verify destination boutique has this product (may not exist there yet)
-  const { data: produitDest } = await supabase
-    .from('produits')
-    .select('id, stock_actuel')
-    .eq('id', produit_id)
-    .eq('boutique_id', boutique_destination_id)
-    .maybeSingle();
-
-  // Insert transfer
-  const { data: transfert, error: txError } = await supabase
-    .from('transferts')
-    .insert({
-      produit_id,
-      boutique_source_id,
-      boutique_destination_id,
-      quantite,
-      note: note ?? null,
-      statut: 'en_transit',
-    })
-    .select('*')
-    .single();
-
-  if (txError || !transfert) {
-    return NextResponse.json({ error: txError?.message ?? 'Erreur transfert' }, { status: 500 });
-  }
-
-  // Decrement source stock
-  const { error: srcError } = await supabase
-    .from('produits')
-    .update({ stock_actuel: produit.stock_actuel - quantite })
-    .eq('id', produit_id)
-    .eq('boutique_id', boutique_source_id);
-
-  if (srcError) {
-    return NextResponse.json({ error: srcError.message }, { status: 500 });
-  }
-
-  // Increment destination stock if product exists there
-  if (produitDest) {
-    await supabase
-      .from('produits')
-      .update({ stock_actuel: produitDest.stock_actuel + quantite })
-      .eq('id', produit_id)
-      .eq('boutique_id', boutique_destination_id);
-  }
-
-  revalidateUserCache(user.id, ['transferts', 'notifications', 'alertes-stock', 'stocks-consolides']);
-
-  return NextResponse.json(transfert, { status: 201 });
+  return NextResponse.json({
+    data: (data ?? []) as TransfertStock[],
+    page,
+    counts: {
+      a_recevoir: aRecevoirCount.count ?? 0,
+      envoyes: envoyesCount.count ?? 0,
+      recus: recusCount.count ?? 0,
+      annules: annulesCount.count ?? 0,
+    },
+  });
 }
