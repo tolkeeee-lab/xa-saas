@@ -25,7 +25,7 @@ export async function GET(
     .eq('id', id)
     .single();
 
-  if (commandeError ?? !commande) {
+  if (commandeError || !commande) {
     return NextResponse.json({ error: 'Commande introuvable' }, { status: 404 });
   }
 
@@ -36,7 +36,7 @@ export async function GET(
     .eq('proprietaire_id', user.id)
     .maybeSingle();
 
-  if (boutiqueError ?? !boutique) {
+  if (boutiqueError || !boutique) {
     return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
   }
 

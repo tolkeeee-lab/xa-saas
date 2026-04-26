@@ -43,9 +43,9 @@ export async function GET(request: NextRequest) {
     countQuery,
   ]);
 
-  if (error ?? countError) {
+  if (error || countError) {
     return NextResponse.json(
-      { error: (error ?? countError)!.message },
+      { error: (error || countError)!.message },
       { status: 500 },
     );
   }

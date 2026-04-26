@@ -48,9 +48,9 @@ export async function GET(request: NextRequest) {
       .in('boutique_id', filteredIds),
   ]);
 
-  if (error ?? countError) {
+  if (error || countError) {
     return NextResponse.json(
-      { error: (error ?? countError)!.message },
+      { error: (error || countError)!.message },
       { status: 500 },
     );
   }

@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     .eq('proprietaire_id', user.id)
     .maybeSingle();
 
-  if (boutiqueError ?? !boutique) {
+  if (boutiqueError || !boutique) {
     return NextResponse.json(
       { error: 'Boutique introuvable ou accès refusé' },
       { status: 403 },
