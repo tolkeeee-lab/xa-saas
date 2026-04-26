@@ -111,10 +111,16 @@ export type Client = {
   id: string;
   proprietaire_id: string;
   nom: string;
+  prenom: string | null;
   telephone: string | null;
+  email: string | null;
+  opt_in_whatsapp: boolean;
   points: number;
   total_achats: number;
   nb_visites: number;
+  credit_actuel: number;
+  derniere_visite_at: string | null;
+  note: string | null;
   actif: boolean;
   created_at: string;
   updated_at: string;
@@ -628,8 +634,8 @@ export type Database = {
       };
       clients: {
         Row: Client;
-        Insert: Omit<Client, 'id' | 'created_at' | 'updated_at' | 'points' | 'total_achats' | 'nb_visites' | 'actif'> &
-          Partial<Pick<Client, 'id' | 'created_at' | 'updated_at' | 'points' | 'total_achats' | 'nb_visites' | 'actif'>>;
+        Insert: Omit<Client, 'id' | 'created_at' | 'updated_at' | 'points' | 'total_achats' | 'nb_visites' | 'actif' | 'credit_actuel' | 'opt_in_whatsapp'> &
+          Partial<Pick<Client, 'id' | 'created_at' | 'updated_at' | 'points' | 'total_achats' | 'nb_visites' | 'actif' | 'credit_actuel' | 'opt_in_whatsapp' | 'prenom' | 'email' | 'derniere_visite_at' | 'note'>>;
         Update: Partial<Omit<Client, 'id'>>;
         Relationships: [];
       };
