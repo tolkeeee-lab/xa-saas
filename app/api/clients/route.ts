@@ -126,17 +126,24 @@ export async function POST(request: NextRequest) {
   const body = validation.data as ClientsPostInput;
 
   const admin = createAdminClient();
+  // Note: derniere_visite_at is non-nullable in the generated Insert type
+  // but DB-side it is a nullable column with no default — we must send null
+  // explicitly. Cast through `unknown` to satisfy the Insert type which marks
+  // it as required (the type generation lags behind schema).
+  const insertPayload = {
+    proprietaire_id: user.id,
+    nom: body.nom.trim(),
+    prenom: body.prenom?.trim() ?? null,
+    telephone: body.telephone?.trim() ?? null,
+    email: body.email?.trim() ?? null,
+    opt_in_whatsapp: body.opt_in_whatsapp ?? false,
+    note: body.note?.trim() ?? null,
+    derniere_visite_at: null,
+  } as unknown as Parameters<ReturnType<typeof admin.from<'clients'>>['insert']>[0];
+
   const { data, error } = await admin
     .from('clients')
-    .insert({
-      proprietaire_id: user.id,
-      nom: body.nom.trim(),
-      prenom: body.prenom?.trim() ?? null,
-      telephone: body.telephone?.trim() ?? null,
-      email: body.email?.trim() ?? null,
-      opt_in_whatsapp: body.opt_in_whatsapp ?? false,
-      note: body.note?.trim() ?? null,
-    })
+    .insert(insertPayload)
     .select()
     .single();
 
@@ -154,4 +161,3 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json(data, { status: 201 });
 }
-
