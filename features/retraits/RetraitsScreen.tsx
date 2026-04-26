@@ -93,17 +93,7 @@ export default function RetraitsScreen({
 
   // ── Code validation ────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    if (code.length === 6) {
-      void validateCode(code);
-    } else {
-      setCodeError(null);
-      setValidatedRetrait(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [code]);
-
-  async function validateCode(c: string) {
+  const validateCode = useCallback(async (c: string) => {
     setCodeLoading(true);
     setCodeError(null);
     setValidatedRetrait(null);
@@ -124,7 +114,16 @@ export default function RetraitsScreen({
     } finally {
       setCodeLoading(false);
     }
-  }
+  }, [activeBoutiqueId]);
+
+  useEffect(() => {
+    if (code.length === 6) {
+      void validateCode(code);
+    } else {
+      setCodeError(null);
+      setValidatedRetrait(null);
+    }
+  }, [code, validateCode]);
 
   function handleValidateSuccess() {
     const r = validatedRetrait ?? selectedRetrait;
