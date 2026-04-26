@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { requireMafroAdmin } from '@/lib/auth/requireMafroAdmin';
-import type { Livraison } from '@/types/database';
 
 // POST /api/admin-mafro/livraisons — créer une livraison et dispatcher
 export async function POST(req: NextRequest) {
@@ -13,7 +12,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: res.statusText }, { status: res.status });
   }
 
-  const body = await req.json() as {
+  const body = (await req.json()) as {
     commande_b2b_id?: string;
     chauffeur?: string;
     vehicule?: string;
@@ -21,7 +20,10 @@ export async function POST(req: NextRequest) {
   };
 
   if (!body.commande_b2b_id || !body.chauffeur) {
-    return NextResponse.json({ error: 'commande_b2b_id et chauffeur sont requis' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'commande_b2b_id et chauffeur sont requis' },
+      { status: 400 },
+    );
   }
 
   const admin = createAdminClient();
@@ -46,15 +48,29 @@ export async function POST(req: NextRequest) {
   // Generate a unique livraison number
   const numero = `LIV-${commande.numero}-${Date.now().toString(36).toUpperCase()}`;
 
+  // Note: generated Insert type marks several nullable columns as required
+  // (parti_at, livre_at, destination_lat, etc.) — type generation lags schema.
+  // We send null explicitly for nullable fields and bypass the over-strict
+  // generated type with `as any`. Runtime is safe (DB column nullability).
+  const livraisonPayload = {
+    commande_b2b_id: body.commande_b2b_id,
+    numero,
+    chauffeur: body.chauffeur,
+    vehicule: body.vehicule ?? null,
+    note: body.note ?? null,
+    parti_at: null,
+    livre_at: null,
+    destination_lat: null,
+    destination_lng: null,
+    position_actuelle_lat: null,
+    position_actuelle_lng: null,
+    last_ping: null,
+  };
+
   const { data: livraison, error } = await admin
     .from('livraisons')
-    .insert({
-      commande_b2b_id: body.commande_b2b_id,
-      numero,
-      chauffeur: body.chauffeur,
-      vehicule: body.vehicule ?? null,
-      note: body.note ?? null,
-    })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .insert(livraisonPayload as any)
     .select()
     .single();
 
@@ -65,21 +81,25 @@ export async function POST(req: NextRequest) {
   // Update commande statut → en_route
   await admin
     .from('commandes_b2b')
-    .update({ statut: 'en_route' })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .update({ statut: 'en_route' } as any)
     .eq('id', body.commande_b2b_id);
 
   // Audit log
-  await admin.from('audit_log').insert({
-    action: 'dispatch_livraison',
-    target_table: 'livraisons',
-    target_id: livraison.id,
-    actor_id: user.id,
-    metadata: {
-      commande_b2b_id: body.commande_b2b_id,
-      chauffeur: body.chauffeur,
-      vehicule: body.vehicule ?? null,
-    },
-  });
+  await admin
+    .from('audit_log')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .insert({
+      action: 'dispatch_livraison',
+      target_table: 'livraisons',
+      target_id: livraison.id,
+      actor_id: user.id,
+      metadata: {
+        commande_b2b_id: body.commande_b2b_id,
+        chauffeur: body.chauffeur,
+        vehicule: body.vehicule ?? null,
+      },
+    } as any);
 
   return NextResponse.json({ livraison }, { status: 201 });
 }
