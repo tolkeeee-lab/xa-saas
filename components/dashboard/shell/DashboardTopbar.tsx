@@ -34,9 +34,10 @@ const NAV_DROPDOWN_GROUPS: NavDropdownDef[] = [
   {
     label: '📦 Stocks',
     items: [
+      { href: '/dashboard/stock', label: 'Stock local' },
       { href: '/dashboard/produits', label: 'Produits' },
       { href: '/dashboard/inventaire', label: 'Inventaire' },
-      { href: '/dashboard/stocks', label: 'Stocks' },
+      { href: '/dashboard/stocks', label: 'Stocks consolidés' },
       { href: '/dashboard/alertes-stock', label: 'Alertes stock' },
       { href: '/dashboard/perimes', label: 'Produits périmés' },
       { href: '/dashboard/fournisseurs', label: 'Fournisseurs' },
