@@ -85,7 +85,7 @@ export default function SecuriteSection({ role }: SecuriteSectionProps) {
         {showPin && (
           <button
             type="button"
-            onClick={() => role.role === 'owner' ? undefined : setPinOpen(true)}
+            onClick={() => setPinOpen(true)}
             disabled={role.role === 'owner'}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-xa-border text-xa-text text-sm hover:bg-xa-bg2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ minHeight: 48 }}
@@ -119,7 +119,6 @@ export default function SecuriteSection({ role }: SecuriteSectionProps) {
 
       {pinOpen && (
         <ChangePinModal
-          role={role}
           onClose={() => setPinOpen(false)}
         />
       )}

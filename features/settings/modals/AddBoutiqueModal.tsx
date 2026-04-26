@@ -2,10 +2,8 @@
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import type { EffectiveRole } from '@/lib/auth/getEffectiveRole';
 
 type AddBoutiqueModalProps = {
-  role: EffectiveRole;
   onClose: () => void;
   onSaved: () => void;
 };

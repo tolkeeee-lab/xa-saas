@@ -3,10 +3,8 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { hashPin } from '@/lib/pinHash';
-import type { EffectiveRole } from '@/lib/auth/getEffectiveRole';
 
 type ChangePinModalProps = {
-  role: EffectiveRole;
   onClose: () => void;
 };
 

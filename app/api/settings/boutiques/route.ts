@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'node:crypto';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { getEffectiveRole } from '@/lib/auth/getEffectiveRole';
 import { applyRateLimit } from '@/lib/rateLimit';
@@ -42,8 +43,8 @@ export async function POST(request: NextRequest) {
       proprietaire_id: role.userId,
       ville: typeof b.zone === 'string' ? b.zone.trim() : '',
       quartier: null,
-      code_unique: Math.random().toString(36).slice(2, 8).toUpperCase(),
-      pin_caisse: Math.random().toString(36).slice(2, 8).toUpperCase(),
+      code_unique: crypto.randomBytes(3).toString('hex').toUpperCase(),
+      pin_caisse: crypto.randomBytes(3).toString('hex').toUpperCase(),
       couleur_theme: typeof b.couleur === 'string' ? b.couleur : '#1DDB7B',
       actif: true,
       telephone_whatsapp: typeof b.telephone_whatsapp === 'string' ? b.telephone_whatsapp.trim() || null : null,

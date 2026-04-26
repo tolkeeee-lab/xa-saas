@@ -99,7 +99,6 @@ export default function BoutiquesSection({ role }: BoutiquesSectionProps) {
 
       {addOpen && (
         <AddBoutiqueModal
-          role={role}
           onClose={() => setAddOpen(false)}
           onSaved={() => {
             setAddOpen(false);
