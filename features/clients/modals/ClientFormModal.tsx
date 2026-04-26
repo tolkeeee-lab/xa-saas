@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import type { Client } from '@/types/database';
+import { PHONE_REGEX } from '@/lib/schemas/clients';
 
 type Props = {
   mode: 'create' | 'edit';
@@ -10,8 +11,6 @@ type Props = {
   onClose: () => void;
   onSaved: (client: Client) => void;
 };
-
-const phoneRegex = /^\+?[\d\s\-().]{7,20}$/;
 
 export default function ClientFormModal({ mode, client, onClose, onSaved }: Props) {
   const [nom, setNom] = useState(client?.nom ?? '');
@@ -36,7 +35,7 @@ export default function ClientFormModal({ mode, client, onClose, onSaved }: Prop
   function validate(): boolean {
     const errs: Record<string, string> = {};
     if (!nom.trim()) errs.nom = 'Le nom est requis';
-    if (telephone.trim() && !phoneRegex.test(telephone.trim())) {
+    if (telephone.trim() && !PHONE_REGEX.test(telephone.trim())) {
       errs.telephone = 'Format téléphone invalide';
     }
     if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
@@ -82,7 +81,7 @@ export default function ClientFormModal({ mode, client, onClose, onSaved }: Prop
   return (
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 px-0 sm:px-4"
-      onClick={(e) => {
+      onClick={(e: { target: EventTarget | null; currentTarget: EventTarget | null }) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
@@ -131,7 +130,7 @@ export default function ClientFormModal({ mode, client, onClose, onSaved }: Prop
                 value={nom}
                 onChange={(e) => {
                   setNom(e.target.value);
-                  setErrors((prev) => ({ ...prev, nom: '' }));
+                  setErrors((prev: Record<string, string>) => ({ ...prev, nom: '' }));
                 }}
                 placeholder="Nom de famille"
                 className={`w-full px-3 py-2.5 rounded-xl border text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary bg-xa-bg ${
@@ -149,7 +148,7 @@ export default function ClientFormModal({ mode, client, onClose, onSaved }: Prop
               value={telephone}
               onChange={(e) => {
                 setTelephone(e.target.value);
-                setErrors((prev) => ({ ...prev, telephone: '' }));
+                setErrors((prev: Record<string, string>) => ({ ...prev, telephone: '' }));
               }}
               placeholder="+229 00 00 00 00"
               className={`w-full px-3 py-2.5 rounded-xl border text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary bg-xa-bg ${
@@ -168,7 +167,7 @@ export default function ClientFormModal({ mode, client, onClose, onSaved }: Prop
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                setErrors((prev) => ({ ...prev, email: '' }));
+                setErrors((prev: Record<string, string>) => ({ ...prev, email: '' }));
               }}
               placeholder="client@email.com"
               className={`w-full px-3 py-2.5 rounded-xl border text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary bg-xa-bg ${
@@ -186,7 +185,7 @@ export default function ClientFormModal({ mode, client, onClose, onSaved }: Prop
             </div>
             <button
               type="button"
-              onClick={() => setOptIn((v) => !v)}
+              onClick={() => setOptIn((v: boolean) => !v)}
               className={`relative w-11 h-6 rounded-full transition-colors ${
                 optIn ? 'bg-green-500' : 'bg-xa-border'
               }`}

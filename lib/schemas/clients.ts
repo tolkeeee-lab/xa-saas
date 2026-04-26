@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
-const phoneRegex = /^\+?[\d\s\-().]{7,20}$/;
+export const PHONE_REGEX = /^\+?[\d\s\-().]{7,20}$/;
 
 export const clientsPostSchema = z.object({
   nom: z.string().min(1, 'Le nom est requis').max(100),
   prenom: z.string().max(100).nullable().optional(),
   telephone: z
     .string()
-    .regex(phoneRegex, 'Format téléphone invalide')
+    .regex(PHONE_REGEX, 'Format téléphone invalide')
     .nullable()
     .optional(),
   email: z.string().email('Email invalide').nullable().optional(),
@@ -27,7 +27,7 @@ export const clientsPatchSchema = z.object({
   prenom: z.string().max(100).nullable().optional(),
   telephone: z
     .string()
-    .regex(phoneRegex, 'Format téléphone invalide')
+    .regex(PHONE_REGEX, 'Format téléphone invalide')
     .nullable()
     .optional(),
   email: z.string().email('Email invalide').nullable().optional(),

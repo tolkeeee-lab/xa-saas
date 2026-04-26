@@ -3,46 +3,12 @@
 import { Phone, MessageCircle } from 'lucide-react';
 import { formatFCFA } from '@/lib/format';
 import type { Client } from '@/types/database';
+import { getInitials, avatarColor, timeAgo } from '@/features/clients/utils/clientUtils';
 
 type Props = {
   client: Client;
   onClick: () => void;
 };
-
-function getInitials(nom: string, prenom: string | null): string {
-  const p = prenom?.trim()[0]?.toUpperCase() ?? '';
-  const n = nom.trim()[0]?.toUpperCase() ?? '';
-  return (p + n) || n || '?';
-}
-
-function avatarColor(name: string): string {
-  const colors = [
-    'from-violet-500 to-purple-600',
-    'from-cyan-500 to-teal-600',
-    'from-rose-500 to-pink-600',
-    'from-amber-500 to-orange-600',
-    'from-emerald-500 to-green-600',
-    'from-sky-500 to-blue-600',
-  ];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = (hash * 31 + name.charCodeAt(i)) % colors.length;
-  }
-  return colors[Math.abs(hash) % colors.length];
-}
-
-function timeAgo(dateStr: string | null): string {
-  if (!dateStr) return 'Jamais';
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  if (days === 0) return "Aujourd'hui";
-  if (days === 1) return 'Hier';
-  if (days < 30) return `Il y a ${days}j`;
-  const months = Math.floor(days / 30);
-  if (months === 1) return 'Il y a 1 mois';
-  if (months < 12) return `Il y a ${months} mois`;
-  return `Il y a ${Math.floor(months / 12)} an${Math.floor(months / 12) > 1 ? 's' : ''}`;
-}
 
 export default function ClientCard({ client, onClick }: Props) {
   const initials = getInitials(client.nom, client.prenom);

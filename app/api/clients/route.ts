@@ -5,6 +5,7 @@ import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { clientsPostSchema, type ClientsPostInput } from '@/lib/schemas/clients';
 import { revalidateUserCache } from '@/lib/revalidate';
+import { INACTIVE_DAYS_THRESHOLD } from '@/features/clients/utils/clientUtils';
 
 type SortField = 'nom' | 'derniere_visite_at' | 'total_achats';
 const VALID_SORTS: readonly SortField[] = ['nom', 'derniere_visite_at', 'total_achats'] as const;
@@ -68,8 +69,8 @@ export async function GET(request: NextRequest) {
   } else if (tab === 'opt_in_whatsapp') {
     query = query.eq('opt_in_whatsapp', true);
   } else if (tab === 'inactifs') {
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-    query = query.or(`derniere_visite_at.is.null,derniere_visite_at.lt.${thirtyDaysAgo}`);
+    const inactiveThreshold = new Date(Date.now() - INACTIVE_DAYS_THRESHOLD * 24 * 60 * 60 * 1000).toISOString();
+    query = query.or(`derniere_visite_at.is.null,derniere_visite_at.lt.${inactiveThreshold}`);
   }
 
   // Search
@@ -79,7 +80,7 @@ export async function GET(request: NextRequest) {
 
   // Sort
   if (sort === 'derniere_visite_at') {
-    query = query.order('derniere_visite_at', { ascending: false, nullsFirst: false });
+    query = query.order('derniere_visite_at', { ascending: false, nullsFirst: true });
   } else if (sort === 'total_achats') {
     query = query.order('total_achats', { ascending: false });
   } else {

@@ -156,12 +156,12 @@ export default function ClientsScreen() {
   }
 
   const tabCounts = computeTabCounts(clients);
-  // Override counts from stats when available
+  // Use stats from API when loaded, fallback to local counts only if null/undefined
   const finalCounts: Record<ClientsTab, number> = {
-    tous: stats.tous || tabCounts.tous,
-    avec_credit: stats.avec_credit || tabCounts.avec_credit,
-    opt_in_whatsapp: stats.opt_in_whatsapp || tabCounts.opt_in_whatsapp,
-    inactifs: stats.inactifs || tabCounts.inactifs,
+    tous: stats.tous ?? tabCounts.tous,
+    avec_credit: stats.avec_credit ?? tabCounts.avec_credit,
+    opt_in_whatsapp: stats.opt_in_whatsapp ?? tabCounts.opt_in_whatsapp,
+    inactifs: stats.inactifs ?? tabCounts.inactifs,
   };
 
   const hasMore = clients.length < total;

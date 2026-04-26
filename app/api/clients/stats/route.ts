@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import { createClient } from '@/lib/supabase-server';
 import { applyRateLimit } from '@/lib/rateLimit';
+import { INACTIVE_DAYS_THRESHOLD } from '@/features/clients/utils/clientUtils';
 
 /**
  * GET /api/clients/stats → compteurs par tab + top dépensiers
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
   }
 
   const admin = createAdminClient();
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const thirtyDaysAgo = new Date(Date.now() - INACTIVE_DAYS_THRESHOLD * 24 * 60 * 60 * 1000).toISOString();
 
   const { data: clients, error } = await admin
     .from('clients')
