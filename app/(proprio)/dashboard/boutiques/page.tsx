@@ -106,7 +106,7 @@ function BoutiqueListCard({ boutique }: { boutique: Boutique }) {
           Ouvrir caisse
         </Link>
         <Link
-          href="/dashboard/parametres"
+          href="/dashboard/settings"
           className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-xa-border text-xa-text text-xs font-medium hover:bg-xa-bg transition-colors"
         >
           Paramètres

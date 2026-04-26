@@ -18,7 +18,7 @@ const PAGES = [
   { label: 'Fournisseurs', href: '/dashboard/fournisseurs' },
   { label: 'Comparatif boutiques', href: '/dashboard/comparatif' },
   { label: 'Employés', href: '/dashboard/employes' },
-  { label: 'Paramètres', href: '/dashboard/parametres' },
+  { label: 'Paramètres', href: '/dashboard/settings' },
 ];
 
 export default function KeyboardShortcuts() {
