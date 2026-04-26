@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
   // Honeypot check — if website field is non-empty, silently reject
   if (body.website && body.website.length > 0) {
-    return NextResponse.json({ ok: true, redirect: `/inscription/success?email=${encodeURIComponent(body.email)}` });
+    return NextResponse.json({ ok: true, redirect: '/inscription/success' });
   }
 
   const admin = createAdminClient();
