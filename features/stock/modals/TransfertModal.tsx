@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { X, ArrowLeftRight } from 'lucide-react';
-import type { Produit, Boutique } from '@/types/database';
+import type { Produit, Boutique, TransfertStock } from '@/types/database';
 
 type Props = {
   produit: Produit;
@@ -55,7 +55,7 @@ export default function TransfertModal({
         }),
       });
 
-      const data = (await res.json()) as { data?: unknown; error?: string };
+      const data = (await res.json()) as { data?: TransfertStock; error?: string };
       if (!res.ok) {
         setError(data.error ?? 'Erreur lors du transfert.');
         return;
