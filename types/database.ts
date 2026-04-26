@@ -274,7 +274,7 @@ export type ClotureCaisse = {
   created_at: string;
 };
 
-// ─── MAFRO v4 types ─────────────────────────────────────────────────────────
+// ─── MAFRO v4 types ───────────────────────────────────────────────────────────
 
 export type UserRole = 'admin' | 'owner' | 'manager' | 'staff';
 
@@ -437,6 +437,38 @@ export type TransfertStock = {
   received_at: string | null;
 };
 
+// All MAFRO v4 boutique columns are nullable / have DB defaults — keep them optional on Insert
+type BoutiqueOptionalKeys =
+  | 'id'
+  | 'created_at'
+  | 'updated_at'
+  | 'slug'
+  | 'est_actif'
+  | 'catalogue_public'
+  | 'couleur'
+  | 'telephone_whatsapp'
+  | 'adresse'
+  | 'zone'
+  | 'latitude'
+  | 'longitude'
+  | 'horaires';
+
+type EmployeOptionalKeys =
+  | 'id'
+  | 'created_at'
+  | 'updated_at'
+  | 'failed_pin_attempts'
+  | 'invite_code'
+  | 'invite_created_at'
+  | 'last_login_at'
+  | 'last_login_ip'
+  | 'locked_until'
+  | 'mafro_role'
+  | 'pin_hash'
+  | 'derniere_connexion'
+  | 'bloque'
+  | 'motif_blocage';
+
 export type Database = {
   public: {
     Tables: {
@@ -449,15 +481,15 @@ export type Database = {
       };
       boutiques: {
         Row: Boutique;
-        Insert: Omit<Boutique, 'id' | 'created_at' | 'updated_at' | 'slug' | 'est_actif' | 'catalogue_public' | 'couleur'> &
-          Partial<Pick<Boutique, 'id' | 'created_at' | 'updated_at' | 'slug' | 'est_actif' | 'catalogue_public' | 'couleur'>>;
+        Insert: Omit<Boutique, BoutiqueOptionalKeys> &
+          Partial<Pick<Boutique, BoutiqueOptionalKeys>>;
         Update: Partial<Omit<Boutique, 'id'>>;
         Relationships: [];
       };
       employes: {
         Row: Employe;
-        Insert: Omit<Employe, 'id' | 'created_at' | 'updated_at' | 'failed_pin_attempts' | 'invite_code' | 'invite_created_at' | 'last_login_at' | 'last_login_ip' | 'locked_until' | 'mafro_role' | 'bloque'> &
-          Partial<Pick<Employe, 'id' | 'created_at' | 'updated_at' | 'failed_pin_attempts' | 'invite_code' | 'invite_created_at' | 'last_login_at' | 'last_login_ip' | 'locked_until' | 'mafro_role' | 'bloque'>>;
+        Insert: Omit<Employe, EmployeOptionalKeys> &
+          Partial<Pick<Employe, EmployeOptionalKeys>>;
         Update: Partial<Omit<Employe, 'id'>>;
         Relationships: [];
       };
@@ -554,8 +586,8 @@ export type Database = {
       };
       inventaires: {
         Row: Inventaire;
-        Insert: Omit<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut' | 'perimetre'> &
-          Partial<Pick<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut' | 'perimetre'>>;
+        Insert: Omit<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut'> &
+          Partial<Pick<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut'>>;
         Update: Partial<Omit<Inventaire, 'id'>>;
         Relationships: [];
       };
