@@ -274,7 +274,7 @@ export type ClotureCaisse = {
   created_at: string;
 };
 
-// ─── MAFRO v4 types ───────────────────────────────────────────────────────────
+// ─── MAFRO v4 types ──────────────────────────────────────────────────────────
 
 export type UserRole = 'admin' | 'owner' | 'manager' | 'staff';
 
@@ -446,6 +446,43 @@ export type InscriptionMetadata = {
   created_at: string;
 };
 
+export type MouvementStockType =
+  | 'reception'
+  | 'sortie'
+  | 'transfert_out'
+  | 'transfert_in'
+  | 'ajustement'
+  | 'inventaire';
+
+export type MouvementStockMotif =
+  | 'livraison_fournisseur'
+  | 'livraison_mafro'
+  | 'vendu_caisse'
+  | 'vendu_hors_caisse'
+  | 'casse'
+  | 'perte'
+  | 'vol'
+  | 'peremption'
+  | 'transfert'
+  | 'inventaire'
+  | 'autre';
+
+export type MouvementStock = {
+  id: string;
+  produit_id: string;
+  boutique_id: string;
+  type: MouvementStockType;
+  motif: MouvementStockMotif | null;
+  quantite: number;
+  stock_avant: number;
+  stock_apres: number;
+  note: string | null;
+  reference_id: string | null;
+  reference_type: string | null;
+  created_by: string | null;
+  created_at: string;
+};
+
 // All MAFRO v4 boutique columns are nullable / have DB defaults — keep them optional on Insert
 type BoutiqueOptionalKeys =
   | 'id'
@@ -477,6 +514,16 @@ type EmployeOptionalKeys =
   | 'derniere_connexion'
   | 'bloque'
   | 'motif_blocage';
+
+// Mouvements de stock — toutes les colonnes nullables sont optionnelles à l'INSERT
+type MouvementStockOptionalKeys =
+  | 'id'
+  | 'created_at'
+  | 'motif'
+  | 'note'
+  | 'reference_id'
+  | 'reference_type'
+  | 'created_by';
 
 export type Database = {
   public: {
@@ -595,8 +642,8 @@ export type Database = {
       };
       inventaires: {
         Row: Inventaire;
-        Insert: Omit<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut'> &
-          Partial<Pick<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut'>>;
+        Insert: Omit<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut' | 'created_by' | 'note' | 'categorie'> &
+          Partial<Pick<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut' | 'created_by' | 'note' | 'categorie'>>;
         Update: Partial<Omit<Inventaire, 'id'>>;
         Relationships: [];
       };
@@ -691,6 +738,13 @@ export type Database = {
         Update: Partial<Omit<InscriptionMetadata, 'id'>>;
         Relationships: [];
       };
+      mouvements_stock: {
+        Row: MouvementStock;
+        Insert: Omit<MouvementStock, MouvementStockOptionalKeys> &
+          Partial<Pick<MouvementStock, MouvementStockOptionalKeys>>;
+        Update: Partial<Omit<MouvementStock, 'id'>>;
+        Relationships: [];
+      };
     };
     Views: { [_ in never]: never };
     Functions: {
@@ -759,7 +813,7 @@ export type Database = {
         Returns: ClotureCaisseJour;
       };
       transferer_stock: {
-        Args: { p_source: string; p_dest: string; p_produit: string; p_qty: number };
+        Args: { p_source: string; p_dest: string; p_produit: string; p_qty: number };  
         Returns: TransfertStock;
       };
       recevoir_transfert: {
