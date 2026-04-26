@@ -224,7 +224,7 @@ BEGIN
   FROM transactions
   WHERE boutique_id = p_boutique_id
     AND statut = 'validee'
-    AND date_trunc('day', created_at AT TIME ZONE 'Africa/Porto-Novo') = p_date::TIMESTAMPTZ;
+    AND date_trunc('day', created_at AT TIME ZONE 'Africa/Porto-Novo')::DATE = p_date;
 
   -- Retraits validés du jour
   SELECT COALESCE(SUM(total), 0)
@@ -232,7 +232,7 @@ BEGIN
   FROM retraits_clients
   WHERE boutique_id = p_boutique_id
     AND statut = 'retire'
-    AND date_trunc('day', retired_at AT TIME ZONE 'Africa/Porto-Novo') = p_date::TIMESTAMPTZ;
+    AND date_trunc('day', retired_at AT TIME ZONE 'Africa/Porto-Novo')::DATE = p_date;
 
   v_ecart  := p_cash_compte - v_ca_calcule;
   v_statut := CASE
@@ -370,11 +370,15 @@ BEGIN
     RAISE EXCEPTION 'Produit source introuvable (id: %)', v_t.produit_id;
   END IF;
 
-  -- Chercher un produit du même nom dans la boutique destination
+  -- Chercher un produit du même nom ET unité dans la boutique destination.
+  -- Note: le schéma actuel des produits n'a pas de clé cross-boutiques.
+  -- On matche sur (nom, unite) qui est suffisant dans le contexte mono-proprio.
+  -- Une future migration pourra ajouter une colonne sku_externe pour un matching plus robuste.
   SELECT id INTO v_dst_produit_id
   FROM produits
   WHERE boutique_id = v_t.boutique_destination_id
-    AND nom = v_src_produit.nom
+    AND nom   = v_src_produit.nom
+    AND unite = v_src_produit.unite
   LIMIT 1;
 
   IF v_dst_produit_id IS NULL THEN

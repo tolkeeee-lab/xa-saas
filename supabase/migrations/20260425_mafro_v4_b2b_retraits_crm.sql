@@ -210,9 +210,10 @@ CREATE OR REPLACE FUNCTION public.validate_retrait_code(
 RETURNS SETOF retraits_clients
 LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
-  v_row retraits_clients;
+  v_row     retraits_clients;
+  v_any_row retraits_clients;
 BEGIN
-  -- On cherche un retrait actif, non expiré, avec ce code dans cette boutique
+  -- Chercher un retrait actif, non expiré, avec ce code dans cette boutique
   SELECT * INTO v_row
   FROM retraits_clients
   WHERE boutique_id  = p_boutique_id
@@ -221,30 +222,25 @@ BEGIN
     AND expires_at   > now();
 
   IF NOT FOUND THEN
-    -- Marquer comme expiré si le code existe mais est périmé
-    UPDATE retraits_clients
-    SET statut = 'expire'
+    -- Fetch the existing row (any statut) to give a precise error message — single DB read
+    SELECT * INTO v_any_row
+    FROM retraits_clients
     WHERE boutique_id  = p_boutique_id
       AND code_retrait = p_code
-      AND statut       = 'en_attente'
-      AND expires_at  <= now();
+    ORDER BY created_at DESC
+    LIMIT 1;
 
-    -- Distinguer les cas d'échec pour un meilleur diagnostic
-    IF EXISTS (
-      SELECT 1 FROM retraits_clients
-      WHERE boutique_id = p_boutique_id AND code_retrait = p_code AND statut = 'expire'
-    ) THEN
+    -- Auto-expire si en_attente mais délai dépassé
+    IF FOUND AND v_any_row.statut = 'en_attente' THEN
+      UPDATE retraits_clients SET statut = 'expire' WHERE id = v_any_row.id;
       RAISE EXCEPTION 'Code expiré — le délai de retrait est dépassé';
-    ELSIF EXISTS (
-      SELECT 1 FROM retraits_clients
-      WHERE boutique_id = p_boutique_id AND code_retrait = p_code AND statut = 'retire'
-    ) THEN
-      RAISE EXCEPTION 'Code déjà utilisé — ce retrait a déjà été validé';
-    ELSIF EXISTS (
-      SELECT 1 FROM retraits_clients
-      WHERE boutique_id = p_boutique_id AND code_retrait = p_code AND statut = 'annule'
-    ) THEN
-      RAISE EXCEPTION 'Code annulé — ce retrait a été annulé';
+    ELSIF FOUND THEN
+      CASE v_any_row.statut
+        WHEN 'retire'  THEN RAISE EXCEPTION 'Code déjà utilisé — ce retrait a déjà été validé';
+        WHEN 'expire'  THEN RAISE EXCEPTION 'Code expiré — le délai de retrait est dépassé';
+        WHEN 'annule'  THEN RAISE EXCEPTION 'Code annulé — ce retrait a été annulé';
+        ELSE                RAISE EXCEPTION 'Code invalide (statut: %)', v_any_row.statut;
+      END CASE;
     ELSE
       RAISE EXCEPTION 'Code invalide — aucun retrait trouvé pour ce code dans cette boutique';
     END IF;
