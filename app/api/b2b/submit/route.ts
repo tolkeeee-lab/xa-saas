@@ -58,10 +58,13 @@ export async function POST(request: NextRequest) {
 
   // Patch mode_paiement since the RPC uses the default value
   if (mode_paiement !== 'a_la_livraison') {
-    await admin
+    const { error: updateError } = await admin
       .from('commandes_b2b')
       .update({ mode_paiement })
       .eq('id', commande.id);
+    if (updateError) {
+      return NextResponse.json({ error: updateError.message }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ ok: true, commande_id: commande.id });

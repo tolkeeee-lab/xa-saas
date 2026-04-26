@@ -78,7 +78,11 @@ export default function ConfirmOrderModal({
         setError(data.error ?? 'Erreur lors de la soumission');
         return;
       }
-      onSuccess(data.commande_id ?? '');
+      if (!data.commande_id) {
+        setError('Commande créée mais identifiant manquant');
+        return;
+      }
+      onSuccess(data.commande_id);
     } catch {
       setError('Erreur réseau');
     } finally {

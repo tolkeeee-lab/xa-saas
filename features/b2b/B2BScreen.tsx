@@ -150,7 +150,7 @@ export default function B2BScreen({
             setPanierOpen(false);
             setConfirmOrderOpen(true);
           }}
-          boutiqueName={activeBoutique?.nom ?? ''}
+          boutiqueName={activeBoutique.nom}
         />
       )}
 
