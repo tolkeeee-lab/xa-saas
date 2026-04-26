@@ -1861,10 +1861,10 @@ body{
           <div style="font-size:11px;color:var(--mu);margin-top:4px">Le client présente son code à 4 chiffres</div>
         </div>
         <div class="otp-row">
-          <input class="otp-inp" type="number" min="0" max="9" id="otp1" oninput="otpNext(this,'otp2')">
-          <input class="otp-inp" type="number" min="0" max="9" id="otp2" oninput="otpNext(this,'otp3')">
-          <input class="otp-inp" type="number" min="0" max="9" id="otp3" oninput="otpNext(this,'otp4')">
-          <input class="otp-inp" type="number" min="0" max="9" id="otp4" oninput="otpNext(this,null)">
+          <input class="otp-inp" type="number" min="0" max="9" id="otp1" aria-label="Chiffre 1" autocomplete="one-time-code" oninput="otpNext(this,'otp2')">
+          <input class="otp-inp" type="number" min="0" max="9" id="otp2" aria-label="Chiffre 2" autocomplete="off" oninput="otpNext(this,'otp3')">
+          <input class="otp-inp" type="number" min="0" max="9" id="otp3" aria-label="Chiffre 3" autocomplete="off" oninput="otpNext(this,'otp4')">
+          <input class="otp-inp" type="number" min="0" max="9" id="otp4" aria-label="Chiffre 4" autocomplete="off" oninput="otpNext(this,null)">
         </div>
         <button class="btn btn-gh">📷 Scanner QR</button>
         <button class="btn btn-g" onclick="rcVerify()">Vérifier →</button>
@@ -2644,7 +2644,7 @@ const cartQtys = {cq1:1, cq2:2, cq3:1};
 const cartPrices = {cq1:3500, cq2:800, cq3:600};
 
 function cartChgQ(qid, tid, d, price){
-  cartQtys[qid] = Math.max(0, (cartQtys[qid]||1) + d);
+  cartQtys[qid] = Math.max(1, (cartQtys[qid]||1) + d);
   const q = cartQtys[qid];
   const dispEl = document.getElementById(qid+'-disp');
   if(dispEl) dispEl.textContent = q;
