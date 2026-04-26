@@ -17,6 +17,17 @@ export type Boutique = {
   pin_caisse: string;
   couleur_theme: string;
   actif: boolean;
+  // MAFRO v4 extensions
+  slug: string | null;
+  telephone_whatsapp: string | null;
+  adresse: string | null;
+  zone: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  horaires: Record<string, string | null> | null;
+  couleur: string;
+  est_actif: boolean;
+  catalogue_public: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -37,6 +48,12 @@ export type Employe = {
   last_login_ip: string | null;
   failed_pin_attempts: number;
   locked_until: string | null;
+  // MAFRO v4 extensions
+  mafro_role: UserRole;
+  pin_hash: string | null;
+  derniere_connexion: string | null;
+  bloque: boolean;
+  motif_blocage: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -257,6 +274,169 @@ export type ClotureCaisse = {
   created_at: string;
 };
 
+// ─── MAFRO v4 types ─────────────────────────────────────────────────────────
+
+export type UserRole = 'admin' | 'owner' | 'manager' | 'staff';
+
+export type MafroAdmin = {
+  id: string;
+  user_id: string | null;
+  nom: string;
+  telephone_whatsapp: string | null;
+  est_actif: boolean;
+  created_at: string;
+};
+
+export type ProduitCatalogueAdmin = {
+  id: string;
+  nom: string;
+  emoji: string;
+  categorie: string | null;
+  unite: string | null;
+  prix_b2b: number;
+  prix_conseille: number | null;
+  delai_livraison_h: number;
+  stock_central: number;
+  est_actif: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CommandeB2B = {
+  id: string;
+  numero: string;
+  boutique_id: string;
+  proprietaire_id: string;
+  statut: 'soumise' | 'confirmee' | 'preparee' | 'en_route' | 'livree' | 'annulee';
+  sous_total: number;
+  frais_livraison: number;
+  total: number;
+  mode_paiement: 'a_la_livraison' | 'momo' | 'virement';
+  paiement_status: 'en_attente' | 'paye';
+  note: string | null;
+  created_at: string;
+  confirmed_at: string | null;
+  livraison_prevue_at: string | null;
+  livree_at: string | null;
+};
+
+export type CommandeB2BLigne = {
+  id: string;
+  commande_id: string;
+  produit_admin_id: string | null;
+  produit_nom: string;
+  produit_emoji: string | null;
+  unite: string | null;
+  quantite: number;
+  prix_unitaire: number;
+  total_ligne: number;
+};
+
+export type Livraison = {
+  id: string;
+  commande_b2b_id: string | null;
+  numero: string;
+  chauffeur: string | null;
+  vehicule: string | null;
+  statut: 'preparation' | 'en_route' | 'livree' | 'retournee';
+  parti_at: string | null;
+  livre_at: string | null;
+  destination_lat: number | null;
+  destination_lng: number | null;
+  position_actuelle_lat: number | null;
+  position_actuelle_lng: number | null;
+  last_ping: string | null;
+  note: string | null;
+  created_at: string;
+};
+
+export type RetraitClient = {
+  id: string;
+  numero: string;
+  boutique_id: string;
+  code_retrait: string;
+  code_hash: string;
+  client_nom: string;
+  client_telephone: string;
+  lignes: Array<{ produit: string; qty: number; prix: number }>;
+  total: number;
+  statut: 'en_attente' | 'retire' | 'expire' | 'annule';
+  payment_provider: string | null;
+  provider_transaction_id: string | null;
+  paid_at: string | null;
+  retired_at: string | null;
+  retired_by_employe_id: string | null;
+  expires_at: string;
+  created_at: string;
+};
+
+export type ClientCRM = {
+  id: string;
+  telephone: string;
+  nom: string | null;
+  opt_in_whatsapp: boolean;
+  opt_in_at: string | null;
+  nb_achats: number;
+  ca_total: number;
+  dernier_achat_at: string | null;
+  premiere_boutique_id: string | null;
+  boutiques_visitees: string[];
+  tags: string[];
+  created_at: string;
+  updated_at: string;
+};
+
+export type PerteDeclaration = {
+  id: string;
+  boutique_id: string;
+  produit_id: string | null;
+  produit_nom: string;
+  motif: 'sac_perce' | 'perime' | 'vol' | 'erreur_saisie' | 'autre';
+  quantite: number;
+  valeur_estimee: number;
+  note: string | null;
+  declared_by_employe_id: string | null;
+  declared_by_proprietaire_id: string | null;
+  photo_url: string | null;
+  statut: 'declaree' | 'validee' | 'contestee' | 'comptabilisee';
+  valide_by: string | null;
+  valide_at: string | null;
+  created_at: string;
+};
+
+export type ClotureCaisseJour = {
+  id: string;
+  boutique_id: string;
+  date_cloture: string;
+  ouverture_at: string | null;
+  fermeture_at: string | null;
+  nb_transactions: number;
+  ca_calcule: number;
+  credits_accordes: number;
+  retraits_valides: number;
+  cash_compte: number;
+  ecart: number;
+  statut: 'a_valider' | 'equilibree' | 'manque' | 'excedent';
+  ferme_par_employe_id: string | null;
+  valide_par: string | null;
+  valide_at: string | null;
+  note: string | null;
+  created_at: string;
+};
+
+export type TransfertStock = {
+  id: string;
+  boutique_source_id: string;
+  boutique_destination_id: string;
+  produit_id: string;
+  quantite: number;
+  statut: 'en_attente' | 'recu' | 'annule';
+  transfere_par_employe_id: string | null;
+  recu_par_employe_id: string | null;
+  created_at: string;
+  received_at: string | null;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -269,15 +449,15 @@ export type Database = {
       };
       boutiques: {
         Row: Boutique;
-        Insert: Omit<Boutique, 'id' | 'created_at' | 'updated_at'> &
-          Partial<Pick<Boutique, 'id' | 'created_at' | 'updated_at'>>;
+        Insert: Omit<Boutique, 'id' | 'created_at' | 'updated_at' | 'slug' | 'est_actif' | 'catalogue_public' | 'couleur'> &
+          Partial<Pick<Boutique, 'id' | 'created_at' | 'updated_at' | 'slug' | 'est_actif' | 'catalogue_public' | 'couleur'>>;
         Update: Partial<Omit<Boutique, 'id'>>;
         Relationships: [];
       };
       employes: {
         Row: Employe;
-        Insert: Omit<Employe, 'id' | 'created_at' | 'updated_at' | 'failed_pin_attempts' | 'invite_code' | 'invite_created_at' | 'last_login_at' | 'last_login_ip' | 'locked_until'> &
-          Partial<Pick<Employe, 'id' | 'created_at' | 'updated_at' | 'failed_pin_attempts' | 'invite_code' | 'invite_created_at' | 'last_login_at' | 'last_login_ip' | 'locked_until'>>;
+        Insert: Omit<Employe, 'id' | 'created_at' | 'updated_at' | 'failed_pin_attempts' | 'invite_code' | 'invite_created_at' | 'last_login_at' | 'last_login_ip' | 'locked_until' | 'mafro_role' | 'bloque'> &
+          Partial<Pick<Employe, 'id' | 'created_at' | 'updated_at' | 'failed_pin_attempts' | 'invite_code' | 'invite_created_at' | 'last_login_at' | 'last_login_ip' | 'locked_until' | 'mafro_role' | 'bloque'>>;
         Update: Partial<Omit<Employe, 'id'>>;
         Relationships: [];
       };
@@ -393,6 +573,76 @@ export type Database = {
         Update: Partial<Omit<CategorieProduit, 'id'>>;
         Relationships: [];
       };
+      // MAFRO v4 tables
+      mafro_admins: {
+        Row: MafroAdmin;
+        Insert: Omit<MafroAdmin, 'id' | 'created_at' | 'est_actif'> &
+          Partial<Pick<MafroAdmin, 'id' | 'created_at' | 'est_actif'>>;
+        Update: Partial<Omit<MafroAdmin, 'id'>>;
+        Relationships: [];
+      };
+      produits_catalogue_admin: {
+        Row: ProduitCatalogueAdmin;
+        Insert: Omit<ProduitCatalogueAdmin, 'id' | 'created_at' | 'updated_at' | 'emoji' | 'delai_livraison_h' | 'stock_central' | 'est_actif'> &
+          Partial<Pick<ProduitCatalogueAdmin, 'id' | 'created_at' | 'updated_at' | 'emoji' | 'delai_livraison_h' | 'stock_central' | 'est_actif'>>;
+        Update: Partial<Omit<ProduitCatalogueAdmin, 'id'>>;
+        Relationships: [];
+      };
+      commandes_b2b: {
+        Row: CommandeB2B;
+        Insert: Omit<CommandeB2B, 'id' | 'created_at' | 'statut' | 'mode_paiement' | 'paiement_status' | 'frais_livraison'> &
+          Partial<Pick<CommandeB2B, 'id' | 'created_at' | 'statut' | 'mode_paiement' | 'paiement_status' | 'frais_livraison'>>;
+        Update: Partial<Omit<CommandeB2B, 'id'>>;
+        Relationships: [];
+      };
+      commandes_b2b_lignes: {
+        Row: CommandeB2BLigne;
+        Insert: Omit<CommandeB2BLigne, 'id'> & Partial<Pick<CommandeB2BLigne, 'id'>>;
+        Update: Partial<Omit<CommandeB2BLigne, 'id'>>;
+        Relationships: [];
+      };
+      livraisons: {
+        Row: Livraison;
+        Insert: Omit<Livraison, 'id' | 'created_at' | 'statut'> &
+          Partial<Pick<Livraison, 'id' | 'created_at' | 'statut'>>;
+        Update: Partial<Omit<Livraison, 'id'>>;
+        Relationships: [];
+      };
+      retraits_clients: {
+        Row: RetraitClient;
+        Insert: Omit<RetraitClient, 'id' | 'created_at' | 'statut'> &
+          Partial<Pick<RetraitClient, 'id' | 'created_at' | 'statut'>>;
+        Update: Partial<Omit<RetraitClient, 'id'>>;
+        Relationships: [];
+      };
+      clients_crm: {
+        Row: ClientCRM;
+        Insert: Omit<ClientCRM, 'id' | 'created_at' | 'updated_at' | 'nb_achats' | 'ca_total' | 'boutiques_visitees' | 'tags'> &
+          Partial<Pick<ClientCRM, 'id' | 'created_at' | 'updated_at' | 'nb_achats' | 'ca_total' | 'boutiques_visitees' | 'tags'>>;
+        Update: Partial<Omit<ClientCRM, 'id'>>;
+        Relationships: [];
+      };
+      pertes_declarations: {
+        Row: PerteDeclaration;
+        Insert: Omit<PerteDeclaration, 'id' | 'created_at' | 'statut'> &
+          Partial<Pick<PerteDeclaration, 'id' | 'created_at' | 'statut'>>;
+        Update: Partial<Omit<PerteDeclaration, 'id'>>;
+        Relationships: [];
+      };
+      cloture_caisse_jour: {
+        Row: ClotureCaisseJour;
+        Insert: Omit<ClotureCaisseJour, 'id' | 'created_at' | 'statut' | 'nb_transactions' | 'credits_accordes' | 'retraits_valides'> &
+          Partial<Pick<ClotureCaisseJour, 'id' | 'created_at' | 'statut' | 'nb_transactions' | 'credits_accordes' | 'retraits_valides'>>;
+        Update: Partial<Omit<ClotureCaisseJour, 'id'>>;
+        Relationships: [];
+      };
+      transferts_stock: {
+        Row: TransfertStock;
+        Insert: Omit<TransfertStock, 'id' | 'created_at' | 'statut'> &
+          Partial<Pick<TransfertStock, 'id' | 'created_at' | 'statut'>>;
+        Update: Partial<Omit<TransfertStock, 'id'>>;
+        Relationships: [];
+      };
     };
     Views: { [_ in never]: never };
     Functions: {
@@ -418,7 +668,63 @@ export type Database = {
         };
         Returns: { transaction_id: string; duplicate: boolean; numero_facture: string };
       };
+      // MAFRO v4 RPCs
+      validate_retrait_code: {
+        Args: { p_code: string; p_boutique_id: string };
+        Returns: RetraitClient[];
+      };
+      mark_retrait_retired: {
+        Args: { p_retrait_id: string; p_employe_id: string };
+        Returns: RetraitClient;
+      };
+      submit_b2b_order: {
+        Args: { p_boutique_id: string; p_lignes: unknown; p_note?: string | null };
+        Returns: CommandeB2B;
+      };
+      crm_upsert_from_sale: {
+        Args: {
+          p_telephone: string;
+          p_nom: string;
+          p_boutique_id: string;
+          p_montant: number;
+          p_opt_in?: boolean;
+        };
+        Returns: ClientCRM;
+      };
+      declare_perte: {
+        Args: {
+          p_boutique_id: string;
+          p_produit_id: string;
+          p_motif: string;
+          p_quantite: number;
+          p_note?: string | null;
+        };
+        Returns: PerteDeclaration;
+      };
+      cloturer_caisse: {
+        Args: {
+          p_boutique_id: string;
+          p_date: string;
+          p_cash_compte: number;
+          p_note?: string | null;
+        };
+        Returns: ClotureCaisseJour;
+      };
+      transferer_stock: {
+        Args: { p_source: string; p_dest: string; p_produit: string; p_qty: number };
+        Returns: TransfertStock;
+      };
+      recevoir_transfert: {
+        Args: { p_transfert_id: string; p_employe_id: string };
+        Returns: TransfertStock;
+      };
+      refresh_mafro_views: {
+        Args: Record<string, never>;
+        Returns: void;
+      };
     };
-    Enums: { [_ in never]: never };
+    Enums: {
+      user_role: UserRole;
+    };
   };
 };
