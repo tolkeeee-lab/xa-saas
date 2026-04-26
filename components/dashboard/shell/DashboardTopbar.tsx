@@ -28,7 +28,8 @@ const NAV_DROPDOWN_GROUPS: NavDropdownDef[] = [
       { href: '/dashboard/ventes', label: 'Ventes' },
       { href: '/dashboard/clients', label: 'Clients' },
       { href: '/dashboard/dettes', label: 'Dettes clients' },
-      { href: '/dashboard/cloture-caisse', label: 'Clôture caisse' },
+      { href: '/dashboard/cloture-caisse', label: 'Clôture caisse (v3)' },
+      { href: '/dashboard/cloture', label: 'Clôture jour' },
     ],
   },
   {
