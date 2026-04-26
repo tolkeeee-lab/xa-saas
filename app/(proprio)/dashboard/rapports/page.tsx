@@ -4,6 +4,13 @@ import { getRapports, getRapportsPeriode } from '@/lib/supabase/getRapports';
 import { getBoutiques } from '@/lib/supabase/getBoutiques';
 import RapportsPage from '@/features/rapports/RapportsPage';
 import TopProduitsPage from '@/features/rapports/TopProduitsPage';
+import HubQuickLinks from '@/features/dashboard/HubQuickLinks';
+import { FileBarChart, Scale } from 'lucide-react';
+
+const RAPPORTS_LINKS = [
+  { href: '/dashboard/rapports',   icon: FileBarChart, label: 'Synthèse',             description: 'Vue financière globale', isCurrent: true },
+  { href: '/dashboard/comparatif', icon: Scale,        label: 'Comparatif boutiques', description: 'Perf. par boutique' },
+];
 
 export default async function RapportsServerPage() {
   const supabase = await createClient();
@@ -25,6 +32,7 @@ export default async function RapportsServerPage() {
 
   return (
     <div className="space-y-10">
+      <HubQuickLinks items={RAPPORTS_LINKS} />
       <RapportsPage
         data={rapports}
         periodeData={periodeData}

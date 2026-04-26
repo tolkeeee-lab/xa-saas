@@ -2,9 +2,31 @@ import { redirect } from 'next/navigation';
 import { getEffectiveRole } from '@/lib/auth/getEffectiveRole';
 import { createClient } from '@/lib/supabase-server';
 import StockLocalScreen from '@/features/stock/StockLocalScreen';
+import HubQuickLinks from '@/features/dashboard/HubQuickLinks';
+import {
+  Package,
+  BarChart3,
+  ArrowLeftRight,
+  ClipboardList,
+  CalendarX,
+  TrendingDown,
+  Bell,
+  Tag,
+} from 'lucide-react';
 import type { Boutique } from '@/types/database';
 
 export const metadata = { title: 'Stock local — xà' };
+
+const STOCK_LINKS = [
+  { href: '/dashboard/stock',         icon: Package,       label: 'Stock local',         description: 'Gestion de votre stock', isCurrent: true },
+  { href: '/dashboard/stocks',        icon: BarChart3,     label: 'Stocks consolidés',   description: 'Vue multi-boutiques' },
+  { href: '/dashboard/transferts',    icon: ArrowLeftRight,label: 'Transferts',           description: 'Mouvements inter-boutiques' },
+  { href: '/dashboard/inventaire',    icon: ClipboardList, label: 'Inventaire',           description: 'Comptage & ajustement' },
+  { href: '/dashboard/perimes',       icon: CalendarX,     label: 'Périmés',              description: 'Produits en fin de vie' },
+  { href: '/dashboard/pertes',        icon: TrendingDown,  label: 'Pertes',               description: 'Casse & pertes' },
+  { href: '/dashboard/alertes-stock', icon: Bell,          label: 'Alertes stock',        description: 'Seuils dépassés' },
+  { href: '/dashboard/produits',      icon: Tag,           label: 'Produits',             description: 'Catalogue produits' },
+];
 
 export default async function StockPage() {
   const role = await getEffectiveRole();
@@ -46,10 +68,13 @@ export default async function StockPage() {
   const activeBoutiqueId = role!.boutiqueIdAssignee ?? boutiquesData[0]?.id ?? '';
 
   return (
-    <StockLocalScreen
-      boutiques={boutiquesData}
-      initialBoutiqueId={activeBoutiqueId}
-    />
+    <div>
+      <HubQuickLinks items={STOCK_LINKS} />
+      <StockLocalScreen
+        boutiques={boutiquesData}
+        initialBoutiqueId={activeBoutiqueId}
+      />
+    </div>
   );
 }
 
