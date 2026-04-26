@@ -55,10 +55,19 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Protect /admin — only SUPER_ADMIN_EMAIL can access
-  if (pathname.startsWith('/admin')) {
+  if (pathname.startsWith('/admin') && !pathname.startsWith('/admin-mafro')) {
     if (!user || user.email !== process.env.SUPER_ADMIN_EMAIL) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
+    return response;
+  }
+
+  // Protect /admin-mafro — requires authenticated MAFRO admin
+  if (pathname.startsWith('/admin-mafro')) {
+    if (!user) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+    // Defer deeper role check to the layout (avoids DB hit in middleware for every request)
     return response;
   }
 
