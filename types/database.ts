@@ -17,17 +17,17 @@ export type Boutique = {
   pin_caisse: string;
   couleur_theme: string;
   actif: boolean;
-  // MAFRO v4 extensions
-  slug: string | null;
-  telephone_whatsapp: string | null;
-  adresse: string | null;
-  zone: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  horaires: Record<string, string | null> | null;
-  couleur: string;
-  est_actif: boolean;
-  catalogue_public: boolean;
+  // MAFRO v4 extensions (optional — DB columns added in migration, may be absent on older rows)
+  slug?: string | null;
+  telephone_whatsapp?: string | null;
+  adresse?: string | null;
+  zone?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  horaires?: Record<string, string | null> | null;
+  couleur?: string;
+  est_actif?: boolean;
+  catalogue_public?: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -48,12 +48,12 @@ export type Employe = {
   last_login_ip: string | null;
   failed_pin_attempts: number;
   locked_until: string | null;
-  // MAFRO v4 extensions
-  mafro_role: UserRole;
-  pin_hash: string | null;
-  derniere_connexion: string | null;
-  bloque: boolean;
-  motif_blocage: string | null;
+  // MAFRO v4 extensions (optional)
+  mafro_role?: UserRole;
+  pin_hash?: string | null;
+  derniere_connexion?: string | null;
+  bloque?: boolean;
+  motif_blocage?: string | null;
   created_at: string;
   updated_at: string;
 };
