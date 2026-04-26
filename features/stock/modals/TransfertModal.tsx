@@ -20,7 +20,7 @@ export default function TransfertModal({
   onSuccess,
 }: Props) {
   const destinationOptions = autresBoutiques.filter(
-    (b) => b.id !== boutiqueSource.id && b.actif !== false && b.est_actif !== false,
+    (b) => b.id !== boutiqueSource.id && b.est_actif !== false,
   );
 
   const [destinationId, setDestinationId] = useState(destinationOptions[0]?.id ?? '');

@@ -13,33 +13,43 @@ export default async function StockPage() {
   const supabase = await createClient();
 
   // Load boutiques accessible to this user
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query: any = supabase.from('boutiques').select('*').order('created_at');
+  let boutiquesData: Boutique[] = [];
+
   if (role!.role === 'owner') {
-    query = query.eq('proprietaire_id', role!.userId);
+    const { data } = await supabase
+      .from('boutiques')
+      .select('*')
+      .eq('proprietaire_id', role!.userId)
+      .order('created_at');
+    boutiquesData = (data ?? []) as Boutique[];
   } else if (role!.role === 'manager' || role!.role === 'staff') {
-    if (role!.boutiqueIdAssignee) {
-      query = query.eq('id', role!.boutiqueIdAssignee);
-    } else {
-      redirect('/dashboard');
-    }
+    if (!role!.boutiqueIdAssignee) redirect('/dashboard');
+    const { data } = await supabase
+      .from('boutiques')
+      .select('*')
+      .eq('id', role!.boutiqueIdAssignee)
+      .order('created_at');
+    boutiquesData = (data ?? []) as Boutique[];
+  } else {
+    // admin — all boutiques
+    const { data } = await supabase
+      .from('boutiques')
+      .select('*')
+      .order('created_at');
+    boutiquesData = (data ?? []) as Boutique[];
   }
-  // admins see all boutiques (no extra filter)
 
-  const { data: boutiques } = await query;
-  const boutiquesList = (boutiques ?? []) as Boutique[];
-
-  if (boutiquesList.length === 0) {
+  if (boutiquesData.length === 0) {
     redirect('/dashboard/settings');
   }
 
-  const activeBoutiqueId =
-    role!.boutiqueIdAssignee ?? boutiquesList[0]?.id ?? '';
+  const activeBoutiqueId = role!.boutiqueIdAssignee ?? boutiquesData[0]?.id ?? '';
 
   return (
     <StockLocalScreen
-      boutiques={boutiquesList}
+      boutiques={boutiquesData}
       initialBoutiqueId={activeBoutiqueId}
     />
   );
 }
+

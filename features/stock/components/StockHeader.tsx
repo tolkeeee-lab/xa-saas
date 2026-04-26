@@ -33,7 +33,7 @@ export default function StockHeader({
             className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-xa-border bg-xa-bg text-xa-text focus:outline-none focus:ring-2 focus:ring-xa-primary"
             style={{ maxWidth: 160 }}
           >
-            {boutiques.filter((b) => b.actif !== false && b.est_actif !== false).map((b) => (
+            {boutiques.filter((b) => b.est_actif !== false).map((b) => (
               <option key={b.id} value={b.id}>{b.nom}</option>
             ))}
           </select>

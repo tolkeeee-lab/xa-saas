@@ -71,7 +71,7 @@ export default function StockLocalScreen({ boutiques, initialBoutiqueId }: Props
   const filteredBySearch = useMemo(() => {
     if (!search.trim()) return produits;
     const q = search.toLowerCase();
-    return produits.filter((p) => p.nom.toLowerCase().includes(q) || p.categorie.toLowerCase().includes(q));
+    return produits.filter((p) => p.nom.toLowerCase().includes(q) || (p.categorie ?? '').toLowerCase().includes(q));
   }, [produits, search]);
 
   const tabProduits = useMemo<Record<StockTab, Produit[]>>(() => ({
