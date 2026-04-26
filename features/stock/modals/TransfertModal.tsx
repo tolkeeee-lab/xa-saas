@@ -25,7 +25,6 @@ export default function TransfertModal({
 
   const [destinationId, setDestinationId] = useState(destinationOptions[0]?.id ?? '');
   const [quantite, setQuantite] = useState('');
-  const [note, setNote] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,24 +44,23 @@ export default function TransfertModal({
 
     setLoading(true);
     try {
-      const res = await fetch('/api/stock/transferts', {
+      const res = await fetch('/api/transferts/creer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           produit_id: produit.id,
-          boutique_source_id: boutiqueSource.id,
-          boutique_destination_id: destinationId,
+          source_id: boutiqueSource.id,
+          dest_id: destinationId,
           quantite: qty,
-          note: note.trim() || undefined,
         }),
       });
 
-      const data = (await res.json()) as { ok?: boolean; stock_source?: number; error?: string };
+      const data = (await res.json()) as { data?: unknown; error?: string };
       if (!res.ok) {
         setError(data.error ?? 'Erreur lors du transfert.');
         return;
       }
-      onSuccess(data.stock_source ?? newStock);
+      onSuccess(newStock);
     } finally {
       setLoading(false);
     }
@@ -144,16 +142,6 @@ export default function TransfertModal({
               required
               className="w-full px-3 py-2.5 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary"
               style={{ minHeight: 44 }}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-xa-text mb-1.5">Note (optionnelle)</label>
-            <input
-              type="text"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg border border-xa-border bg-xa-bg text-xa-text text-sm focus:outline-none focus:ring-2 focus:ring-xa-primary"
             />
           </div>
 
