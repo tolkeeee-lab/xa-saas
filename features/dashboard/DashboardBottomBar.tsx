@@ -69,9 +69,8 @@ export default function DashboardBottomBar() {
         <div className="xa-bottom-bar-inner">
           {NAV_ITEMS.map((item) => {
             const isActive =
-              item.href === '/dashboard'
-                ? pathname === '/dashboard'
-                : pathname === item.href || pathname.startsWith(item.href + '/');
+              pathname === item.href ||
+              (item.href !== '/dashboard' && pathname.startsWith(item.href + '/'));
             const Icon = item.icon;
             return (
               <Link

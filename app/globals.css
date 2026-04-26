@@ -62,6 +62,10 @@
   --xa-color-boutique:  #1DDB7B;
   --xa-color-date:      #6E6E66;
   --xa-color-transfert: #D97706;
+
+  /* Layout heights */
+  --xa-header-height:     48px;
+  --xa-bottom-bar-height: 64px;
 }
 
 /* ── MODE SOMBRE ── */
@@ -487,8 +491,8 @@ body {
 
 /* Dashboard content area (below the header bar, above the bottom bar) */
 .xa-dashboard-content {
-  min-height: calc(100vh - 48px - 64px);
-  padding-bottom: 64px;
+  min-height: calc(100vh - var(--xa-header-height) - var(--xa-bottom-bar-height));
+  padding-bottom: var(--xa-bottom-bar-height);
 }
 
 /* ================================================================
@@ -501,7 +505,7 @@ body {
   backdrop-filter: saturate(140%) blur(6px);
   display: flex; align-items: center; justify-content: space-between;
   padding: .45rem 1rem;
-  height: 48px;
+  height: var(--xa-header-height);
 }
 .xa-header-brand {
   font-weight: 700; color: var(--xa-ink);
@@ -528,7 +532,7 @@ body {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
   background: var(--xa-surface);
   border-top: 1px solid var(--xa-rule2);
-  height: 64px;
+  height: var(--xa-bottom-bar-height);
   padding-bottom: env(safe-area-inset-bottom);
 }
 .xa-bottom-bar-scroll {
@@ -573,7 +577,7 @@ body {
   border-radius: 10px 10px 0 0;
 }
 .xa-bottom-bar-label {
-  font-size: 8.5px; font-weight: 600;
+  font-size: 10px; font-weight: 600;
   line-height: 1; white-space: nowrap;
 }
 
