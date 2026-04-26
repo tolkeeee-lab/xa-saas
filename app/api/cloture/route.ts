@@ -6,6 +6,14 @@ import type { ClotureCaisseJour } from '@/types/database';
 
 const PAGE_SIZE = 30;
 
+type ClotureStatut = ClotureCaisseJour['statut'];
+const VALID_STATUTS: readonly ClotureStatut[] = [
+  'a_valider',
+  'equilibree',
+  'manque',
+  'excedent',
+] as const;
+
 /**
  * GET /api/cloture?boutique_id=X&page=1&mois=2026-04&statut=manque
  * Returns paginated history of clotures
@@ -24,7 +32,11 @@ export async function GET(request: NextRequest) {
   const boutique_id = searchParams.get('boutique_id');
   const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10));
   const mois = searchParams.get('mois'); // YYYY-MM
-  const statut = searchParams.get('statut');
+  const statutRaw = searchParams.get('statut');
+  const statut: ClotureStatut | null =
+    statutRaw && (VALID_STATUTS as readonly string[]).includes(statutRaw)
+      ? (statutRaw as ClotureStatut)
+      : null;
 
   if (!boutique_id) {
     return NextResponse.json({ error: 'boutique_id requis' }, { status: 400 });
