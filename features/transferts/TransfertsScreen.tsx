@@ -236,4 +236,3 @@ export default function TransfertsScreen({ boutiques, produits: initialProduits 
     </div>
   );
 }
-

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { X, ArrowRight } from 'lucide-react';
 import type { Boutique } from '@/types/database';
 
@@ -33,6 +33,13 @@ export default function NouveauTransfertModal({ boutiques, onClose, onSuccess }:
   const [error, setError] = useState<string | null>(null);
 
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup search timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    };
+  }, []);
 
   const destBoutiques = boutiques.filter((b) => b.id !== sourceId);
 
