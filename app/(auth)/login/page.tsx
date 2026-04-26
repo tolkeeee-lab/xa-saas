@@ -258,6 +258,17 @@ export default function LoginPage() {
               Créer un compte
             </Link>
           </p>
+
+          <p className="mt-3 text-center text-sm" style={{ color: '#a782e3' }}>
+            Pas encore partenaire ?{' '}
+            <Link
+              href="/inscription"
+              style={{ color: '#14d9eb', fontWeight: '500' }}
+              className="hover:underline"
+            >
+              Devenir partenaire MAFRO →
+            </Link>
+          </p>
         </div>
       </div>
     </main>

@@ -2,16 +2,19 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import type { Database } from '@/types/database';
 
-const PUBLIC_ROUTES = ['/login', '/register', '/offline'];
+const PUBLIC_ROUTES = ['/login', '/register', '/offline', '/inscription'];
 const CAISSE_PREFIX = '/api/caisse';
 const EMPLOYE_API_PREFIX = '/api/employe';
 const EMPLOYE_INVITE_PREFIX = '/e/';
+const INSCRIPTION_PREFIX = '/inscription';
 
 function isPublicRoute(pathname: string): boolean {
   if (PUBLIC_ROUTES.includes(pathname)) return true;
   if (pathname.startsWith(CAISSE_PREFIX)) return true;
   if (pathname.startsWith(EMPLOYE_API_PREFIX)) return true;
   if (pathname.startsWith(EMPLOYE_INVITE_PREFIX)) return true;
+  if (pathname.startsWith(INSCRIPTION_PREFIX)) return true;
+  if (pathname.startsWith('/api/inscription')) return true;
   // /caisse is accessible with an employee session cookie (validated in the page)
   if (pathname === '/caisse') return true;
   return false;

@@ -437,6 +437,15 @@ export type TransfertStock = {
   received_at: string | null;
 };
 
+export type InscriptionMetadata = {
+  id: string;
+  user_id: string | null;
+  comment_connu: string | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  created_at: string;
+};
+
 // All MAFRO v4 boutique columns are nullable / have DB defaults — keep them optional on Insert
 type BoutiqueOptionalKeys =
   | 'id'
@@ -673,6 +682,13 @@ export type Database = {
         Insert: Omit<TransfertStock, 'id' | 'created_at' | 'statut'> &
           Partial<Pick<TransfertStock, 'id' | 'created_at' | 'statut'>>;
         Update: Partial<Omit<TransfertStock, 'id'>>;
+        Relationships: [];
+      };
+      inscriptions_metadata: {
+        Row: InscriptionMetadata;
+        Insert: Omit<InscriptionMetadata, 'id' | 'created_at'> &
+          Partial<Pick<InscriptionMetadata, 'id' | 'created_at'>>;
+        Update: Partial<Omit<InscriptionMetadata, 'id'>>;
         Relationships: [];
       };
     };
