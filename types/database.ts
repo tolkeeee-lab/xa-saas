@@ -284,6 +284,16 @@ export type ClotureCaisse = {
 
 export type UserRole = 'admin' | 'owner' | 'manager' | 'staff';
 
+export type AuditLog = {
+  id: string;
+  action: string;
+  target_table: string | null;
+  target_id: string | null;
+  actor_id: string;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+};
+
 export type MafroAdmin = {
   id: string;
   user_id: string | null;
@@ -749,6 +759,13 @@ export type Database = {
         Insert: Omit<MouvementStock, MouvementStockOptionalKeys> &
           Partial<Pick<MouvementStock, MouvementStockOptionalKeys>>;
         Update: Partial<Omit<MouvementStock, 'id'>>;
+        Relationships: [];
+      };
+      audit_log: {
+        Row: AuditLog;
+        Insert: Omit<AuditLog, 'id' | 'created_at'> &
+          Partial<Pick<AuditLog, 'id' | 'created_at' | 'target_table' | 'target_id' | 'metadata'>>;
+        Update: Partial<Omit<AuditLog, 'id'>>;
         Relationships: [];
       };
     };
