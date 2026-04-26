@@ -42,6 +42,7 @@ const NAV_DROPDOWN_GROUPS: NavDropdownDef[] = [
       { href: '/dashboard/perimes', label: 'Produits périmés' },
       { href: '/dashboard/fournisseurs', label: 'Fournisseurs' },
       { href: '/dashboard/transferts', label: 'Transferts' },
+      { href: '/dashboard/b2b', label: 'Commander MAFRO' },
     ],
   },
   {
