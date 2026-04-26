@@ -37,6 +37,8 @@ Ce fichier documente l'historique des migrations et identifie les migrations pot
 | `20260425_mafro_v4_roles_and_extensions.sql` | MAFRO v4 — enum `user_role`, extensions `boutiques`/`employes`, table `mafro_admins`, helpers RLS | PR feat(db): MAFRO v4 |
 | `20260425_mafro_v4_b2b_retraits_crm.sql` | MAFRO v4 — tables B2B (`commandes_b2b`, `livraisons`), `retraits_clients`, `clients_crm`, RPCs | PR feat(db): MAFRO v4 |
 | `20260425_mafro_v4_audit_pertes_rls.sql` | MAFRO v4 — `pertes_declarations`, `cloture_caisse_jour`, `transferts_stock`, vues matérialisées, RLS complet | PR feat(db): MAFRO v4 |
+| `20260426_inscriptions_metadata.sql` | Table `inscriptions_metadata` — métadonnées inscription partenaire | PR 2.1 |
+| `20260426_mouvements_stock.sql` | Table `mouvements_stock` + trigger auto-update `produits.stock_actuel` + trigger caisse→mouvement | PR 2.2 |
 
 ---
 

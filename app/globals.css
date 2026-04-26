@@ -1060,6 +1060,40 @@ body {
 .xa-text-warning { color: var(--xa-amber); }
 .xa-text-danger { color: var(--xa-red); }
 
+/* ================================================================
+   STOCK LOCAL — pills de stock (PR 2.2)
+   ================================================================ */
+.xa-stock-pill-ok {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--xa-greenbg);
+  color: var(--xa-green);
+}
+.xa-stock-pill-warn {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--xa-amberbg);
+  color: var(--xa-amber);
+}
+.xa-stock-pill-rupture {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--xa-redbg);
+  color: var(--xa-danger);
+}
+
 /* Skeleton animations */
 .xa-skeleton {
   position: relative;

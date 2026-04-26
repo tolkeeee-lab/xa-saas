@@ -446,6 +446,43 @@ export type InscriptionMetadata = {
   created_at: string;
 };
 
+export type MouvementStockType =
+  | 'reception'
+  | 'sortie'
+  | 'transfert_out'
+  | 'transfert_in'
+  | 'ajustement'
+  | 'inventaire';
+
+export type MouvementStockMotif =
+  | 'livraison_fournisseur'
+  | 'livraison_mafro'
+  | 'vendu_caisse'
+  | 'vendu_hors_caisse'
+  | 'casse'
+  | 'perte'
+  | 'vol'
+  | 'peremption'
+  | 'transfert'
+  | 'inventaire'
+  | 'autre';
+
+export type MouvementStock = {
+  id: string;
+  produit_id: string;
+  boutique_id: string;
+  type: MouvementStockType;
+  motif: MouvementStockMotif | null;
+  quantite: number;
+  stock_avant: number;
+  stock_apres: number;
+  note: string | null;
+  reference_id: string | null;
+  reference_type: string | null;
+  created_by: string | null;
+  created_at: string;
+};
+
 // All MAFRO v4 boutique columns are nullable / have DB defaults — keep them optional on Insert
 type BoutiqueOptionalKeys =
   | 'id'
@@ -689,6 +726,13 @@ export type Database = {
         Insert: Omit<InscriptionMetadata, 'id' | 'created_at'> &
           Partial<Pick<InscriptionMetadata, 'id' | 'created_at'>>;
         Update: Partial<Omit<InscriptionMetadata, 'id'>>;
+        Relationships: [];
+      };
+      mouvements_stock: {
+        Row: MouvementStock;
+        Insert: Omit<MouvementStock, 'id' | 'created_at'> &
+          Partial<Pick<MouvementStock, 'id' | 'created_at'>>;
+        Update: Partial<Omit<MouvementStock, 'id'>>;
         Relationships: [];
       };
     };
