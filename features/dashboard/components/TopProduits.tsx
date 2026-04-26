@@ -24,7 +24,7 @@ export default function TopProduits({ produits }: Props) {
       ) : (
         <ol className="xa-home-top-produits-list">
           {produits.map((p, idx) => (
-            <li key={p.produit_id || p.nom} className="xa-home-top-produit-row">
+            <li key={`${idx}-${p.produit_id || p.nom}`} className="xa-home-top-produit-row">
               <span className="xa-home-top-produit-rank">{idx + 1}</span>
               <span className="xa-home-top-produit-nom">{p.nom}</span>
               <span className="xa-home-top-produit-qte">{p.qte} u.</span>

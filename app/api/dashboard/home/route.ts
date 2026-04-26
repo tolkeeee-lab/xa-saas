@@ -201,9 +201,10 @@ export async function GET(req: NextRequest) {
     alertes.push({ type: 'stock', count: stockBasCount, href: '/dashboard/stock?filtre=bas', label: `${stockBasCount} produit${stockBasCount > 1 ? 's' : ''} stock bas` });
   }
   if (perimCount > 0) {
-    alertes.push({ type: 'peremption', count: perimCount, href: '/dashboard/perimes', label: `${perimCount} produit${perimCount > 1 ? 's' : ''} périment dans 7j` });
+    alertes.push({ type: 'peremption', count: perimCount, href: '/dashboard/perimes', label: `${perimCount} produit${perimCount > 1 ? 's' : ''} périssent dans 7j` });
   }
   if (detteRetardCount > 0) {
+    // The 'en_retard' status is managed by database triggers/cron based on the 30-day threshold
     alertes.push({ type: 'dette', count: detteRetardCount, href: '/dashboard/dettes', label: `${detteRetardCount} dette${detteRetardCount > 1 ? 's' : ''} en retard >30j` });
   }
   if (b2bAttente > 0) {
@@ -232,7 +233,7 @@ export async function GET(req: NextRequest) {
     if (lignes?.length) {
       const aggMap: Record<string, { nom: string; qte: number; ca: number }> = {};
       for (const l of lignes) {
-        const key = (l.produit_id as string | null) ?? `__nom__${l.nom_produit as string}`;
+        const key = (l.produit_id as string | null) ?? `__nom__${(l.nom_produit as string) || 'unknown'}`;
         const existing = aggMap[key];
         if (existing) {
           existing.qte += (l.quantite as number) ?? 0;

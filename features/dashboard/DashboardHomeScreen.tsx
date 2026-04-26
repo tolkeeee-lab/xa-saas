@@ -64,7 +64,7 @@ export default function DashboardHomeScreen({ profile, boutiques, initialBoutiqu
 
     fetch(url)
       .then((res) => {
-        if (!res.ok) throw new Error('fetch failed');
+        if (!res.ok) throw new Error(`Dashboard data fetch failed: ${res.status} ${res.statusText}`);
         return res.json() as Promise<DashboardHomeData>;
       })
       .then((d) => {

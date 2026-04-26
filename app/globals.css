@@ -2284,10 +2284,10 @@ body {
 
 /* ── Quick Actions ──────────────────────────────────────────────── */
 .xa-home-quick-actions {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem;
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: .6rem;
 }
-@media (max-width: 400px) {
-  .xa-home-quick-actions { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 420px) {
+  .xa-home-quick-actions { grid-template-columns: repeat(4, 1fr); }
 }
 
 .xa-home-quick-btn {
