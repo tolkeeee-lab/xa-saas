@@ -13,17 +13,23 @@ export default function CommandeAdminCard({ commandeId, onClose }: Props) {
   const [commande, setCommande] = useState<CommandeB2B | null>(null);
   const [lignes, setLignes] = useState<CommandeB2BLigne[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
+      setFetchError(false);
       try {
         const res = await fetch(`/api/admin-mafro/commandes/${commandeId}`);
         if (res.ok) {
           const data = await res.json();
           setCommande(data.commande);
           setLignes(data.lignes ?? []);
+        } else {
+          setFetchError(true);
         }
+      } catch {
+        setFetchError(true);
       } finally {
         setLoading(false);
       }
@@ -44,7 +50,12 @@ export default function CommandeAdminCard({ commandeId, onClose }: Props) {
         </div>
         <div className="xa-modal__body">
           {loading && <p style={{ color: 'var(--xa-muted)' }}>Chargement…</p>}
-          {!loading && commande && (
+          {!loading && fetchError && (
+            <div className="xa-error-banner">
+              Impossible de charger les détails de la commande.
+            </div>
+          )}
+          {!loading && !fetchError && commande && (
             <>
               <dl className="xa-dl">
                 <dt>Statut</dt>

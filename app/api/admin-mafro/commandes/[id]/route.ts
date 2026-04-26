@@ -55,7 +55,7 @@ export async function PATCH(
 
   const { data: existing } = await admin
     .from('commandes_b2b')
-    .select('statut')
+    .select('statut, confirmed_at')
     .eq('id', id)
     .maybeSingle();
 
@@ -70,7 +70,7 @@ export async function PATCH(
     .from('commandes_b2b')
     .update({
       statut: newStatut,
-      confirmed_at: newStatut === 'confirmee' ? now : undefined,
+      confirmed_at: newStatut === 'confirmee' && !existing.confirmed_at ? now : undefined,
     })
     .eq('id', id)
     .select()

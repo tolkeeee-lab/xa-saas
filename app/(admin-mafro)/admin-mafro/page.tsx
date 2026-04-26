@@ -33,8 +33,8 @@ export default async function AdminMafroOverviewPage() {
       .select('id, statut, created_at, parti_at'),
     admin
       .from('boutiques')
-      .select('id, nom, est_actif')
-      .eq('est_actif', true),
+      .select('id, nom, actif')
+      .eq('actif', true),
     admin
       .from('produits_catalogue_admin')
       .select('id, nom, stock_central, est_actif')
