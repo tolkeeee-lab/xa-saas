@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { href: '/admin-mafro', label: 'Vue d\'ensemble', icon: LayoutDashboard, exact: true },
+  { href: '/admin-mafro', label: "Vue d'ensemble", icon: LayoutDashboard, exact: true },
   { href: '/admin-mafro/commandes', label: 'Commandes B2B', icon: ShoppingCart, exact: false },
   { href: '/admin-mafro/livraisons', label: 'Livraisons', icon: Truck, exact: false },
   { href: '/admin-mafro/stock', label: 'Stock Central', icon: Package, exact: false },
