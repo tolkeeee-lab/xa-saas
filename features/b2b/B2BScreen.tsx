@@ -112,7 +112,6 @@ export default function B2BScreen({
 
       {tab === 'commandes' && (
         <B2BCommandesList
-          boutiques={boutiques}
           activeBoutiqueId={activeBoutiqueId}
           onSelectCommande={setDetailCommandeId}
         />

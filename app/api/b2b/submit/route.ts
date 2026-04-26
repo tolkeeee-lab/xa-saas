@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   const { data: body, error: validationError } = validateBody(submitB2BOrderSchema, rawBody);
   if (validationError) return validationError;
 
-  const { boutique_id, lignes, note } = body;
+  const { boutique_id, lignes, mode_paiement, note } = body;
 
   const admin = createAdminClient();
 
@@ -50,5 +50,19 @@ export async function POST(request: NextRequest) {
   });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ ok: true, commande_id: (data as { id: string } | null)?.id ?? null });
+
+  const commande = data as { id: string } | null;
+  if (!commande?.id) {
+    return NextResponse.json({ error: 'Commande non créée' }, { status: 500 });
+  }
+
+  // Patch mode_paiement since the RPC uses the default value
+  if (mode_paiement !== 'a_la_livraison') {
+    await admin
+      .from('commandes_b2b')
+      .update({ mode_paiement })
+      .eq('id', commande.id);
+  }
+
+  return NextResponse.json({ ok: true, commande_id: commande.id });
 }

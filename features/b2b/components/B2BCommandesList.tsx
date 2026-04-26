@@ -2,20 +2,15 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { Package } from 'lucide-react';
-import type { Boutique, CommandeB2B } from '@/types/database';
+import type { CommandeB2B } from '@/types/database';
 import B2BCommandeCard from '@/features/b2b/components/B2BCommandeCard';
 
 type Props = {
-  boutiques: Boutique[];
   activeBoutiqueId: string;
   onSelectCommande: (id: string) => void;
 };
 
-export default function B2BCommandesList({
-  boutiques: _boutiques,
-  activeBoutiqueId,
-  onSelectCommande,
-}: Props) {
+export default function B2BCommandesList({ activeBoutiqueId, onSelectCommande }: Props) {
   const [commandes, setCommandes] = useState<CommandeB2B[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
