@@ -813,7 +813,7 @@ export type Database = {
         Returns: ClotureCaisseJour;
       };
       transferer_stock: {
-        Args: { p_source: string; p_dest: string; p_produit: string; p_qty: number };
+        Args: { p_source: string; p_dest: string; p_produit: string; p_qty: number };  
         Returns: TransfertStock;
       };
       recevoir_transfert: {
