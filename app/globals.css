@@ -62,6 +62,10 @@
   --xa-color-boutique:  #1DDB7B;
   --xa-color-date:      #6E6E66;
   --xa-color-transfert: #D97706;
+
+  /* Layout heights */
+  --xa-header-height:     48px;
+  --xa-bottom-bar-height: 64px;
 }
 
 /* ── MODE SOMBRE ── */
@@ -482,106 +486,103 @@ body {
   }
 }
 
+/* Active nav state — used by DashboardHeaderBar */
+.xa-nav-active { color: var(--xa-ink); background: var(--xa-bg2); }
+
+/* Dashboard content area (below the header bar, above the bottom bar) */
+.xa-dashboard-content {
+  min-height: calc(100vh - var(--xa-header-height) - var(--xa-bottom-bar-height));
+  padding-bottom: var(--xa-bottom-bar-height);
+}
+
 /* ================================================================
-   DASHBOARD TOPBAR — Common nav bar (PR 5)
+   DASHBOARD HEADER BAR — Mini top header (logo + actions)
    ================================================================ */
-.xa-topbar-sticky {
+.xa-header-bar {
   position: sticky; top: 0; z-index: 40;
   background: var(--xa-surface);
   border-bottom: 1px solid var(--xa-rule2);
   backdrop-filter: saturate(140%) blur(6px);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .45rem 1rem;
+  height: var(--xa-header-height);
 }
-.xa-topbar-inner {
-  display: flex; align-items: center; gap: 1.25rem;
-  padding: .55rem 1rem;
-  max-width: 1600px; margin: 0 auto;
-}
-.xa-brand {
-  display: flex; align-items: center; gap: .5rem;
+.xa-header-brand {
   font-weight: 700; color: var(--xa-ink);
   font-size: 17px; letter-spacing: -.02em;
   text-decoration: none;
-  flex-shrink: 0;
 }
-.xa-brand em { font-style: normal; }
-.xa-nav { display: flex; align-items: center; gap: .15rem; flex: 1; }
-.xa-nav-link,
-.xa-nav-btn {
-  padding: .4rem .7rem; border-radius: 4px;
-  font-size: 12px; color: var(--xa-muted);
-  background: none; border: none;
-  cursor: pointer; font-weight: 500;
-  letter-spacing: 0;
-  transition: background .15s, color .15s;
-  display: inline-flex; align-items: center; gap: .35rem;
-  text-decoration: none;
-  white-space: nowrap;
-}
-.xa-nav-link:hover,
-.xa-nav-btn:hover { background: var(--xa-bg2); color: var(--xa-ink); }
-.xa-nav-active { color: var(--xa-ink); background: var(--xa-bg2); }
-
-.xa-nav-dropdown {
-  position: relative;
-}
-.xa-nav-menu {
-  position: absolute; top: calc(100% + 4px); left: 0;
-  min-width: 200px;
-  background: var(--xa-surface);
-  border: 1px solid var(--xa-rule2);
-  border-radius: 5px;
-  box-shadow: 0 6px 20px rgba(0,0,0,.06);
-  padding: 4px;
-  display: flex; flex-direction: column;
-  z-index: 50;
-}
-.xa-nav-item {
-  padding: .45rem .65rem; border-radius: 3px;
-  font-size: 12px; color: var(--xa-ink2);
-  text-decoration: none;
-  transition: background .12s;
-  display: block;
-}
-.xa-nav-item:hover { background: var(--xa-bg2); color: var(--xa-ink); }
-.xa-nav-item-active { background: var(--xa-bg2); color: var(--xa-ink); font-weight: 500; }
-
-.xa-topbar-right {
+.xa-header-brand em { font-style: normal; }
+.xa-header-right {
   display: flex; align-items: center; gap: .5rem;
-  margin-left: auto;
 }
-.xa-topbar-icon {
+.xa-header-icon {
   width: 32px; height: 32px;
   display: inline-flex; align-items: center; justify-content: center;
   border-radius: 4px; color: var(--xa-muted);
   transition: background .15s, color .15s;
   text-decoration: none;
-  font-size: 16px;
 }
-.xa-topbar-icon:hover { background: var(--xa-bg2); color: var(--xa-ink); }
+.xa-header-icon:hover { background: var(--xa-bg2); color: var(--xa-ink); }
 
-/* Dashboard content area (below the sticky topbar) */
-.xa-dashboard-content {
-  min-height: calc(100vh - 52px);
-}
-
-/* Mobile nav */
-@media (max-width: 860px) {
-  .xa-nav { display: none; }
-  .xa-nav-mobile-btn { display: inline-flex !important; }
-}
-@media (min-width: 861px) {
-  .xa-nav-mobile-btn { display: none !important; }
-}
-.xa-nav-drawer {
-  position: fixed; inset: 0; top: 52px; z-index: 50;
+/* ================================================================
+   DASHBOARD BOTTOM BAR — Scrollable horizontal nav
+   ================================================================ */
+.xa-bottom-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
   background: var(--xa-surface);
-  padding: 1rem; overflow-y: auto;
-  display: flex; flex-direction: column; gap: .25rem;
   border-top: 1px solid var(--xa-rule2);
+  height: var(--xa-bottom-bar-height);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.xa-bottom-bar-scroll {
+  overflow-x: auto;
+  height: 100%;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.xa-bottom-bar-scroll::-webkit-scrollbar {
+  display: none;
+}
+.xa-bottom-bar-inner {
+  display: flex;
+  min-width: max-content;
+  height: 100%;
+}
+.xa-bottom-bar-item {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px;
+  min-width: 72px; padding: 0 .75rem;
+  color: var(--xa-muted);
+  text-decoration: none;
+  position: relative;
+  transition: background .15s, color .15s;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.xa-bottom-bar-item:hover {
+  background: var(--xa-bg2);
+  color: var(--xa-ink);
+}
+.xa-bottom-bar-item--active {
+  color: var(--xa-primary);
+}
+.xa-bottom-bar-item--active::after {
+  content: '';
+  position: absolute; bottom: 0; left: 22%; right: 22%;
+  height: 3px;
+  background: var(--xa-primary);
+  border-radius: 10px 10px 0 0;
+}
+.xa-bottom-bar-label {
+  font-size: 10px; font-weight: 600;
+  line-height: 1; white-space: nowrap;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .xa-nav-menu { animation: none; }
+  /* no animated nav menus to suppress */
 }
 
 /* ================================================================
