@@ -80,16 +80,11 @@ export default function PertesScreen({ boutiques, initialBoutiqueId, isOwner }: 
   );
 
   useEffect(() => {
-    void loadPertes(activeBoutiqueId, tab, search, motifFilter);
-  }, [activeBoutiqueId, tab, motifFilter, loadPertes]);
-
-  // Debounced search
-  useEffect(() => {
     const timer = setTimeout(() => {
       void loadPertes(activeBoutiqueId, tab, search, motifFilter);
-    }, 400);
+    }, search ? 400 : 0);
     return () => clearTimeout(timer);
-  }, [search]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeBoutiqueId, tab, search, motifFilter, loadPertes]);
 
   function handleDeclarationSuccess() {
     setDeclarerOpen(false);

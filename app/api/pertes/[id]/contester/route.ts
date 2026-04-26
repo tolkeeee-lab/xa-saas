@@ -34,7 +34,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
   const { raison } = body as Record<string, unknown>;
   if (!raison || typeof raison !== 'string' || raison.trim().length < 5) {
-    return NextResponse.json({ error: 'Une raison de contestation est requise (min 5 car.)' }, { status: 400 });
+    return NextResponse.json({ error: 'Une raison de contestation est requise (min 5 caractères)' }, { status: 400 });
   }
 
   const admin = createAdminClient();

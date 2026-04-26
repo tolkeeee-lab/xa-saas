@@ -102,9 +102,13 @@ export async function GET(request: NextRequest) {
   }
 
   if (mois) {
+    // Get start and end of month properly
+    const [year, month] = mois.split('-').map(Number);
+    const startDate = new Date(year!, month! - 1, 1);
+    const endDate = new Date(year!, month!, 1); // First day of next month
     query = query
-      .gte('created_at', `${mois}-01T00:00:00.000Z`)
-      .lte('created_at', `${mois}-31T23:59:59.999Z`);
+      .gte('created_at', startDate.toISOString())
+      .lt('created_at', endDate.toISOString());
   }
 
   if (q) {

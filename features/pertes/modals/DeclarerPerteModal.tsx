@@ -105,7 +105,7 @@ export default function DeclarerPerteModal({ boutiqueId, onClose, onSuccess }: P
       setError('Quantité invalide');
       return;
     }
-    if (selectedProduit.stock_actuel > 0 && qty > selectedProduit.stock_actuel) {
+    if (selectedProduit.stock_actuel >= 0 && qty > selectedProduit.stock_actuel) {
       setError(`La quantité ne peut pas dépasser le stock actuel (${selectedProduit.stock_actuel})`);
       return;
     }
