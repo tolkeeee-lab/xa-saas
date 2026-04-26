@@ -33,6 +33,7 @@ export function avatarColor(name: string): string {
 export function timeAgo(dateStr: string | null): string {
   if (!dateStr) return 'Jamais';
   const diff = Date.now() - new Date(dateStr).getTime();
+  if (diff < 0) return 'À venir';
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   if (days === 0) return "Aujourd'hui";
   if (days === 1) return 'Hier';

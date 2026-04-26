@@ -37,12 +37,7 @@ export default function ClientsScreen() {
   const [tab, setTab] = useState<ClientsTab>('tous');
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortField>('nom');
-  const [stats, setStats] = useState<StatsResponse>({
-    tous: 0,
-    avec_credit: 0,
-    opt_in_whatsapp: 0,
-    inactifs: 0,
-  });
+  const [stats, setStats] = useState<StatsResponse | null>(null);
 
   const [formModal, setFormModal] = useState<{ mode: 'create' | 'edit'; client?: Client } | null>(
     null,
@@ -156,13 +151,15 @@ export default function ClientsScreen() {
   }
 
   const tabCounts = computeTabCounts(clients);
-  // Use stats from API when loaded, fallback to local counts only if null/undefined
-  const finalCounts: Record<ClientsTab, number> = {
-    tous: stats.tous ?? tabCounts.tous,
-    avec_credit: stats.avec_credit ?? tabCounts.avec_credit,
-    opt_in_whatsapp: stats.opt_in_whatsapp ?? tabCounts.opt_in_whatsapp,
-    inactifs: stats.inactifs ?? tabCounts.inactifs,
-  };
+  // Use API stats when loaded; fall back to locally-computed counts until then
+  const finalCounts: Record<ClientsTab, number> = stats
+    ? {
+        tous: stats.tous,
+        avec_credit: stats.avec_credit,
+        opt_in_whatsapp: stats.opt_in_whatsapp,
+        inactifs: stats.inactifs,
+      }
+    : tabCounts;
 
   const hasMore = clients.length < total;
 
@@ -193,10 +190,10 @@ export default function ClientsScreen() {
 
         {/* Stats strip */}
         <ClientStats
-          total={stats.tous}
-          opt_in={stats.opt_in_whatsapp}
-          avec_credit={stats.avec_credit}
-          inactifs={stats.inactifs}
+          total={stats?.tous ?? tabCounts.tous}
+          opt_in={stats?.opt_in_whatsapp ?? tabCounts.opt_in_whatsapp}
+          avec_credit={stats?.avec_credit ?? tabCounts.avec_credit}
+          inactifs={stats?.inactifs ?? tabCounts.inactifs}
         />
 
         {/* List */}
