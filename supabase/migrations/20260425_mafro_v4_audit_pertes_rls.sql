@@ -344,8 +344,10 @@ CREATE OR REPLACE FUNCTION public.recevoir_transfert(
 RETURNS transferts_stock
 LANGUAGE plpgsql SECURITY DEFINER AS $$
 DECLARE
-  v_t        transferts_stock;
-  v_dst_prop UUID;
+  v_t              transferts_stock;
+  v_dst_prop       UUID;
+  v_dst_produit_id UUID;
+  v_src_produit    produits;
 BEGIN
   SELECT * INTO v_t FROM transferts_stock WHERE id = p_transfert_id FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'Transfert introuvable'; END IF;
@@ -362,21 +364,37 @@ BEGIN
     RAISE EXCEPTION 'Accès non autorisé';
   END IF;
 
-  -- Incrémenter stock destination (créer la ligne produit si inexistante)
-  INSERT INTO produits (
-    boutique_id, nom, categorie, prix_achat, prix_vente,
-    stock_actuel, seuil_alerte, unite, actif
-  )
-  SELECT
-    v_t.boutique_destination_id, p.nom, p.categorie, p.prix_achat, p.prix_vente,
-    v_t.quantite, p.seuil_alerte, p.unite, p.actif
-  FROM produits p WHERE p.id = v_t.produit_id AND p.boutique_id = v_t.boutique_source_id
-  ON CONFLICT DO NOTHING;
+  -- Récupérer le produit source
+  SELECT * INTO v_src_produit FROM produits WHERE id = v_t.produit_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Produit source introuvable (id: %)', v_t.produit_id;
+  END IF;
 
-  UPDATE produits
-  SET stock_actuel = stock_actuel + v_t.quantite, updated_at = now()
+  -- Chercher un produit du même nom dans la boutique destination
+  SELECT id INTO v_dst_produit_id
+  FROM produits
   WHERE boutique_id = v_t.boutique_destination_id
-    AND nom = (SELECT nom FROM produits WHERE id = v_t.produit_id LIMIT 1);
+    AND nom = v_src_produit.nom
+  LIMIT 1;
+
+  IF v_dst_produit_id IS NULL THEN
+    -- Créer le produit dans la boutique destination avec le stock transféré comme stock initial
+    INSERT INTO produits (
+      boutique_id, nom, categorie, prix_achat, prix_vente,
+      stock_actuel, seuil_alerte, unite, actif
+    ) VALUES (
+      v_t.boutique_destination_id,
+      v_src_produit.nom, v_src_produit.categorie,
+      v_src_produit.prix_achat, v_src_produit.prix_vente,
+      v_t.quantite, v_src_produit.seuil_alerte, v_src_produit.unite, v_src_produit.actif
+    )
+    RETURNING id INTO v_dst_produit_id;
+  ELSE
+    -- Incrémenter le stock du produit existant (par id — robuste)
+    UPDATE produits
+    SET stock_actuel = stock_actuel + v_t.quantite, updated_at = now()
+    WHERE id = v_dst_produit_id;
+  END IF;
 
   -- Marquer le transfert comme reçu
   UPDATE transferts_stock

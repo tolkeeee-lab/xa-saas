@@ -88,7 +88,7 @@ CREATE TRIGGER boutiques_generate_slug
   FOR EACH ROW EXECUTE FUNCTION generate_boutique_slug();
 
 -- Backfill slugs pour les boutiques existantes sans slug
-UPDATE boutiques SET slug = NULL WHERE slug IS NULL;  -- force le trigger sur UPDATE
+UPDATE boutiques SET nom = nom WHERE slug IS NULL;  -- force le trigger sur UPDATE (nom inchangé, slug généré)
 
 -- ─────────────────────────────────────────────────────────────
 -- 3. Extensions de employes

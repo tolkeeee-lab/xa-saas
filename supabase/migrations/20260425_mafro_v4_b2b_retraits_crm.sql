@@ -229,7 +229,25 @@ BEGIN
       AND statut       = 'en_attente'
       AND expires_at  <= now();
 
-    RAISE EXCEPTION 'Code invalide, expiré ou déjà utilisé';
+    -- Distinguer les cas d'échec pour un meilleur diagnostic
+    IF EXISTS (
+      SELECT 1 FROM retraits_clients
+      WHERE boutique_id = p_boutique_id AND code_retrait = p_code AND statut = 'expire'
+    ) THEN
+      RAISE EXCEPTION 'Code expiré — le délai de retrait est dépassé';
+    ELSIF EXISTS (
+      SELECT 1 FROM retraits_clients
+      WHERE boutique_id = p_boutique_id AND code_retrait = p_code AND statut = 'retire'
+    ) THEN
+      RAISE EXCEPTION 'Code déjà utilisé — ce retrait a déjà été validé';
+    ELSIF EXISTS (
+      SELECT 1 FROM retraits_clients
+      WHERE boutique_id = p_boutique_id AND code_retrait = p_code AND statut = 'annule'
+    ) THEN
+      RAISE EXCEPTION 'Code annulé — ce retrait a été annulé';
+    ELSE
+      RAISE EXCEPTION 'Code invalide — aucun retrait trouvé pour ce code dans cette boutique';
+    END IF;
   END IF;
 
   RETURN NEXT v_row;
