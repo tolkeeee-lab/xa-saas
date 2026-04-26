@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Settings } from 'lucide-react';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -247,6 +248,14 @@ function MobileDrawer({
       >
         📍 Boutiques
       </Link>
+
+      <Link
+        href="/dashboard/settings"
+        className={`xa-nav-link${pathname.startsWith('/dashboard/settings') ? ' xa-nav-active' : ''}`}
+        onClick={onClose}
+      >
+        ⚙️ Paramètres
+      </Link>
     </div>
   );
 }
@@ -305,12 +314,12 @@ export default function DashboardTopbar({ userInitials }: DashboardTopbarProps) 
             <ThemeToggle />
 
             <Link
-              href="/dashboard/parametres"
-              className="xa-topbar-icon"
+              href="/dashboard/settings"
+              className={`xa-topbar-icon${pathname.startsWith('/dashboard/settings') ? ' xa-nav-active' : ''}`}
               aria-label="Paramètres"
               title="Paramètres"
             >
-              ⚙️
+              <Settings size={18} />
             </Link>
 
             <div className="xa-tb-avatar" title="Mon compte">
