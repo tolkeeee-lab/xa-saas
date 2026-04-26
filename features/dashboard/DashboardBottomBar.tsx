@@ -2,89 +2,145 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import type { LucideIcon } from 'lucide-react';
 import {
   Home,
   ShoppingCart,
-  Receipt,
-  Users,
-  Clock,
-  Lock,
   Package,
-  Tag,
-  ClipboardList,
-  BarChart3,
-  Bell,
-  CalendarX,
-  Truck,
-  ArrowLeftRight,
-  Building2,
-  PackageCheck,
-  ArrowDownLeft,
-  TrendingDown,
+  TrendingUp,
   Wallet,
-  CreditCard,
-  FileBarChart,
-  Scale,
-  Activity,
-  UserSquare,
-  Store,
-  Settings,
+  BarChart3,
+  MoreHorizontal,
 } from 'lucide-react';
 
-const NAV_ITEMS = [
-  { href: '/dashboard',                  icon: Home,           label: 'Accueil'       },
-  { href: '/dashboard/caisse',           icon: ShoppingCart,   label: 'Caisse'        },
-  { href: '/dashboard/ventes',           icon: Receipt,        label: 'Ventes'        },
-  { href: '/dashboard/clients',          icon: Users,          label: 'Clients'       },
-  { href: '/dashboard/dettes',           icon: Clock,          label: 'Dettes'        },
-  { href: '/dashboard/cloture',          icon: Lock,           label: 'Clôture'       },
-  { href: '/dashboard/stock',            icon: Package,        label: 'Stock local'   },
-  { href: '/dashboard/produits',         icon: Tag,            label: 'Produits'      },
-  { href: '/dashboard/inventaire',       icon: ClipboardList,  label: 'Inventaire'    },
-  { href: '/dashboard/stocks',           icon: BarChart3,      label: 'Stocks'        },
-  { href: '/dashboard/alertes-stock',    icon: Bell,           label: 'Alertes'       },
-  { href: '/dashboard/perimes',          icon: CalendarX,      label: 'Périmés'       },
-  { href: '/dashboard/fournisseurs',     icon: Truck,          label: 'Fournisseurs'  },
-  { href: '/dashboard/transferts',       icon: ArrowLeftRight, label: 'Transferts'    },
-  { href: '/dashboard/b2b',              icon: Building2,      label: 'B2B'           },
-  { href: '/dashboard/livraisons',       icon: PackageCheck,   label: 'Livraisons'    },
-  { href: '/dashboard/retraits',         icon: ArrowDownLeft,  label: 'Retraits'      },
-  { href: '/dashboard/pertes',           icon: TrendingDown,   label: 'Pertes'        },
-  { href: '/dashboard/charges',          icon: Wallet,         label: 'Charges'       },
-  { href: '/dashboard/mes-dettes',       icon: CreditCard,     label: 'Mes dettes'    },
-  { href: '/dashboard/rapports',         icon: FileBarChart,   label: 'Rapports'      },
-  { href: '/dashboard/comparatif',       icon: Scale,          label: 'Comparatif'    },
-  { href: '/dashboard/activite',         icon: Activity,       label: 'Activité'      },
-  { href: '/dashboard/equipe',           icon: UserSquare,     label: 'Équipe'        },
-  { href: '/dashboard/boutiques',        icon: Store,          label: 'Boutiques'     },
-  { href: '/dashboard/settings',         icon: Settings,       label: 'Paramètres'    },
+type MatchType = 'exact' | 'prefix' | 'group';
+
+type NavItem = {
+  href: string;
+  icon: LucideIcon;
+  label: string;
+  match: MatchType;
+  groupRoutes?: string[];
+};
+
+const NAV_ITEMS: NavItem[] = [
+  {
+    href: '/dashboard',
+    icon: Home,
+    label: 'Accueil',
+    match: 'exact',
+  },
+  {
+    href: '/dashboard/caisse',
+    icon: ShoppingCart,
+    label: 'Caisse',
+    match: 'prefix',
+  },
+  {
+    href: '/dashboard/stock',
+    icon: Package,
+    label: 'Stock',
+    match: 'group',
+    groupRoutes: [
+      '/dashboard/stock',
+      '/dashboard/stocks',
+      '/dashboard/transferts',
+      '/dashboard/perimes',
+      '/dashboard/pertes',
+      '/dashboard/inventaire',
+      '/dashboard/produits',
+      '/dashboard/alertes-stock',
+    ],
+  },
+  {
+    href: '/dashboard/ventes',
+    icon: TrendingUp,
+    label: 'Ventes',
+    match: 'group',
+    groupRoutes: [
+      '/dashboard/ventes',
+      '/dashboard/activite',
+      '/dashboard/b2b',
+      '/dashboard/livraisons',
+      '/dashboard/dettes',
+    ],
+  },
+  {
+    href: '/dashboard/finances',
+    icon: Wallet,
+    label: 'Finances',
+    match: 'group',
+    groupRoutes: [
+      '/dashboard/finances',
+      '/dashboard/charges',
+      '/dashboard/mes-dettes',
+      '/dashboard/retraits',
+      '/dashboard/cloture',
+    ],
+  },
+  {
+    href: '/dashboard/rapports',
+    icon: BarChart3,
+    label: 'Rapports',
+    match: 'group',
+    groupRoutes: [
+      '/dashboard/rapports',
+      '/dashboard/comparatif',
+    ],
+  },
+  {
+    href: '/dashboard/plus',
+    icon: MoreHorizontal,
+    label: 'Plus',
+    match: 'group',
+    groupRoutes: [
+      '/dashboard/plus',
+      '/dashboard/equipe',
+      '/dashboard/boutiques',
+      '/dashboard/clients',
+      '/dashboard/fournisseurs',
+      '/dashboard/settings',
+    ],
+  },
 ];
+
+function checkActive(
+  href: string,
+  pathname: string,
+  match: MatchType,
+  groupRoutes?: string[],
+): boolean {
+  if (match === 'exact') return pathname === href;
+  if (match === 'prefix') return pathname === href || pathname.startsWith(href + '/');
+  if (match === 'group') {
+    return (
+      groupRoutes?.some((r) => pathname === r || pathname.startsWith(r + '/')) ?? false
+    );
+  }
+  return false;
+}
 
 export default function DashboardBottomBar() {
   const pathname = usePathname();
 
   return (
     <nav className="xa-bottom-bar" aria-label="Navigation principale">
-      <div className="xa-bottom-bar-scroll">
-        <div className="xa-bottom-bar-inner">
-          {NAV_ITEMS.map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.href !== '/dashboard' && pathname.startsWith(item.href + '/'));
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`xa-bottom-bar-item${isActive ? ' xa-bottom-bar-item--active' : ''}`}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                <Icon size={20} strokeWidth={isActive ? 2.5 : 1.75} aria-hidden />
-                <span className="xa-bottom-bar-label">{item.label}</span>
-              </Link>
-            );
-          })}
-        </div>
+      <div className="xa-bottom-bar-inner">
+        {NAV_ITEMS.map((item) => {
+          const active = checkActive(item.href, pathname, item.match, item.groupRoutes);
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`xa-bottom-bar-item${active ? ' xa-bottom-bar-item--active' : ''}`}
+              aria-current={active ? 'page' : undefined}
+            >
+              <Icon size={20} strokeWidth={active ? 2.5 : 1.75} aria-hidden />
+              <span className="xa-bottom-bar-label">{item.label}</span>
+            </Link>
+          );
+        })}
       </div>
     </nav>
   );
