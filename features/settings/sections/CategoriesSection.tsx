@@ -121,6 +121,7 @@ export default function CategoriesSection() {
     const ordreA = categories[idx].ordre;
     const ordreB = categories[swapIdx].ordre;
 
+    const snapshot = categories;
     const updated = [...categories];
     updated[idx] = { ...categories[idx], ordre: ordreB };
     updated[swapIdx] = { ...categories[swapIdx], ordre: ordreA };
@@ -140,11 +141,11 @@ export default function CategoriesSection() {
         }),
       ]);
       if (!resA.ok || !resB.ok) {
-        setCategories(categories);
+        setCategories(snapshot);
         setError('Impossible de réordonner les catégories.');
       }
     } catch {
-      setCategories(categories);
+      setCategories(snapshot);
       setError('Impossible de réordonner les catégories.');
     }
   }
@@ -159,8 +160,7 @@ export default function CategoriesSection() {
         <button
           type="button"
           onClick={() => { setShowForm((v) => !v); setCreateError(null); }}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-opacity hover:opacity-90"
-          style={{ background: 'var(--xa-primary)', color: '#fff', minHeight: 36 }}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-xa-primary text-white text-sm font-semibold transition-opacity hover:opacity-90"
         >
           <Plus size={15} />
           Ajouter
