@@ -48,15 +48,19 @@ export default function StockHeader({
 
       <div className="v4-header-info">
         <h1>Gestion des Stocks</h1>
-        <p>{boutiques.length} boutique{boutiques.length > 1 ? 's' : ''}</p>
+        {boutiqueActive === 'all' ? (
+          <p>Toutes mes boutiques</p>
+        ) : (
+          <p>
+            {activeBoutique?.nom ?? 'Boutique'}
+            {(activeBoutique?.zone ?? activeBoutique?.ville)
+              ? ` — ${activeBoutique?.zone ?? activeBoutique?.ville}`
+              : ''}
+          </p>
+        )}
       </div>
 
       <div className="v4-header-actions">
-        {/* Historique */}
-        <button type="button" className="v4-icon-btn" aria-label="Historique">
-          <Clock size={14} />
-        </button>
-
         {/* Boutique switcher */}
         <div className="v4-bswitch" ref={switchRef}>
           <button
@@ -138,8 +142,13 @@ export default function StockHeader({
           )}
         </div>
 
-        {/* Add button */}
-        <button type="button" className="v4-icon-btn primary" aria-label="Nouveau produit">
+        {/* Historique */}
+        <button type="button" className="v4-icon-btn" aria-label="Historique">
+          <Clock size={14} />
+        </button>
+
+        {/* Add button — soft green */}
+        <button type="button" className="v4-icon-btn v4-icon-btn--add" aria-label="Nouveau produit">
           <Plus size={14} />
         </button>
       </div>

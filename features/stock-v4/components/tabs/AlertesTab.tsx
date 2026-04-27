@@ -3,6 +3,7 @@
 import { Plus } from 'lucide-react';
 import type { ProduitAvecStatut, ModalState, BoutiqueActiveId } from '../../types';
 import type { Boutique } from '@/types/database';
+import { getCategoryEmoji } from '../../utils/categoryEmoji';
 
 interface AlertesTabProps {
   produits: ProduitAvecStatut[];
@@ -25,18 +26,6 @@ const CHIP_LABEL: Record<ProduitAvecStatut['statut'], string> = {
   crit: 'Critique',
   rupt: 'Rupture',
 };
-
-function getCategoryEmoji(cat: string | null): string {
-  const c = (cat ?? '').toLowerCase();
-  if (c.includes('boisson') || c.includes('drink')) return '🥤';
-  if (c.includes('alimentaire') || c.includes('aliment') || c.includes('food')) return '🍎';
-  if (c.includes('hygien') || c.includes('nettoy')) return '🧼';
-  if (c.includes('viande') || c.includes('poisson')) return '🥩';
-  if (c.includes('légume') || c.includes('legume') || c.includes('fruit')) return '🥦';
-  if (c.includes('lait') || c.includes('dairy')) return '🥛';
-  if (c.includes('pain') || c.includes('boulangerie')) return '🍞';
-  return '📦';
-}
 
 function getActiveBoutiqueId(
   boutiqueActive: BoutiqueActiveId,

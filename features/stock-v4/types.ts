@@ -12,16 +12,17 @@ export type StockTabId = 'vue' | 'alertes' | 'perimes' | 'inventaires' | 'transf
 export interface StockTab {
   id: StockTabId;
   label: string;
+  icon: string;
   badge?: number;
 }
 
 export const STOCK_TABS: StockTab[] = [
-  { id: 'vue', label: 'Vue' },
-  { id: 'alertes', label: 'Alertes' },
-  { id: 'perimes', label: 'Périmés' },
-  { id: 'inventaires', label: 'Inventaires' },
-  { id: 'transferts', label: 'Transferts' },
-  { id: 'pertes', label: 'Pertes' },
+  { id: 'vue', label: 'Vue', icon: 'Eye' },
+  { id: 'alertes', label: 'Alertes', icon: 'Bell' },
+  { id: 'perimes', label: 'Périmés', icon: 'Clock' },
+  { id: 'inventaires', label: 'Inventaires', icon: 'ClipboardList' },
+  { id: 'transferts', label: 'Transferts', icon: 'ArrowLeftRight' },
+  { id: 'pertes', label: 'Pertes', icon: 'Trash2' },
 ];
 
 /** Computed status for a product */
@@ -32,8 +33,14 @@ export interface ProduitAvecStatut extends ProduitPublic {
 }
 
 export interface StockKpis {
+  produits: number;
+  alertes: number;
+  valeurStock: number;
+  /** @deprecated use produits */
   total: number;
+  /** @deprecated use alertes */
   faibles: number;
+  /** @deprecated */
   ruptures: number;
 }
 
