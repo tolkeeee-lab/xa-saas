@@ -26,6 +26,7 @@ import CaisseFooter from './components/CaisseFooter';
 import RecuModal from './components/RecuModal';
 import CreditModal from './components/CreditModal';
 import RetraitModal from './components/RetraitModal';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 import './caisse-v4.css';
 
@@ -106,6 +107,18 @@ export default function CaisseV4({
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<ToastData | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ── Footer expand state (collapsed by default on mobile) ─────────────────────
+  const [footerExpanded, setFooterExpanded] = useState(true);
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 640px)');
+    setFooterExpanded(mq.matches);
+    function handleChange(e: MediaQueryListEvent) {
+      setFooterExpanded(e.matches);
+    }
+    mq.addEventListener('change', handleChange);
+    return () => mq.removeEventListener('change', handleChange);
+  }, []);
 
   const showToast = useCallback((message: string, type: 'success' | 'error') => {
     const id = Date.now();
@@ -455,6 +468,7 @@ export default function CaisseV4({
         }}
         caissierNom={resolvedCaissierNom}
         date={dateStr}
+        themeToggle={<ThemeToggle />}
       />
 
       {/* Sync bar */}
@@ -511,6 +525,8 @@ export default function CaisseV4({
         onWhatsApp={handleWhatsApp}
         loading={loading}
         hasItems={items.length > 0}
+        isExpanded={footerExpanded}
+        onToggleExpand={() => setFooterExpanded((v) => !v)}
       />
 
       {/* Reçu modal */}
