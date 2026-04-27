@@ -819,6 +819,253 @@
   opacity: 0.85;
 }
 
+/* ─── Alertes tab ─────────────────────────────────────── */
+
+.v4-alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px 80px;
+}
+
+.v4-alert-item {
+  background: var(--v4-card);
+  border: 1px solid var(--v4-brd);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  transition: box-shadow 0.15s;
+}
+
+.v4-alert-item:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+}
+
+.v4-ai-em {
+  font-size: 22px;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.v4-ai-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.v4-ai-nm {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--v4-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.v4-ai-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+  flex-wrap: wrap;
+}
+
+.v4-ai-cat {
+  font-size: 10px;
+  color: var(--v4-mu);
+}
+
+.v4-ai-chip {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.v4-ai-chip.v4-ac-rupt {
+  background: var(--v4-rl);
+  color: var(--v4-r);
+}
+
+.v4-ai-chip.v4-ac-crit {
+  background: #FBE9E7;
+  color: #E65100;
+}
+
+.v4-ai-chip.v4-ac-low {
+  background: var(--v4-al);
+  color: #7B5800;
+}
+
+.v4-ai-boutique-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.v4-ai-b-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--v4-surf);
+  border: 1px solid var(--v4-brd);
+  border-radius: 20px;
+  padding: 2px 8px 2px 5px;
+}
+
+.v4-ai-b-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.v4-ai-b-txt {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--v4-ink);
+}
+
+.v4-ai-b-qty {
+  font-size: 9px;
+  font-weight: 700;
+  font-family: var(--v4-fm);
+  color: var(--v4-mu);
+}
+
+.v4-alert-btn {
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-family: var(--v4-f);
+  font-size: 11px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  align-self: center;
+  transition: opacity 0.15s;
+}
+
+.v4-alert-btn.g {
+  background: var(--v4-g);
+  color: white;
+}
+
+.v4-alert-btn.g:hover {
+  opacity: 0.85;
+}
+
+/* ─── Périmés tab ─────────────────────────────────────── */
+
+.v4-perime-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px 80px;
+}
+
+.v4-perime-item {
+  background: var(--v4-card);
+  border: 1px solid var(--v4-brd);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: box-shadow 0.15s;
+}
+
+.v4-perime-item:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+}
+
+.v4-pi-em {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.v4-pi-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.v4-pi-nm {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--v4-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.v4-pi-boutique {
+  font-size: 10px;
+  color: var(--v4-mu);
+  margin-top: 2px;
+}
+
+.v4-dlc-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.v4-dlc-pill.v4-dlc-expired {
+  background: var(--v4-rl);
+  color: var(--v4-r);
+}
+
+.v4-dlc-pill.v4-dlc-soon {
+  background: var(--v4-al);
+  color: #7B5800;
+}
+
+.v4-dlc-pill.v4-dlc-ok {
+  background: var(--v4-gl);
+  color: var(--v4-gd);
+}
+
+.v4-pi-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.v4-pi-qty {
+  font-family: var(--v4-fm);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--v4-mu);
+}
+
+.v4-pi-btn {
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-family: var(--v4-f);
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--v4-r);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.v4-pi-btn:hover {
+  opacity: 0.85;
+}
+
 /* ─── Loading skeleton ────────────────────────────────── */
 
 .v4-skeleton {
