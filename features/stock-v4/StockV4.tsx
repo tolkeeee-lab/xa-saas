@@ -50,7 +50,7 @@ export default function StockV4({ boutiques }: StockV4Props) {
 
   // ── Stock data ────────────────────────────────────────────────────────────────
   const boutiqueIds = boutiques.map((b) => b.id);
-  const { filteredProduits, categories, kpis, loading, updateProduitStock } = useStockData(
+  const { filteredProduits, categories, kpis, loading, updateProduitStock, reload } = useStockData(
     { boutiqueIds, boutiqueActive },
     search,
     catActive,
@@ -121,8 +121,24 @@ export default function StockV4({ boutiques }: StockV4Props) {
             onOpenModal={setModal}
           />
         )}
-        {activeTab === 'alertes' && <AlertesTab />}
-        {activeTab === 'perimes' && <PerimesTab />}
+        {activeTab === 'alertes' && (
+          <AlertesTab
+            produits={filteredProduits}
+            loading={loading}
+            boutiqueActive={boutiqueActive}
+            boutiques={boutiques}
+            onOpenModal={setModal}
+          />
+        )}
+        {activeTab === 'perimes' && (
+          <PerimesTab
+            produits={filteredProduits}
+            loading={loading}
+            boutiqueActive={boutiqueActive}
+            boutiques={boutiques}
+            onRefresh={reload}
+          />
+        )}
         {activeTab === 'inventaires' && <InventairesTab />}
         {activeTab === 'transferts' && <TransfertsTab />}
         {activeTab === 'pertes' && <PertesTab />}
