@@ -9,12 +9,14 @@ interface StockHeaderProps {
   boutiques: Boutique[];
   boutiqueActive: BoutiqueActiveId;
   onBoutiqueChange: (id: BoutiqueActiveId) => void;
+  onNouveauProduit: () => void;
 }
 
 export default function StockHeader({
   boutiques,
   boutiqueActive,
   onBoutiqueChange,
+  onNouveauProduit,
 }: StockHeaderProps) {
   const [dropOpen, setDropOpen] = useState(false);
   const switchRef = useRef<HTMLDivElement>(null);
@@ -148,7 +150,7 @@ export default function StockHeader({
         </button>
 
         {/* Add button — soft green */}
-        <button type="button" className="v4-icon-btn v4-icon-btn--add" aria-label="Nouveau produit">
+        <button type="button" className="v4-icon-btn v4-icon-btn--add" aria-label="Nouveau produit" onClick={onNouveauProduit}>
           <Plus size={14} />
         </button>
       </div>

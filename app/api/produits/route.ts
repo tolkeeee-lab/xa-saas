@@ -62,7 +62,30 @@ export async function POST(request: NextRequest) {
   const { data: body, error: validationError } = validateBody(produitsPostSchema, rawBody);
   if (validationError) return validationError;
 
-  const { boutique_id, nom, categorie, prix_achat, prix_vente, stock_actuel, seuil_alerte, unite } = body;
+  const {
+    boutique_id,
+    nom,
+    categorie,
+    prix_achat: prix_achat_input,
+    prix_vente,
+    stock_actuel,
+    seuil_alerte,
+    unite,
+    mode_achat,
+    qty_par_lot,
+    prix_lot_achat,
+    lot_label,
+    unite_label,
+  } = body;
+
+  // Compute prix_achat (unit purchase price) from lot if needed
+  const effectiveModeAchat = mode_achat ?? 'unite';
+  let prix_achat: number;
+  if (effectiveModeAchat === 'lot' && prix_lot_achat != null && qty_par_lot) {
+    prix_achat = Math.round((prix_lot_achat / qty_par_lot) * 100) / 100;
+  } else {
+    prix_achat = prix_achat_input ?? 0;
+  }
 
   const supabase = createAdminClient();
   const { data, error } = await supabase
@@ -76,10 +99,15 @@ export async function POST(request: NextRequest) {
       prix_vente,
       stock_actuel: stock_actuel ?? 0,
       seuil_alerte: seuil_alerte ?? 5,
-      unite: unite ?? 'unité',
+      unite: unite ?? unite_label ?? 'unité',
       actif: true,
+      mode_achat: effectiveModeAchat,
+      qty_par_lot: qty_par_lot ?? null,
+      prix_lot_achat: prix_lot_achat ?? null,
+      lot_label: lot_label ?? null,
+      unite_label: unite_label ?? null,
     })
-    .select('id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, created_at, updated_at')
+    .select('id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, mode_achat, qty_par_lot, lot_label, unite_label, created_at, updated_at')
     .single();
 
   if (error) {

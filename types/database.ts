@@ -71,6 +71,12 @@ export type Produit = {
   unite: string;
   actif: boolean;
   date_peremption: string | null;
+  // Conditionnement / lot fields (migration 20260427_produits_conditionnement)
+  mode_achat: 'unite' | 'lot';
+  qty_par_lot: number | null;
+  prix_lot_achat: number | null;
+  lot_label: string | null;
+  unite_label: string | null;
   created_at: string;
   updated_at: string;
 };
