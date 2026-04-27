@@ -1066,6 +1066,224 @@
   opacity: 0.85;
 }
 
+/* ─── Inventaires/Transferts/Pertes tabs ─── */
+
+/* Shared action button at the top of each tab */
+.v4-tab-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 10px;
+  background: var(--v4-g);
+  color: white;
+  border: none;
+  font-family: var(--v4-f);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  min-height: 36px;
+}
+
+.v4-tab-action-btn:hover {
+  opacity: 0.85;
+}
+
+.v4-tab-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Inventaires */
+
+.v4-inv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px 80px;
+}
+
+.v4-inv-item {
+  background: var(--v4-card);
+  border: 1px solid var(--v4-brd);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: box-shadow 0.15s;
+}
+
+.v4-inv-item:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+}
+
+.v4-inv-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.v4-inv-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+  font-size: 10px;
+  color: var(--v4-mu);
+  flex-wrap: wrap;
+}
+
+.v4-inv-pct {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.v4-pct-amber {
+  background: var(--v4-al);
+  color: #7B5800;
+}
+
+.v4-pct-green {
+  background: var(--v4-gl);
+  color: var(--v4-gd);
+}
+
+.v4-pct-muted {
+  background: var(--v4-surf);
+  color: var(--v4-mu);
+}
+
+.v4-pct-red {
+  background: var(--v4-rl);
+  color: var(--v4-r);
+}
+
+.v4-pct-blue {
+  background: var(--v4-bl);
+  color: var(--v4-b);
+}
+
+/* Transferts */
+
+.v4-tr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px 80px;
+}
+
+.v4-tr-item {
+  background: var(--v4-card);
+  border: 1px solid var(--v4-brd);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: box-shadow 0.15s;
+}
+
+.v4-tr-item:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+}
+
+.v4-tr-route {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--v4-ink);
+  flex-wrap: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.v4-tr-route span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90px;
+}
+
+.v4-tr-arrow {
+  color: var(--v4-mu);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.v4-tr-meta {
+  font-size: 10px;
+  color: var(--v4-mu);
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.v4-tr-status {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Pertes */
+
+.v4-pe-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px 80px;
+}
+
+.v4-pe-item {
+  background: var(--v4-card);
+  border: 1px solid var(--v4-brd);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: box-shadow 0.15s;
+}
+
+.v4-pe-item:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+}
+
+.v4-pe-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.v4-pe-motif {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  margin-top: 3px;
+  display: inline-block;
+}
+
+.v4-pe-qty {
+  font-family: var(--v4-fm);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--v4-r);
+  flex-shrink: 0;
+}
+
 /* ─── Loading skeleton ────────────────────────────────── */
 
 .v4-skeleton {
