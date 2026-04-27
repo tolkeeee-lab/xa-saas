@@ -139,9 +139,15 @@ export default function StockV4({ boutiques }: StockV4Props) {
             onRefresh={reload}
           />
         )}
-        {activeTab === 'inventaires' && <InventairesTab />}
-        {activeTab === 'transferts' && <TransfertsTab />}
-        {activeTab === 'pertes' && <PertesTab />}
+        {activeTab === 'inventaires' && (
+          <InventairesTab boutiques={boutiques} boutiqueActive={boutiqueActive} />
+        )}
+        {activeTab === 'transferts' && (
+          <TransfertsTab boutiques={boutiques} boutiqueActive={boutiqueActive} />
+        )}
+        {activeTab === 'pertes' && (
+          <PertesTab boutiques={boutiques} boutiqueActive={boutiqueActive} />
+        )}
       </div>
 
       {/* Entry/exit modal */}
