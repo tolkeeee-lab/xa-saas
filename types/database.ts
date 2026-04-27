@@ -499,6 +499,22 @@ export type MouvementStock = {
   created_at: string;
 };
 
+export type ProduitsDemandes = {
+  id: string;
+  boutique_id: string;
+  nom_produit: string;
+  nb_demandes: number;
+  categorie: string | null;
+  prix_indicatif: number | null;
+  client_nom: string | null;
+  note: string | null;
+  statut: 'en_attente' | 'resolu' | 'rejete';
+  created_at: string;
+  updated_at: string;
+  resolved_at: string | null;
+  resolved_by: string | null;
+};
+
 // All MAFRO v4 boutique columns are nullable / have DB defaults — keep them optional on Insert
 type BoutiqueOptionalKeys =
   | 'id'
@@ -766,6 +782,13 @@ export type Database = {
         Insert: Omit<AuditLog, 'id' | 'created_at'> &
           Partial<Pick<AuditLog, 'id' | 'created_at' | 'target_table' | 'target_id' | 'metadata'>>;
         Update: Partial<Omit<AuditLog, 'id'>>;
+        Relationships: [];
+      };
+      produits_demandes: {
+        Row: ProduitsDemandes;
+        Insert: Omit<ProduitsDemandes, 'id' | 'created_at' | 'updated_at' | 'nb_demandes' | 'resolved_at' | 'resolved_by' | 'statut'> &
+          Partial<Pick<ProduitsDemandes, 'id' | 'created_at' | 'updated_at' | 'nb_demandes' | 'resolved_at' | 'resolved_by' | 'statut' | 'categorie' | 'prix_indicatif' | 'client_nom' | 'note'>>;
+        Update: Partial<Omit<ProduitsDemandes, 'id'>>;
         Relationships: [];
       };
     };

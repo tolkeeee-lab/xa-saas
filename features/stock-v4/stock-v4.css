@@ -1398,6 +1398,142 @@
 /* ─── Tab badges ──────────────────────────────────────── */
 /* (variants already added in main tab badge block above) */
 
+/* ─── Demandes tab ────────────────────────────────────── */
+
+.v4-dem-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px 80px;
+}
+
+.v4-dem-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.v4-dem-item {
+  background: var(--v4-card);
+  border: 1px solid var(--v4-brd);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  transition: box-shadow 0.15s;
+}
+
+.v4-dem-item:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+}
+
+.v4-dem-em {
+  font-size: 22px;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.v4-dem-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.v4-dem-nm {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--v4-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.v4-dem-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  font-size: 10px;
+  color: var(--v4-mu);
+  flex-wrap: wrap;
+}
+
+.v4-dem-note {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--v4-mu2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.v4-dem-count-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 700;
+  background: var(--v4-al);
+  color: #7B5800;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.v4-dem-actions {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.v4-dem-btn-resolve,
+.v4-dem-btn-delete {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1.5px solid var(--v4-brd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.v4-dem-btn-resolve {
+  background: var(--v4-gl);
+  color: var(--v4-gd);
+  border-color: rgba(0, 200, 83, 0.2);
+}
+
+.v4-dem-btn-resolve:hover:not(:disabled) {
+  background: var(--v4-g);
+  color: white;
+  border-color: var(--v4-g);
+}
+
+.v4-dem-btn-delete {
+  background: var(--v4-surf);
+  color: var(--v4-mu);
+}
+
+.v4-dem-btn-delete:hover:not(:disabled) {
+  background: var(--v4-rl);
+  color: var(--v4-r);
+  border-color: rgba(211, 47, 47, 0.2);
+}
+
+.v4-dem-btn-resolve:disabled,
+.v4-dem-btn-delete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
 /* ─── Produit list item v2 ────────────────────────────── */
 
 .v4-pli {

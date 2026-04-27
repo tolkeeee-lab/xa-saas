@@ -1,6 +1,6 @@
 'use client';
 
-import { Eye, Bell, Clock, ClipboardList, ArrowLeftRight, Trash2 } from 'lucide-react';
+import { Eye, Bell, Clock, ClipboardList, ArrowLeftRight, Trash2, MessageSquarePlus } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { STOCK_TABS } from '../types';
 import type { StockTabId } from '../types';
@@ -10,6 +10,7 @@ interface StockTabBarProps {
   onChange: (id: StockTabId) => void;
   alerteBadge?: number;
   perimeBadge?: number;
+  demandesBadge?: number;
 }
 
 const TAB_ICONS: Record<StockTabId, LucideIcon> = {
@@ -19,9 +20,10 @@ const TAB_ICONS: Record<StockTabId, LucideIcon> = {
   inventaires: ClipboardList,
   transferts: ArrowLeftRight,
   pertes: Trash2,
+  demandes: MessageSquarePlus,
 };
 
-export default function StockTabBar({ active, onChange, alerteBadge, perimeBadge }: StockTabBarProps) {
+export default function StockTabBar({ active, onChange, alerteBadge, perimeBadge, demandesBadge }: StockTabBarProps) {
   return (
     <div className="v4-tab-bar" role="tablist" aria-label="Sections stock">
       {STOCK_TABS.map((tab) => {
@@ -29,6 +31,7 @@ export default function StockTabBar({ active, onChange, alerteBadge, perimeBadge
         const badge =
           tab.id === 'alertes' ? (alerteBadge ?? 0)
           : tab.id === 'perimes' ? (perimeBadge ?? 0)
+          : tab.id === 'demandes' ? (demandesBadge ?? 0)
           : 0;
         const badgeClass =
           tab.id === 'alertes' ? 'v4-tab-badge v4-tab-badge--red'

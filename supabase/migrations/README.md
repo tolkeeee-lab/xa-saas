@@ -41,6 +41,7 @@ Ce fichier documente l'historique des migrations et identifie les migrations pot
 | `20260426_mouvements_stock.sql` | Table `mouvements_stock` + trigger auto-update `produits.stock_actuel` + trigger caisse→mouvement | PR 2.2 |
 | `20260426_clients_crm_fields.sql` | Ajout champs CRM sur `clients` : `prenom`, `email`, `opt_in_whatsapp`, `credit_actuel`, `derniere_visite_at`, `note` + contrainte unique téléphone/proprio | PR 2.9 |
 | `20260426_admin_mafro_audit_log.sql` | Table `audit_log` — journal des actions admin MAFRO (validation commandes, dispatch livraisons, etc.) | PR 2.10 |
+| `20260427_produits_demandes.sql` | Table `produits_demandes` — produits demandés par les clients mais non vendus + RLS owner-scoped + trigger `updated_at` | PR feat(stock-v4): Demandes tab |
 
 ---
 
