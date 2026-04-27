@@ -1680,3 +1680,358 @@
   color: white;
 }
 
+
+/* ─── Nouveau produit modal ─────────────────────────────────────────────────── */
+
+.v4-np-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+@media (min-width: 600px) {
+  .v4-np-backdrop {
+    align-items: center;
+  }
+}
+
+.v4-np-modal {
+  background: var(--v4-card);
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 480px;
+  max-height: 92dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.18);
+}
+
+@media (min-width: 600px) {
+  .v4-np-modal {
+    border-radius: 16px;
+    max-height: 88dvh;
+  }
+}
+
+/* Header */
+.v4-np-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--v4-brd);
+  flex-shrink: 0;
+  background: var(--v4-card);
+}
+
+.v4-np-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--v4-ink);
+  font-family: var(--v4-f);
+}
+
+.v4-np-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--v4-surf);
+  border: 1px solid var(--v4-brd);
+  color: var(--v4-ink2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.v4-np-close:hover {
+  background: var(--v4-brd);
+}
+
+/* Scrollable body */
+.v4-np-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Section cards */
+.v4-np-section {
+  background: var(--v4-bg);
+  border: 1px solid var(--v4-brd);
+  border-radius: 12px;
+  padding: 14px 14px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.v4-np-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--v4-ink2);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--v4-brd);
+  margin-bottom: 2px;
+}
+
+/* Fields */
+.v4-np-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.v4-np-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--v4-ink2);
+  letter-spacing: 0.2px;
+}
+
+.v4-np-input {
+  width: 100%;
+  height: 38px;
+  border-radius: 9px;
+  border: 1.5px solid var(--v4-brd);
+  background: var(--v4-card);
+  color: var(--v4-ink);
+  font-size: 14px;
+  padding: 0 12px;
+  font-family: var(--v4-f);
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.v4-np-input:focus {
+  border-color: var(--v4-g);
+}
+
+select.v4-np-input {
+  appearance: none;
+  cursor: pointer;
+}
+
+.v4-np-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.v4-np-suffix {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--v4-mu);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.v4-np-scan-btn,
+.v4-np-photo-btn {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--v4-brd);
+  background: var(--v4-surf);
+  color: var(--v4-mu);
+  font-size: 12px;
+  cursor: not-allowed;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Radio pills */
+.v4-np-radio-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.v4-np-radio-pill {
+  flex: 1;
+  height: 36px;
+  border-radius: 10px;
+  border: 1.5px solid var(--v4-brd);
+  background: var(--v4-surf);
+  color: var(--v4-ink2);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--v4-f);
+}
+
+.v4-np-radio-pill--active {
+  border-color: var(--v4-g);
+  background: var(--v4-gl);
+  color: var(--v4-gd);
+  font-weight: 700;
+}
+
+/* Quantity presets */
+.v4-np-presets {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.v4-np-preset-pill {
+  min-width: 40px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--v4-brd);
+  background: var(--v4-surf);
+  color: var(--v4-ink2);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--v4-fm);
+}
+
+.v4-np-preset-pill--active {
+  border-color: var(--v4-g);
+  background: var(--v4-gl);
+  color: var(--v4-gd);
+}
+
+/* Calculation card */
+.v4-np-calc-card {
+  background: var(--v4-gl);
+  border: 1px solid var(--v4-g);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.v4-np-calc-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--v4-gd);
+}
+
+.v4-np-calc-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--v4-gd);
+  font-family: var(--v4-fm);
+}
+
+.v4-np-calc-detail {
+  font-size: 11px;
+  color: var(--v4-gd);
+  opacity: 0.7;
+}
+
+/* Margin card */
+.v4-np-margin-card {
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.v4-np-margin-card--ok {
+  background: var(--v4-gl);
+  border: 1px solid var(--v4-g);
+  color: var(--v4-gd);
+}
+
+.v4-np-margin-card--warn {
+  background: var(--v4-al);
+  border: 1px solid var(--v4-a);
+  color: #92400e;
+}
+
+.v4-np-margin-card--bad {
+  background: var(--v4-rl);
+  border: 1px solid var(--v4-r);
+  color: var(--v4-r);
+}
+
+.v4-np-margin-card--neg {
+  background: #fee2e2;
+  border: 1px solid #ef4444;
+  color: #991b1b;
+}
+
+.v4-np-margin-main {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.v4-np-margin-warn {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.v4-np-margin-secondary {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+/* Stock helper */
+.v4-np-stock-helper {
+  font-size: 11px;
+  color: var(--v4-mu);
+  font-style: italic;
+}
+
+/* Error */
+.v4-np-error {
+  background: var(--v4-rl);
+  border: 1px solid var(--v4-r);
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--v4-r);
+  font-weight: 500;
+}
+
+/* Footer */
+.v4-np-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--v4-brd);
+  flex-shrink: 0;
+  background: var(--v4-card);
+}
+
+.v4-np-submit {
+  width: 100%;
+  height: 46px;
+  border-radius: 13px;
+  background: var(--v4-g);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  font-family: var(--v4-f);
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.v4-np-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.v4-np-submit:not(:disabled):hover {
+  background: var(--v4-gd);
+}

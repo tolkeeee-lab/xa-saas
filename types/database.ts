@@ -71,6 +71,12 @@ export type Produit = {
   unite: string;
   actif: boolean;
   date_peremption: string | null;
+  // Conditionnement / lot fields (migration 20260427_produits_conditionnement)
+  mode_achat: 'unite' | 'lot';
+  qty_par_lot: number | null;
+  prix_lot_achat: number | null;
+  lot_label: string | null;
+  unite_label: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -557,6 +563,20 @@ type MouvementStockOptionalKeys =
   | 'reference_type'
   | 'created_by';
 
+// Produits — colonnes optionnelles à l'INSERT (defaults DB ou nullable)
+// Inclut les nouveaux champs conditionnement (migration 20260427_produits_conditionnement)
+type ProduitOptionalKeys =
+  | 'id'
+  | 'created_at'
+  | 'updated_at'
+  | 'categorie'
+  | 'date_peremption'
+  | 'mode_achat'
+  | 'qty_par_lot'
+  | 'prix_lot_achat'
+  | 'lot_label'
+  | 'unite_label';
+
 export type Database = {
   public: {
     Tables: {
@@ -583,8 +603,8 @@ export type Database = {
       };
       produits: {
         Row: Produit;
-        Insert: Omit<Produit, 'id' | 'created_at' | 'updated_at' | 'categorie' | 'date_peremption'> &
-          Partial<Pick<Produit, 'id' | 'created_at' | 'updated_at' | 'categorie' | 'date_peremption'>>;
+        Insert: Omit<Produit, ProduitOptionalKeys> &
+          Partial<Pick<Produit, ProduitOptionalKeys>>;
         Update: Partial<Omit<Produit, 'id'>>;
         Relationships: [];
       };
@@ -661,7 +681,7 @@ export type Database = {
       clients: {
         Row: Client;
         Insert: Omit<Client, 'id' | 'created_at' | 'updated_at' | 'points' | 'total_achats' | 'nb_visites' | 'actif' | 'credit_actuel' | 'opt_in_whatsapp'> &
-          Partial<Pick<Client, 'id' | 'created_at' | 'updated_at' | 'points' | 'total_achats' | 'nb_visites' | 'actif' | 'credit_actuel' | 'opt_in_whatsapp' | 'prenom' | 'email' | 'derniere_visite_at' | 'note'>>;
+          Partial<Pick<Client, 'id' | 'created_at' | 'updated_at' | 'points' | 'total_achats' | 'nb_visites' | 'actif' | 'credit_actuel' | 'opt_in_whatsapp' | 'prenom' | 'email' | 'derniere_visite_at' | 'note' | 'telephone'>>;
         Update: Partial<Omit<Client, 'id'>>;
         Relationships: [];
       };
@@ -674,8 +694,8 @@ export type Database = {
       };
       inventaires: {
         Row: Inventaire;
-        Insert: Omit<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut' | 'created_by' | 'note' | 'categorie'> &
-          Partial<Pick<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut' | 'created_by' | 'note' | 'categorie'>>;
+        Insert: Omit<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut'> &
+          Partial<Pick<Inventaire, 'id' | 'created_at' | 'updated_at' | 'nb_produits' | 'nb_ecarts_negatifs' | 'nb_ecarts_positifs' | 'valeur_ecart_total' | 'validated_at' | 'started_at' | 'statut' | 'categorie' | 'note' | 'created_by'>>;
         Update: Partial<Omit<Inventaire, 'id'>>;
         Relationships: [];
       };

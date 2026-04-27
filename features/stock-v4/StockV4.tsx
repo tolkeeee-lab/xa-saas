@@ -14,6 +14,7 @@ import TransfertsTab from './components/tabs/TransfertsTab';
 import PertesTab from './components/tabs/PertesTab';
 import DemandesTab from './components/tabs/DemandesTab';
 import EntreeStockModal from './components/EntreeStockModal';
+import NouveauProduitModal from './components/NouveauProduitModal';
 import './stock-v4.css';
 
 const BOUTIQUE_STORAGE_KEY = 'xa-stock-boutique-active';
@@ -114,6 +115,7 @@ export default function StockV4({ boutiques }: StockV4Props) {
 
   // ── Modal ─────────────────────────────────────────────────────────────────────
   const [modal, setModal] = useState<ModalState>(null);
+  const [nouveauProduitOpen, setNouveauProduitOpen] = useState(false);
 
   function handleModalSuccess(newStock: number) {
     if (modal?.type === 'entree') {
@@ -129,6 +131,7 @@ export default function StockV4({ boutiques }: StockV4Props) {
         boutiques={boutiques}
         boutiqueActive={boutiqueActive}
         onBoutiqueChange={handleBoutiqueChange}
+        onNouveauProduit={() => setNouveauProduitOpen(true)}
       />
 
       {/* Sync bar */}
@@ -217,6 +220,18 @@ export default function StockV4({ boutiques }: StockV4Props) {
           boutiqueId={modal.boutiqueId}
           onClose={() => setModal(null)}
           onSuccess={handleModalSuccess}
+        />
+      )}
+
+      {/* New product modal */}
+      {nouveauProduitOpen && (
+        <NouveauProduitModal
+          boutiqueId={activeBoutiqueId}
+          onClose={() => setNouveauProduitOpen(false)}
+          onSuccess={() => {
+            setNouveauProduitOpen(false);
+            void reload();
+          }}
         />
       )}
     </div>
