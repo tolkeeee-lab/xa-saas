@@ -24,8 +24,9 @@ export function suggestLotLabel(categorie: string): string {
 
 export function suggestUniteLabel(lotLabel: string, categorie: string): string {
   const c = (categorie || '').toLowerCase();
-  if (c.includes('boisson')) return 'bouteille';
-  if (c.includes('huile')) return 'litre';
+  const l = (lotLabel || '').toLowerCase();
+  if (c.includes('boisson') || l.includes('pack') || l.includes('caisse')) return 'bouteille';
+  if (c.includes('huile') || l.includes('bidon')) return 'litre';
   return 'pièce';
 }
 

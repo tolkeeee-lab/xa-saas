@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
       prix_vente,
       stock_actuel: stock_actuel ?? 0,
       seuil_alerte: seuil_alerte ?? 5,
-      unite: unite ?? unite_label ?? 'unité',
+      unite: unite ?? unite_label ?? 'unité', // unite_label used as fallback when unite not explicitly set
       actif: true,
       mode_achat: effectiveModeAchat,
       qty_par_lot: qty_par_lot ?? null,

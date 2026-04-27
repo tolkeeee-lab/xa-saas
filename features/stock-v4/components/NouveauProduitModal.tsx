@@ -153,7 +153,13 @@ export default function NouveauProduitModal({
 
       const json = await res.json() as { error?: string };
       if (!res.ok) {
-        setError(json.error ?? 'Erreur lors de la création');
+        if (res.status === 400) {
+          setError(json.error ?? 'Données invalides — vérifiez les champs');
+        } else if (res.status === 401 || res.status === 403) {
+          setError('Session expirée — veuillez vous reconnecter');
+        } else {
+          setError(json.error ?? `Erreur serveur (${res.status}) — réessayez`);
+        }
         return;
       }
 
