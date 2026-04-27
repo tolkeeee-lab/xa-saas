@@ -163,7 +163,7 @@ export default function CategoryFormModal({ cat, onClose, onSaved }: CategoryFor
                   aria-pressed={couleur === c}
                 >
                   {couleur === c && (
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none">
                       <path d="M2 7l3.5 3.5L12 3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   )}

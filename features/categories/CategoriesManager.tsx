@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Tag, Plus, Pencil, Trash2, X } from 'lucide-react';
 import type { CategorieProduit } from '@/types/database';
 import CategoryFormModal from './CategoryFormModal';
@@ -100,14 +100,26 @@ export default function CategoriesManager() {
 
   // Toasts
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const toastTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
+
+  useEffect(() => {
+    const timers = toastTimers.current;
+    return () => { timers.forEach((t) => clearTimeout(t)); };
+  }, []);
 
   function showToast(message: string, type: 'success' | 'error') {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3000);
+    const timer = setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+      toastTimers.current.delete(id);
+    }, 3000);
+    toastTimers.current.set(id, timer);
   }
 
   function removeToast(id: number) {
+    const timer = toastTimers.current.get(id);
+    if (timer) { clearTimeout(timer); toastTimers.current.delete(id); }
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }
 
@@ -223,8 +235,8 @@ export default function CategoriesManager() {
           </ul>
         )}
 
-        {/* Sticky add button */}
-        <div className="mt-4 sticky bottom-0 pb-1">
+        {/* Add button */}
+        <div className="mt-4">
           <button
             type="button"
             onClick={() => setFormTarget(null)}
