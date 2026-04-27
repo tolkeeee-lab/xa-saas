@@ -1,47 +1,2032 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mockup — Caisse v4</title>
-  <!--
-    🎯 MOCKUP CAISSE v4
-    ====================
-    Ce fichier est le mockup de référence visuelle pour le rebuild de la page
-    /dashboard/caisse (features/caisse/v4/CaisseV4).
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>MAFRO — Caisse Rapide</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   RESET & VARIABLES
+═══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-    👉 INSTRUCTIONS POUR L'UTILISATEUR :
-    - Remplace tout le contenu de ce fichier par ton mockup HTML/CSS complet.
-    - Le coding agent l'utilisera comme référence stricte pour le rebuild.
-    - Si tu as du Tailwind inline : OK, tokens xa-* préférés mais pas obligatoires dans le mockup.
+:root {
+  --g:    #00C853;
+  --gd:   #007A32;
+  --gl:   #E8F5E9;
+  --r:    #FF3D00;
+  --rl:   #FBE9E7;
+  --a:    #FFB300;
+  --al:   #FFF8E1;
+  --b:    #1565C0;
+  --bl:   #E3F2FD;
+  --ink:  #0F0F1A;
+  --ink2: #1E1E32;
+  --mu:   #6B7280;
+  --mu2:  #9CA3AF;
+  --brd:  #E5E7EB;
+  --surf: #F8FAFC;
+  --white:#FFFFFF;
+  --wa:   #25D366;
+  --wad:  #075E54;
+  --f:    'Sora', sans-serif;
+  --fm:   'JetBrains Mono', monospace;
+  --nav:  68px;
+  --header: 54px;
+  --search-h: 52px;
+  --cat-h: 44px;
+  --footer-h: 140px;
+}
 
-    👉 INSTRUCTIONS POUR LE CODING AGENT :
-    - Reproduire fidèlement le design de ce mockup dans le composant React.
-    - Adapter les classes pour utiliser les tokens du design system (--xa-*).
-    - Conserver la logique métier existante (encaissement, panier, paiement, ticket).
-  -->
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      padding: 2rem;
-      background: #f5f5f5;
-    }
-    .placeholder {
-      max-width: 600px;
-      margin: 4rem auto;
-      padding: 2rem;
-      background: #fff;
-      border: 2px dashed #ccc;
-      border-radius: 8px;
-      text-align: center;
-      color: #666;
-    }
-  </style>
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: #0F0F1A;
+}
+
+body {
+  font-family: var(--f);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ═══════════════════════════════════════
+   PHONE SHELL
+═══════════════════════════════════════ */
+.shell {
+  width: 390px;
+  height: 844px;
+  background: var(--white);
+  border-radius: 44px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow:
+    0 0 0 10px #1A1A2E,
+    0 0 0 12px #2D2D48,
+    0 0 80px rgba(0,200,83,.15),
+    0 40px 120px rgba(0,0,0,.8);
+}
+
+/* Notch */
+.shell::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 126px; height: 34px;
+  background: #0F0F1A;
+  border-radius: 0 0 20px 20px;
+  z-index: 100;
+}
+
+/* Status bar */
+.status-bar {
+  height: 44px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 28px 6px;
+  flex-shrink: 0;
+  background: var(--white);
+}
+.status-time { font-size: 12px; font-weight: 600; color: var(--ink); letter-spacing: -.3px; }
+.status-icons { display: flex; align-items: center; gap: 5px; }
+.status-icons svg { width: 14px; height: 14px; }
+
+/* ═══════════════════════════════════════
+   HEADER
+═══════════════════════════════════════ */
+.header {
+  height: var(--header);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--brd);
+  flex-shrink: 0;
+  background: var(--white);
+  position: relative;
+  z-index: 10;
+}
+
+.logo {
+  background: var(--ink);
+  color: var(--white);
+  font-size: 10px;
+  font-weight: 900;
+  padding: 4px 8px;
+  border-radius: 7px;
+  letter-spacing: 2px;
+  flex-shrink: 0;
+}
+
+.header-info { flex: 1; min-width: 0; }
+.header-info h1 { font-size: 13px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+.header-info p { font-size: 10px; color: var(--mu); margin-top: 1px; }
+
+.header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+.hbtn {
+  width: 32px; height: 32px; border-radius: 10px;
+  background: var(--surf);
+  border: 1px solid var(--brd);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  transition: background .15s;
+}
+.hbtn:hover { background: var(--brd); }
+.hbtn svg { width: 15px; height: 15px; stroke: var(--ink); fill: none; stroke-width: 1.8; }
+
+/* Boutique switcher */
+.bswitch {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.bswitch-btn {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--surf); border: 1px solid var(--brd);
+  border-radius: 8px; padding: 5px 8px;
+  cursor: pointer; transition: background .15s;
+}
+.bswitch-btn:hover { background: var(--gl); border-color: var(--g); }
+
+.bdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.bswitch-name { font-family: var(--f); font-size: 9px; font-weight: 700; color: var(--ink); max-width: 80px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bswitch-arr { font-size: 8px; color: var(--mu); transition: transform .2s; }
+.bswitch-arr.open { transform: rotate(180deg); }
+
+.bdrop {
+  display: none;
+  position: absolute;
+  right: 0; top: calc(100% + 6px);
+  background: var(--white);
+  border: 1px solid var(--brd);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.14);
+  z-index: 200;
+  min-width: 200px;
+  overflow: hidden;
+}
+.bdrop.open { display: block; }
+
+.bopt {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px; cursor: pointer;
+  border-bottom: 1px solid var(--brd);
+  transition: background .15s;
+}
+.bopt:last-child { border-bottom: none; }
+.bopt:hover, .bopt.sel { background: var(--gl); }
+
+.bopt-info { flex: 1; }
+.bopt-nm { font-size: 11px; font-weight: 700; color: var(--ink); }
+.bopt-sub { font-size: 9px; color: var(--mu); margin-top: 1px; }
+.bopt-tag { font-size: 8px; font-weight: 700; padding: 2px 7px; border-radius: 6px; }
+.tg { background: var(--gl); color: var(--gd); }
+.ta { background: var(--al); color: #7B5800; }
+.tb { background: var(--bl); color: var(--b); }
+.tr { background: var(--rl); color: var(--r); }
+
+/* ═══════════════════════════════════════
+   SYNC + RETRAIT BARS
+═══════════════════════════════════════ */
+.sync-bar {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 18px;
+  background: var(--gl);
+  border-bottom: 1px solid rgba(0,200,83,.12);
+  flex-shrink: 0;
+}
+.sync-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--g);
+  animation: pulse 2s infinite;
+}
+.sync-dot.off { background: var(--a); animation: none; }
+@keyframes pulse { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:.5; transform:scale(.8); } }
+.sync-bar span { font-size: 10px; font-weight: 600; color: var(--gd); }
+.sync-bar .st { margin-left: auto; font-size: 10px; color: var(--mu); }
+
+/* Retrait code bar */
+.retrait-bar {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 10px;
+  background: var(--bl);
+  border-bottom: 1px solid rgba(21,101,192,.15);
+  flex-shrink: 0;
+}
+.retrait-bar-top { display: none; }
+.retrait-bar-icon {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: var(--b); display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.retrait-bar-icon svg { width: 13px; height: 13px; stroke: white; fill: none; stroke-width: 2; }
+.retrait-bar-lbl { display: none; }
+.retrait-codes-hint { font-size: 9px; color: var(--mu); white-space: nowrap; flex-shrink: 0; }
+.retrait-codes-hint b { color: var(--b); font-family: var(--fm); cursor: pointer; }
+.retrait-bar-row { display: contents; }
+.retrait-input {
+  width: 90px; flex-shrink: 0;
+  background: white; border: 2px solid var(--b);
+  border-radius: 8px; padding: 6px 6px;
+  font-family: var(--fm); font-size: 18px; font-weight: 700;
+  letter-spacing: 6px; color: var(--ink); outline: none; text-align: center;
+}
+.retrait-input::placeholder { letter-spacing: 1px; font-size: 10px; color: var(--mu2); font-weight: 400; }
+.retrait-validate {
+  background: var(--b); color: white; border: none;
+  border-radius: 8px; padding: 8px 12px;
+  font-family: var(--f); font-size: 11px; font-weight: 700; cursor: pointer;
+  white-space: nowrap; flex-shrink: 0;
+  transition: background .15s;
+}
+.retrait-validate:hover { background: var(--ink); }
+
+.retrait-result {
+  display: none;
+  align-items: center; gap: 6px;
+  padding: 7px 14px;
+  font-size: 10px; font-weight: 600;
+  border-bottom: 1px solid transparent;
+}
+.retrait-result.ok { display: flex; background: var(--gl); border-color: rgba(0,200,83,.15); color: var(--gd); }
+.retrait-result.err { display: flex; background: var(--rl); border-color: rgba(255,61,0,.15); color: var(--r); }
+
+/* ═══════════════════════════════════════
+   SEARCH
+═══════════════════════════════════════ */
+.search-wrap {
+  padding: 9px 14px 7px;
+  border-bottom: 1px solid var(--brd);
+  flex-shrink: 0;
+  background: var(--white);
+}
+.search-inner {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surf); border: 1.5px solid var(--brd);
+  border-radius: 11px; padding: 8px 12px;
+  transition: border-color .2s;
+}
+.search-inner:focus-within { border-color: var(--g); background: var(--gl); }
+.search-inner svg { width: 14px; height: 14px; stroke: var(--mu); fill: none; stroke-width: 2; flex-shrink: 0; }
+.search-inner input {
+  flex: 1; background: none; border: none; outline: none;
+  font-family: var(--f); font-size: 12px; color: var(--ink);
+}
+.search-inner input::placeholder { color: var(--mu2); }
+
+.scan-btn {
+  background: var(--ink); color: white; border: none;
+  border-radius: 7px; padding: 5px 9px;
+  font-family: var(--f); font-size: 9px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; gap: 4px;
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.scan-btn:hover { background: var(--ink2); }
+.scan-btn svg { width: 11px; height: 11px; stroke: white; fill: none; stroke-width: 2; }
+
+/* ═══════════════════════════════════════
+   CATEGORIES
+═══════════════════════════════════════ */
+.cat-row {
+  display: flex; gap: 6px;
+  padding: 7px 14px;
+  overflow-x: auto; scrollbar-width: none;
+  border-bottom: 1px solid var(--brd);
+  flex-shrink: 0;
+  background: var(--white);
+}
+.cat-row::-webkit-scrollbar { display: none; }
+
+.cat-chip {
+  flex-shrink: 0; font-size: 9px; font-weight: 700;
+  padding: 5px 12px; border-radius: 20px;
+  border: 1.5px solid var(--brd);
+  background: var(--white); color: var(--mu);
+  cursor: pointer; transition: all .15s;
+  white-space: nowrap;
+}
+.cat-chip:hover { border-color: var(--g); color: var(--gd); }
+.cat-chip.on { background: var(--ink); color: white; border-color: var(--ink); }
+
+/* ═══════════════════════════════════════
+   PRODUCT GRID
+═══════════════════════════════════════ */
+.grid-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--brd) transparent;
+  padding: 10px 14px 6px;
+  background: var(--surf);
+}
+.grid-scroll::-webkit-scrollbar { width: 3px; }
+.grid-scroll::-webkit-scrollbar-thumb { background: var(--brd); border-radius: 10px; }
+
+.pgrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.pc {
+  background: var(--white); border-radius: 14px;
+  padding: 11px 8px 9px; text-align: center;
+  border: 2px solid transparent;
+  cursor: pointer; position: relative;
+  transition: all .15s;
+  user-select: none;
+}
+.pc:hover { background: var(--gl); border-color: rgba(0,200,83,.3); }
+.pc.sel { background: var(--gl); border-color: var(--g); }
+.pc.out { opacity: .4; pointer-events: none; }
+
+.pc.sel::after {
+  content: '✓';
+  position: absolute; top: 5px; right: 7px;
+  font-size: 9px; color: var(--gd); font-weight: 700;
+}
+
+.pc-em { font-size: 28px; display: block; line-height: 1; }
+.pc-nm {
+  font-size: 9px; font-weight: 700; color: var(--ink2);
+  margin-top: 5px; line-height: 1.3;
+}
+.pc-pr { font-size: 9px; color: var(--gd); font-weight: 600; margin-top: 2px; }
+.pc-stock { font-size: 8px; color: var(--mu2); margin-top: 1px; }
+.pc-qty {
+  display: none;
+  position: absolute; bottom: 6px; right: 7px;
+  background: var(--g); color: white;
+  font-size: 9px; font-weight: 700;
+  width: 18px; height: 18px; border-radius: 50%;
+  align-items: center; justify-content: center;
+}
+.pc.sel .pc-qty { display: flex; }
+
+.badge {
+  position: absolute; top: 5px; left: 5px;
+  font-size: 7px; font-weight: 700; padding: 2px 5px; border-radius: 5px;
+}
+.badge-out { background: var(--ink); color: white; }
+.badge-low { background: var(--r); color: white; }
+.badge-promo { background: var(--a); color: var(--ink); }
+
+/* Panier résumé inline */
+.panier-strip {
+  background: var(--ink);
+  padding: 8px 14px;
+  display: none;
+  align-items: center; gap: 8px;
+  flex-shrink: 0;
+}
+.panier-strip.show { display: flex; }
+.panier-strip-items {
+  flex: 1; display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none;
+}
+.panier-strip-items::-webkit-scrollbar { display: none; }
+.panier-pill {
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(255,255,255,.1); border-radius: 20px;
+  padding: 4px 8px; white-space: nowrap;
+  font-size: 9px; color: rgba(255,255,255,.8);
+  cursor: pointer; flex-shrink: 0;
+  transition: background .15s;
+}
+.panier-pill:hover { background: rgba(255,255,255,.2); }
+.panier-pill span { font-weight: 700; color: white; }
+.panier-clear {
+  background: none; border: none; color: rgba(255,255,255,.4);
+  cursor: pointer; font-size: 11px; flex-shrink: 0;
+  padding: 0 4px;
+  transition: color .15s;
+}
+.panier-clear:hover { color: var(--r); }
+
+/* ═══════════════════════════════════════
+   FOOTER CAISSE
+═══════════════════════════════════════ */
+.caisse-foot {
+  background: var(--white);
+  border-top: 1px solid var(--brd);
+  flex-shrink: 0;
+  padding: 10px 14px 0;
+}
+
+.remise-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 8px;
+}
+.remise-lbl { font-size: 10px; font-weight: 600; color: var(--mu); flex: 1; }
+.remise-input {
+  width: 64px; background: var(--surf); border: 1.5px solid var(--brd);
+  border-radius: 8px; padding: 5px 8px;
+  font-family: var(--f); font-size: 12px; font-weight: 700;
+  color: var(--ink); text-align: center; outline: none;
+  transition: border-color .2s;
+}
+.remise-input:focus { border-color: var(--a); }
+.remise-pct { font-size: 11px; color: var(--mu); font-weight: 600; }
+.remise-applied {
+  font-size: 9px; font-weight: 700; color: var(--gd);
+  padding: 2px 8px; background: var(--gl); border-radius: 20px;
+  display: none;
+}
+.remise-applied.show { display: block; }
+
+.total-area {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 9px;
+}
+.total-area-left {}
+.total-lbl { font-size: 10px; color: var(--mu); }
+.total-sub {
+  font-size: 10px; color: var(--mu2); text-decoration: line-through;
+  display: none; margin-top: 1px;
+}
+.total-sub.show { display: block; }
+.total-val {
+  font-size: 26px; font-weight: 800; color: var(--ink);
+  letter-spacing: -1px; line-height: 1;
+  transition: all .2s;
+}
+.total-val.zero { color: var(--mu2); }
+.total-count {
+  font-size: 10px; color: var(--mu); margin-top: 2px;
+}
+
+.action-btns {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  margin-bottom: 9px;
+}
+
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  border: none; border-radius: 12px; padding: 13px;
+  font-family: var(--f); font-size: 13px; font-weight: 700;
+  cursor: pointer; width: 100%;
+  transition: all .15s;
+}
+.btn:active { transform: scale(.97); }
+
+.btn-g {
+  background: var(--g); color: white;
+  box-shadow: 0 4px 14px rgba(0,200,83,.28);
+}
+.btn-g:hover { background: var(--gd); }
+.btn-g:disabled { background: var(--brd); color: var(--mu); box-shadow: none; cursor: not-allowed; transform: none; }
+
+.btn-ah {
+  background: var(--al); color: #7B5800;
+  border: 1.5px solid var(--a);
+}
+.btn-ah:hover { background: var(--a); color: white; }
+
+.bottom-actions {
+  display: flex; gap: 8px;
+  padding-bottom: 12px;
+}
+
+.btn-sm {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+  border-radius: 10px; padding: 9px;
+  font-family: var(--f); font-size: 10px; font-weight: 700;
+  cursor: pointer; transition: all .15s; border: 1.5px solid var(--brd);
+  background: var(--white); color: var(--ink);
+}
+.btn-sm:hover { background: var(--surf); }
+.btn-sm:active { transform: scale(.97); }
+.btn-sm svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+.btn-wa-sm {
+  background: var(--wad); color: white; border-color: var(--wad);
+}
+.btn-wa-sm:hover { background: #064e45; }
+
+/* ═══════════════════════════════════════
+   BOTTOM NAV
+═══════════════════════════════════════ */
+.bnav {
+  height: var(--nav);
+  display: flex;
+  border-top: 1px solid var(--brd);
+  background: var(--white);
+  flex-shrink: 0;
+}
+
+.bni {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px; cursor: pointer; position: relative;
+  transition: background .15s;
+}
+.bni:hover { background: var(--surf); }
+.bni svg { width: 20px; height: 20px; stroke: var(--mu2); fill: none; stroke-width: 1.6; }
+.bni span { font-size: 8.5px; font-weight: 600; color: var(--mu); }
+.bni.on svg { stroke: var(--ink); }
+.bni.on span { color: var(--ink); font-weight: 700; }
+.bni.on::after {
+  content: ''; position: absolute;
+  bottom: 0; left: 20%; right: 20%;
+  height: 3px; background: var(--g); border-radius: 3px 3px 0 0;
+}
+
+/* Badge notif */
+.bni-badge {
+  position: absolute; top: 10px; right: calc(50% - 14px);
+  background: var(--r); color: white;
+  font-size: 8px; font-weight: 700;
+  width: 14px; height: 14px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid white;
+}
+
+/* ═══════════════════════════════════════
+   MODAL REÇU
+═══════════════════════════════════════ */
+.modal-overlay {
+  display: none; position: absolute; inset: 0;
+  background: rgba(0,0,0,.55); z-index: 300;
+  align-items: flex-end; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal-sheet {
+  background: var(--white);
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  padding: 0 0 20px;
+  max-height: 90%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  animation: slideUp .3s cubic-bezier(.34,1.36,.64,1);
+}
+.modal-sheet::-webkit-scrollbar { display: none; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.modal-handle {
+  width: 36px; height: 4px; background: var(--brd);
+  border-radius: 10px; margin: 12px auto 0;
+}
+
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px 12px;
+}
+.modal-title { font-size: 15px; font-weight: 700; color: var(--ink); }
+.modal-close {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--surf); border: 1px solid var(--brd);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 13px; color: var(--mu);
+}
+
+/* Ticket thermique */
+.ticket {
+  background: white;
+  border-top: 2px dashed var(--brd);
+  border-bottom: 2px dashed var(--brd);
+  padding: 18px 20px;
+  font-family: var(--fm);
+  margin: 0 0 14px;
+}
+
+.ticket-hd { text-align: center; margin-bottom: 14px; }
+.ticket-logo { font-family: var(--f); font-size: 18px; font-weight: 900; color: var(--ink); letter-spacing: 2px; }
+.ticket-shop { font-family: var(--f); font-size: 11px; font-weight: 600; color: var(--ink2); margin-top: 2px; }
+.ticket-loc { font-size: 9px; color: var(--mu); margin-top: 1px; }
+
+.ticket-sep { border: none; border-top: 1px dashed var(--brd); margin: 10px 0; }
+
+.ticket-meta { font-size: 9px; color: var(--mu); line-height: 1.8; margin-bottom: 8px; }
+.ticket-meta strong { color: var(--ink); }
+
+.ticket-items { width: 100%; border-collapse: collapse; font-size: 10px; }
+.ticket-items th {
+  text-align: left; font-size: 8px; color: var(--mu);
+  font-weight: 600; padding-bottom: 6px;
+  border-bottom: 1px solid var(--brd);
+}
+.ticket-items td { padding: 5px 0; vertical-align: middle; }
+.ticket-items td:nth-child(2) { text-align: center; }
+.ticket-items td:nth-child(3) { text-align: right; }
+.ticket-items td:nth-child(4) { text-align: right; font-weight: 700; }
+
+.ticket-remise {
+  display: none; flex; justify-content: space-between;
+  font-size: 9px; color: var(--gd); font-weight: 600;
+  margin-top: 6px;
+}
+.ticket-remise.show { display: flex; }
+
+.ticket-total {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-top: 8px;
+}
+.ticket-total-lbl { font-family: var(--f); font-size: 11px; font-weight: 700; color: var(--ink); }
+.ticket-total-val { font-family: var(--f); font-size: 18px; font-weight: 800; color: var(--ink); }
+
+.ticket-footer { text-align: center; margin-top: 12px; }
+.ticket-footer p { font-size: 9px; color: var(--mu); font-family: var(--f); line-height: 1.6; }
+.ticket-footer .wa-cta {
+  font-family: var(--fm); font-size: 10px; font-weight: 600;
+  color: var(--wad); display: block; margin-top: 6px;
+}
+
+/* QR mini */
+.qr-mini {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
+  width: 56px; margin: 8px auto;
+}
+.qr-mini div { height: 7px; border-radius: 1px; }
+.qb { background: var(--ink); }
+.qw { background: transparent; }
+
+.modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 18px 10px; }
+
+.moda-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  border: none; border-radius: 12px; padding: 13px;
+  font-family: var(--f); font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all .15s;
+}
+.moda-btn:active { transform: scale(.97); }
+.moda-print { background: var(--surf); border: 1.5px solid var(--brd); color: var(--ink); }
+.moda-print:hover { background: var(--brd); }
+.moda-pdf { background: var(--bl); border: 1.5px solid var(--b); color: var(--b); }
+.moda-pdf:hover { background: var(--b); color: white; }
+.moda-wa { background: var(--wad); color: white; }
+.moda-wa:hover { background: #064e45; }
+
+.modal-wa-btn { margin: 0 18px; border: none; border-radius: 12px; padding: 14px; font-family: var(--f); font-size: 13px; font-weight: 700; cursor: pointer; width: calc(100% - 36px); background: var(--wad); color: white; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .15s; }
+.modal-wa-btn:hover { background: #064e45; }
+
+/* ═══════════════════════════════════════
+   MODAL RETRAIT
+═══════════════════════════════════════ */
+.ret-modal-sheet {
+  background: var(--white);
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  padding: 0 0 20px;
+  max-height: 92%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  animation: slideUp .3s cubic-bezier(.34,1.36,.64,1);
+}
+.ret-modal-sheet::-webkit-scrollbar { display: none; }
+
+/* Hero client */
+.ret-hero {
+  margin: 16px 18px 0;
+  background: var(--ink);
+  border-radius: 18px;
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.ret-hero::before {
+  content: '';
+  position: absolute; width: 140px; height: 140px; border-radius: 50%;
+  background: rgba(0,200,83,.08); top: -50px; right: -30px;
+}
+.ret-hero-top {
+  display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px;
+}
+.ret-avatar {
+  width: 44px; height: 44px; border-radius: 13px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f); font-size: 15px; font-weight: 700;
+  color: white; flex-shrink: 0;
+}
+.ret-client-info { flex: 1; }
+.ret-client-name { font-family: var(--f); font-size: 15px; font-weight: 700; color: white; }
+.ret-client-phone { font-family: var(--fm); font-size: 10px; color: rgba(255,255,255,.5); margin-top: 3px; }
+.ret-status-badge {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 10px; font-weight: 700;
+}
+.ret-status-paye   { background: rgba(0,200,83,.2); color: #69F0AE; }
+.ret-status-credit { background: rgba(255,179,0,.2); color: #FFD54F; }
+
+.ret-meta-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.ret-meta-item {
+  background: rgba(255,255,255,.06); border-radius: 10px; padding: 9px 11px;
+}
+.ret-meta-lbl { font-size: 8px; color: rgba(255,255,255,.4); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+.ret-meta-val { font-size: 11px; font-weight: 600; color: rgba(255,255,255,.85); }
+.ret-meta-val.expire { color: #FFD54F; }
+
+/* Liste produits retrait */
+.ret-products {
+  margin: 12px 18px 0;
+  background: var(--white);
+  border: 1px solid var(--brd);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.ret-products-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--surf);
+  border-bottom: 1px solid var(--brd);
+}
+.ret-products-title { font-size: 12px; font-weight: 700; color: var(--ink); }
+.ret-products-total { font-family: var(--fm); font-size: 12px; font-weight: 700; color: var(--gd); }
+
+.ret-prod-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--brd);
+}
+.ret-prod-row:last-child { border-bottom: none; }
+.ret-prod-em { font-size: 28px; flex-shrink: 0; }
+.ret-prod-info { flex: 1; }
+.ret-prod-nm { font-size: 13px; font-weight: 700; color: var(--ink); }
+.ret-prod-pr { font-size: 10px; color: var(--mu); margin-top: 2px; }
+.ret-prod-qty {
+  background: var(--gl); border-radius: 20px;
+  padding: 4px 12px; font-family: var(--f); font-size: 12px; font-weight: 700;
+  color: var(--gd);
+}
+.ret-prod-subtotal {
+  font-family: var(--fm); font-size: 13px; font-weight: 700; color: var(--ink);
+  text-align: right; min-width: 70px;
+}
+
+/* Total retrait */
+.ret-total-bar {
+  margin: 12px 18px 0;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--ink); border-radius: 14px; padding: 16px 18px;
+}
+.ret-total-lbl { font-size: 11px; color: rgba(255,255,255,.5); font-weight: 600; }
+.ret-total-val { font-family: var(--f); font-size: 24px; font-weight: 800; color: white; letter-spacing: -1px; }
+
+/* Boutons retrait */
+.ret-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 18px 0; }
+.ret-confirm-btn {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--g); color: white; border: none; border-radius: 14px;
+  padding: 15px; font-family: var(--f); font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all .15s;
+  box-shadow: 0 4px 16px rgba(0,200,83,.3);
+}
+.ret-confirm-btn:hover { background: var(--gd); }
+.ret-confirm-btn:active { transform: scale(.97); }
+.ret-confirm-btn:disabled {
+  background: var(--brd); color: var(--mu); box-shadow: none; cursor: not-allowed; transform: none;
+}
+
+/* État validé */
+.ret-validated {
+  display: none; flex-direction: column; align-items: center;
+  padding: 32px 18px; text-align: center;
+}
+.ret-validated.show { display: flex; }
+.ret-check {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--g); display: flex; align-items: center; justify-content: center;
+  font-size: 32px; margin-bottom: 16px;
+  animation: popIn .4s cubic-bezier(.34,1.56,.64,1);
+  box-shadow: 0 8px 24px rgba(0,200,83,.35);
+}
+.ret-validated h3 { font-size: 18px; font-weight: 800; color: var(--ink); margin-bottom: 6px; }
+.ret-validated p { font-size: 12px; color: var(--mu); line-height: 1.5; }
+
+/* ═══════════════════════════════════════
+   MODAL CRÉDIT PARTIEL
+═══════════════════════════════════════ */
+.credit-modal-overlay {
+  display: none; position: absolute; inset: 0;
+  background: rgba(0,0,0,.55); z-index: 350;
+  align-items: flex-end; justify-content: center;
+}
+.credit-modal-overlay.open { display: flex; }
+
+.credit-modal-sheet {
+  background: var(--white);
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  padding: 0 0 24px;
+  max-height: 92%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  animation: slideUp .3s cubic-bezier(.34,1.36,.64,1);
+}
+.credit-modal-sheet::-webkit-scrollbar { display: none; }
+
+.credit-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--brd);
+}
+.credit-title { font-size: 15px; font-weight: 700; color: var(--ink); }
+.credit-close {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--surf); border: 1px solid var(--brd);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 13px; color: var(--mu);
+}
+
+.credit-summary {
+  margin: 14px 18px 0;
+  background: var(--al); border-radius: 14px; padding: 14px 16px;
+  border: 1.5px solid var(--a);
+}
+.credit-summary-lbl { font-size: 10px; color: #7B5800; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.credit-total-display { font-size: 28px; font-weight: 800; color: var(--ink); letter-spacing: -1px; }
+.credit-items-mini { margin-top: 8px; }
+.credit-item-mini {
+  display: flex; justify-content: space-between;
+  font-size: 10px; color: #7B5800; padding: 2px 0;
+}
+
+.credit-client-section { margin: 14px 18px 0; }
+.credit-section-lbl { font-size: 10px; font-weight: 700; color: var(--ink); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .5px; }
+.credit-field {
+  background: var(--surf); border: 1.5px solid var(--brd);
+  border-radius: 10px; padding: 10px 12px;
+  font-family: var(--f); font-size: 13px; color: var(--ink);
+  width: 100%; outline: none; margin-bottom: 8px;
+  transition: border-color .2s;
+}
+.credit-field:focus { border-color: var(--a); }
+.credit-field::placeholder { color: var(--mu2); font-size: 12px; }
+
+.credit-versement-section { margin: 14px 18px 0; }
+.credit-versement-wrap {
+  background: var(--surf); border: 2px solid var(--a);
+  border-radius: 12px; padding: 14px;
+}
+.credit-versement-lbl { font-size: 10px; font-weight: 700; color: #7B5800; margin-bottom: 8px; }
+.credit-montant-input {
+  font-family: var(--fm); font-size: 22px; font-weight: 700;
+  color: var(--ink); background: none; border: none; outline: none;
+  width: 100%; text-align: right;
+}
+.credit-montant-hint { font-size: 10px; color: var(--mu); text-align: right; margin-top: 3px; }
+
+.credit-solde-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  margin: 10px 18px 0; background: var(--rl);
+  border-radius: 10px; padding: 10px 14px;
+  border: 1px solid rgba(255,61,0,.15);
+}
+.credit-solde-lbl { font-size: 10px; color: var(--r); font-weight: 600; }
+.credit-solde-val { font-family: var(--fm); font-size: 16px; font-weight: 800; color: var(--r); }
+
+.credit-solde-zero {
+  display: flex; justify-content: space-between; align-items: center;
+  margin: 10px 18px 0; background: var(--gl);
+  border-radius: 10px; padding: 10px 14px;
+  border: 1px solid rgba(0,200,83,.2);
+}
+.credit-echeance-section { margin: 10px 18px 0; }
+
+.cr-display-row {
+  display: flex; align-items: baseline; gap: 8px;
+  margin: 6px 0 10px;
+}
+.cr-montant-display {
+  font-family: var(--fm); font-size: 28px; font-weight: 800;
+  color: var(--ink); letter-spacing: -1px; flex: 1; text-align: right;
+  min-height: 36px;
+}
+.cr-currency {
+  font-size: 11px; color: var(--mu); font-weight: 600;
+}
+.cr-numpad {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+}
+.cr-key {
+  background: var(--surf); border: 1.5px solid var(--brd);
+  border-radius: 10px; padding: 12px 8px;
+  font-family: var(--fm); font-size: 16px; font-weight: 700; color: var(--ink);
+  cursor: pointer; transition: all .1s; text-align: center;
+}
+.cr-key:active { background: var(--brd); transform: scale(.95); }
+.cr-key-del { background: var(--rl); border-color: rgba(255,61,0,.2); color: var(--r); font-size: 18px; }
+.cr-key-del:active { background: var(--r); color: white; }
+.cr-key-zero { font-size: 13px; }
+
+.credit-confirm-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--a); color: var(--ink); border: none; border-radius: 14px;
+  padding: 15px; font-family: var(--f); font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all .15s; width: calc(100% - 36px);
+  margin: 14px 18px 0;
+  box-shadow: 0 4px 16px rgba(255,179,0,.3);
+}
+.credit-confirm-btn:hover { background: #e6a200; }
+.credit-confirm-btn:active { transform: scale(.97); }
+.credit-confirm-btn:disabled { background: var(--brd); color: var(--mu); box-shadow: none; cursor: not-allowed; }
+
+/* ═══════════════════════════════════════
+   MODAL RETRAIT AVEC CHECKLIST
+═══════════════════════════════════════ */
+.ret-modal-overlay {
+  display: none; position: absolute; inset: 0;
+  background: rgba(0,0,0,.55); z-index: 350;
+  align-items: flex-end; justify-content: center;
+}
+.ret-modal-overlay.open { display: flex; }
+
+.ret-check-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--brd);
+  cursor: pointer;
+  transition: background .15s;
+  position: relative;
+}
+.ret-check-item:last-child { border-bottom: none; }
+.ret-check-item.checked { background: var(--gl); }
+.ret-check-item.checked .ret-prod-nm { text-decoration: line-through; color: var(--mu); }
+
+.ret-checkbox {
+  width: 24px; height: 24px; border-radius: 8px;
+  border: 2px solid var(--brd); background: white;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 13px;
+  transition: all .15s;
+}
+.ret-check-item.checked .ret-checkbox {
+  background: var(--g); border-color: var(--g); color: white;
+}
+
+.ret-progress {
+  margin: 10px 18px 0; background: var(--brd); border-radius: 20px; height: 6px; overflow: hidden;
+}
+.ret-progress-bar {
+  height: 100%; background: var(--g); border-radius: 20px;
+  transition: width .3s ease;
+}
+.ret-progress-lbl {
+  font-size: 10px; color: var(--mu); text-align: center; margin-top: 4px;
+}
+
+/* ═══════════════════════════════════════
+   PRINT ZONE
+═══════════════════════════════════════ */
+#print-zone { display: none; }
+
+@media print {
+  body > *:not(#print-zone) { display: none !important; }
+  #print-zone {
+    display: block !important;
+    width: 80mm; margin: 0 auto;
+    font-family: 'Courier New', monospace;
+    font-size: 10pt;
+  }
+  #print-zone .ticket {
+    border: none; padding: 4mm 2mm;
+  }
+}
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+.toast {
+  position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: white;
+  font-size: 11px; font-weight: 600; padding: 10px 16px;
+  border-radius: 20px; white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transition: all .3s;
+  z-index: 400;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ═══════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════ */
+@keyframes popIn { 0%{transform:scale(.8);opacity:0} 70%{transform:scale(1.05)} 100%{transform:scale(1);opacity:1} }
+.pc.sel { animation: popIn .2s ease; }
+</style>
 </head>
 <body>
-  <div class="placeholder">
-    <h1>📝 Mockup Caisse v4 — À remplir</h1>
-    <p>Remplace ce fichier par ton mockup HTML complet.</p>
+
+<div class="shell">
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-time" id="clock">14:32</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 14 14" fill="var(--ink)" stroke="none"><path d="M7 2.5C4.5 2.5 2.3 3.6 0.8 5.4l1.1 1.1C3.1 5.1 4.9 4.1 7 4.1s3.9 1 5.1 2.4l1.1-1.1C11.7 3.6 9.5 2.5 7 2.5zm0 3.2c-1.6 0-3 .7-4 1.8l1.1 1.1c.7-.8 1.8-1.3 2.9-1.3s2.2.5 2.9 1.3l1.1-1.1c-1-1.1-2.4-1.8-4-1.8zm0 3.2c-.9 0-1.6.4-2.1 1l2.1 2.1 2.1-2.1c-.5-.6-1.2-1-2.1-1z"/></svg>
+      <svg viewBox="0 0 14 10" fill="var(--ink)" stroke="none"><rect x="0" y="0" width="12" height="10" rx="2"/><rect x="12.5" y="3" width="1.5" height="4" rx="1"/><rect x="1" y="1" width="8" height="8" rx="1" fill="var(--g)"/></svg>
+    </div>
   </div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">XÀ</div>
+    <div class="header-info">
+      <h1>Caisse Rapide</h1>
+      <p id="header-date">Sam 25 Avr · 14h32</p>
+    </div>
+    <div class="header-actions">
+      <div class="bswitch">
+        <div class="bswitch-btn" onclick="toggleDD()">
+          <div class="bdot" id="b-dot" style="background:#00C853"></div>
+          <span class="bswitch-name" id="b-name">Akpakpa</span>
+          <span class="bswitch-arr" id="b-arr">▾</span>
+        </div>
+        <div class="bdrop" id="bdrop">
+          <div class="bopt sel" onclick="pickB('Akpakpa','#00C853','Boutique 1','Kodjo S.')">
+            <div class="bdot" style="background:#00C853"></div>
+            <div class="bopt-info">
+              <div class="bopt-nm">Boutique 1 — Akpakpa</div>
+              <div class="bopt-sub">Kodjo S. · Gérant</div>
+            </div>
+            <span class="bopt-tag tg">En ligne</span>
+          </div>
+          <div class="bopt" onclick="pickB('Calavi','#1565C0','Boutique 2','Adjoua M.')">
+            <div class="bdot" style="background:#1565C0"></div>
+            <div class="bopt-info">
+              <div class="bopt-nm">Boutique 2 — Calavi</div>
+              <div class="bopt-sub">Adjoua M. · Gérante</div>
+            </div>
+            <span class="bopt-tag tb">En ligne</span>
+          </div>
+          <div class="bopt" onclick="pickB('Fidjrossè','#FFB300','Boutique 3','Béatrice K.')">
+            <div class="bdot" style="background:#FFB300"></div>
+            <div class="bopt-info">
+              <div class="bopt-nm">Boutique 3 — Fidjrossè</div>
+              <div class="bopt-sub">Béatrice K. · Gérante</div>
+            </div>
+            <span class="bopt-tag ta">Hors-ligne</span>
+          </div>
+        </div>
+      </div>
+      <div class="hbtn">
+        <svg viewBox="0 0 20 20"><path d="M10 2a6 6 0 0 1 6 6c0 3-1.5 5-3 6h-6c-1.5-1-3-3-3-6a6 6 0 0 1 6-6z"/><path d="M8 14v1a2 2 0 0 0 4 0v-1"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sync bar -->
+  <div class="sync-bar">
+    <div class="sync-dot" id="sync-dot"></div>
+    <span id="sync-txt">☁ Synchronisé</span>
+    <span class="st" id="sync-time">il y a 2 min</span>
+  </div>
+
+  <!-- Retrait bar -->
+  <div class="retrait-bar">
+    <div class="retrait-bar-icon">
+      <svg viewBox="0 0 16 16"><rect x="3" y="2" width="10" height="12" rx="2"/><polyline points="6,7 8,9 10,7"/></svg>
+    </div>
+    <span class="retrait-codes-hint">📦 <b onclick="setCode('4827')">4827</b> <b onclick="setCode('1234')">1234</b> <b onclick="setCode('9901')">9901</b> <b onclick="setCode('5555')">5555</b></span>
+    <input class="retrait-input" type="text" maxlength="4" placeholder="Code" id="ret-input" oninput="this.value=this.value.replace(/\D/g,'')">
+    <button class="retrait-validate" onclick="validerRetrait()">✔ Valider</button>
+  </div>
+  <div class="retrait-result" id="ret-result"></div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <div class="search-inner">
+      <svg viewBox="0 0 20 20"><circle cx="9" cy="9" r="5"/><line x1="13" y1="13" x2="17" y2="17"/></svg>
+      <input type="text" placeholder="Rechercher un produit..." oninput="filterSearch(this.value)" id="search-inp">
+      <button class="scan-btn" onclick="showToast('📷 Scanner activé')">
+        <svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="12" width="2" height="2"/><rect x="13" y="9" width="2" height="5"/><rect x="9" y="9" width="2" height="2"/></svg>
+        Scanner
+      </button>
+    </div>
+  </div>
+
+  <!-- Categories -->
+  <div class="cat-row">
+    <div class="cat-chip on" onclick="filterCat('tous', this)">Tous</div>
+    <div class="cat-chip" onclick="filterCat('mafro', this)">🌾 MAFRO</div>
+    <div class="cat-chip" onclick="filterCat('huile', this)">🫙 Huiles</div>
+    <div class="cat-chip" onclick="filterCat('boisson', this)">🥤 Boissons</div>
+    <div class="cat-chip" onclick="filterCat('divers', this)">🧴 Divers</div>
+  </div>
+
+  <!-- Panier résumé -->
+  <div class="panier-strip" id="panier-strip">
+    <div class="panier-strip-items" id="panier-pills"></div>
+    <button class="panier-clear" onclick="clearPanier()" title="Vider le panier">✕ Vider</button>
+  </div>
+
+  <!-- Product grid -->
+  <div class="grid-scroll">
+    <div class="pgrid" id="pgrid"></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="caisse-foot">
+    <div class="remise-row">
+      <span class="remise-lbl">🏷 Appliquer une remise</span>
+      <input class="remise-input" type="number" id="remise-inp" placeholder="0" min="0" max="99" oninput="applyRemise()">
+      <span class="remise-pct">%</span>
+      <span class="remise-applied" id="remise-badge"></span>
+    </div>
+
+    <div class="total-area">
+      <div>
+        <div class="total-lbl">🧾 Total à encaisser</div>
+        <div class="total-sub" id="total-sub"></div>
+      </div>
+      <div style="text-align:right">
+        <div class="total-val" id="total-val">0 FCFA</div>
+        <div class="total-count" id="total-count">Aucun produit sélectionné</div>
+      </div>
+    </div>
+
+    <div class="action-btns">
+      <button class="btn btn-g" id="btn-vendu" onclick="openRecu('vendu')" disabled>✅ Vendu</button>
+      <button class="btn btn-ah" id="btn-credit" onclick="openCreditModal()" disabled>📝 Crédit</button>
+    </div>
+
+    <div class="bottom-actions">
+      <button class="btn-sm" onclick="imprimerTicket()">
+        <svg viewBox="0 0 16 16"><rect x="2" y="5" width="12" height="8" rx="1.5"/><path d="M4 5V2h8v3"/><rect x="4" y="9" width="8" height="4" rx="1"/><circle cx="12.5" cy="7" r=".8" fill="var(--mu)"/></svg>
+        Imprimer
+      </button>
+      <button class="btn-sm" onclick="exportPDF()">
+        <svg viewBox="0 0 16 16"><path d="M9 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V6z"/><polyline points="9,2 9,6 13,6"/><line x1="5" y1="9" x2="11" y2="9"/><line x1="5" y1="11" x2="8" y2="11"/></svg>
+        PDF
+      </button>
+      <button class="btn-sm btn-wa-sm" onclick="partagerWA()">
+        <svg viewBox="0 0 16 16"><path d="M8 1.5C4.4 1.5 1.5 4.4 1.5 8c0 1.2.3 2.3.9 3.3L1.5 14.5l3.3-.9c1 .6 2.1.9 3.2.9 3.6 0 6.5-2.9 6.5-6.5S11.6 1.5 8 1.5z"/><path d="M6 5.5s-.5 1 .5 2.5S9 9.5 9 9.5s1 .5 1.5 0l.5-.5c-.5-.5-1-.5-1.5-.5C9 8 6.5 5.5 6.5 5c0-.3-.3-.3-.5.5z" fill="white" stroke="none"/></svg>
+        WhatsApp
+      </button>
+    </div>
+  </div>
+
+  <!-- Bottom nav -->
+  <div class="bnav">
+    <div class="bni on">
+      <svg viewBox="0 0 20 20"><rect x="3" y="5" width="14" height="12" rx="2"/><line x1="3" x2="17" y1="9" y2="9"/><line x1="7" x2="9" y1="13" y2="13"/><line x1="11" x2="13" y1="13" y2="13"/></svg>
+      <span>Caisse</span>
+    </div>
+    <div class="bni" onclick="showToast('📖 Page Dettes')">
+      <div class="bni-badge">4</div>
+      <svg viewBox="0 0 20 20"><path d="M4 6h12M4 10h8M4 14h5"/></svg>
+      <span>Dettes</span>
+    </div>
+    <div class="bni" onclick="showToast('📦 Page Stocks')">
+      <svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="14" rx="2"/><line x1="3" x2="17" y1="9" y2="9"/><path d="M7 4V2M13 4V2"/></svg>
+      <span>Stocks</span>
+    </div>
+    <div class="bni" onclick="showToast('📊 Page Stats')">
+      <svg viewBox="0 0 20 20"><rect x="3" y="11" width="3" height="6"/><rect x="8.5" y="7" width="3" height="10"/><rect x="14" y="4" width="3" height="13"/></svg>
+      <span>Stats</span>
+    </div>
+    <div class="bni" onclick="showToast('👤 Page Profil')">
+      <svg viewBox="0 0 20 20"><circle cx="10" cy="7" r="3"/><path d="M4 17c0-3.314 2.686-6 6-6s6 2.686 6 6"/></svg>
+      <span>Profil</span>
+    </div>
+  </div>
+
+  <!-- Modal reçu -->
+  <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">🧾 Reçu de vente</div>
+        <div class="modal-close" onclick="closeModal()">✕</div>
+      </div>
+
+      <div class="ticket" id="ticket">
+        <div class="ticket-hd">
+          <div class="ticket-logo">XÀ · MAFRO</div>
+          <div class="ticket-shop" id="tk-shop">Alimentation Progrès</div>
+          <div class="ticket-loc" id="tk-loc">Akpakpa, Cotonou</div>
+        </div>
+        <hr class="ticket-sep">
+        <div class="ticket-meta">
+          Date : <strong id="tk-date">—</strong><br>
+          Employé : <strong id="tk-emp">Kodjo S.</strong><br>
+          Réf : <strong id="tk-ref">—</strong>
+        </div>
+        <hr class="ticket-sep">
+        <table class="ticket-items" id="tk-items">
+          <tr>
+            <th style="width:38%">Article</th>
+            <th style="width:10%;text-align:center">Qté</th>
+            <th style="width:22%;text-align:right">P.U.</th>
+            <th style="width:30%;text-align:right">Sous-total</th>
+          </tr>
+        </table>
+        <hr class="ticket-sep">
+        <div class="ticket-remise" id="tk-remise">
+          <span>Remise appliquée</span>
+          <span id="tk-remise-val">—</span>
+        </div>
+        <div class="ticket-total">
+          <span class="ticket-total-lbl">TOTAL PAYÉ</span>
+          <span class="ticket-total-val" id="tk-total">—</span>
+        </div>
+        <hr class="ticket-sep">
+        <div class="ticket-footer">
+          <div class="qr-mini">
+            <div class="qb"></div><div class="qb"></div><div class="qb"></div><div class="qw"></div><div class="qb"></div><div class="qb"></div><div class="qb"></div>
+            <div class="qb"></div><div class="qw"></div><div class="qb"></div><div class="qw"></div><div class="qb"></div><div class="qw"></div><div class="qb"></div>
+            <div class="qb"></div><div class="qw"></div><div class="qw"></div><div class="qb"></div><div class="qw"></div><div class="qw"></div><div class="qb"></div>
+            <div class="qw"></div><div class="qb"></div><div class="qw"></div><div class="qb"></div><div class="qw"></div><div class="qb"></div><div class="qw"></div>
+            <div class="qb"></div><div class="qw"></div><div class="qw"></div><div class="qb"></div><div class="qw"></div><div class="qw"></div><div class="qb"></div>
+            <div class="qb"></div><div class="qw"></div><div class="qb"></div><div class="qw"></div><div class="qb"></div><div class="qw"></div><div class="qb"></div>
+            <div class="qb"></div><div class="qb"></div><div class="qb"></div><div class="qw"></div><div class="qb"></div><div class="qb"></div><div class="qb"></div>
+          </div>
+          <p>
+            Merci de votre confiance !<br>
+            Enregistrez ce numéro pour voir nos promotions<br>
+            en Statut WhatsApp 👇
+          </p>
+          <span class="wa-cta">wa.me/22997XXXXXX · MAFRO Network</span>
+        </div>
+      </div>
+
+      <div class="modal-btns">
+        <button class="moda-btn moda-print" onclick="imprimerTicket()">
+          🖨 Imprimer
+        </button>
+        <button class="moda-btn moda-pdf" onclick="exportPDF()">
+          📄 Export PDF
+        </button>
+      </div>
+      <div style="padding:8px 18px 0">
+        <button class="modal-wa-btn" onclick="partagerWA()">
+          💬 Envoyer le reçu sur WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- Modal Crédit Partiel -->
+  <div class="credit-modal-overlay" id="credit-modal" onclick="if(event.target===this)closeCreditModal()">
+    <div class="credit-modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="credit-header">
+        <div class="credit-title">📝 Enregistrer un crédit</div>
+        <div class="credit-close" onclick="closeCreditModal()">✕</div>
+      </div>
+      <div class="credit-summary">
+        <div class="credit-summary-lbl">💰 Montant total de la vente</div>
+        <div class="credit-total-display" id="cr-total-display">0 FCFA</div>
+        <div class="credit-items-mini" id="cr-items-mini"></div>
+      </div>
+      <div class="credit-client-section">
+        <div class="credit-section-lbl">👤 Client</div>
+        <input class="credit-field" type="text" id="cr-nom" placeholder="Nom du client (obligatoire)" oninput="updateCreditSolde()">
+        <input class="credit-field" type="tel" id="cr-phone" placeholder="Téléphone (facultatif)">
+      </div>
+      <div class="credit-versement-section">
+        <div class="credit-section-lbl">💵 Montant versé maintenant</div>
+        <div class="credit-versement-wrap">
+          <div class="credit-versement-lbl">Ce que le client paie aujourd'hui <span style="color:var(--mu2)">(0 = tout en crédit)</span></div>
+          <div class="cr-display-row">
+            <div class="cr-montant-display" id="cr-display">0</div>
+            <span class="cr-currency">FCFA</span>
+          </div>
+          <div class="cr-numpad">
+            <button class="cr-key" onclick="crKey('1')">1</button>
+            <button class="cr-key" onclick="crKey('2')">2</button>
+            <button class="cr-key" onclick="crKey('3')">3</button>
+            <button class="cr-key" onclick="crKey('4')">4</button>
+            <button class="cr-key" onclick="crKey('5')">5</button>
+            <button class="cr-key" onclick="crKey('6')">6</button>
+            <button class="cr-key" onclick="crKey('7')">7</button>
+            <button class="cr-key" onclick="crKey('8')">8</button>
+            <button class="cr-key" onclick="crKey('9')">9</button>
+            <button class="cr-key cr-key-zero" onclick="crKey('000')">000</button>
+            <button class="cr-key" onclick="crKey('0')">0</button>
+            <button class="cr-key cr-key-del" onclick="crDel()">⌫</button>
+          </div>
+        </div>
+      </div>
+      <div id="cr-solde-zone"></div>
+      <div class="credit-echeance-section">
+        <div class="credit-section-lbl">📅 Date d'échéance (facultatif)</div>
+        <input class="credit-field" type="date" id="cr-echeance">
+      </div>
+      <button class="credit-confirm-btn" id="cr-confirm-btn" onclick="confirmerCredit()" disabled>
+        ✅ Enregistrer la dette
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal Retrait avec checklist produits -->
+  <div class="ret-modal-overlay" id="ret-modal" onclick="if(event.target===this)closeRetraitModal()">
+    <div class="ret-modal-sheet">
+      <div class="modal-handle"></div>
+      <div id="ret-hero-zone" class="ret-hero"></div>
+      <div class="ret-progress">
+        <div class="ret-progress-bar" id="ret-prog-bar" style="width:0%"></div>
+      </div>
+      <div class="ret-progress-lbl" id="ret-prog-lbl">Cochez chaque produit remis au client</div>
+      <div class="ret-products" id="ret-products-zone" style="margin:10px 18px 0"></div>
+      <div class="ret-total-bar" id="ret-total-zone" style="margin:12px 18px 0"></div>
+      <div class="ret-btns">
+        <button class="ret-confirm-btn" id="ret-confirm-btn" onclick="confirmerRetrait()" disabled>
+          📦 Confirmer la remise des produits
+        </button>
+      </div>
+      <div class="ret-validated" id="ret-validated">
+        <div class="ret-check">✅</div>
+        <h3>Retrait confirmé !</h3>
+        <p id="ret-validated-txt">Les produits ont été remis au client.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Zone d'impression -->
+<div id="print-zone"></div>
+
+<script>
+/* ════════════════════════════════════════
+   CATALOGUE (source de vérité — en prod: Supabase)
+════════════════════════════════════════ */
+const CAT = [
+  { id:'p1', em:'🌾', nm:'Farine de blé',    pr:3500,  stock:12, cat:'mafro',   promo:false },
+  { id:'p2', em:'🫙', nm:'Huile de palme',   pr:1500,  stock:8,  cat:'huile',   promo:false },
+  { id:'p3', em:'🍚', nm:'Riz local',        pr:800,   stock:20, cat:'mafro',   promo:true  },
+  { id:'p4', em:'🧂', nm:'Sucre 1kg',        pr:600,   stock:15, cat:'divers',  promo:false },
+  { id:'p5', em:'🧴', nm:'Savon Éclat',      pr:400,   stock:0,  cat:'divers',  promo:false },
+  { id:'p6', em:'🍅', nm:'Tomate conc.',     pr:1200,  stock:6,  cat:'divers',  promo:false },
+  { id:'p7', em:'🥤', nm:'Jus Bissap',       pr:500,   stock:24, cat:'boisson', promo:false },
+  { id:'p8', em:'🧃', nm:'Jus Gingembre',   pr:500,   stock:18, cat:'boisson', promo:false },
+  { id:'p9', em:'🫘', nm:'Haricot',          pr:700,   stock:3,  cat:'mafro',   promo:false },
+  { id:'p10',em:'🌽', nm:'Maïs concassé',   pr:650,   stock:30, cat:'mafro',   promo:false },
+  { id:'p11',em:'☕', nm:'Café Robusta',     pr:1800,  stock:5,  cat:'boisson', promo:false },
+  { id:'p12',em:'🧆', nm:'Gari fin',        pr:550,   stock:40, cat:'mafro',   promo:false },
+];
+
+const CODES_RETRAIT = {
+  '4827': {
+    client: 'Ama Mensah',
+    phone:  '+229 97 45 12 78',
+    ref:    'CMD-2025-04-001',
+    boutique: 'Akpakpa',
+    paye:   true,
+    mode:   'Mobile Money',
+    date:   '25 Avr 2025 · 11h03',
+    expire: '25 Avr 2025 · 13h03',
+    items: [
+      { em:'🌾', nm:'Farine de blé', qty:1, pr:3500 },
+    ]
+  },
+  '1234': {
+    client: 'Kossi Ouédraogo',
+    phone:  '+229 95 78 23 41',
+    ref:    'CMD-2025-04-002',
+    boutique: 'Akpakpa',
+    paye:   true,
+    mode:   'WhatsApp Pay',
+    date:   '25 Avr 2025 · 12h45',
+    expire: '25 Avr 2025 · 14h45',
+    items: [
+      { em:'🫙', nm:'Huile de palme', qty:2, pr:1500 },
+      { em:'🧂', nm:'Sucre 1kg',      qty:1, pr:600  },
+    ]
+  },
+  '9901': {
+    client: 'Fatou Bamba',
+    phone:  '+229 96 11 88 52',
+    ref:    'CMD-2025-04-003',
+    boutique: 'Calavi',
+    paye:   true,
+    mode:   'MTN MoMo',
+    date:   '25 Avr 2025 · 13h20',
+    expire: '25 Avr 2025 · 15h20',
+    items: [
+      { em:'🍚', nm:'Riz local',      qty:3, pr:800  },
+      { em:'🍅', nm:'Tomate conc.',   qty:2, pr:1200 },
+    ]
+  },
+  '5555': {
+    client: 'Jean-Baptiste Dossou',
+    phone:  '+229 94 32 67 10',
+    ref:    'CMD-2025-04-004',
+    boutique: 'Akpakpa',
+    paye:   false,
+    mode:   'Crédit boutique',
+    date:   '25 Avr 2025 · 14h10',
+    expire: '25 Avr 2025 · 16h10',
+    items: [
+      { em:'🌾', nm:'Farine de blé', qty:2, pr:3500 },
+      { em:'🫙', nm:'Huile de palme', qty:1, pr:1500 },
+    ]
+  },
+};
+
+const BOUTIQUES = {
+  'Akpakpa':  { name:'Alimentation Progrès', loc:'Akpakpa, Cotonou', emp:'Kodjo S.' },
+  'Calavi':   { name:'Al. Progrès — Calavi', loc:'Abomey-Calavi',    emp:'Adjoua M.' },
+  'Fidjrossè':{ name:'Al. Progrès — Fidjrossè', loc:'Fidjrossè, Cotonou', emp:'Béatrice K.' },
+};
+
+let panier    = {};
+let remisePct = 0;
+let currentCat    = 'tous';
+let currentSearch = '';
+let currentBoutique = 'Akpakpa';
+
+/* ── Horloge ── */
+function tick(){
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}`;
+  const days = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  const months = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
+  document.getElementById('header-date').textContent =
+    `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} · ${h}h${m}`;
+}
+tick();
+setInterval(tick, 10000);
+
+/* ── Rendu grille ── */
+function renderGrid(){
+  const g = document.getElementById('pgrid');
+  const filtered = CAT.filter(p => {
+    const catOk = currentCat === 'tous' || p.cat === currentCat;
+    const srchOk = !currentSearch || p.nm.toLowerCase().includes(currentSearch.toLowerCase());
+    return catOk && srchOk;
+  });
+
+  if(!filtered.length){
+    g.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px 0;color:var(--mu2);font-size:12px">
+      Aucun produit trouvé
+    </div>`;
+    return;
+  }
+
+  g.innerHTML = filtered.map(p => {
+    const inPanier = panier[p.id];
+    const qty = inPanier ? inPanier.qty : 0;
+    const rupture = p.stock === 0;
+    const low = p.stock > 0 && p.stock <= 3;
+
+    let badge = '';
+    if(rupture) badge = `<div class="badge badge-out">RUPTURE</div>`;
+    else if(low) badge = `<div class="badge badge-low">BAS ${p.stock}</div>`;
+    else if(p.promo) badge = `<div class="badge badge-promo">PROMO</div>`;
+
+    return `<div class="pc ${inPanier?'sel':''} ${rupture?'out':''}"
+      onclick="${rupture?'':  `toggleProd('${p.id}')`}">
+      ${badge}
+      <span class="pc-em">${p.em}</span>
+      <div class="pc-nm">${p.nm}</div>
+      <div class="pc-pr">${p.pr.toLocaleString('fr-FR')} F</div>
+      <div class="pc-stock">${rupture?'Épuisé':p.stock+' en stock'}</div>
+      <div class="pc-qty">${qty}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleProd(id){
+  const prod = CAT.find(p=>p.id===id);
+  if(!prod || prod.stock===0) return;
+
+  if(panier[id]){
+    panier[id].qty++;
+    if(panier[id].qty > prod.stock){
+      panier[id].qty = prod.stock;
+      showToast('⚠ Stock maximum atteint');
+    }
+  } else {
+    panier[id] = { ...prod, qty:1 };
+  }
+  updateAll();
+}
+
+function clearPanier(){
+  panier = {};
+  remisePct = 0;
+  const ri = document.getElementById('remise-inp');
+  if(ri) ri.value = '';
+  updateAll();
+}
+
+function updateAll(){
+  renderGrid();
+  updateTotal();
+  updatePanierStrip();
+}
+
+/* ── Total ── */
+function updateTotal(){
+  const items = Object.values(panier);
+  const nb = items.reduce((s,p)=>s+p.qty,0);
+  const sub = items.reduce((s,p)=>s+(p.pr*p.qty),0);
+  const disc = Math.round(sub * remisePct / 100);
+  const total = sub - disc;
+
+  const tvEl = document.getElementById('total-val');
+  const tsEl = document.getElementById('total-sub');
+  const tcEl = document.getElementById('total-count');
+  const rbEl = document.getElementById('remise-badge');
+
+  tvEl.textContent = total.toLocaleString('fr-FR') + ' FCFA';
+  tvEl.className = 'total-val' + (nb === 0 ? ' zero' : '');
+
+  if(remisePct > 0 && disc > 0){
+    tsEl.textContent = sub.toLocaleString('fr-FR') + ' F';
+    tsEl.classList.add('show');
+    rbEl.textContent = `−${disc.toLocaleString('fr-FR')} F remise`;
+    rbEl.classList.add('show');
+  } else {
+    tsEl.classList.remove('show');
+    rbEl.classList.remove('show');
+  }
+
+  if(nb === 0){
+    tcEl.textContent = 'Aucun produit sélectionné';
+  } else {
+    tcEl.textContent = `${nb} article${nb>1?'s':''} · ${items.length} produit${items.length>1?'s':''}`;
+  }
+
+  const btnV = document.getElementById('btn-vendu');
+  const btnC = document.getElementById('btn-credit');
+  btnV.disabled = nb === 0;
+  btnC.disabled = nb === 0;
+}
+
+/* ── Panier strip ── */
+function updatePanierStrip(){
+  const items = Object.values(panier);
+  const strip = document.getElementById('panier-strip');
+  const pills = document.getElementById('panier-pills');
+  if(items.length === 0){
+    strip.classList.remove('show');
+    return;
+  }
+  strip.classList.add('show');
+  pills.innerHTML = items.map(p =>
+    `<div class="panier-pill" onclick="removeFromPanier('${p.id}')">
+      ${p.em} <span>${p.nm}</span> ×${p.qty}
+    </div>`
+  ).join('');
+}
+
+function removeFromPanier(id){
+  delete panier[id];
+  updateAll();
+}
+
+/* ── Filtres ── */
+function filterCat(cat, el){
+  currentCat = cat;
+  document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  renderGrid();
+}
+
+function filterSearch(val){
+  currentSearch = val;
+  renderGrid();
+}
+
+function applyRemise(){
+  const v = parseInt(document.getElementById('remise-inp').value) || 0;
+  remisePct = Math.min(Math.max(v, 0), 99);
+  updateTotal();
+}
+
+/* ── Boutique switcher ── */
+function toggleDD(){
+  const dd = document.getElementById('bdrop');
+  const arr = document.getElementById('b-arr');
+  const open = dd.classList.toggle('open');
+  arr.classList.toggle('open', open);
+}
+
+function pickB(nom, color, label, emp){
+  document.getElementById('b-dot').style.background = color;
+  document.getElementById('b-name').textContent = nom;
+  document.getElementById('bdrop').classList.remove('open');
+  document.getElementById('b-arr').classList.remove('open');
+  document.querySelectorAll('.bopt').forEach(o=>o.classList.remove('sel'));
+  event.currentTarget.classList.add('sel');
+  currentBoutique = nom;
+}
+
+document.addEventListener('click', e => {
+  if(!e.target.closest('.bswitch')) {
+    document.getElementById('bdrop').classList.remove('open');
+    document.getElementById('b-arr').classList.remove('open');
+  }
+});
+
+/* ── Retrait ── */
+let currentRetrait = null;
+let retraitChecked = {};
+
+function validerRetrait(){
+  const code = document.getElementById('ret-input').value.trim();
+  const res  = document.getElementById('ret-result');
+  res.className = 'retrait-result';
+
+  if(!code){
+    res.className = 'retrait-result err';
+    res.textContent = '⚠ Entrez un code à 4 chiffres';
+    setTimeout(()=>{ res.className='retrait-result'; }, 2500);
+    return;
+  }
+
+  const commande = CODES_RETRAIT[code];
+  if(commande){
+    res.className = 'retrait-result ok';
+    res.textContent = `✅ Code valide · ${commande.client} — ouverture du reçu…`;
+    setTimeout(()=>{
+      res.className = 'retrait-result';
+      document.getElementById('ret-input').value = '';
+      ouvrirModalRetrait(code, commande);
+    }, 800);
+  } else {
+    res.className = 'retrait-result err';
+    res.textContent = `❌ Code "${code}" invalide ou expiré`;
+    setTimeout(()=>{ res.className='retrait-result'; }, 3000);
+  }
+}
+
+function ouvrirModalRetrait(code, commande){
+  currentRetrait = { code, commande };
+  retraitChecked = {};
+
+  // Hero client
+  const initiales = commande.client.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const statusClass = commande.paye ? 'ret-status-paye' : 'ret-status-credit';
+  const statusTxt   = commande.paye ? '✅ Payé' : '⚠ Crédit';
+  document.getElementById('ret-hero-zone').innerHTML = `
+    <div class="ret-hero-top">
+      <div class="ret-avatar">${initiales}</div>
+      <div class="ret-client-info">
+        <div class="ret-client-name">${commande.client}</div>
+        <div class="ret-client-phone">${commande.phone}</div>
+      </div>
+      <div class="ret-status-badge ${statusClass}">${statusTxt}</div>
+    </div>
+    <div class="ret-meta-grid">
+      <div class="ret-meta-item">
+        <div class="ret-meta-lbl">Référence</div>
+        <div class="ret-meta-val">${commande.ref}</div>
+      </div>
+      <div class="ret-meta-item">
+        <div class="ret-meta-lbl">Mode paiement</div>
+        <div class="ret-meta-val">${commande.mode}</div>
+      </div>
+      <div class="ret-meta-item">
+        <div class="ret-meta-lbl">Commandé le</div>
+        <div class="ret-meta-val">${commande.date}</div>
+      </div>
+      <div class="ret-meta-item">
+        <div class="ret-meta-lbl">Expire</div>
+        <div class="ret-meta-val expire">${commande.expire}</div>
+      </div>
+    </div>`;
+
+  // Liste produits avec checkboxes
+  const total = commande.items.reduce((s,p)=>s+(p.pr*p.qty),0);
+  const hd = `<div class="ret-products-hd">
+    <span class="ret-products-title">📦 Articles à remettre</span>
+    <span class="ret-products-total">${total.toLocaleString('fr-FR')} F</span>
+  </div>`;
+  const rows = commande.items.map((p,i) => `
+    <div class="ret-check-item" id="rci-${i}" onclick="toggleRetraitItem(${i})">
+      <div class="ret-checkbox" id="rcb-${i}"></div>
+      <div class="ret-prod-em">${p.em}</div>
+      <div class="ret-prod-info">
+        <div class="ret-prod-nm">${p.nm}</div>
+        <div class="ret-prod-pr">${p.pr.toLocaleString('fr-FR')} F × ${p.qty}</div>
+      </div>
+      <div class="ret-prod-qty">×${p.qty}</div>
+      <div class="ret-prod-subtotal">${(p.pr*p.qty).toLocaleString('fr-FR')} F</div>
+    </div>`).join('');
+  document.getElementById('ret-products-zone').innerHTML = hd + rows;
+
+  // Total bar
+  document.getElementById('ret-total-zone').innerHTML = `
+    <div class="ret-total-lbl">Total commande</div>
+    <div class="ret-total-val">${total.toLocaleString('fr-FR')} FCFA</div>`;
+
+  // Reset état validé
+  document.getElementById('ret-validated').classList.remove('show');
+  document.getElementById('ret-confirm-btn').disabled = true;
+  updateRetraitProgress();
+
+  document.getElementById('ret-modal').classList.add('open');
+}
+
+function toggleRetraitItem(i){
+  const commande = currentRetrait.commande;
+  if(retraitChecked[i]){
+    delete retraitChecked[i];
+  } else {
+    retraitChecked[i] = true;
+  }
+  const el  = document.getElementById('rci-'+i);
+  const box = document.getElementById('rcb-'+i);
+  if(retraitChecked[i]){
+    el.classList.add('checked');
+    box.textContent = '✓';
+  } else {
+    el.classList.remove('checked');
+    box.textContent = '';
+  }
+  updateRetraitProgress();
+}
+
+function updateRetraitProgress(){
+  const total = currentRetrait.commande.items.length;
+  const done  = Object.keys(retraitChecked).length;
+  const pct   = total > 0 ? Math.round(done/total*100) : 0;
+  document.getElementById('ret-prog-bar').style.width = pct + '%';
+  document.getElementById('ret-prog-lbl').textContent =
+    done === total
+      ? `✅ Tous les ${total} produits cochés — prêt à confirmer !`
+      : `${done}/${total} produit${total>1?'s':''} coché${done>1?'s':''}`;
+  document.getElementById('ret-confirm-btn').disabled = done < total;
+}
+
+function confirmerRetrait(){
+  const c = currentRetrait.commande;
+  document.getElementById('ret-products-zone').style.display = 'none';
+  document.getElementById('ret-total-zone').style.display = 'none';
+  document.getElementById('ret-btns') && (document.querySelector('.ret-btns').style.display = 'none');
+  document.getElementById('ret-prog-bar').parentElement.style.display = 'none';
+  document.getElementById('ret-prog-lbl').style.display = 'none';
+  document.getElementById('ret-validated-txt').textContent =
+    `${c.items.length} produit${c.items.length>1?'s':''} remis à ${c.client}.`;
+  document.getElementById('ret-validated').classList.add('show');
+  setTimeout(()=>{ closeRetraitModal(); }, 2500);
+}
+
+function closeRetraitModal(){
+  document.getElementById('ret-modal').classList.remove('open');
+  // Reset affichage
+  setTimeout(()=>{
+    document.getElementById('ret-products-zone').style.display = '';
+    document.getElementById('ret-total-zone').style.display = '';
+    const btns = document.querySelector('.ret-btns');
+    if(btns) btns.style.display = '';
+    document.getElementById('ret-prog-bar').parentElement.style.display = '';
+    document.getElementById('ret-prog-lbl').style.display = '';
+    document.getElementById('ret-validated').classList.remove('show');
+  }, 400);
+}
+
+/* ── Crédit Partiel ── */
+let creditTotal = 0;
+
+function openCreditModal(){
+  if(Object.keys(panier).length === 0) return;
+  const items = Object.values(panier);
+  const sub   = items.reduce((s,p)=>s+(p.pr*p.qty),0);
+  const disc  = Math.round(sub * remisePct / 100);
+  creditTotal  = sub - disc;
+
+  document.getElementById('cr-total-display').textContent = creditTotal.toLocaleString('fr-FR') + ' FCFA';
+  document.getElementById('cr-items-mini').innerHTML = items.map(p=>
+    `<div class="credit-item-mini"><span>${p.em} ${p.nm} ×${p.qty}</span><span>${(p.pr*p.qty).toLocaleString('fr-FR')} F</span></div>`
+  ).join('');
+  document.getElementById('cr-nom').value = '';
+  document.getElementById('cr-phone').value = '';
+  document.getElementById('cr-display').textContent = '0';
+  crVerseRaw = '';
+  document.getElementById('cr-echeance').value = '';
+  document.getElementById('cr-solde-zone').innerHTML = '';
+  document.getElementById('cr-confirm-btn').disabled = true;
+  document.getElementById('credit-modal').classList.add('open');
+}
+
+function closeCreditModal(){
+  document.getElementById('credit-modal').classList.remove('open');
+}
+
+let crVerseRaw = '';
+
+function crKey(digit){
+  if(crVerseRaw.length >= 9) return;
+  if(crVerseRaw === '' && digit === '0') return;
+  if(digit === '000'){ if(crVerseRaw === '') return; crVerseRaw += '000'; }
+  else { crVerseRaw += digit; }
+  // remove leading zeros
+  crVerseRaw = crVerseRaw.replace(/^0+/, '') || '0';
+  const num = parseInt(crVerseRaw) || 0;
+  document.getElementById('cr-display').textContent = num.toLocaleString('fr-FR');
+  updateCreditSolde();
+}
+
+function crDel(){
+  crVerseRaw = crVerseRaw.slice(0, -1);
+  const num = parseInt(crVerseRaw) || 0;
+  document.getElementById('cr-display').textContent = num === 0 ? '0' : num.toLocaleString('fr-FR');
+  updateCreditSolde();
+}
+
+function updateCreditSolde(){
+  const nom   = (document.getElementById('cr-nom').value || '').trim();
+  const verse = parseInt(crVerseRaw) || 0;
+  const solde = creditTotal - Math.min(verse, creditTotal);
+  const zone  = document.getElementById('cr-solde-zone');
+
+  if(solde > 0){
+    zone.innerHTML = `<div class="credit-solde-bar">
+      <span class="credit-solde-lbl">💳 Solde restant dû</span>
+      <span class="credit-solde-val">${solde.toLocaleString('fr-FR')} F</span>
+    </div>`;
+  } else if(verse >= creditTotal){
+    zone.innerHTML = `<div class="credit-solde-zero">
+      <span style="font-size:10px;color:var(--gd);font-weight:700">✅ Montant complet — utilisez plutôt "Vendu"</span>
+    </div>`;
+  } else {
+    zone.innerHTML = '';
+  }
+
+  document.getElementById('cr-confirm-btn').disabled = !nom;
+  if(nom) document.getElementById('cr-confirm-btn').textContent =
+    solde > 0
+      ? `✅ Enregistrer dette de ${solde.toLocaleString('fr-FR')} F`
+      : `✅ Enregistrer comme vendu`;
+}
+
+function confirmerCredit(){
+  const nom    = document.getElementById('cr-nom').value.trim();
+  const phone  = document.getElementById('cr-phone').value.trim();
+  const verse  = parseInt(crVerseRaw) || 0;
+  const solde  = creditTotal - Math.min(verse, creditTotal);
+  const echeance = document.getElementById('cr-echeance').value;
+
+  if(!nom){ showToast('⚠ Entrez le nom du client'); return; }
+
+  const ref = 'CRD-' + Date.now().toString().slice(-6);
+  const msg = solde > 0
+    ? `📝 Crédit enregistré pour ${nom} · Reste : ${solde.toLocaleString('fr-FR')} F`
+    : `✅ Vendu — Paiement complet de ${nom}`;
+  showToast(msg);
+  closeCreditModal();
+  clearPanier();
+}
+
+document.getElementById('ret-input').addEventListener('keydown', e => {
+  if(e.key === 'Enter') validerRetrait();
+});
+
+function setCode(code){
+  document.getElementById('ret-input').value = code;
+  validerRetrait();
+}
+
+/* ── Génération reçu ── */
+function genererRecu(mode){
+  const items = Object.values(panier);
+  const sub  = items.reduce((s,p)=>s+(p.pr*p.qty),0);
+  const disc = Math.round(sub * remisePct / 100);
+  const total = sub - disc;
+  const now  = new Date();
+  const ref  = 'REF-' + now.getTime().toString().slice(-6);
+
+  const b = BOUTIQUES[currentBoutique] || BOUTIQUES['Akpakpa'];
+
+  document.getElementById('tk-shop').textContent = b.name;
+  document.getElementById('tk-loc').textContent  = b.loc;
+  document.getElementById('tk-emp').textContent  = b.emp;
+  document.getElementById('tk-ref').textContent  = ref;
+  document.getElementById('tk-date').textContent =
+    now.toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) +
+    ' · ' + now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+
+  const tbl = document.getElementById('tk-items');
+  Array.from(tbl.querySelectorAll('tr:not(:first-child)')).forEach(r=>r.remove());
+  items.forEach(p=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${p.em} ${p.nm}</td>
+      <td style="text-align:center">${p.qty}</td>
+      <td style="text-align:right">${p.pr.toLocaleString('fr-FR')} F</td>
+      <td style="text-align:right;font-weight:700">${(p.pr*p.qty).toLocaleString('fr-FR')} F</td>`;
+    tbl.appendChild(tr);
+  });
+
+  const remEl = document.getElementById('tk-remise');
+  const remVl = document.getElementById('tk-remise-val');
+  if(disc > 0){
+    remEl.classList.add('show');
+    remVl.textContent = `−${disc.toLocaleString('fr-FR')} F (${remisePct}%)`;
+  } else {
+    remEl.classList.remove('show');
+  }
+
+  document.getElementById('tk-total').textContent = total.toLocaleString('fr-FR') + ' FCFA';
+
+  const title = mode === 'credit'
+    ? '📝 Reçu de crédit · Paiement différé'
+    : '🧾 Reçu de vente';
+  document.getElementById('modal-title').textContent = title;
+}
+
+function openRecu(mode){
+  if(Object.keys(panier).length === 0) return;
+  genererRecu(mode);
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+}
+
+/* ── Impression ── */
+function imprimerTicket(){
+  if(Object.keys(panier).length === 0){ showToast('⚠ Panier vide'); return; }
+  genererRecu('vendu');
+  const zone = document.getElementById('print-zone');
+  zone.innerHTML = document.getElementById('ticket').outerHTML;
+  window.print();
+  zone.innerHTML = '';
+}
+
+/* ── Export PDF ── */
+function exportPDF(){
+  if(Object.keys(panier).length === 0){ showToast('⚠ Panier vide'); return; }
+  genererRecu('vendu');
+  const content = document.getElementById('ticket').innerHTML;
+  const w = window.open('','_blank','width=420,height=700');
+  w.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8"><title>Reçu MAFRO</title>
+    <style>
+      body{font-family:'Courier New',monospace;font-size:10pt;width:80mm;margin:0 auto;padding:4mm}
+      .ticket-logo{font-size:16pt;font-weight:900;text-align:center;font-family:Arial}
+      .ticket-shop,.ticket-loc{text-align:center;font-size:9pt;font-family:Arial}
+      .ticket-sep{border:none;border-top:1px dashed #ccc;margin:8px 0}
+      .ticket-meta{font-size:9pt;line-height:1.8;margin-bottom:8px}
+      .ticket-items{width:100%;border-collapse:collapse;font-size:9pt}
+      .ticket-items th{text-align:left;font-size:8pt;color:#666;font-weight:600;padding-bottom:6px;border-bottom:1px solid #eee}
+      .ticket-items td{padding:4px 0}
+      .ticket-items td:nth-child(2){text-align:center}
+      .ticket-items td:nth-child(3){text-align:right}
+      .ticket-items td:nth-child(4){text-align:right;font-weight:700}
+      .ticket-remise{display:flex;justify-content:space-between;font-size:9pt;color:green;margin-top:6px}
+      .ticket-remise.show{display:flex}
+      .ticket-total{display:flex;justify-content:space-between;margin-top:8px}
+      .ticket-total-lbl{font-size:11pt;font-weight:700;font-family:Arial}
+      .ticket-total-val{font-size:14pt;font-weight:900;font-family:Arial}
+      .ticket-footer{text-align:center;margin-top:12px;font-size:9pt;font-family:Arial}
+      .wa-cta{font-family:'Courier New';font-size:10pt;font-weight:600;color:#075E54;display:block;margin-top:6px}
+      .qr-mini{display:none}
+    </style>
+  </head><body>${content}</body></html>`);
+  w.document.close();
+  setTimeout(()=>{ w.print(); }, 500);
+}
+
+/* ── WhatsApp ── */
+function partagerWA(){
+  const items = Object.values(panier);
+  if(!items.length){ showToast('⚠ Panier vide'); return; }
+  const sub  = items.reduce((s,p)=>s+(p.pr*p.qty),0);
+  const disc = Math.round(sub * remisePct / 100);
+  const total = sub - disc;
+  const b = BOUTIQUES[currentBoutique] || BOUTIQUES['Akpakpa'];
+
+  const lignes = items.map(p=>
+    `• ${p.em} ${p.nm} ×${p.qty} = ${(p.pr*p.qty).toLocaleString('fr-FR')} F`
+  ).join('%0A');
+
+  const msg =
+    `🧾 *Reçu MAFRO Network*%0A` +
+    `${b.name} · ${b.loc}%0A%0A` +
+    `${lignes}%0A` +
+    (disc>0 ? `%0A🏷 Remise : −${disc.toLocaleString('fr-FR')} F%0A` : '') +
+    `%0A*TOTAL : ${total.toLocaleString('fr-FR')} FCFA*%0A%0A` +
+    `Enregistrez ce contact pour voir nos promos en Statut WhatsApp 🙏%0A` +
+    `wa.me/22997XXXXXX · MAFRO Network`;
+
+  window.open(`https://wa.me/?text=${msg}`, '_blank');
+}
+
+/* ── Toast ── */
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+/* ── Init ── */
+renderGrid();
+updateTotal();
+</script>
 </body>
 </html>
