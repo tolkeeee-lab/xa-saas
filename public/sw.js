@@ -1,9 +1,10 @@
-const CACHE = 'xa-v2';
-const API_CACHE = 'xa-api-v1';
+const CACHE = 'xa-v3';
+const API_CACHE = 'xa-api-v2';
 const API_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const STATIC_URLS = [
   '/dashboard',
   '/dashboard/caisse',
+  '/dashboard/stocks',
   '/offline',
   '/icon.svg',
 ];
@@ -76,26 +77,38 @@ self.addEventListener('fetch', (e) => {
 
   const url = new URL(e.request.url);
 
+  // Network-first for HTML documents (always show latest version when online)
+  if (e.request.destination === 'document') {
+    e.respondWith(
+      fetch(e.request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE).then((cache) => cache.put(e.request, clone));
+          }
+          return response;
+        })
+        .catch(() =>
+          caches.match(e.request).then(
+            (cached) => cached ?? caches.match('/offline')
+          )
+        )
+    );
+    return;
+  }
+
   // Stale-while-revalidate for /api/produits
   if (isProduitsRequest(url)) {
     e.respondWith(staleWhileRevalidate(e.request));
     return;
   }
 
+  // Network-first for everything else (with cache fallback for offline)
   e.respondWith(
-    fetch(e.request)
-      .then((response) => {
-        // Mettre en cache les réponses réussies pour les pages statiques
-        if (response.ok && e.request.destination === 'document') {
-          const clone = response.clone();
-          caches.open(CACHE).then((cache) => cache.put(e.request, clone));
-        }
-        return response;
-      })
-      .catch(() =>
-        caches.match(e.request).then(
-          (cached) => cached ?? caches.match('/offline')
-        )
+    fetch(e.request).catch(() =>
+      caches.match(e.request).then(
+        (cached) => cached ?? caches.match('/offline')
       )
+    )
   );
 });
