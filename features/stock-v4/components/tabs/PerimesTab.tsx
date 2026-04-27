@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import type { ProduitAvecStatut, BoutiqueActiveId } from '../../types';
 import type { Boutique } from '@/types/database';
 import RetireStockModal from '../RetireStockModal';
+import { getCategoryEmoji } from '../../utils/categoryEmoji';
 
 interface PerimesTabProps {
   produits: ProduitAvecStatut[];
@@ -39,18 +40,6 @@ function getDlcInfo(dateStr: string): {
     return { label: `J+${diffDays} jour${diffDays > 1 ? 's' : ''}`, className: 'v4-dlc-soon' };
   }
   return { label: `J+${diffDays} jours`, className: 'v4-dlc-ok' };
-}
-
-function getCategoryEmoji(cat: string | null): string {
-  const c = (cat ?? '').toLowerCase();
-  if (c.includes('boisson') || c.includes('drink')) return '🥤';
-  if (c.includes('alimentaire') || c.includes('aliment') || c.includes('food')) return '🍎';
-  if (c.includes('hygien') || c.includes('nettoy')) return '🧼';
-  if (c.includes('viande') || c.includes('poisson')) return '🥩';
-  if (c.includes('légume') || c.includes('legume') || c.includes('fruit')) return '🥦';
-  if (c.includes('lait') || c.includes('dairy')) return '🥛';
-  if (c.includes('pain') || c.includes('boulangerie')) return '🍞';
-  return '📦';
 }
 
 export default function PerimesTab({

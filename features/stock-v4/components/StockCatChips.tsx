@@ -1,5 +1,7 @@
 'use client';
 
+import { getCategoryEmoji } from '../utils/categoryEmoji';
+
 interface StockCatChipsProps {
   categories: string[];
   active: string;
@@ -20,7 +22,7 @@ export default function StockCatChips({ categories, active, onChange }: StockCat
           className={`v4-cat-chip${cat === active ? ' active' : ''}`}
           onClick={() => onChange(cat)}
         >
-          {cat}
+          {cat === 'Toutes' ? cat : `${getCategoryEmoji(cat)} ${cat}`}
         </button>
       ))}
     </div>

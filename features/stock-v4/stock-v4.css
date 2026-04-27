@@ -308,6 +308,9 @@
 
 .v4-tab-btn {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   padding: 10px 14px;
   font-family: var(--v4-f);
   font-size: 11px;
@@ -346,6 +349,16 @@
   margin-left: 4px;
 }
 
+.v4-tab-badge--red {
+  background: var(--v4-r);
+  color: white;
+}
+
+.v4-tab-badge--amber {
+  background: #FFB300;
+  color: white;
+}
+
 /* ─── Scrollable panel ────────────────────────────────── */
 
 .v4-panel {
@@ -373,6 +386,31 @@
   gap: 2px;
 }
 
+.v4-kpi-card--green {
+  background: var(--v4-gl);
+  border-color: rgba(0, 200, 83, 0.18);
+}
+
+.v4-kpi-card--amber {
+  background: var(--v4-al);
+  border-color: rgba(255, 152, 0, 0.18);
+}
+
+.v4-kpi-card--purple {
+  background: var(--xa-purplebg);
+  border-color: rgba(124, 58, 237, 0.18);
+}
+
+.v4-kpi-icon {
+  color: var(--v4-mu);
+  flex-shrink: 0;
+  margin-bottom: 2px;
+}
+
+.v4-kpi-card--green .v4-kpi-icon { color: var(--v4-gd); }
+.v4-kpi-card--amber .v4-kpi-icon { color: #7B5800; }
+.v4-kpi-card--purple .v4-kpi-icon { color: var(--xa-purple); }
+
 .v4-kpi-label {
   font-size: 9px;
   font-weight: 600;
@@ -381,6 +419,10 @@
   letter-spacing: 0.5px;
 }
 
+.v4-kpi-card--green .v4-kpi-label { color: var(--v4-gd); }
+.v4-kpi-card--amber .v4-kpi-label { color: #7B5800; }
+.v4-kpi-card--purple .v4-kpi-label { color: var(--xa-purple); }
+
 .v4-kpi-value {
   font-family: var(--v4-fm);
   font-size: 20px;
@@ -388,6 +430,10 @@
   color: var(--v4-ink);
   line-height: 1.1;
 }
+
+.v4-kpi-card--green .v4-kpi-value { color: var(--v4-gd); }
+.v4-kpi-card--amber .v4-kpi-value { color: #7B5800; }
+.v4-kpi-card--purple .v4-kpi-value { color: var(--xa-purple); }
 
 .v4-kpi-card.ok .v4-kpi-value   { color: var(--v4-g); }
 .v4-kpi-card.warn .v4-kpi-value { color: var(--v4-a); }
@@ -459,6 +505,32 @@
 .v4-sort-btn:hover:not(.active) {
   border-color: var(--v4-ink);
   color: var(--v4-ink);
+}
+
+/* Sort pill — inline inside search */
+
+.v4-sort-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 20px;
+  font-family: var(--v4-f);
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--v4-surf);
+  border: 1.5px solid var(--v4-brd);
+  color: var(--v4-ink);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.v4-sort-pill:hover {
+  background: var(--v4-gl);
+  border-color: var(--v4-g);
+  color: var(--v4-gd);
 }
 
 /* ─── Category chips ──────────────────────────────────── */
@@ -1299,3 +1371,176 @@
   50%  { opacity: 0.5; }
   100% { opacity: 1; }
 }
+
+/* ─── Sync bar timestamp ──────────────────────────────── */
+
+.v4-sync-time {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--v4-gd);
+  opacity: 0.8;
+}
+
+/* ─── Soft add button (header) ────────────────────────── */
+
+.v4-icon-btn--add {
+  background: var(--v4-gl) !important;
+  border-color: var(--v4-g) !important;
+  color: var(--v4-gd) !important;
+}
+
+.v4-icon-btn--add:hover {
+  background: var(--v4-g) !important;
+  color: white !important;
+}
+
+/* ─── Tab badges ──────────────────────────────────────── */
+/* (variants already added in main tab badge block above) */
+
+/* ─── Produit list item v2 ────────────────────────────── */
+
+.v4-pli {
+  background: var(--v4-card);
+  border: 1px solid var(--v4-brd);
+  border-radius: 14px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  transition: box-shadow 0.15s;
+}
+
+.v4-pli:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+}
+
+.v4-pli-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--v4-surf);
+  border: 1px solid var(--v4-brd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.v4-pli-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.v4-pli-nm {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--v4-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.v4-pli-boutique {
+  font-weight: 500;
+  color: var(--v4-mu);
+}
+
+.v4-pli-chip {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--v4-mu);
+  background: var(--v4-surf);
+  border: 1px solid var(--v4-brd);
+  border-radius: 20px;
+  padding: 1px 7px;
+  display: inline-block;
+  align-self: flex-start;
+  white-space: nowrap;
+}
+
+.v4-pli-bar {
+  height: 4px;
+  background: var(--v4-surf);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.v4-pli-bar-fill--ok {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--v4-g);
+  transition: width 0.3s;
+}
+
+.v4-pli-bar-fill--low {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--v4-a);
+  transition: width 0.3s;
+}
+
+.v4-pli-bar-fill--rupt {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--v4-r);
+  transition: width 0.3s;
+  width: 100%;
+}
+
+.v4-pli-ratio {
+  font-family: var(--v4-fm);
+  font-size: 10px;
+  color: var(--v4-mu);
+}
+
+.v4-pli-price-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.v4-pli-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--v4-ink);
+  white-space: nowrap;
+}
+
+.v4-pli-value {
+  font-family: var(--v4-fm);
+  font-size: 10px;
+  color: var(--v4-mu);
+  white-space: nowrap;
+}
+
+.v4-pli-add-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--v4-gl);
+  border: 1.5px solid var(--v4-g);
+  color: var(--v4-gd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+  margin-top: 2px;
+}
+
+.v4-pli-add-btn:hover {
+  background: var(--v4-g);
+  color: white;
+}
+

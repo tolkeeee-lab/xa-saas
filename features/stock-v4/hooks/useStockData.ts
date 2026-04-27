@@ -115,12 +115,18 @@ export function useStockData(
   }, [produits, search, catActive, sortMode]);
 
   const kpis = useMemo<StockKpis>(() => {
+    const produitCount = produits.length;
+    const alerteCount = produits.filter(
+      (p) => p.stock_actuel <= 0 || p.stock_actuel <= p.seuil_alerte,
+    ).length;
+    const valeurStock = produits.reduce((acc, p) => acc + p.stock_actuel * p.prix_vente, 0);
+    // legacy fields kept for backward-compat
     const total = produits.reduce((acc, p) => acc + p.stock_actuel, 0);
     const faibles = produits.filter(
       (p) => p.stock_actuel > 0 && p.stock_actuel <= p.seuil_alerte,
     ).length;
     const ruptures = produits.filter((p) => p.stock_actuel <= 0).length;
-    return { total, faibles, ruptures };
+    return { produits: produitCount, alertes: alerteCount, valeurStock, total, faibles, ruptures };
   }, [produits]);
 
   return {

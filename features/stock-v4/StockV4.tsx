@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Boutique } from '@/types/database';
 import type { BoutiqueActiveId, StockTabId, ModalState, SortMode } from './types';
 import { useStockData } from './hooks/useStockData';
@@ -62,6 +62,30 @@ export default function StockV4({ boutiques }: StockV4Props) {
     (p) => p.statut === 'low' || p.statut === 'crit' || p.statut === 'rupt',
   ).length;
 
+  // Périmés badge: products with DLC expired or within 7 days
+  const perimeBadge = filteredProduits.filter((p) => {
+    if (!p.date_peremption) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dlc = new Date(p.date_peremption);
+    dlc.setHours(0, 0, 0, 0);
+    const diffDays = Math.round((dlc.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return diffDays <= 7;
+  }).length;
+
+  // Sync timestamp
+  const [syncTime] = useState(() => Date.now());
+  const [syncLabel, setSyncLabel] = useState('');
+  useEffect(() => {
+    function update() {
+      const diffMin = Math.floor((Date.now() - syncTime) / 60000);
+      setSyncLabel(diffMin < 1 ? 'à l\'instant' : `il y a ${diffMin} min`);
+    }
+    update();
+    const id = setInterval(update, 30000);
+    return () => clearInterval(id);
+  }, [syncTime]);
+
   // ── Modal ─────────────────────────────────────────────────────────────────────
   const [modal, setModal] = useState<ModalState>(null);
 
@@ -85,6 +109,7 @@ export default function StockV4({ boutiques }: StockV4Props) {
       <div className="v4-sync-bar">
         <span className="v4-sync-dot" />
         <span>☁ Synchronisé</span>
+        {syncLabel ? <span className="v4-sync-time">{syncLabel}</span> : null}
       </div>
 
       {/* Consolidated banner */}
@@ -100,6 +125,7 @@ export default function StockV4({ boutiques }: StockV4Props) {
         active={activeTab}
         onChange={setActiveTab}
         alerteBadge={alerteBadge}
+        perimeBadge={perimeBadge}
       />
 
       {/* Active panel */}
