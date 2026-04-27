@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>MAFRO — Stock</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --g:    #00C853;
+  --gd:   #007A32;
+  --gl:   #E8F5E9;
+  --r:    #FF3D00;
+  --rl:   #FBE9E7;
+  --a:    #FFB300;
+  --al:   #FFF8E1;
+  --b:    #1565C0;
+  --bl:   #E3F2FD;
+  --ink:  #0F0F1A;
+  --ink2: #1E1E32;
+  --mu:   #6B7280;
+  --mu2:  #9CA3AF;
+  --brd:  #E5E7EB;
+  --surf: #F8FAFC;
+  --white:#FFFFFF;
+  --f:    'Sora', sans-serif;
+  --fm:   'JetBrains Mono', monospace;
+  --nav:  68px;
+  --header: 54px;
+}
+
+html, body { height: 100%; overflow: hidden; background: #0F0F1A; }
+body { font-family: var(--f); color: var(--ink); display: flex; align-items: center; justify-content: center; }
+
+/* Phone shell */
+.shell {
+  width: 390px; height: 844px;
+  background: var(--white);
+  border-radius: 44px; overflow: hidden;
+  display: flex; flex-direction: column;
+  position: relative;
+  box-shadow:
+    0 0 0 10px #1A1A2E,
+    0 0 0 12px #2D2D48,
+    0 0 80px rgba(0,200,83,.15),
+    0 40px 120px rgba(0,0,0,.8);
+}
+.shell::before {
+  content: ''; position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 126px; height: 34px;
+  background: #0F0F1A;
+  border-radius: 0 0 20px 20px;
+  z-index: 100;
+}
+
+/* Status bar */
+.status-bar { height: 44px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 28px 6px; flex-shrink: 0; background: var(--white); }
+.status-time { font-size: 12px; font-weight: 600; color: var(--ink); letter-spacing: -.3px; }
+.status-icons { display: flex; align-items: center; gap: 5px; }
+.status-icons svg { width: 14px; height: 14px; }
+
+/* Header */
+.header {
+  height: var(--header);
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--brd);
+  flex-shrink: 0;
+  background: var(--white);
+}
+.logo {
+  background: var(--ink); color: var(--white);
+  font-size: 10px; font-weight: 900; padding: 4px 8px;
+  border-radius: 7px; letter-spacing: 2px; flex-shrink: 0;
+}
+.header-info { flex: 1; min-width: 0; }
+.header-info h1 { font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+.header-info p { font-size: 10px; color: var(--mu); margin-top: 1px; }
+.header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.hbtn {
+  width: 32px; height: 32px; border-radius: 10px;
+  background: var(--surf); border: 1px solid var(--brd);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background .15s;
+}
+.hbtn:hover { background: var(--brd); }
+.hbtn svg { width: 15px; height: 15px; stroke: var(--ink); fill: none; stroke-width: 1.8; }
+
+/* KPI strip */
+.kpi-row {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 6px; padding: 10px 14px;
+  background: var(--surf); border-bottom: 1px solid var(--brd);
+  flex-shrink: 0;
+}
+.kpi {
+  background: var(--white); border-radius: 10px;
+  padding: 8px 6px; text-align: center; cursor: pointer;
+  border: 1.5px solid var(--brd); transition: all .15s;
+}
+.kpi:hover { border-color: var(--g); transform: translateY(-1px); }
+.kpi.alert { border-color: var(--a); background: var(--al); }
+.kpi.danger { border-color: var(--r); background: var(--rl); }
+.kpi-val { font-family: var(--fm); font-size: 16px; font-weight: 800; color: var(--ink); line-height: 1; }
+.kpi.alert .kpi-val { color: #7B5800; }
+.kpi.danger .kpi-val { color: var(--r); }
+.kpi-lbl { font-size: 8px; color: var(--mu); margin-top: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
+
+/* Tabs */
+.tabs {
+  display: flex; gap: 4px; padding: 8px 14px;
+  overflow-x: auto; scrollbar-width: none;
+  border-bottom: 1px solid var(--brd);
+  flex-shrink: 0; background: var(--white);
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex-shrink: 0; padding: 6px 12px; border-radius: 18px;
+  background: var(--surf); border: 1.5px solid var(--brd);
+  font-size: 11px; font-weight: 700; color: var(--mu);
+  cursor: pointer; white-space: nowrap; transition: all .15s;
+  display: flex; align-items: center; gap: 4px;
+}
+.tab:hover { border-color: var(--g); color: var(--gd); }
+.tab.on { background: var(--ink); color: white; border-color: var(--ink); }
+.tab-badge { background: rgba(255,255,255,.2); padding: 1px 6px; border-radius: 10px; font-size: 9px; font-weight: 700; }
+.tab:not(.on) .tab-badge { background: var(--rl); color: var(--r); }
+
+/* Search */
+.search-wrap {
+  padding: 8px 14px;
+  background: var(--white); border-bottom: 1px solid var(--brd);
+  flex-shrink: 0;
+}
+.search-inner {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surf); border: 1.5px solid var(--brd);
+  border-radius: 11px; padding: 8px 12px;
+}
+.search-inner svg { width: 14px; height: 14px; stroke: var(--mu); fill: none; stroke-width: 2; }
+.search-inner input {
+  flex: 1; background: none; border: none; outline: none;
+  font-family: var(--f); font-size: 12px;
+}
+.scan-mini {
+  background: var(--ink); color: white; border: none;
+  border-radius: 7px; padding: 4px 8px;
+  font-size: 9px; font-weight: 700; display: flex; align-items: center; gap: 4px;
+  cursor: pointer;
+}
+.scan-mini svg { width: 11px; height: 11px; stroke: white; }
+
+/* List */
+.list-scroll {
+  flex: 1; overflow-y: auto; padding: 8px 14px 14px;
+  background: var(--surf);
+  scrollbar-width: thin;
+}
+.list-scroll::-webkit-scrollbar { width: 3px; }
+.list-scroll::-webkit-scrollbar-thumb { background: var(--brd); border-radius: 10px; }
+
+.prod-card {
+  background: var(--white); border-radius: 14px;
+  padding: 11px 12px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 11px;
+  border: 1.5px solid var(--brd); cursor: pointer;
+  transition: all .15s;
+}
+.prod-card:hover { border-color: var(--g); }
+.prod-card.bas { border-left: 4px solid var(--a); }
+.prod-card.rupture { border-left: 4px solid var(--r); opacity: .85; }
+.prod-card.perime { border-left: 4px solid var(--ink); background: #FFF8E1; }
+
+.prod-em {
+  width: 42px; height: 42px; border-radius: 12px;
+  background: var(--surf); display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.prod-info { flex: 1; min-width: 0; }
+.prod-nm { font-size: 12px; font-weight: 700; color: var(--ink); }
+.prod-cat { font-size: 9px; color: var(--mu); margin-top: 1px; }
+.prod-meta { display: flex; align-items: center; gap: 6px; margin-top: 5px; }
+.prod-stock {
+  font-family: var(--fm); font-size: 11px; font-weight: 700;
+  background: var(--gl); color: var(--gd);
+  padding: 2px 7px; border-radius: 5px;
+}
+.prod-stock.bas { background: var(--al); color: #7B5800; }
+.prod-stock.rupture { background: var(--rl); color: var(--r); }
+.prod-pr { font-size: 10px; color: var(--mu); }
+.prod-pr b { color: var(--ink); font-weight: 700; }
+
+.prod-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.prod-act-btn {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--surf); border: 1px solid var(--brd);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .15s;
+}
+.prod-act-btn:hover { background: var(--gl); border-color: var(--g); }
+.prod-act-btn svg { width: 12px; height: 12px; stroke: var(--ink); fill: none; stroke-width: 2; }
+
+.alert-tag {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 9px; font-weight: 700;
+  padding: 2px 6px; border-radius: 5px;
+  background: var(--rl); color: var(--r);
+  margin-top: 4px;
+}
+.alert-tag.warn { background: var(--al); color: #7B5800; }
+
+/* FAB */
+.fab {
+  position: absolute; bottom: 80px; right: 16px;
+  width: 56px; height: 56px; border-radius: 18px;
+  background: var(--g); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 800;
+  border: none; cursor: pointer; z-index: 50;
+  box-shadow: 0 8px 24px rgba(0,200,83,.4);
+  transition: all .15s;
+}
+.fab:hover { background: var(--gd); transform: scale(1.05); }
+.fab:active { transform: scale(.95); }
+
+/* Bottom nav */
+.bnav {
+  height: var(--nav); display: flex;
+  border-top: 1px solid var(--brd); background: var(--white);
+  flex-shrink: 0;
+}
+.bni {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 3px;
+  cursor: pointer; position: relative;
+  transition: background .15s;
+}
+.bni:hover { background: var(--surf); }
+.bni svg { width: 20px; height: 20px; stroke: var(--mu2); fill: none; stroke-width: 1.6; }
+.bni span { font-size: 8.5px; font-weight: 600; color: var(--mu); }
+.bni.on svg { stroke: var(--ink); }
+.bni.on span { color: var(--ink); font-weight: 700; }
+.bni.on::after {
+  content: ''; position: absolute; bottom: 0;
+  left: 20%; right: 20%; height: 3px;
+  background: var(--g); border-radius: 3px 3px 0 0;
+}
+
+/* Toast */
+.toast {
+  position: absolute; bottom: 90px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: white;
+  font-size: 11px; font-weight: 600; padding: 10px 16px;
+  border-radius: 20px; white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transition: all .3s; z-index: 400;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-time" id="clock">14:32</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 14 14" fill="var(--ink)" stroke="none"><path d="M7 2.5C4.5 2.5 2.3 3.6 0.8 5.4l1.1 1.1C3.1 5.1 4.9 4.1 7 4.1s3.9 1 5.1 2.4l1.1-1.1C11.7 3.6 9.5 2.5 7 2.5zm0 3.2c-1.6 0-3 .7-4 1.8l1.1 1.1c.7-.8 1.8-1.3 2.9-1.3s2.2.5 2.9 1.3l1.1-1.1c-1-1.1-2.4-1.8-4-1.8zm0 3.2c-.9 0-1.6.4-2.1 1l2.1 2.1 2.1-2.1c-.5-.6-1.2-1-2.1-1z"/></svg>
+      <svg viewBox="0 0 14 10" fill="var(--ink)" stroke="none"><rect x="0" y="0" width="12" height="10" rx="2"/><rect x="12.5" y="3" width="1.5" height="4" rx="1"/><rect x="1" y="1" width="8" height="8" rx="1" fill="var(--g)"/></svg>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">XÀ</div>
+    <div class="header-info">
+      <h1>📦 Gestion Stock</h1>
+      <p>Boutique 1 · Akpakpa</p>
+    </div>
+    <div class="header-actions">
+      <div class="hbtn" onclick="showToast('🔄 Synchronisation…')">
+        <svg viewBox="0 0 20 20"><path d="M4 10a6 6 0 0 1 10-4l2-1M16 10a6 6 0 0 1-10 4l-2 1"/></svg>
+      </div>
+      <div class="hbtn" onclick="showToast('⚙️ Paramètres')">
+        <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="2"/><path d="M10 2v3M10 15v3M2 10h3M15 10h3"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI strip -->
+  <div class="kpi-row">
+    <div class="kpi" onclick="filterTab('tous', this)">
+      <div class="kpi-val">142</div>
+      <div class="kpi-lbl">Produits</div>
+    </div>
+    <div class="kpi alert" onclick="filterTab('bas', this)">
+      <div class="kpi-val">8</div>
+      <div class="kpi-lbl">Bas</div>
+    </div>
+    <div class="kpi danger" onclick="filterTab('rupture', this)">
+      <div class="kpi-val">3</div>
+      <div class="kpi-lbl">Rupture</div>
+    </div>
+    <div class="kpi danger" onclick="filterTab('perime', this)">
+      <div class="kpi-val">2</div>
+      <div class="kpi-lbl">Périmés</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab on" onclick="filterTab('tous', this)">Tous</div>
+    <div class="tab" onclick="filterTab('bas', this)">⚠️ Bas <span class="tab-badge">8</span></div>
+    <div class="tab" onclick="filterTab('rupture', this)">🚨 Rupture <span class="tab-badge">3</span></div>
+    <div class="tab" onclick="filterTab('perime', this)">⏰ Périmés <span class="tab-badge">2</span></div>
+    <div class="tab" onclick="showToast('📋 Inventaires')">📋 Inventaires</div>
+    <div class="tab" onclick="showToast('🔄 Transferts')">🔄 Transferts</div>
+    <div class="tab" onclick="showToast('📉 Pertes')">📉 Pertes</div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <div class="search-inner">
+      <svg viewBox="0 0 20 20"><circle cx="9" cy="9" r="5"/><line x1="13" y1="13" x2="17" y2="17"/></svg>
+      <input type="text" placeholder="Rechercher un produit, code-barres…" oninput="filterSearch(this.value)">
+      <button class="scan-mini" onclick="showToast('📷 Scanner activé')">
+        <svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/></svg>
+        Scan
+      </button>
+    </div>
+  </div>
+
+  <!-- List -->
+  <div class="list-scroll">
+    <div id="list"></div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="showToast('➕ Nouvel ajustement')" title="Nouveau">+</button>
+
+  <!-- Bottom nav -->
+  <div class="bnav">
+    <div class="bni" onclick="showToast('💼 Caisse')">
+      <svg viewBox="0 0 20 20"><rect x="3" y="5" width="14" height="12" rx="2"/><line x1="3" x2="17" y1="9" y2="9"/></svg>
+      <span>Caisse</span>
+    </div>
+    <div class="bni" onclick="showToast('📖 Dettes')">
+      <svg viewBox="0 0 20 20"><path d="M4 6h12M4 10h8M4 14h5"/></svg>
+      <span>Dettes</span>
+    </div>
+    <div class="bni on">
+      <svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="14" rx="2"/><line x1="3" x2="17" y1="9" y2="9"/></svg>
+      <span>Stocks</span>
+    </div>
+    <div class="bni" onclick="showToast('📊 Stats')">
+      <svg viewBox="0 0 20 20"><rect x="3" y="11" width="3" height="6"/><rect x="8.5" y="7" width="3" height="10"/><rect x="14" y="4" width="3" height="13"/></svg>
+      <span>Stats</span>
+    </div>
+    <div class="bni" onclick="showToast('👤 Profil')">
+      <svg viewBox="0 0 20 20"><circle cx="10" cy="7" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+      <span>Profil</span>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const PRODUITS = [
+  { id:'p1',  em:'🌾', nm:'Farine de blé 1kg',     cat:'Épicerie',    stock:12, seuil:5,  pr:3500, etat:'ok' },
+  { id:'p2',  em:'🫙',  nm:'Huile de palme 1L',    cat:'Épicerie',    stock:2,  seuil:5,  pr:1500, etat:'bas' },
+  { id:'p3',  em:'🍚', nm:'Riz local 5kg',         cat:'Épicerie',    stock:0,  seuil:10, pr:8000, etat:'rupture' },
+  { id:'p4',  em:'🧂', nm:'Sucre 1kg',             cat:'Épicerie',    stock:24, seuil:8,  pr:600,  etat:'ok' },
+  { id:'p5',  em:'🧴', nm:'Savon Éclat',           cat:'Hygiène',     stock:0,  seuil:6,  pr:400,  etat:'rupture' },
+  { id:'p6',  em:'🍅', nm:'Tomate concentrée',     cat:'Épicerie',    stock:6,  seuil:10, pr:1200, etat:'bas', perime:true },
+  { id:'p7',  em:'🥤', nm:'Jus Bissap 50cl',       cat:'Boissons',    stock:24, seuil:12, pr:500,  etat:'ok' },
+  { id:'p8',  em:'🧃', nm:'Jus Gingembre 50cl',    cat:'Boissons',    stock:18, seuil:12, pr:500,  etat:'ok' },
+  { id:'p9',  em:'🫘',  nm:'Haricot 1kg',          cat:'Épicerie',    stock:3,  seuil:8,  pr:700,  etat:'bas' },
+  { id:'p10', em:'🌽', nm:'Maïs concassé 1kg',     cat:'Épicerie',    stock:30, seuil:10, pr:650,  etat:'ok' },
+  { id:'p11', em:'☕', nm:'Café Robusta 250g',     cat:'Boissons',    stock:5,  seuil:6,  pr:1800, etat:'bas' },
+  { id:'p12', em:'🧇', nm:'Gari fin 1kg',          cat:'Épicerie',    stock:40, seuil:15, pr:550,  etat:'ok' },
+  { id:'p13', em:'🥛', nm:'Lait concentré (PÉRIMÉ)', cat:'Frais',     stock:8,  seuil:6,  pr:900,  etat:'ok', perime:true },
+];
+
+let activeTab = 'tous';
+let currentSearch = '';
+
+function tick(){
+  const n = new Date();
+  const h = String(n.getHours()).padStart(2,'0');
+  const m = String(n.getMinutes()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}`;
+}
+tick(); setInterval(tick, 10000);
+
+function render(){
+  const list = document.getElementById('list');
+  let items = PRODUITS;
+  if (activeTab === 'bas') items = items.filter(p => p.etat === 'bas');
+  else if (activeTab === 'rupture') items = items.filter(p => p.etat === 'rupture');
+  else if (activeTab === 'perime') items = items.filter(p => p.perime);
+  if (currentSearch) {
+    const q = currentSearch.toLowerCase();
+    items = items.filter(p => p.nm.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q));
+  }
+  if (!items.length) {
+    list.innerHTML = `<div style="text-align:center;padding:48px 0;color:var(--mu2);font-size:12px">Aucun produit trouvé</div>`;
+    return;
+  }
+  list.innerHTML = items.map(p => {
+    let stockClass = '';
+    let cardClass = '';
+    if (p.etat === 'bas')     { stockClass = 'bas'; cardClass = 'bas'; }
+    if (p.etat === 'rupture') { stockClass = 'rupture'; cardClass = 'rupture'; }
+    if (p.perime && activeTab === 'perime') cardClass = 'perime';
+
+    let alertTag = '';
+    if (p.etat === 'rupture') alertTag = `<span class="alert-tag">🚨 Rupture</span>`;
+    else if (p.etat === 'bas') alertTag = `<span class="alert-tag warn">⚠️ Stock bas (seuil: ${p.seuil})</span>`;
+    if (p.perime) alertTag += ` <span class="alert-tag">⏰ Périmé</span>`;
+
+    return `
+      <div class="prod-card ${cardClass}" onclick="showToast('📝 Détail · ${p.nm}')">
+        <div class="prod-em">${p.em}</div>
+        <div class="prod-info">
+          <div class="prod-nm">${p.nm}</div>
+          <div class="prod-cat">${p.cat}</div>
+          <div class="prod-meta">
+            <span class="prod-stock ${stockClass}">${p.stock} en stock</span>
+            <span class="prod-pr"><b>${p.pr.toLocaleString('fr-FR')} F</b></span>
+          </div>
+          ${alertTag}
+        </div>
+        <div class="prod-actions">
+          <div class="prod-act-btn" onclick="event.stopPropagation();showToast('➕ Réception · ${p.nm}')" title="Réception">
+            <svg viewBox="0 0 16 16"><path d="M8 2v12M2 8h12"/></svg>
+          </div>
+          <div class="prod-act-btn" onclick="event.stopPropagation();showToast('📊 Historique · ${p.nm}')" title="Historique">
+            <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l3 2"/></svg>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function filterTab(tab, el){
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  if (el && el.classList.contains('tab')) el.classList.add('on');
+  else {
+    const map = {tous:0, bas:1, rupture:2, perime:3};
+    const idx = map[tab];
+    if (idx !== undefined) document.querySelectorAll('.tab')[idx].classList.add('on');
+  }
+  render();
+}
+function filterSearch(v){ currentSearch = v; render(); }
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._tt);
+  window._tt = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+render();
+</script>
+</body>
+</html>
