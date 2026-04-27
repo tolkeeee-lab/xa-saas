@@ -41,13 +41,13 @@ const NAV_ITEMS: NavItem[] = [
     match: 'prefix',
   },
   {
-    href: '/dashboard/stock',
+    href: '/dashboard/stocks',
     icon: Package,
     label: 'Stock',
     match: 'group',
     groupRoutes: [
-      '/dashboard/stock',
       '/dashboard/stocks',
+      '/dashboard/stock',
       '/dashboard/transferts',
       '/dashboard/perimes',
       '/dashboard/pertes',
