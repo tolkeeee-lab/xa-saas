@@ -4,7 +4,7 @@ import type { EffectiveRole } from '@/lib/auth/getEffectiveRole';
 import ProfilSection from './sections/ProfilSection';
 import SecuriteSection from './sections/SecuriteSection';
 import BoutiquesSection from './sections/BoutiquesSection';
-import CategoriesSection from './sections/CategoriesSection';
+import CategoriesManager from '@/features/categories/CategoriesManager';
 import PreferencesSection from './sections/PreferencesSection';
 import AProposSection from './sections/AProposSection';
 
@@ -21,7 +21,7 @@ export default function SettingsScreen({ role }: SettingsScreenProps) {
       <ProfilSection role={role} />
       <SecuriteSection role={role} />
       {showBoutiques && <BoutiquesSection role={role} />}
-      {showBoutiques && <CategoriesSection />}
+      {showBoutiques && <CategoriesManager />}
       <PreferencesSection />
       <AProposSection />
     </div>
