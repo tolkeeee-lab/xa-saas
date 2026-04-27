@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 import type { Boutique } from '@/types/database';
+import type { ReactNode } from 'react';
 
 interface CaisseHeaderProps {
   boutiques: Boutique[];
@@ -10,6 +11,7 @@ interface CaisseHeaderProps {
   onBoutiqueChange: (id: string) => void;
   caissierNom?: string;
   date: string;
+  themeToggle?: ReactNode;
 }
 
 export default function CaisseHeader({
@@ -18,6 +20,7 @@ export default function CaisseHeader({
   onBoutiqueChange,
   caissierNom,
   date,
+  themeToggle,
 }: CaisseHeaderProps) {
   const [dropOpen, setDropOpen] = useState(false);
   const switchRef = useRef<HTMLDivElement>(null);
@@ -55,6 +58,9 @@ export default function CaisseHeader({
       </div>
 
       <div className="v4-header-actions">
+        {/* Theme toggle */}
+        {themeToggle}
+
         {/* Boutique switcher */}
         <div className="v4-bswitch" ref={switchRef}>
           <button
