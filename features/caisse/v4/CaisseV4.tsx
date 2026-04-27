@@ -26,8 +26,6 @@ import CaisseFooter from './components/CaisseFooter';
 import RecuModal from './components/RecuModal';
 import CreditModal from './components/CreditModal';
 import RetraitModal from './components/RetraitModal';
-import ThemeToggle from '@/components/ui/ThemeToggle';
-
 import './caisse-v4.css';
 
 const BOUTIQUE_STORAGE_KEY = 'xa-boutique-active';
@@ -468,7 +466,6 @@ export default function CaisseV4({
         }}
         caissierNom={resolvedCaissierNom}
         date={dateStr}
-        themeToggle={<ThemeToggle />}
       />
 
       {/* Sync bar */}
