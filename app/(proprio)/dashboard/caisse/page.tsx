@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getBoutiques } from '@/lib/supabase/getBoutiques';
 import { getProduits } from '@/lib/supabase/getProduits';
-import CaisseV3 from '@/features/caisse/v3/CaisseV3';
+import CaisseV4 from '@/features/caisse/v4/CaisseV4';
 
 export const metadata = { title: 'Caisse POS — xà' };
 
@@ -38,5 +38,5 @@ export default async function CaissePage() {
     user.email?.split('@')[0] ??
     'Caissier';
 
-  return <CaisseV3 boutiques={boutiques} produits={produits} userId={user.id} caissierNom={caissierNom} />;
+  return <CaisseV4 boutiques={boutiques} produits={produits} userId={user.id} caissierNom={caissierNom} />;
 }
