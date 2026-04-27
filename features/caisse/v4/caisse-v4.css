@@ -5,27 +5,27 @@
 
 /* Design tokens */
 .xa-caisse-v4 {
-  --v4-g:    #00C853;
+  --v4-g:    var(--xa-green);
   --v4-gd:   #007A32;
-  --v4-gl:   #E8F5E9;
-  --v4-r:    #FF3D00;
-  --v4-rl:   #FBE9E7;
-  --v4-a:    #FFB300;
-  --v4-al:   #FFF8E1;
-  --v4-b:    #1565C0;
-  --v4-bl:   #E3F2FD;
-  --v4-ink:  #0F0F1A;
-  --v4-ink2: #1E1E32;
-  --v4-mu:   #6B7280;
-  --v4-mu2:  #9CA3AF;
-  --v4-brd:  #E5E7EB;
-  --v4-surf: #F8FAFC;
-  --v4-bg:   #FFFFFF;
-  --v4-card: #FFFFFF;
+  --v4-gl:   var(--xa-greenbg);
+  --v4-r:    var(--xa-red);
+  --v4-rl:   var(--xa-redbg);
+  --v4-a:    var(--xa-amber);
+  --v4-al:   var(--xa-amberbg);
+  --v4-b:    var(--xa-blue);
+  --v4-bl:   var(--xa-bluebg);
+  --v4-ink:  var(--xa-ink);
+  --v4-ink2: var(--xa-ink2);
+  --v4-mu:   var(--xa-muted);
+  --v4-mu2:  var(--xa-faint);
+  --v4-brd:  var(--xa-border);
+  --v4-surf: var(--xa-bg2);
+  --v4-bg:   var(--xa-bg);
+  --v4-card: var(--xa-surface);
   --v4-wa:   #25D366;
   --v4-wad:  #075E54;
-  --v4-f:    'Sora', 'DM Sans', sans-serif;
-  --v4-fm:   'JetBrains Mono', 'Space Mono', monospace;
+  --v4-f:    var(--font-familjen), 'Familjen Grotesk', sans-serif;
+  --v4-fm:   var(--font-plex-mono), 'IBM Plex Mono', monospace;
 
   /* Layout */
   display: flex;
@@ -40,23 +40,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ─── Dark mode overrides ─────────────────────────────── */
-.dark .xa-caisse-v4 {
-  --v4-ink:  #F1F1F3;
-  --v4-ink2: #E0E0E6;
-  --v4-mu:   #9CA3AF;
-  --v4-mu2:  #6B7280;
-  --v4-brd:  #374151;
-  --v4-surf: #1F2937;
-  --v4-bg:   #0F0F1A;
-  --v4-card: #1A1A2E;
-  --v4-gl:   rgba(0, 200, 83, 0.15);
-  --v4-gd:   #00C853;
-  --v4-rl:   rgba(255, 61, 0, 0.2);
-  --v4-al:   rgba(255, 179, 0, 0.15);
-  --v4-bl:   rgba(21, 101, 192, 0.2);
-  --v4-wad:  #128C7E;
-}
+/* ─── Dark mode : géré automatiquement via les tokens --xa-* du design system ─── */
 
 /* ─── Header ─────────────────────────────────────────── */
 
@@ -576,7 +560,7 @@
   font-family: var(--v4-f);
   font-size: 10px;
   font-weight: 700;
-  color: #FF7043;
+  color: var(--xa-red);
   cursor: pointer;
   flex-shrink: 0;
   white-space: nowrap;
@@ -874,7 +858,7 @@
 }
 
 .v4-btn-credit:hover:not(:disabled) {
-  background: #e0a000;
+  background: var(--xa-amber);
 }
 
 .v4-btn-credit:disabled {
