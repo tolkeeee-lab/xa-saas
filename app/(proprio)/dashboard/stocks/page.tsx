@@ -1,10 +1,9 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase-server';
 import { getBoutiques } from '@/lib/supabase/getBoutiques';
-import { getStocksConsolides } from '@/lib/supabase/getStocksConsolides';
-import StocksTable from '@/features/stocks/StocksTable';
+import StockV4 from '@/features/stock-v4/StockV4';
 
-export const metadata = { title: 'Stocks consolidés — xà' };
+export const metadata = { title: 'Stocks — xà' };
 
 export default async function StocksPage() {
   const supabase = await createClient();
@@ -14,14 +13,15 @@ export default async function StocksPage() {
 
   if (!user) redirect('/login');
 
-  const [boutiques, stocksData] = await Promise.all([
-    getBoutiques(user.id),
-    getStocksConsolides(user.id),
-  ]);
+  const boutiques = await getBoutiques(user.id);
 
-  return (
-    <div className="space-y-5">
-      <StocksTable data={stocksData} boutiques={boutiques} />
-    </div>
-  );
+  if (boutiques.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-center">
+        <p className="text-xa-muted mb-4">Aucune boutique active.</p>
+      </div>
+    );
+  }
+
+  return <StockV4 boutiques={boutiques} userId={user.id} />;
 }
