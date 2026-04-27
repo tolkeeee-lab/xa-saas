@@ -31,7 +31,7 @@ export const getPeremptions = cache(async (userId: string): Promise<ProduitPerem
   const { data: produits } = await supabase
     .from('produits')
     .select(
-      'id, boutique_id, nom, categorie, description, prix_achat, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, created_at, updated_at',
+      'id, boutique_id, nom, categorie, description, prix_achat, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, mode_achat, qty_par_lot, prix_lot_achat, lot_label, unite_label, created_at, updated_at',
     )
     .in('boutique_id', boutiqueIds)
     .not('date_peremption', 'is', null)
