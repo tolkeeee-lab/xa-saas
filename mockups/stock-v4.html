@@ -521,7 +521,7 @@ body { min-height:100%; background:var(--xa-bg2); font-family:var(--f); color:va
             </div>
           </div>
         </div>
-        <div class="hbtn theme-toggle" onclick="toggleTheme()" title="Changer thème"><span id="theme-icon">🌙</span></div>
+        <div class="hbtn theme-toggle" onclick="toggleTheme()" title="Changer thème" role="button" aria-label="Basculer le mode sombre" aria-pressed="false" id="theme-toggle-btn"><span id="theme-icon">🌙</span></div>
         <div class="hbtn" onclick="openHistoModal()" title="Historique">
           <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"></circle><polyline points="10,6 10,10 13,13"></polyline></svg>
         </div>
@@ -1200,7 +1200,9 @@ function toggleTheme() {
   const html = document.documentElement;
   const isDark = html.classList.toggle('dark');
   document.getElementById('theme-icon').textContent = isDark ? '🌞' : '🌙';
-  try { localStorage.setItem('xa-theme', isDark ? 'dark' : 'light'); } catch(e){}
+  const btn = document.getElementById('theme-toggle-btn');
+  if (btn) btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+  try { localStorage.setItem('xa-theme', isDark ? 'dark' : 'light'); } catch(e){ console.debug('localStorage unavailable', e); }
 }
 (function initTheme() {
   try {
@@ -1209,8 +1211,10 @@ function toggleTheme() {
       document.documentElement.classList.add('dark');
       const i = document.getElementById('theme-icon');
       if (i) i.textContent = '🌞';
+      const btn = document.getElementById('theme-toggle-btn');
+      if (btn) btn.setAttribute('aria-pressed', 'true');
     }
-  } catch(e){}
+  } catch(e){ console.debug('localStorage unavailable', e); }
 })();
 
 /* ════════════════════════════════════
