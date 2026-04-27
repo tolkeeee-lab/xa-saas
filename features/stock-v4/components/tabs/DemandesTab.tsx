@@ -140,7 +140,7 @@ export default function DemandesTab({ boutiques, boutiqueActive, onPendingCountC
             <span className="v4-empty-icon">📥</span>
             <p>
               Aucune demande pour le moment — Notez les produits que vos clients réclament pour
-              élargir votre catalogue 📥
+              élargir votre catalogue
             </p>
           </div>
         ) : (
@@ -162,7 +162,7 @@ export default function DemandesTab({ boutiques, boutiqueActive, onPendingCountC
                   {d.prix_indicatif != null && (
                     <span>{d.prix_indicatif.toLocaleString('fr-FR')} FCFA</span>
                   )}
-                  {(d.categorie ?? d.prix_indicatif != null) && <span>·</span>}
+                  {(d.categorie || d.prix_indicatif != null) && <span>·</span>}
                   <span>{relativeTime(d.created_at)}</span>
                 </div>
 

@@ -35,7 +35,7 @@ export default function StockTabBar({ active, onChange, alerteBadge, perimeBadge
           : 0;
         const badgeClass =
           tab.id === 'alertes' ? 'v4-tab-badge v4-tab-badge--red'
-          : 'v4-tab-badge v4-tab-badge--amber';
+          : 'v4-tab-badge v4-tab-badge--amber'; // perimes + demandes both use amber
 
         return (
           <button
