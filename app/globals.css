@@ -508,7 +508,7 @@ body {
 }
 
 /* ================================================================
-   DASHBOARD BOTTOM BAR v2 — 7 hubs fixes, pas de scroll
+   DASHBOARD BOTTOM BAR — 11 items scrollables
    ================================================================ */
 .xa-bottom-bar {
   position: fixed; bottom: 0; inset-inline: 0; z-index: 40;
@@ -522,14 +522,21 @@ body {
   display: flex;
   width: 100%;
   height: var(--xa-bottom-bar-height);
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.xa-bottom-bar-inner::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/WebKit */
 }
 .xa-bottom-bar-item {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   gap: 3px;
-  flex: 1;
+  flex: none;
+  min-width: 72px;
   min-height: 44px;
-  padding: 0 .25rem;
+  padding: 6px .75rem;
   color: var(--xa-muted);
   text-decoration: none;
   position: relative;
