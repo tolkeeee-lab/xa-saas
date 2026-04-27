@@ -1,4 +1,4 @@
-// TODO: PR suivante — implémenter Pertes
+// TODO(2026-05): PR suivante — implémenter Pertes
 'use client';
 
 export default function PertesTab() {

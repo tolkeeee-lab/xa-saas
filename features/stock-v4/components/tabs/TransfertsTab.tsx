@@ -1,4 +1,4 @@
-// TODO: PR suivante — implémenter Transferts
+// TODO(2026-05): PR suivante — implémenter Transferts
 'use client';
 
 export default function TransfertsTab() {

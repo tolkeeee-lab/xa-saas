@@ -1,4 +1,4 @@
-// TODO: PR suivante — implémenter Périmés
+// TODO(2026-05): PR suivante — implémenter Périmés
 'use client';
 
 export default function PerimesTab() {

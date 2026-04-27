@@ -1,4 +1,4 @@
-// TODO: PR suivante — implémenter Inventaires
+// TODO(2026-05): PR suivante — implémenter Inventaires
 'use client';
 
 export default function InventairesTab() {

@@ -1,4 +1,4 @@
-// TODO: PR suivante — implémenter Alertes
+// TODO(2026-05): PR suivante — implémenter Alertes
 'use client';
 
 export default function AlertesTab() {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { createClient } from '@/lib/supabase-browser';
+import { createClient as createBrowserClient } from '@/lib/supabase-browser';
 import type { ProduitPublic } from '@/types/database';
 import type { BoutiqueActiveId, SortMode, ProduitAvecStatut, StockKpis } from '../types';
 
@@ -33,7 +33,6 @@ export function useStockData(
   catActive: string,
   sortMode: SortMode,
 ): StockDataResult {
-  const supabase = createClient();
   const [produits, setProduits] = useState<ProduitPublic[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -42,6 +41,9 @@ export function useStockData(
     return boutiqueIds.includes(boutiqueActive) ? [boutiqueActive] : boutiqueIds.slice(0, 1);
   }, [boutiqueIds, boutiqueActive]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const activeBoutiqueIdsKey = activeBoutiqueIds.join(',');
+
   const load = useCallback(async () => {
     if (activeBoutiqueIds.length === 0) {
       setProduits([]);
@@ -49,6 +51,7 @@ export function useStockData(
       return;
     }
     setLoading(true);
+    const supabase = createBrowserClient();
     const { data } = await supabase
       .from('produits')
       .select(
@@ -59,7 +62,7 @@ export function useStockData(
       .order('nom', { ascending: true });
     setProduits((data ?? []) as ProduitPublic[]);
     setLoading(false);
-  }, [supabase, activeBoutiqueIds.join(',')]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeBoutiqueIdsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     void load();
