@@ -48,7 +48,6 @@ export default function TransfertsTab({ boutiques, boutiqueActive }: TransfertsT
     } finally {
       setLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sourceFilter]);
 
   useEffect(() => {

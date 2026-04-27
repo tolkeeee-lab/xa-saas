@@ -58,7 +58,6 @@ export default function PertesTab({ boutiques, boutiqueActive }: PertesTabProps)
     } finally {
       setLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeBoutiqueId, motifFilter]);
 
   useEffect(() => {
