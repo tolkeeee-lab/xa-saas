@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Boutique } from '@/types/database';
 import type { BoutiqueActiveId, StockTabId, ModalState, SortMode } from './types';
 import { useStockData } from './hooks/useStockData';
@@ -12,6 +12,7 @@ import PerimesTab from './components/tabs/PerimesTab';
 import InventairesTab from './components/tabs/InventairesTab';
 import TransfertsTab from './components/tabs/TransfertsTab';
 import PertesTab from './components/tabs/PertesTab';
+import DemandesTab from './components/tabs/DemandesTab';
 import EntreeStockModal from './components/EntreeStockModal';
 import './stock-v4.css';
 
@@ -73,6 +74,31 @@ export default function StockV4({ boutiques }: StockV4Props) {
     return diffDays <= 7;
   }).length;
 
+  // ── Demandes pending count (badge) ────────────────────────────────────────────
+  const [demandesBadge, setDemandesBadge] = useState(0);
+
+  const activeBoutiqueId = boutiqueActive !== 'all' ? boutiqueActive : (boutiques[0]?.id ?? '');
+
+  const fetchDemandesCount = useCallback(async () => {
+    if (!activeBoutiqueId) {
+      setDemandesBadge(0);
+      return;
+    }
+    try {
+      const res = await fetch(
+        `/api/produits-demandes?boutique_id=${encodeURIComponent(activeBoutiqueId)}&statut=en_attente`,
+      );
+      const json = (await res.json()) as { pendingCount?: number };
+      setDemandesBadge(json.pendingCount ?? 0);
+    } catch {
+      setDemandesBadge(0);
+    }
+  }, [activeBoutiqueId]);
+
+  useEffect(() => {
+    void fetchDemandesCount();
+  }, [fetchDemandesCount]);
+
   // Sync timestamp
   const [syncTime] = useState(() => Date.now());
   const [syncLabel, setSyncLabel] = useState('');
@@ -126,6 +152,7 @@ export default function StockV4({ boutiques }: StockV4Props) {
         onChange={setActiveTab}
         alerteBadge={alerteBadge}
         perimeBadge={perimeBadge}
+        demandesBadge={demandesBadge}
       />
 
       {/* Active panel */}
@@ -174,6 +201,13 @@ export default function StockV4({ boutiques }: StockV4Props) {
         {activeTab === 'pertes' && (
           <PertesTab boutiques={boutiques} boutiqueActive={boutiqueActive} />
         )}
+        {activeTab === 'demandes' && (
+          <DemandesTab
+            boutiques={boutiques}
+            boutiqueActive={boutiqueActive}
+            onPendingCountChange={setDemandesBadge}
+          />
+        )}
       </div>
 
       {/* Entry/exit modal */}
@@ -188,3 +222,4 @@ export default function StockV4({ boutiques }: StockV4Props) {
     </div>
   );
 }
+

@@ -7,7 +7,7 @@ export type BoutiqueActiveId = string | 'all';
 
 export type SortMode = 'az' | 'stock' | 'valeur';
 
-export type StockTabId = 'vue' | 'alertes' | 'perimes' | 'inventaires' | 'transferts' | 'pertes';
+export type StockTabId = 'vue' | 'alertes' | 'perimes' | 'inventaires' | 'transferts' | 'pertes' | 'demandes';
 
 export interface StockTab {
   id: StockTabId;
@@ -23,6 +23,7 @@ export const STOCK_TABS: StockTab[] = [
   { id: 'inventaires', label: 'Inventaires', icon: 'ClipboardList' },
   { id: 'transferts', label: 'Transferts', icon: 'ArrowLeftRight' },
   { id: 'pertes', label: 'Pertes', icon: 'Trash2' },
+  { id: 'demandes', label: 'Demandes', icon: 'MessageSquarePlus' },
 ];
 
 /** Computed status for a product */
