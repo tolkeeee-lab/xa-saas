@@ -1,475 +1,1712 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
+<!DOCTYPE html><html lang="fr"><head>
+
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>MAFRO — Stock</title>
+<title>MAFRO — Stocks</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
 :root {
-  --g:    #00C853;
-  --gd:   #007A32;
-  --gl:   #E8F5E9;
-  --r:    #FF3D00;
-  --rl:   #FBE9E7;
-  --a:    #FFB300;
-  --al:   #FFF8E1;
-  --b:    #1565C0;
-  --bl:   #E3F2FD;
-  --ink:  #0F0F1A;
-  --ink2: #1E1E32;
-  --mu:   #6B7280;
-  --mu2:  #9CA3AF;
-  --brd:  #E5E7EB;
-  --surf: #F8FAFC;
-  --white:#FFFFFF;
-  --f:    'Sora', sans-serif;
-  --fm:   'JetBrains Mono', monospace;
-  --nav:  68px;
-  --header: 54px;
+  --g:#00C853; --gd:#007A32; --gl:#E8F5E9;
+  --r:#FF3D00; --rl:#FBE9E7;
+  --a:#FFB300; --al:#FFF8E1;
+  --b:#1565C0; --bl:#E3F2FD;
+  --p:#7C3AED; --pl:#EDE9FE;
+  --ink:#0F0F1A; --ink2:#1E1E32;
+  --mu:#6B7280; --mu2:#9CA3AF;
+  --brd:#E5E7EB; --surf:#F8FAFC; --white:#FFFFFF;
+  --f:'Sora',sans-serif; --fm:'JetBrains Mono',monospace;
+  --max:480px;
 }
+html { height:100%; }
+body { min-height:100%; background:var(--surf); font-family:var(--f); color:var(--ink); display:flex; flex-direction:column; align-items:center; }
 
-html, body { height: 100%; overflow: hidden; background: #0F0F1A; }
-body { font-family: var(--f); color: var(--ink); display: flex; align-items: center; justify-content: center; }
+.app { width:100%; max-width:var(--max); min-height:100vh; display:flex; flex-direction:column; background:var(--white); position:relative; }
 
-/* Phone shell */
-.shell {
-  width: 390px; height: 844px;
-  background: var(--white);
-  border-radius: 44px; overflow: hidden;
-  display: flex; flex-direction: column;
-  position: relative;
-  box-shadow:
-    0 0 0 10px #1A1A2E,
-    0 0 0 12px #2D2D48,
-    0 0 80px rgba(0,200,83,.15),
-    0 40px 120px rgba(0,0,0,.8);
-}
-.shell::before {
-  content: ''; position: absolute;
-  top: 0; left: 50%; transform: translateX(-50%);
-  width: 126px; height: 34px;
-  background: #0F0F1A;
-  border-radius: 0 0 20px 20px;
-  z-index: 100;
-}
+/* ── Header ── */
+.header { position:sticky; top:0; z-index:50; background:var(--white); border-bottom:1px solid var(--brd); }
+.header-row { display:flex; align-items:center; gap:8px; padding:10px 14px 8px; }
+.logo { background:var(--ink); color:var(--white); font-size:10px; font-weight:900; padding:4px 8px; border-radius:7px; letter-spacing:2px; flex-shrink:0; }
+.header-info { flex:1; min-width:0; }
+.header-info h1 { font-size:13px; font-weight:700; line-height:1.2; }
+.header-info p  { font-size:9px; color:var(--mu); margin-top:1px; }
+.hbtn { width:32px; height:32px; border-radius:10px; background:var(--surf); border:1px solid var(--brd); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:background .15s; }
+.hbtn:hover { background:var(--brd); }
+.hbtn svg { width:14px; height:14px; stroke:var(--ink); fill:none; stroke-width:1.8; }
+.hbtn-g { background:var(--g); border-color:var(--g); }
+.hbtn-g:hover { background:var(--gd); }
+.hbtn-g svg { stroke:white; }
 
-/* Status bar */
-.status-bar { height: 44px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 28px 6px; flex-shrink: 0; background: var(--white); }
-.status-time { font-size: 12px; font-weight: 600; color: var(--ink); letter-spacing: -.3px; }
-.status-icons { display: flex; align-items: center; gap: 5px; }
-.status-icons svg { width: 14px; height: 14px; }
+/* ── Boutique switcher ── */
+.bswitch { position:relative; }
+.bswitch-btn {
+  display:flex; align-items:center; gap:5px;
+  background:var(--surf); border:1px solid var(--brd);
+  border-radius:9px; padding:5px 9px; cursor:pointer; transition:all .15s;
+  max-width:130px;
+}
+.bswitch-btn:hover { background:var(--gl); border-color:var(--g); }
+.bswitch-btn.all { background:var(--ink); border-color:var(--ink); }
+.bswitch-btn.all .bsw-name { color:white; }
+.bswitch-btn.all .bsw-arr  { color:rgba(255,255,255,.5); }
+.bdot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.bsw-name { font-size:9px; font-weight:700; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.bsw-arr  { font-size:8px; color:var(--mu); transition:transform .2s; }
+.bsw-arr.open { transform:rotate(180deg); }
 
-/* Header */
-.header {
-  height: var(--header);
-  display: flex; align-items: center; gap: 10px;
-  padding: 0 18px;
-  border-bottom: 1px solid var(--brd);
-  flex-shrink: 0;
-  background: var(--white);
+.bdrop {
+  display:none; position:absolute; right:0; top:calc(100% + 6px);
+  background:var(--white); border:1px solid var(--brd); border-radius:14px;
+  box-shadow:0 8px 32px rgba(0,0,0,.14); z-index:200; min-width:210px; overflow:hidden;
 }
-.logo {
-  background: var(--ink); color: var(--white);
-  font-size: 10px; font-weight: 900; padding: 4px 8px;
-  border-radius: 7px; letter-spacing: 2px; flex-shrink: 0;
-}
-.header-info { flex: 1; min-width: 0; }
-.header-info h1 { font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.2; }
-.header-info p { font-size: 10px; color: var(--mu); margin-top: 1px; }
-.header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.hbtn {
-  width: 32px; height: 32px; border-radius: 10px;
-  background: var(--surf); border: 1px solid var(--brd);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: background .15s;
-}
-.hbtn:hover { background: var(--brd); }
-.hbtn svg { width: 15px; height: 15px; stroke: var(--ink); fill: none; stroke-width: 1.8; }
+.bdrop.open { display:block; }
+.bopt { display:flex; align-items:center; gap:10px; padding:11px 14px; cursor:pointer; border-bottom:1px solid var(--brd); transition:background .15s; }
+.bopt:last-child { border-bottom:none; }
+.bopt:hover,.bopt.sel { background:var(--gl); }
+.bopt.all-opt { background:var(--ink); }
+.bopt.all-opt:hover { background:var(--ink2); }
+.bopt.all-opt .bopt-nm,.bopt.all-opt .bopt-sub { color:white; }
+.bopt.all-opt .bopt-tag { background:rgba(255,255,255,.15); color:rgba(255,255,255,.8); }
+.bopt.all-opt.sel { background:var(--ink2); }
+.bopt-info { flex:1; min-width:0; }
+.bopt-nm  { font-size:11px; font-weight:700; color:var(--ink); }
+.bopt-sub { font-size:9px; color:var(--mu); margin-top:1px; }
+.bopt-tag { font-size:8px; font-weight:700; padding:2px 7px; border-radius:6px; }
+.tg { background:var(--gl); color:var(--gd); }
+.ta { background:var(--al); color:#7B5800; }
+.tb { background:var(--bl); color:var(--b); }
+.tr { background:var(--rl); color:var(--r); }
 
-/* KPI strip */
-.kpi-row {
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: 6px; padding: 10px 14px;
-  background: var(--surf); border-bottom: 1px solid var(--brd);
-  flex-shrink: 0;
-}
-.kpi {
-  background: var(--white); border-radius: 10px;
-  padding: 8px 6px; text-align: center; cursor: pointer;
-  border: 1.5px solid var(--brd); transition: all .15s;
-}
-.kpi:hover { border-color: var(--g); transform: translateY(-1px); }
-.kpi.alert { border-color: var(--a); background: var(--al); }
-.kpi.danger { border-color: var(--r); background: var(--rl); }
-.kpi-val { font-family: var(--fm); font-size: 16px; font-weight: 800; color: var(--ink); line-height: 1; }
-.kpi.alert .kpi-val { color: #7B5800; }
-.kpi.danger .kpi-val { color: var(--r); }
-.kpi-lbl { font-size: 8px; color: var(--mu); margin-top: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
+/* ── Sync bar ── */
+.sync-bar { display:flex; align-items:center; gap:6px; padding:5px 14px; background:var(--gl); border-bottom:1px solid rgba(0,200,83,.12); }
+.sync-dot { width:6px; height:6px; border-radius:50%; background:var(--g); animation:pulse 2s infinite; flex-shrink:0; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+.sync-bar span { font-size:10px; font-weight:600; color:var(--gd); }
+.sync-bar .st  { margin-left:auto; font-size:10px; color:var(--mu); }
 
-/* Tabs */
-.tabs {
-  display: flex; gap: 4px; padding: 8px 14px;
-  overflow-x: auto; scrollbar-width: none;
-  border-bottom: 1px solid var(--brd);
-  flex-shrink: 0; background: var(--white);
+/* ── Consolidated banner ── */
+.consol-banner {
+  display:none; align-items:center; gap:10px;
+  padding:8px 14px; background:var(--ink);
 }
-.tabs::-webkit-scrollbar { display: none; }
-.tab {
-  flex-shrink: 0; padding: 6px 12px; border-radius: 18px;
-  background: var(--surf); border: 1.5px solid var(--brd);
-  font-size: 11px; font-weight: 700; color: var(--mu);
-  cursor: pointer; white-space: nowrap; transition: all .15s;
-  display: flex; align-items: center; gap: 4px;
-}
-.tab:hover { border-color: var(--g); color: var(--gd); }
-.tab.on { background: var(--ink); color: white; border-color: var(--ink); }
-.tab-badge { background: rgba(255,255,255,.2); padding: 1px 6px; border-radius: 10px; font-size: 9px; font-weight: 700; }
-.tab:not(.on) .tab-badge { background: var(--rl); color: var(--r); }
+.consol-banner.show { display:flex; }
+.consol-b-icon { font-size:16px; }
+.consol-b-info { flex:1; }
+.consol-b-title { font-size:11px; font-weight:700; color:white; }
+.consol-b-sub   { font-size:9px; color:rgba(255,255,255,.4); margin-top:1px; }
+.consol-b-dots  { display:flex; gap:5px; }
+.consol-b-dot   { display:flex; align-items:center; gap:3px; }
+.consol-b-dot-c { width:6px; height:6px; border-radius:50%; }
+.consol-b-dot-n { font-size:8px; color:rgba(255,255,255,.6); }
 
-/* Search */
-.search-wrap {
-  padding: 8px 14px;
-  background: var(--white); border-bottom: 1px solid var(--brd);
-  flex-shrink: 0;
-}
-.search-inner {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--surf); border: 1.5px solid var(--brd);
-  border-radius: 11px; padding: 8px 12px;
-}
-.search-inner svg { width: 14px; height: 14px; stroke: var(--mu); fill: none; stroke-width: 2; }
-.search-inner input {
-  flex: 1; background: none; border: none; outline: none;
-  font-family: var(--f); font-size: 12px;
-}
-.scan-mini {
-  background: var(--ink); color: white; border: none;
-  border-radius: 7px; padding: 4px 8px;
-  font-size: 9px; font-weight: 700; display: flex; align-items: center; gap: 4px;
-  cursor: pointer;
-}
-.scan-mini svg { width: 11px; height: 11px; stroke: white; }
+/* ── Tab bar ── */
+.tab-bar { display:flex; overflow-x:auto; scrollbar-width:none; border-bottom:1px solid var(--brd); background:var(--white); }
+.tab-bar::-webkit-scrollbar { display:none; }
+.tab-item { display:flex; align-items:center; gap:5px; padding:0 13px; height:40px; font-size:10px; font-weight:700; color:var(--mu); white-space:nowrap; cursor:pointer; flex-shrink:0; border-bottom:3px solid transparent; transition:all .15s; }
+.tab-item:hover { color:var(--ink); }
+.tab-item.on { color:var(--ink); border-bottom-color:var(--g); }
+.tab-badge { font-size:8px; font-weight:700; padding:1px 5px; border-radius:20px; background:var(--r); color:white; }
+.tab-badge.warn { background:var(--a); color:var(--ink); }
 
-/* List */
-.list-scroll {
-  flex: 1; overflow-y: auto; padding: 8px 14px 14px;
-  background: var(--surf);
-  scrollbar-width: thin;
-}
-.list-scroll::-webkit-scrollbar { width: 3px; }
-.list-scroll::-webkit-scrollbar-thumb { background: var(--brd); border-radius: 10px; }
+/* ── Panels ── */
+.panels { flex:1; overflow:hidden; }
+.panel { display:none; flex-direction:column; }
+.panel.on { display:flex; }
+.scroll-area { flex:1; overflow-y:auto; overflow-x:hidden; scrollbar-width:thin; scrollbar-color:var(--brd) transparent; padding-bottom:60px; }
+.scroll-area::-webkit-scrollbar { width:3px; }
+.scroll-area::-webkit-scrollbar-thumb { background:var(--brd); border-radius:10px; }
 
-.prod-card {
-  background: var(--white); border-radius: 14px;
-  padding: 11px 12px; margin-bottom: 8px;
-  display: flex; align-items: center; gap: 11px;
-  border: 1.5px solid var(--brd); cursor: pointer;
-  transition: all .15s;
-}
-.prod-card:hover { border-color: var(--g); }
-.prod-card.bas { border-left: 4px solid var(--a); }
-.prod-card.rupture { border-left: 4px solid var(--r); opacity: .85; }
-.prod-card.perime { border-left: 4px solid var(--ink); background: #FFF8E1; }
+/* ── KPI row ── */
+.kpi-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:10px 14px; background:var(--surf); border-bottom:1px solid var(--brd); }
+.kpi { background:var(--white); border-radius:12px; padding:10px 10px 8px; border:1.5px solid var(--brd); cursor:pointer; transition:all .15s; }
+.kpi:hover { border-color:var(--g); }
+.kpi.danger { background:var(--rl); border-color:rgba(255,61,0,.3); }
+.kpi.warn   { background:var(--al); border-color:rgba(255,179,0,.3); }
+.kpi.ok     { background:var(--gl); border-color:rgba(0,200,83,.3); }
+.kpi.purple { background:var(--pl); border-color:rgba(124,58,237,.3); }
+.kpi-icon { font-size:14px; display:block; margin-bottom:4px; }
+.kpi-val  { font-family:var(--fm); font-size:15px; font-weight:700; color:var(--ink); line-height:1; }
+.kpi-lbl  { font-size:8px; font-weight:600; color:var(--mu); margin-top:3px; text-transform:uppercase; letter-spacing:.5px; }
+.kpi.danger .kpi-val { color:var(--r); }
+.kpi.warn   .kpi-val { color:#7B5800; }
+.kpi.ok     .kpi-val { color:var(--gd); }
+.kpi.purple .kpi-val { color:var(--p); }
 
-.prod-em {
-  width: 42px; height: 42px; border-radius: 12px;
-  background: var(--surf); display: flex; align-items: center; justify-content: center;
-  font-size: 22px; flex-shrink: 0;
-}
-.prod-info { flex: 1; min-width: 0; }
-.prod-nm { font-size: 12px; font-weight: 700; color: var(--ink); }
-.prod-cat { font-size: 9px; color: var(--mu); margin-top: 1px; }
-.prod-meta { display: flex; align-items: center; gap: 6px; margin-top: 5px; }
-.prod-stock {
-  font-family: var(--fm); font-size: 11px; font-weight: 700;
-  background: var(--gl); color: var(--gd);
-  padding: 2px 7px; border-radius: 5px;
-}
-.prod-stock.bas { background: var(--al); color: #7B5800; }
-.prod-stock.rupture { background: var(--rl); color: var(--r); }
-.prod-pr { font-size: 10px; color: var(--mu); }
-.prod-pr b { color: var(--ink); font-weight: 700; }
+/* ── Boutique breakdown bar (consolidated) ── */
+.bk-bar { display:flex; gap:0; height:4px; border-radius:20px; overflow:hidden; margin-top:4px; }
+.bk-seg { height:100%; transition:width .4s; }
 
-.prod-actions { display: flex; gap: 4px; flex-shrink: 0; }
-.prod-act-btn {
-  width: 28px; height: 28px; border-radius: 8px;
-  background: var(--surf); border: 1px solid var(--brd);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all .15s;
-}
-.prod-act-btn:hover { background: var(--gl); border-color: var(--g); }
-.prod-act-btn svg { width: 12px; height: 12px; stroke: var(--ink); fill: none; stroke-width: 2; }
+/* ── Search ── */
+.search-wrap { padding:8px 14px 6px; background:var(--white); border-bottom:1px solid var(--brd); }
+.search-inner { display:flex; align-items:center; gap:8px; background:var(--surf); border:1.5px solid var(--brd); border-radius:11px; padding:7px 12px; transition:border-color .2s; }
+.search-inner:focus-within { border-color:var(--g); background:var(--gl); }
+.search-inner svg { width:14px; height:14px; stroke:var(--mu); fill:none; stroke-width:2; flex-shrink:0; }
+.search-inner input { flex:1; background:none; border:none; outline:none; font-family:var(--f); font-size:12px; color:var(--ink); }
+.search-inner input::placeholder { color:var(--mu2); }
+.sort-btn { background:var(--surf); border:1.5px solid var(--brd); border-radius:8px; padding:4px 9px; font-family:var(--f); font-size:9px; font-weight:700; color:var(--ink); cursor:pointer; flex-shrink:0; transition:all .15s; }
+.sort-btn.on { background:var(--ink); color:white; border-color:var(--ink); }
 
-.alert-tag {
-  display: inline-flex; align-items: center; gap: 3px;
-  font-size: 9px; font-weight: 700;
-  padding: 2px 6px; border-radius: 5px;
-  background: var(--rl); color: var(--r);
-  margin-top: 4px;
-}
-.alert-tag.warn { background: var(--al); color: #7B5800; }
+/* ── Cat chips ── */
+.cat-row { display:flex; gap:6px; padding:6px 14px; overflow-x:auto; scrollbar-width:none; border-bottom:1px solid var(--brd); background:var(--white); }
+.cat-row::-webkit-scrollbar { display:none; }
+.cat-chip { flex-shrink:0; font-size:9px; font-weight:700; padding:4px 11px; border-radius:20px; border:1.5px solid var(--brd); background:var(--white); color:var(--mu); cursor:pointer; transition:all .15s; white-space:nowrap; }
+.cat-chip:hover { border-color:var(--g); color:var(--gd); }
+.cat-chip.on { background:var(--ink); color:white; border-color:var(--ink); }
 
-/* FAB */
-.fab {
-  position: absolute; bottom: 80px; right: 16px;
-  width: 56px; height: 56px; border-radius: 18px;
-  background: var(--g); color: white;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 26px; font-weight: 800;
-  border: none; cursor: pointer; z-index: 50;
-  box-shadow: 0 8px 24px rgba(0,200,83,.4);
-  transition: all .15s;
-}
-.fab:hover { background: var(--gd); transform: scale(1.05); }
-.fab:active { transform: scale(.95); }
+/* ── Section header ── */
+.sec-hd { display:flex; align-items:center; gap:8px; padding:10px 14px 6px; position:sticky; top:0; z-index:5; background:var(--surf); }
+.sec-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.sec-lbl { font-size:9px; font-weight:700; color:var(--mu); text-transform:uppercase; letter-spacing:1px; flex:1; }
+.sec-count { font-size:9px; color:var(--mu2); }
 
-/* Bottom nav */
-.bnav {
-  height: var(--nav); display: flex;
-  border-top: 1px solid var(--brd); background: var(--white);
-  flex-shrink: 0;
-}
-.bni {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 3px;
-  cursor: pointer; position: relative;
-  transition: background .15s;
-}
-.bni:hover { background: var(--surf); }
-.bni svg { width: 20px; height: 20px; stroke: var(--mu2); fill: none; stroke-width: 1.6; }
-.bni span { font-size: 8.5px; font-weight: 600; color: var(--mu); }
-.bni.on svg { stroke: var(--ink); }
-.bni.on span { color: var(--ink); font-weight: 700; }
-.bni.on::after {
-  content: ''; position: absolute; bottom: 0;
-  left: 20%; right: 20%; height: 3px;
-  background: var(--g); border-radius: 3px 3px 0 0;
-}
+/* ── List card ── */
+.list-card { background:var(--white); border-top:1px solid var(--brd); border-bottom:1px solid var(--brd); margin-bottom:8px; }
 
-/* Toast */
-.toast {
-  position: absolute; bottom: 90px; left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--ink); color: white;
-  font-size: 11px; font-weight: 600; padding: 10px 16px;
-  border-radius: 20px; white-space: nowrap;
-  opacity: 0; pointer-events: none;
-  transition: all .3s; z-index: 400;
+/* ── Stock item standard ── */
+.stock-item { display:flex; align-items:center; gap:11px; padding:11px 14px; border-bottom:1px solid var(--brd); cursor:pointer; transition:background .15s; }
+.stock-item:last-child { border-bottom:none; }
+.stock-item:hover { background:var(--surf); }
+.si-em { font-size:26px; width:42px; height:42px; flex-shrink:0; display:flex; align-items:center; justify-content:center; background:var(--surf); border-radius:12px; border:1.5px solid var(--brd); }
+.si-info { flex:1; min-width:0; }
+.si-nm   { font-size:12px; font-weight:700; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.si-cat  { font-size:9px; color:var(--mu); margin-top:2px; }
+.si-gauge { display:flex; align-items:center; gap:6px; margin-top:5px; }
+.gauge-track { flex:1; height:4px; background:var(--brd); border-radius:10px; overflow:hidden; }
+.gauge-fill { height:100%; border-radius:10px; transition:width .4s; }
+.gf-ok   { background:var(--g); }
+.gf-low  { background:var(--a); }
+.gf-crit { background:var(--r); }
+.gauge-num { font-family:var(--fm); font-size:9px; font-weight:700; flex-shrink:0; width:36px; text-align:right; }
+.gn-ok   { color:var(--gd); }
+.gn-low  { color:#7B5800; }
+.gn-crit { color:var(--r); }
+.si-right { text-align:right; flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
+.si-pu    { font-family:var(--fm); font-size:10px; font-weight:700; color:var(--ink); }
+.si-val   { font-size:8px; color:var(--mu); }
+.si-badge { font-size:7px; font-weight:700; padding:2px 6px; border-radius:6px; }
+.sb-ok   { background:var(--gl); color:var(--gd); }
+.sb-low  { background:var(--al); color:#7B5800; }
+.sb-crit { background:var(--rl); color:var(--r); }
+.sb-rupt { background:var(--ink); color:white; }
+.si-plus { width:30px; height:30px; border-radius:9px; background:var(--gl); border:1.5px solid rgba(0,200,83,.3); display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; transition:all .15s; margin-left:2px; }
+.si-plus:hover { background:var(--g); border-color:var(--g); }
+.si-plus:hover svg { stroke:white; }
+.si-plus svg { width:13px; height:13px; stroke:var(--gd); fill:none; stroke-width:2.2; }
+
+/* ── Stock item CONSOLIDÉ ── */
+.stock-item-consol { padding:11px 14px 10px; border-bottom:1px solid var(--brd); cursor:pointer; transition:background .15s; }
+.stock-item-consol:last-child { border-bottom:none; }
+.stock-item-consol:hover { background:var(--surf); }
+.sic-top { display:flex; align-items:center; gap:11px; }
+.sic-info { flex:1; min-width:0; }
+.sic-nm  { font-size:12px; font-weight:700; color:var(--ink); }
+.sic-cat { font-size:9px; color:var(--mu); margin-top:2px; }
+.sic-right { text-align:right; flex-shrink:0; }
+.sic-total-val { font-family:var(--fm); font-size:16px; font-weight:800; color:var(--ink); line-height:1; }
+.sic-total-lbl { font-size:8px; color:var(--mu); margin-top:2px; }
+.sic-breakdown { display:flex; gap:5px; margin-top:8px; flex-wrap:wrap; }
+.sic-b-item { display:flex; align-items:center; gap:5px; padding:4px 8px; border-radius:8px; border:1px solid var(--brd); background:var(--surf); flex:1; min-width:80px; }
+.sic-b-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.sic-b-info { flex:1; min-width:0; }
+.sic-b-name { font-size:8px; color:var(--mu); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sic-b-qty  { font-family:var(--fm); font-size:11px; font-weight:700; color:var(--ink); }
+.sic-b-badge { font-size:7px; font-weight:700; padding:1px 5px; border-radius:4px; flex-shrink:0; }
+
+/* ── Alertes ── */
+.alert-item { display:flex; align-items:center; gap:12px; padding:12px 14px; border-bottom:1px solid var(--brd); background:var(--white); transition:background .15s; }
+.alert-item:last-child { border-bottom:none; }
+.alert-item:hover { background:var(--surf); }
+.ai-em { font-size:22px; flex-shrink:0; }
+.ai-left { flex:1; min-width:0; }
+.ai-nm   { font-size:12px; font-weight:700; color:var(--ink); }
+.ai-sub  { font-size:10px; color:var(--mu); margin-top:2px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.ai-chip { font-size:8px; font-weight:700; padding:2px 7px; border-radius:20px; }
+.ac-rupt { background:var(--ink); color:white; }
+.ac-crit { background:var(--rl); color:var(--r); }
+.ac-low  { background:var(--al); color:#7B5800; }
+.ai-boutique-row { display:flex; gap:4px; margin-top:5px; flex-wrap:wrap; }
+.ai-b-pill { display:flex; align-items:center; gap:4px; padding:2px 7px; border-radius:6px; background:var(--surf); border:1px solid var(--brd); }
+.ai-b-dot  { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.ai-b-txt  { font-size:8px; font-weight:700; color:var(--ink); }
+.ai-b-qty  { font-family:var(--fm); font-size:8px; color:var(--mu); }
+.alert-btn { font-size:10px; font-weight:700; padding:7px 11px; border-radius:9px; border:none; cursor:pointer; flex-shrink:0; transition:all .15s; font-family:var(--f); }
+.alert-btn.g { background:var(--gl); color:var(--gd); border:1.5px solid rgba(0,200,83,.3); }
+.alert-btn.g:hover { background:var(--g); color:white; }
+
+/* ── Périmés ── */
+.perime-item { display:flex; align-items:center; gap:12px; padding:12px 14px; border-bottom:1px solid var(--brd); background:var(--white); }
+.perime-item:last-child { border-bottom:none; }
+.pi-em   { font-size:24px; width:38px; text-align:center; flex-shrink:0; }
+.pi-info { flex:1; }
+.pi-nm   { font-size:12px; font-weight:700; color:var(--ink); }
+.pi-boutique { font-size:9px; color:var(--mu); margin-top:1px; }
+.dlc-pill { display:inline-flex; align-items:center; gap:4px; font-size:9px; font-weight:700; padding:2px 8px; border-radius:20px; margin-top:4px; }
+.dlc-expired { background:var(--rl); color:var(--r); }
+.dlc-soon    { background:var(--al); color:#7B5800; }
+.dlc-ok      { background:var(--gl); color:var(--gd); }
+.pi-right { display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex-shrink:0; }
+.pi-qty  { font-family:var(--fm); font-size:12px; font-weight:700; color:var(--ink); }
+.pi-btn  { font-size:9px; font-weight:700; padding:5px 8px; border-radius:8px; border:none; cursor:pointer; font-family:var(--f); transition:all .15s; background:var(--rl); color:var(--r); }
+.pi-btn:hover { background:var(--r); color:white; }
+
+/* ── Inventaires ── */
+.inv-session-card { margin:12px 14px 0; border:2px solid var(--g); border-radius:16px; overflow:hidden; }
+.inv-session-head { background:var(--ink); padding:13px 15px; display:flex; align-items:center; gap:12px; }
+.inv-session-icon { font-size:20px; }
+.inv-session-info { flex:1; }
+.inv-session-title { font-size:13px; font-weight:700; color:white; }
+.inv-session-sub   { font-size:9px; color:rgba(255,255,255,.4); margin-top:2px; }
+.inv-progress-wrap { padding:10px 15px; background:var(--gl); }
+.inv-progress-track { background:var(--brd); border-radius:20px; height:5px; overflow:hidden; }
+.inv-progress-bar   { height:100%; background:var(--g); border-radius:20px; transition:width .3s; }
+.inv-progress-lbl   { font-size:10px; color:var(--gd); font-weight:600; margin-top:4px; }
+.inv-session-footer { background:var(--white); padding:9px 14px; display:flex; gap:8px; }
+.inv-btn { flex:1; padding:9px; border-radius:10px; font-family:var(--f); font-size:11px; font-weight:700; cursor:pointer; border:none; transition:all .15s; display:flex; align-items:center; justify-content:center; gap:5px; }
+.inv-btn-primary   { background:var(--g); color:white; }
+.inv-btn-primary:hover { background:var(--gd); }
+.inv-btn-secondary { background:var(--surf); color:var(--mu); border:1.5px solid var(--brd); }
+.inv-past-item { display:flex; align-items:center; gap:12px; padding:11px 14px; border-bottom:1px solid var(--brd); background:var(--white); }
+.inv-past-item:last-child { border-bottom:none; }
+.inv-past-icon { width:36px; height:36px; border-radius:10px; background:var(--surf); border:1.5px solid var(--brd); display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+.inv-past-info { flex:1; }
+.inv-past-title { font-size:12px; font-weight:700; color:var(--ink); }
+.inv-past-meta  { font-size:10px; color:var(--mu); margin-top:2px; }
+.inv-past-stat  { text-align:right; font-size:10px; color:var(--mu); }
+.inv-past-stat strong { display:block; font-size:13px; font-weight:700; color:var(--ink); }
+.inv-new-btn { display:flex; align-items:center; justify-content:center; gap:8px; margin:12px 14px 0; padding:13px; background:var(--g); color:white; border:none; border-radius:14px; font-family:var(--f); font-size:13px; font-weight:700; cursor:pointer; width:calc(100% - 28px); transition:all .15s; box-shadow:0 4px 16px rgba(0,200,83,.3); }
+.inv-new-btn:hover { background:var(--gd); }
+
+/* ── Transferts ── */
+.trans-item { display:flex; align-items:flex-start; gap:12px; padding:12px 14px; border-bottom:1px solid var(--brd); background:var(--white); }
+.trans-item:last-child { border-bottom:none; }
+.trans-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+.ti-pending { background:var(--al); }
+.ti-transit { background:var(--bl); }
+.ti-done    { background:var(--gl); }
+.ti-rej     { background:var(--rl); }
+.trans-info { flex:1; min-width:0; }
+.trans-nm    { font-size:12px; font-weight:700; color:var(--ink); }
+.trans-route { font-size:10px; color:var(--mu); margin-top:2px; display:flex; align-items:center; gap:4px; }
+.trans-route svg { width:10px; height:10px; stroke:var(--mu2); fill:none; stroke-width:2; flex-shrink:0; }
+.trans-meta  { font-size:9px; color:var(--mu2); margin-top:3px; }
+.trans-right { text-align:right; flex-shrink:0; }
+.trans-qty    { font-family:var(--fm); font-size:13px; font-weight:700; color:var(--ink); }
+.trans-status { font-size:8px; font-weight:700; padding:2px 7px; border-radius:20px; margin-top:3px; display:inline-block; }
+.ts-pending { background:var(--al); color:#7B5800; }
+.ts-transit { background:var(--bl); color:var(--b); }
+.ts-done    { background:var(--gl); color:var(--gd); }
+.ts-rejected{ background:var(--rl); color:var(--r); }
+.trans-new-btn { display:flex; align-items:center; justify-content:center; gap:8px; margin:12px 14px 0; padding:13px; background:var(--b); color:white; border:none; border-radius:14px; font-family:var(--f); font-size:13px; font-weight:700; cursor:pointer; width:calc(100% - 28px); transition:all .15s; }
+.trans-new-btn:hover { background:var(--ink); }
+
+/* ── Pertes ── */
+.perte-summary { margin:12px 14px 0; background:var(--ink); border-radius:16px; padding:15px; display:grid; grid-template-columns:1fr auto 1fr auto 1fr; gap:0; align-items:center; }
+.ps-item  { text-align:center; padding:0 6px; }
+.ps-val   { font-family:var(--fm); font-size:15px; font-weight:700; color:white; }
+.ps-lbl   { font-size:8px; color:rgba(255,255,255,.4); margin-top:3px; text-transform:uppercase; letter-spacing:.5px; }
+.ps-sep   { width:1px; height:32px; background:rgba(255,255,255,.1); }
+.perte-quick { margin:12px 14px 0; background:var(--rl); border:1.5px solid rgba(255,61,0,.2); border-radius:14px; padding:13px; }
+.pq-title { font-size:12px; font-weight:700; color:var(--ink); margin-bottom:9px; }
+.pq-row   { display:flex; gap:8px; margin-bottom:7px; }
+.pq-select,.pq-reason { background:white; border:1.5px solid var(--brd); border-radius:9px; padding:8px 10px; font-family:var(--f); font-size:12px; color:var(--ink); outline:none; -webkit-appearance:none; }
+.pq-select { flex:1; }
+.pq-reason { width:100%; margin-bottom:8px; }
+.pq-input  { width:72px; background:white; border:1.5px solid var(--brd); border-radius:9px; padding:8px 10px; text-align:center; font-family:var(--fm); font-size:14px; font-weight:700; color:var(--ink); outline:none; }
+.pq-btn    { width:100%; padding:11px; background:var(--r); color:white; border:none; border-radius:10px; font-family:var(--f); font-size:12px; font-weight:700; cursor:pointer; transition:all .15s; }
+.pq-btn:hover { background:#cc3000; }
+.perte-item { display:flex; align-items:center; gap:12px; padding:11px 14px; border-bottom:1px solid var(--brd); background:var(--white); }
+.perte-item:last-child { border-bottom:none; }
+.perte-icon { width:36px; height:36px; border-radius:10px; background:var(--rl); display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+.perte-info { flex:1; }
+.perte-nm   { font-size:12px; font-weight:700; color:var(--ink); }
+.perte-meta { font-size:10px; color:var(--mu); margin-top:2px; }
+.perte-right { text-align:right; flex-shrink:0; }
+.perte-qty   { font-family:var(--fm); font-size:13px; font-weight:700; color:var(--r); }
+.perte-val   { font-size:9px; color:var(--mu); }
+
+/* ── Modals ── */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:200; align-items:flex-end; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal-sheet { background:var(--white); border-radius:24px 24px 0 0; width:100%; max-width:var(--max); padding:0 0 28px; max-height:92vh; overflow-y:auto; scrollbar-width:none; animation:slideUp .3s cubic-bezier(.34,1.36,.64,1); }
+.modal-sheet::-webkit-scrollbar { display:none; }
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.modal-handle { width:36px; height:4px; background:var(--brd); border-radius:10px; margin:12px auto 0; }
+.modal-header { display:flex; align-items:center; justify-content:space-between; padding:13px 18px 11px; border-bottom:1px solid var(--brd); }
+.modal-title  { font-size:14px; font-weight:700; color:var(--ink); }
+.modal-close  { width:28px; height:28px; border-radius:8px; background:var(--surf); border:1px solid var(--brd); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px; color:var(--mu); }
+
+/* Entry modal */
+.entry-hero { margin:13px 18px 0; background:var(--ink); border-radius:15px; padding:13px 15px; display:flex; align-items:center; gap:13px; }
+.eh-em   { font-size:32px; width:50px; height:50px; background:rgba(255,255,255,.08); border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.eh-info { flex:1; }
+.eh-nm   { font-size:13px; font-weight:700; color:white; }
+.eh-sub  { font-size:9px; color:rgba(255,255,255,.4); margin-top:3px; }
+.eh-stock { display:flex; align-items:baseline; gap:5px; margin-top:7px; }
+.eh-sv   { font-family:var(--fm); font-size:20px; font-weight:700; line-height:1; }
+.eh-sl   { font-size:9px; color:rgba(255,255,255,.4); }
+.op-tabs { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:13px 18px 0; }
+.op-tab  { display:flex; align-items:center; justify-content:center; gap:6px; padding:10px; border-radius:11px; border:2px solid var(--brd); font-family:var(--f); font-size:11px; font-weight:700; cursor:pointer; transition:all .15s; color:var(--mu); background:var(--surf); }
+.op-tab.on.entree { background:var(--gl); border-color:var(--g); color:var(--gd); }
+.op-tab.on.sortie { background:var(--rl); border-color:var(--r); color:var(--r); }
+.qty-section { margin:13px 18px 0; }
+.qty-display-wrap { background:var(--surf); border:2px solid var(--brd); border-radius:12px; padding:13px 15px 11px; margin-bottom:9px; transition:border-color .2s; }
+.qty-display-wrap.entree { border-color:rgba(0,200,83,.4); background:var(--gl); }
+.qty-display-wrap.sortie { border-color:rgba(255,61,0,.3); background:var(--rl); }
+.qty-row  { display:flex; align-items:baseline; gap:8px; justify-content:flex-end; }
+.qty-sign { font-size:20px; font-weight:700; }
+.qty-sign.entree { color:var(--gd); }
+.qty-sign.sortie { color:var(--r); }
+.qty-num  { font-family:var(--fm); font-size:30px; font-weight:800; color:var(--ink); letter-spacing:-1px; min-width:55px; text-align:right; }
+.qty-unit { font-size:11px; color:var(--mu); font-weight:600; }
+.qty-after { font-size:10px; color:var(--mu); text-align:right; margin-top:4px; }
+.qty-after strong { color:var(--ink); }
+.numpad   { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.nk       { background:var(--surf); border:1.5px solid var(--brd); border-radius:10px; padding:12px 8px; font-family:var(--fm); font-size:16px; font-weight:700; color:var(--ink); cursor:pointer; transition:all .1s; text-align:center; border:none; width:100%; }
+.nk:active { background:var(--brd); transform:scale(.95); }
+.nk-10    { font-size:11px; font-family:var(--f); font-weight:700; }
+.nk-del   { background:var(--rl); color:var(--r); font-size:17px; }
+.nk-del:active { background:var(--r); color:white; }
+.note-field { width:100%; background:var(--surf); border:1.5px solid var(--brd); border-radius:10px; padding:9px 12px; font-family:var(--f); font-size:12px; color:var(--ink); outline:none; resize:none; height:48px; transition:border-color .2s; margin-top:9px; }
+.note-field:focus { border-color:var(--g); }
+.note-field::placeholder { color:var(--mu2); }
+.confirm-btn { display:flex; align-items:center; justify-content:center; gap:8px; background:var(--g); color:white; border:none; border-radius:14px; padding:14px; font-family:var(--f); font-size:14px; font-weight:700; cursor:pointer; transition:all .15s; width:calc(100% - 36px); margin:13px 18px 0; box-shadow:0 4px 16px rgba(0,200,83,.3); }
+.confirm-btn:hover { background:var(--gd); }
+.confirm-btn:active { transform:scale(.97); }
+.confirm-btn:disabled { background:var(--brd); color:var(--mu); box-shadow:none; cursor:not-allowed; }
+.confirm-btn.sortie { background:var(--r); box-shadow:0 4px 16px rgba(255,61,0,.25); }
+.confirm-btn.sortie:hover { background:#cc3000; }
+.confirm-btn-b { background:var(--b); box-shadow:0 4px 16px rgba(21,101,192,.25); }
+.confirm-btn-b:hover { background:var(--ink); }
+
+/* Inventaire modal */
+.inv-check-item { display:flex; align-items:center; gap:11px; padding:12px 14px; border-bottom:1px solid var(--brd); cursor:pointer; transition:background .15s; }
+.inv-check-item:last-child { border-bottom:none; }
+.inv-check-item.done { background:var(--gl); }
+.inv-check-item.done .si-nm { color:var(--mu); text-decoration:line-through; }
+.inv-checkbox { width:24px; height:24px; border-radius:7px; border:2px solid var(--brd); background:white; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:12px; transition:all .15s; }
+.inv-check-item.done .inv-checkbox { background:var(--g); border-color:var(--g); color:white; }
+.inv-qty-adj { display:flex; align-items:center; gap:5px; margin-left:auto; flex-shrink:0; }
+.inv-qty-btn { width:25px; height:25px; border-radius:7px; border:1.5px solid var(--brd); background:var(--surf); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .1s; flex-shrink:0; }
+.inv-qty-btn:active { background:var(--brd); transform:scale(.9); }
+.inv-qty-val  { font-family:var(--fm); font-size:13px; font-weight:700; color:var(--ink); min-width:26px; text-align:center; }
+.inv-qty-diff { font-size:9px; font-weight:700; margin-left:3px; }
+.inv-qty-diff.pos  { color:var(--gd); }
+.inv-qty-diff.neg  { color:var(--r); }
+.inv-qty-diff.zero { color:var(--mu2); }
+.inv-modal-progress { margin:9px 18px 0; }
+.inv-modal-track { background:var(--brd); border-radius:20px; height:5px; overflow:hidden; }
+.inv-modal-bar   { height:100%; background:var(--g); border-radius:20px; transition:width .3s; }
+.inv-modal-lbl   { font-size:10px; color:var(--gd); font-weight:600; margin-top:4px; }
+
+/* Transfer form */
+.form-section { margin:13px 18px 0; }
+.form-label   { font-size:10px; font-weight:700; color:var(--ink); margin-bottom:5px; display:block; text-transform:uppercase; letter-spacing:.5px; }
+.form-field   { background:var(--surf); border:1.5px solid var(--brd); border-radius:10px; padding:9px 12px; font-family:var(--f); font-size:12px; color:var(--ink); outline:none; width:100%; margin-bottom:8px; transition:border-color .2s; -webkit-appearance:none; }
+.form-field:focus { border-color:var(--b); }
+
+/* ── Empty state ── */
+.empty-st { display:flex; flex-direction:column; align-items:center; padding:48px 24px; text-align:center; }
+.empty-st-icon { font-size:40px; margin-bottom:12px; opacity:.5; }
+.empty-st p { font-size:12px; color:var(--mu2); line-height:1.7; }
+
+/* ── Toast ── */
+.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:white; font-size:11px; font-weight:600; padding:9px 18px; border-radius:20px; white-space:nowrap; opacity:0; pointer-events:none; transition:all .3s; z-index:500; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── Desktop ── */
+@media(min-width:520px){
+  body { background:var(--ink); justify-content:center; padding:24px 0; }
+  .app { border-radius:32px; box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.06); height:820px; overflow:hidden; }
+  .scroll-area { padding-bottom:20px; }
 }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
+<div class="app">
 
-<div class="shell">
-
-  <!-- Status bar -->
-  <div class="status-bar">
-    <span class="status-time" id="clock">14:32</span>
-    <div class="status-icons">
-      <svg viewBox="0 0 14 14" fill="var(--ink)" stroke="none"><path d="M7 2.5C4.5 2.5 2.3 3.6 0.8 5.4l1.1 1.1C3.1 5.1 4.9 4.1 7 4.1s3.9 1 5.1 2.4l1.1-1.1C11.7 3.6 9.5 2.5 7 2.5zm0 3.2c-1.6 0-3 .7-4 1.8l1.1 1.1c.7-.8 1.8-1.3 2.9-1.3s2.2.5 2.9 1.3l1.1-1.1c-1-1.1-2.4-1.8-4-1.8zm0 3.2c-.9 0-1.6.4-2.1 1l2.1 2.1 2.1-2.1c-.5-.6-1.2-1-2.1-1z"/></svg>
-      <svg viewBox="0 0 14 10" fill="var(--ink)" stroke="none"><rect x="0" y="0" width="12" height="10" rx="2"/><rect x="12.5" y="3" width="1.5" height="4" rx="1"/><rect x="1" y="1" width="8" height="8" rx="1" fill="var(--g)"/></svg>
-    </div>
-  </div>
-
-  <!-- Header -->
+  <!-- ── HEADER ── -->
   <div class="header">
-    <div class="logo">XÀ</div>
-    <div class="header-info">
-      <h1>📦 Gestion Stock</h1>
-      <p>Boutique 1 · Akpakpa</p>
-    </div>
-    <div class="header-actions">
-      <div class="hbtn" onclick="showToast('🔄 Synchronisation…')">
-        <svg viewBox="0 0 20 20"><path d="M4 10a6 6 0 0 1 10-4l2-1M16 10a6 6 0 0 1-10 4l-2 1"/></svg>
+    <div class="header-row">
+      <div class="logo">XÀ</div>
+      <div class="header-info">
+        <h1>Gestion des Stocks</h1>
+        <p id="hdr-sub">3 boutiques · Vue consolidée</p>
       </div>
-      <div class="hbtn" onclick="showToast('⚙️ Paramètres')">
-        <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="2"/><path d="M10 2v3M10 15v3M2 10h3M15 10h3"/></svg>
+      <div style="display:flex;gap:5px;align-items:center">
+        <!-- Boutique switcher -->
+        <div class="bswitch" id="bswitch">
+          <div class="bswitch-btn all" id="bsw-btn" onclick="toggleDD()">
+            <span class="bdot" id="bsw-dot" style="background:white"></span>
+            <span class="bsw-name" id="bsw-name">Toutes</span>
+            <span class="bsw-arr" id="bsw-arr">▾</span>
+          </div>
+          <div class="bdrop" id="bdrop">
+            <div class="bopt all-opt sel" onclick="pickBoutique('all')">
+              <span class="bdot" style="background:white"></span>
+              <div class="bopt-info">
+                <div class="bopt-nm">Toutes les boutiques</div>
+                <div class="bopt-sub">Vue consolidée propriétaire</div>
+              </div>
+              <span class="bopt-tag" style="background:rgba(255,255,255,.15);color:rgba(255,255,255,.8)">3 sites</span>
+            </div>
+            <div class="bopt" onclick="pickBoutique('b1')">
+              <span class="bdot" style="background:#00C853"></span>
+              <div class="bopt-info">
+                <div class="bopt-nm">Boutique 1 — Akpakpa</div>
+                <div class="bopt-sub">Kodjo S. · Gérant</div>
+              </div>
+              <span class="bopt-tag tg">En ligne</span>
+            </div>
+            <div class="bopt" onclick="pickBoutique('b2')">
+              <span class="bdot" style="background:#1565C0"></span>
+              <div class="bopt-info">
+                <div class="bopt-nm">Boutique 2 — Calavi</div>
+                <div class="bopt-sub">Adjoua M. · Gérante</div>
+              </div>
+              <span class="bopt-tag tb">En ligne</span>
+            </div>
+            <div class="bopt" onclick="pickBoutique('b3')">
+              <span class="bdot" style="background:#FFB300"></span>
+              <div class="bopt-info">
+                <div class="bopt-nm">Boutique 3 — Fidjrossè</div>
+                <div class="bopt-sub">Béatrice K. · Gérante</div>
+              </div>
+              <span class="bopt-tag ta">Hors-ligne</span>
+            </div>
+          </div>
+        </div>
+        <div class="hbtn" onclick="openHistoModal()" title="Historique">
+          <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"></circle><polyline points="10,6 10,10 13,13"></polyline></svg>
+        </div>
+        <div class="hbtn hbtn-g" onclick="openEntreeModal(null)" title="Entrée stock">
+          <svg viewBox="0 0 20 20"><line x1="10" y1="4" x2="10" y2="16"></line><line x1="4" y1="10" x2="16" y2="10"></line></svg>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- KPI strip -->
-  <div class="kpi-row">
-    <div class="kpi" onclick="filterTab('tous', this)">
-      <div class="kpi-val">142</div>
-      <div class="kpi-lbl">Produits</div>
+    <div class="sync-bar">
+      <div class="sync-dot"></div>
+      <span>☁ Synchronisé</span>
+      <span class="st">il y a 2 min</span>
     </div>
-    <div class="kpi alert" onclick="filterTab('bas', this)">
-      <div class="kpi-val">8</div>
-      <div class="kpi-lbl">Bas</div>
-    </div>
-    <div class="kpi danger" onclick="filterTab('rupture', this)">
-      <div class="kpi-val">3</div>
-      <div class="kpi-lbl">Rupture</div>
-    </div>
-    <div class="kpi danger" onclick="filterTab('perime', this)">
-      <div class="kpi-val">2</div>
-      <div class="kpi-lbl">Périmés</div>
-    </div>
-  </div>
 
-  <!-- Tabs -->
-  <div class="tabs">
-    <div class="tab on" onclick="filterTab('tous', this)">Tous</div>
-    <div class="tab" onclick="filterTab('bas', this)">⚠️ Bas <span class="tab-badge">8</span></div>
-    <div class="tab" onclick="filterTab('rupture', this)">🚨 Rupture <span class="tab-badge">3</span></div>
-    <div class="tab" onclick="filterTab('perime', this)">⏰ Périmés <span class="tab-badge">2</span></div>
-    <div class="tab" onclick="showToast('📋 Inventaires')">📋 Inventaires</div>
-    <div class="tab" onclick="showToast('🔄 Transferts')">🔄 Transferts</div>
-    <div class="tab" onclick="showToast('📉 Pertes')">📉 Pertes</div>
-  </div>
+    <!-- Consolidated banner -->
+    <div class="consol-banner show" id="consol-banner">
+      <span class="consol-b-icon">🏪</span>
+      <div class="consol-b-info">
+        <div class="consol-b-title">Vue consolidée — 3 boutiques</div>
+        <div class="consol-b-sub">Stock total agrégé de toutes vos boutiques</div>
+      </div>
+      <div class="consol-b-dots">
+        <div class="consol-b-dot"><div class="consol-b-dot-c" style="background:#00C853"></div><span class="consol-b-dot-n">Akp.</span></div>
+        <div class="consol-b-dot"><div class="consol-b-dot-c" style="background:#1565C0"></div><span class="consol-b-dot-n">Cal.</span></div>
+        <div class="consol-b-dot"><div class="consol-b-dot-c" style="background:#FFB300"></div><span class="consol-b-dot-n">Fidj.</span></div>
+      </div>
+    </div>
 
-  <!-- Search -->
-  <div class="search-wrap">
-    <div class="search-inner">
-      <svg viewBox="0 0 20 20"><circle cx="9" cy="9" r="5"/><line x1="13" y1="13" x2="17" y2="17"/></svg>
-      <input type="text" placeholder="Rechercher un produit, code-barres…" oninput="filterSearch(this.value)">
-      <button class="scan-mini" onclick="showToast('📷 Scanner activé')">
-        <svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/></svg>
-        Scan
-      </button>
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <div class="tab-item on" onclick="switchTab(0)">📦 Vue d'ensemble</div>
+      <div class="tab-item" onclick="switchTab(1)">🔴 Alertes <span class="tab-badge" id="badge-alertes">6</span></div>
+      <div class="tab-item" onclick="switchTab(2)">⏰ Périmés <span class="tab-badge warn" id="badge-perimes">4</span></div>
+      <div class="tab-item" onclick="switchTab(3)">📋 Inventaires</div>
+      <div class="tab-item" onclick="switchTab(4)">🔄 Transferts</div>
+      <div class="tab-item" onclick="switchTab(5)">🗑 Pertes</div>
     </div>
   </div>
 
-  <!-- List -->
-  <div class="list-scroll">
-    <div id="list"></div>
+  <!-- ── PANELS ── -->
+  <div class="panels">
+
+    <!-- TAB 0 : VUE D'ENSEMBLE -->
+    <div class="panel on" id="panel-0">
+      <div class="kpi-row" id="kpi-row">
+    <div class="kpi ok"><span class="kpi-icon">📦</span><div class="kpi-val">12</div><div class="kpi-lbl">Produits</div></div>
+    <div class="kpi warn" onclick="switchTab(1)"><span class="kpi-icon">⚠️</span><div class="kpi-val">6</div><div class="kpi-lbl">Alertes</div></div>
+    <div class="kpi purple"><span class="kpi-icon">💰</span><div class="kpi-val">312k</div><div class="kpi-lbl">Valeur stock</div></div></div>
+      <div class="search-wrap">
+        <div class="search-inner">
+          <svg viewBox="0 0 20 20"><circle cx="9" cy="9" r="5"></circle><line x1="13" y1="13" x2="17" y2="17"></line></svg>
+          <input type="text" placeholder="Rechercher un produit…" oninput="filterSearch(this.value)">
+          <button class="sort-btn" id="sort-btn" onclick="toggleSort()">↕ Stock</button>
+        </div>
+      </div>
+      <div class="cat-row">
+        <div class="cat-chip on" onclick="filterCat('tous',this)">Tous</div>
+        <div class="cat-chip" onclick="filterCat('mafro',this)">🌾 MAFRO</div>
+        <div class="cat-chip" onclick="filterCat('huile',this)">🫙 Huiles</div>
+        <div class="cat-chip" onclick="filterCat('boisson',this)">🥤 Boissons</div>
+        <div class="cat-chip" onclick="filterCat('divers',this)">🧴 Divers</div>
+      </div>
+      <div class="scroll-area">
+        <div id="stock-list"><div class="list-card"><div class="stock-item-consol" onclick="openEntreeModal('p1')">
+        <div class="sic-top">
+          <div class="si-em">🌾</div>
+          <div class="sic-info">
+            <div class="sic-nm">Farine de blé</div>
+            <div class="sic-cat">🌾 MAFRO</div>
+          </div>
+          <div class="sic-right">
+            <div class="sic-total-val">20</div>
+            <div class="sic-total-lbl">u. au total</div>
+            <span class="si-badge sb-low" style="margin-top:4px">BAS</span>
+          </div>
+        </div>
+        <div class="sic-breakdown">
+          <div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#00C853"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Akpakpa</div>
+                <div class="sic-b-qty">12 / 30</div>
+              </div>
+              <span class="sic-b-badge sb-ok">OK</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#1565C0"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Calavi</div>
+                <div class="sic-b-qty">5 / 30</div>
+              </div>
+              <span class="sic-b-badge sb-low">BAS</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#FFB300"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Fidjrossè</div>
+                <div class="sic-b-qty">3 / 30</div>
+              </div>
+              <span class="sic-b-badge sb-crit">CRITIQUE</span>
+            </div>
+        </div>
+      </div><div class="stock-item-consol" onclick="openEntreeModal('p2')">
+        <div class="sic-top">
+          <div class="si-em">🫙</div>
+          <div class="sic-info">
+            <div class="sic-nm">Huile de palme</div>
+            <div class="sic-cat">🫙 Huiles</div>
+          </div>
+          <div class="sic-right">
+            <div class="sic-total-val">26</div>
+            <div class="sic-total-lbl">u. au total</div>
+            <span class="si-badge sb-ok" style="margin-top:4px">OK</span>
+          </div>
+        </div>
+        <div class="sic-breakdown">
+          <div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#00C853"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Akpakpa</div>
+                <div class="sic-b-qty">8 / 25</div>
+              </div>
+              <span class="sic-b-badge sb-ok">OK</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#1565C0"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Calavi</div>
+                <div class="sic-b-qty">18 / 25</div>
+              </div>
+              <span class="sic-b-badge sb-ok">OK</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#FFB300"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Fidjrossè</div>
+                <div class="sic-b-qty">0 / 25</div>
+              </div>
+              <span class="sic-b-badge sb-rupt">RUPTURE</span>
+            </div>
+        </div>
+      </div><div class="stock-item-consol" onclick="openEntreeModal('p3')">
+        <div class="sic-top">
+          <div class="si-em">🍚</div>
+          <div class="sic-info">
+            <div class="sic-nm">Riz local</div>
+            <div class="sic-cat">🌾 MAFRO</div>
+          </div>
+          <div class="sic-right">
+            <div class="sic-total-val">42</div>
+            <div class="sic-total-lbl">u. au total</div>
+            <span class="si-badge sb-ok" style="margin-top:4px">OK</span>
+          </div>
+        </div>
+        <div class="sic-breakdown">
+          <div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#00C853"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Akpakpa</div>
+                <div class="sic-b-qty">20 / 50</div>
+              </div>
+              <span class="sic-b-badge sb-ok">OK</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#1565C0"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Calavi</div>
+                <div class="sic-b-qty">8 / 50</div>
+              </div>
+              <span class="sic-b-badge sb-low">BAS</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#FFB300"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Fidjrossè</div>
+                <div class="sic-b-qty">14 / 50</div>
+              </div>
+              <span class="sic-b-badge sb-ok">OK</span>
+            </div>
+        </div>
+      </div><div class="stock-item-consol" onclick="openEntreeModal('p4')">
+        <div class="sic-top">
+          <div class="si-em">🧂</div>
+          <div class="sic-info">
+            <div class="sic-nm">Sucre 1kg</div>
+            <div class="sic-cat">🧴 Divers</div>
+          </div>
+          <div class="sic-right">
+            <div class="sic-total-val">44</div>
+            <div class="sic-total-lbl">u. au total</div>
+            <span class="si-badge sb-ok" style="margin-top:4px">OK</span>
+          </div>
+        </div>
+        <div class="sic-breakdown">
+          <div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#00C853"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Akpakpa</div>
+                <div class="sic-b-qty">15 / 40</div>
+              </div>
+              <span class="sic-b-badge sb-ok">OK</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#1565C0"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Calavi</div>
+                <div class="sic-b-qty">22 / 40</div>
+              </div>
+              <span class="sic-b-badge sb-ok">OK</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#FFB300"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Fidjrossè</div>
+                <div class="sic-b-qty">7 / 40</div>
+              </div>
+              <span class="sic-b-badge sb-low">BAS</span>
+            </div>
+        </div>
+      </div><div class="stock-item-consol" onclick="openEntreeModal('p5')">
+        <div class="sic-top">
+          <div class="si-em">🧴</div>
+          <div class="sic-info">
+            <div class="sic-nm">Savon Éclat</div>
+            <div class="sic-cat">🧴 Divers</div>
+          </div>
+          <div class="sic-right">
+            <div class="sic-total-val">15</div>
+            <div class="sic-total-lbl">u. au total</div>
+            <span class="si-badge sb-low" style="margin-top:4px">BAS</span>
+          </div>
+        </div>
+        <div class="sic-breakdown">
+          <div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#00C853"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Akpakpa</div>
+                <div class="sic-b-qty">0 / 20</div>
+              </div>
+              <span class="sic-b-badge sb-rupt">RUPTURE</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#1565C0"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Calavi</div>
+                <div class="sic-b-qty">10 / 20</div>
+              </div>
+              <span class="sic-b-badge sb-ok">OK</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#FFB300"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Fidjrossè</div>
+                <div class="sic-b-qty">5 / 20</div>
+              </div>
+              <span class="sic-b-badge sb-low">BAS</span>
+            </div>
+        </div>
+      </div><div class="stock-item-consol" onclick="openEntreeModal('p6')">
+        <div class="sic-top">
+          <div class="si-em">🍅</div>
+          <div class="sic-info">
+            <div class="sic-nm">Tomate conc.</div>
+            <div class="sic-cat">🧴 Divers</div>
+          </div>
+          <div class="sic-right">
+            <div class="sic-total-val">10</div>
+            <div class="sic-total-lbl">u. au total</div>
+            <span class="si-badge sb-low" style="margin-top:4px">BAS</span>
+          </div>
+        </div>
+        <div class="sic-breakdown">
+          <div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#00C853"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Akpakpa</div>
+                <div class="sic-b-qty">6 / 20</div>
+              </div>
+              <span class="sic-b-badge sb-ok">OK</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#1565C0"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Calavi</div>
+                <div class="sic-b-qty">0 / 20</div>
+              </div>
+              <span class="sic-b-badge sb-rupt">RUPTURE</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#FFB300"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Fidjrossè</div>
+                <div class="sic-b-qty">4 / 20</div>
+              </div>
+              <span class="sic-b-badge sb-low">BAS</span>
+            </div>
+        </div>
+      </div><div class="stock-item-consol" onclick="openEntreeModal('p7')">
+        <div class="sic-top">
+          <div class="si-em">🥤</div>
+          <div class="sic-info">
+            <div class="sic-nm">Jus Bissap</div>
+            <div class="sic-cat">🥤 Boissons</div>
+          </div>
+          <div class="sic-right">
+            <div class="sic-total-val">42</div>
+            <div class="sic-total-lbl">u. au total</div>
+            <span class="si-badge sb-ok" style="margin-top:4px">OK</span>
+          </div>
+        </div>
+        <div class="sic-breakdown">
+          <div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#00C853"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Akpakpa</div>
+                <div class="sic-b-qty">24 / 48</div>
+              </div>
+              <span class="sic-b-badge sb-ok">OK</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#1565C0"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Calavi</div>
+                <div class="sic-b-qty">12 / 48</div>
+              </div>
+              <span class="sic-b-badge sb-low">BAS</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#FFB300"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Fidjrossè</div>
+                <div class="sic-b-qty">6 / 48</div>
+              </div>
+              <span class="sic-b-badge sb-low">BAS</span>
+            </div>
+        </div>
+      </div><div class="stock-item-consol" onclick="openEntreeModal('p8')">
+        <div class="sic-top">
+          <div class="si-em">🧃</div>
+          <div class="sic-info">
+            <div class="sic-nm">Jus Gingembre</div>
+            <div class="sic-cat">🥤 Boissons</div>
+          </div>
+          <div class="sic-right">
+            <div class="sic-total-val">17</div>
+            <div class="sic-total-lbl">u. au total</div>
+            <span class="si-badge sb-low" style="margin-top:4px">BAS</span>
+          </div>
+        </div>
+        <div class="sic-breakdown">
+          <div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#00C853"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Akpakpa</div>
+                <div class="sic-b-qty">2 / 30</div>
+              </div>
+              <span class="sic-b-badge sb-crit">CRITIQUE</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#1565C0"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Calavi</div>
+                <div class="sic-b-qty">15 / 30</div>
+              </div>
+              <span class="sic-b-badge sb-ok">OK</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#FFB300"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Fidjrossè</div>
+                <div class="sic-b-qty">0 / 30</div>
+              </div>
+              <span class="sic-b-badge sb-rupt">RUPTURE</span>
+            </div>
+        </div>
+      </div><div class="stock-item-consol" onclick="openEntreeModal('p9')">
+        <div class="sic-top">
+          <div class="si-em">🫘</div>
+          <div class="sic-info">
+            <div class="sic-nm">Haricot</div>
+            <div class="sic-cat">🌾 MAFRO</div>
+          </div>
+          <div class="sic-right">
+            <div class="sic-total-val">12</div>
+            <div class="sic-total-lbl">u. au total</div>
+            <span class="si-badge sb-low" style="margin-top:4px">BAS</span>
+          </div>
+        </div>
+        <div class="sic-breakdown">
+          <div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#00C853"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Akpakpa</div>
+                <div class="sic-b-qty">3 / 25</div>
+              </div>
+              <span class="sic-b-badge sb-crit">CRITIQUE</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#1565C0"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Calavi</div>
+                <div class="sic-b-qty">8 / 25</div>
+              </div>
+              <span class="sic-b-badge sb-ok">OK</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#FFB300"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Fidjrossè</div>
+                <div class="sic-b-qty">1 / 25</div>
+              </div>
+              <span class="sic-b-badge sb-crit">CRITIQUE</span>
+            </div>
+        </div>
+      </div><div class="stock-item-consol" onclick="openEntreeModal('p10')">
+        <div class="sic-top">
+          <div class="si-em">🌽</div>
+          <div class="sic-info">
+            <div class="sic-nm">Maïs concassé</div>
+            <div class="sic-cat">🌾 MAFRO</div>
+          </div>
+          <div class="sic-right">
+            <div class="sic-total-val">53</div>
+            <div class="sic-total-lbl">u. au total</div>
+            <span class="si-badge sb-ok" style="margin-top:4px">OK</span>
+          </div>
+        </div>
+        <div class="sic-breakdown">
+          <div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#00C853"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Akpakpa</div>
+                <div class="sic-b-qty">30 / 60</div>
+              </div>
+              <span class="sic-b-badge sb-ok">OK</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#1565C0"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Calavi</div>
+                <div class="sic-b-qty">15 / 60</div>
+              </div>
+              <span class="sic-b-badge sb-low">BAS</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#FFB300"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Fidjrossè</div>
+                <div class="sic-b-qty">8 / 60</div>
+              </div>
+              <span class="sic-b-badge sb-low">BAS</span>
+            </div>
+        </div>
+      </div><div class="stock-item-consol" onclick="openEntreeModal('p11')">
+        <div class="sic-top">
+          <div class="si-em">☕</div>
+          <div class="sic-info">
+            <div class="sic-nm">Café Robusta</div>
+            <div class="sic-cat">🥤 Boissons</div>
+          </div>
+          <div class="sic-right">
+            <div class="sic-total-val">8</div>
+            <div class="sic-total-lbl">u. au total</div>
+            <span class="si-badge sb-low" style="margin-top:4px">BAS</span>
+          </div>
+        </div>
+        <div class="sic-breakdown">
+          <div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#00C853"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Akpakpa</div>
+                <div class="sic-b-qty">5 / 20</div>
+              </div>
+              <span class="sic-b-badge sb-low">BAS</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#1565C0"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Calavi</div>
+                <div class="sic-b-qty">0 / 20</div>
+              </div>
+              <span class="sic-b-badge sb-rupt">RUPTURE</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#FFB300"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Fidjrossè</div>
+                <div class="sic-b-qty">3 / 20</div>
+              </div>
+              <span class="sic-b-badge sb-low">BAS</span>
+            </div>
+        </div>
+      </div><div class="stock-item-consol" onclick="openEntreeModal('p12')">
+        <div class="sic-top">
+          <div class="si-em">🧆</div>
+          <div class="sic-info">
+            <div class="sic-nm">Gari fin</div>
+            <div class="sic-cat">🌾 MAFRO</div>
+          </div>
+          <div class="sic-right">
+            <div class="sic-total-val">70</div>
+            <div class="sic-total-lbl">u. au total</div>
+            <span class="si-badge sb-ok" style="margin-top:4px">OK</span>
+          </div>
+        </div>
+        <div class="sic-breakdown">
+          <div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#00C853"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Akpakpa</div>
+                <div class="sic-b-qty">40 / 60</div>
+              </div>
+              <span class="sic-b-badge sb-ok">OK</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#1565C0"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Calavi</div>
+                <div class="sic-b-qty">20 / 60</div>
+              </div>
+              <span class="sic-b-badge sb-ok">OK</span>
+            </div><div class="sic-b-item">
+              <div class="sic-b-dot" style="background:#FFB300"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">Fidjrossè</div>
+                <div class="sic-b-qty">10 / 60</div>
+              </div>
+              <span class="sic-b-badge sb-low">BAS</span>
+            </div>
+        </div>
+      </div></div></div>
+      </div>
+    </div>
+
+    <!-- TAB 1 : ALERTES -->
+    <div class="panel" id="panel-1">
+      <div class="scroll-area"><div id="alertes-list"></div></div>
+    </div>
+
+    <!-- TAB 2 : PÉRIMÉS -->
+    <div class="panel" id="panel-2">
+      <div class="scroll-area">
+        <div style="padding:10px 14px 0"><div style="font-size:10px;color:var(--mu);background:var(--al);border-radius:10px;padding:10px 12px;border:1px solid rgba(255,179,0,.2);line-height:1.6">⚠️ <strong style="color:#7B5800">DLC / DLUO</strong> — Vérifiez et retirez les produits expirés.</div></div>
+        <div id="perimes-list" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <!-- TAB 3 : INVENTAIRES -->
+    <div class="panel" id="panel-3">
+      <div class="scroll-area"><div id="inv-content"></div></div>
+    </div>
+
+    <!-- TAB 4 : TRANSFERTS -->
+    <div class="panel" id="panel-4">
+      <div class="scroll-area">
+        <button class="trans-new-btn" onclick="openTransfertModal()">🔄 Nouveau transfert inter-boutique</button>
+        <div id="trans-list" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    <!-- TAB 5 : PERTES -->
+    <div class="panel" id="panel-5">
+      <div class="scroll-area">
+        <div class="perte-summary" id="pertes-summary"></div>
+        <div class="perte-quick">
+          <div class="pq-title">📝 Enregistrer une perte</div>
+          <div class="pq-row">
+            <select class="pq-select" id="pq-prod"><option value="">— Produit —</option></select>
+            <input class="pq-input" type="number" id="pq-qty" placeholder="Qté" min="1">
+          </div>
+          <select class="pq-reason" id="pq-reason">
+            <option value="">— Raison —</option>
+            <option value="casse">💥 Casse / bris</option>
+            <option value="perime">⏰ Péremption</option>
+            <option value="vol">🚨 Vol / disparition</option>
+            <option value="qualite">❌ Mauvaise qualité</option>
+            <option value="autre">📝 Autre</option>
+          </select>
+          <button class="pq-btn" onclick="enregistrerPerte()">🗑 Enregistrer la perte</button>
+        </div>
+        <div id="pertes-list"></div>
+      </div>
+    </div>
+
   </div>
+</div>
 
-  <!-- FAB -->
-  <button class="fab" onclick="showToast('➕ Nouvel ajustement')" title="Nouveau">+</button>
+<div class="toast" id="toast"></div>
 
-  <!-- Bottom nav -->
-  <div class="bnav">
-    <div class="bni" onclick="showToast('💼 Caisse')">
-      <svg viewBox="0 0 20 20"><rect x="3" y="5" width="14" height="12" rx="2"/><line x1="3" x2="17" y1="9" y2="9"/></svg>
-      <span>Caisse</span>
+<!-- ── MODAL ENTRÉE STOCK ── -->
+<div class="modal-overlay" id="entry-modal" onclick="if(event.target===this)closeEntreeModal()">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="entry-title">📦 Mouvement de stock</div>
+      <div class="modal-close" onclick="closeEntreeModal()">✕</div>
     </div>
-    <div class="bni" onclick="showToast('📖 Dettes')">
-      <svg viewBox="0 0 20 20"><path d="M4 6h12M4 10h8M4 14h5"/></svg>
-      <span>Dettes</span>
+    <div class="entry-hero">
+      <div class="eh-em" id="eh-em">📦</div>
+      <div class="eh-info">
+        <div class="eh-nm" id="eh-nm">—</div>
+        <div class="eh-sub" id="eh-sub">—</div>
+        <div class="eh-stock"><span class="eh-sv" id="eh-sv" style="color:var(--g)">0</span><span class="eh-sl">en stock</span></div>
+      </div>
     </div>
-    <div class="bni on">
-      <svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="14" rx="2"/><line x1="3" x2="17" y1="9" y2="9"/></svg>
-      <span>Stocks</span>
+    <div class="op-tabs">
+      <div class="op-tab entree on" id="tab-entree" onclick="setOp('entree')">➕ Entrée</div>
+      <div class="op-tab sortie" id="tab-sortie" onclick="setOp('sortie')">➖ Sortie</div>
     </div>
-    <div class="bni" onclick="showToast('📊 Stats')">
-      <svg viewBox="0 0 20 20"><rect x="3" y="11" width="3" height="6"/><rect x="8.5" y="7" width="3" height="10"/><rect x="14" y="4" width="3" height="13"/></svg>
-      <span>Stats</span>
+    <div class="qty-section">
+      <div class="qty-display-wrap entree" id="qty-wrap">
+        <div class="qty-row">
+          <span class="qty-sign entree" id="qty-sign">+</span>
+          <span class="qty-num" id="qty-num">0</span>
+          <span class="qty-unit">unités</span>
+        </div>
+        <div class="qty-after">Nouveau stock : <strong id="qty-after">—</strong></div>
+      </div>
+      <div class="numpad">
+        <button class="nk" onclick="nk('1')">1</button><button class="nk" onclick="nk('2')">2</button><button class="nk" onclick="nk('3')">3</button>
+        <button class="nk" onclick="nk('4')">4</button><button class="nk" onclick="nk('5')">5</button><button class="nk" onclick="nk('6')">6</button>
+        <button class="nk" onclick="nk('7')">7</button><button class="nk" onclick="nk('8')">8</button><button class="nk" onclick="nk('9')">9</button>
+        <button class="nk nk-10" onclick="nk('+10')">+10</button><button class="nk" onclick="nk('0')">0</button><button class="nk nk-del" onclick="nkDel()">⌫</button>
+      </div>
+      <textarea class="note-field" id="entry-note" placeholder="Note (fournisseur, raison…)"></textarea>
     </div>
-    <div class="bni" onclick="showToast('👤 Profil')">
-      <svg viewBox="0 0 20 20"><circle cx="10" cy="7" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
-      <span>Profil</span>
-    </div>
+    <button class="confirm-btn entree" id="entry-confirm" onclick="confirmerEntree()" disabled="">✅ Valider l'entrée</button>
   </div>
+</div>
 
-  <div class="toast" id="toast"></div>
+<!-- ── MODAL INVENTAIRE ── -->
+<div class="modal-overlay" id="inv-modal" onclick="if(event.target===this)closeInvModal()">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="inv-modal-title">📋 Inventaire physique</div>
+      <div class="modal-close" onclick="closeInvModal()">✕</div>
+    </div>
+    <div class="inv-modal-progress">
+      <div class="inv-modal-track"><div class="inv-modal-bar" id="inv-modal-bar" style="width:0%"></div></div>
+      <div class="inv-modal-lbl" id="inv-modal-lbl">0 / 0 produits comptés</div>
+    </div>
+    <div id="inv-check-list" style="margin-top:8px;background:var(--white);border-top:1px solid var(--brd)"></div>
+    <button class="confirm-btn" id="inv-confirm-btn" onclick="terminerInventaire()" disabled="">✅ Terminer l'inventaire</button>
+  </div>
+</div>
+
+<!-- ── MODAL TRANSFERT ── -->
+<div class="modal-overlay" id="trans-modal" onclick="if(event.target===this)closeTransfertModal()">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">🔄 Nouveau transfert</div>
+      <div class="modal-close" onclick="closeTransfertModal()">✕</div>
+    </div>
+    <div class="form-section">
+      <label class="form-label">Boutique source</label>
+      <select class="form-field" id="tf-from">
+        <option value="b1">Boutique 1 — Akpakpa</option>
+        <option value="b2">Boutique 2 — Calavi</option>
+        <option value="b3">Boutique 3 — Fidjrossè</option>
+      </select>
+      <label class="form-label">Boutique destinataire</label>
+      <select class="form-field" id="tf-to">
+        <option value="b2">Boutique 2 — Calavi</option>
+        <option value="b1">Boutique 1 — Akpakpa</option>
+        <option value="b3">Boutique 3 — Fidjrossè</option>
+      </select>
+      <label class="form-label">Produit</label>
+      <select class="form-field" id="tf-prod"></select>
+      <label class="form-label">Quantité</label>
+      <input class="form-field" type="number" id="tf-qty" min="1" placeholder="ex : 5">
+      <label class="form-label">Note (facultatif)</label>
+      <input class="form-field" type="text" id="tf-note" placeholder="ex : réapprovisionnement urgent">
+    </div>
+    <button class="confirm-btn confirm-btn-b" onclick="confirmerTransfert()">🔄 Envoyer le transfert</button>
+  </div>
+</div>
+
+<!-- ── MODAL HISTORIQUE ── -->
+<div class="modal-overlay" id="hist-modal" onclick="if(event.target===this)closeHistoModal()">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">🕐 Historique des mouvements</div>
+      <div class="modal-close" onclick="closeHistoModal()">✕</div>
+    </div>
+    <div id="hist-list" style="background:var(--white);border-top:1px solid var(--brd)"></div>
+  </div>
 </div>
 
 <script>
+/* ════════════════════════════════════
+   DONNÉES MULTI-BOUTIQUES
+════════════════════════════════════ */
+const BOUTIQUES = {
+  all: { name:'Toutes',      fullName:'Toutes les boutiques', color:'#FFFFFF', manager:'—',          loc:'3 sites' },
+  b1:  { name:'Akpakpa',    fullName:'Boutique 1 — Akpakpa', color:'#00C853', manager:'Kodjo S.',   loc:'Akpakpa, Cotonou' },
+  b2:  { name:'Calavi',     fullName:'Boutique 2 — Calavi',  color:'#1565C0', manager:'Adjoua M.',  loc:'Abomey-Calavi' },
+  b3:  { name:'Fidjrossè',  fullName:'Boutique 3 — Fidjrossè',color:'#FFB300',manager:'Béatrice K.',loc:'Fidjrossè, Cotonou' },
+};
+
 const PRODUITS = [
-  { id:'p1',  em:'🌾', nm:'Farine de blé 1kg',     cat:'Épicerie',    stock:12, seuil:5,  pr:3500, etat:'ok' },
-  { id:'p2',  em:'🫙',  nm:'Huile de palme 1L',    cat:'Épicerie',    stock:2,  seuil:5,  pr:1500, etat:'bas' },
-  { id:'p3',  em:'🍚', nm:'Riz local 5kg',         cat:'Épicerie',    stock:0,  seuil:10, pr:8000, etat:'rupture' },
-  { id:'p4',  em:'🧂', nm:'Sucre 1kg',             cat:'Épicerie',    stock:24, seuil:8,  pr:600,  etat:'ok' },
-  { id:'p5',  em:'🧴', nm:'Savon Éclat',           cat:'Hygiène',     stock:0,  seuil:6,  pr:400,  etat:'rupture' },
-  { id:'p6',  em:'🍅', nm:'Tomate concentrée',     cat:'Épicerie',    stock:6,  seuil:10, pr:1200, etat:'bas', perime:true },
-  { id:'p7',  em:'🥤', nm:'Jus Bissap 50cl',       cat:'Boissons',    stock:24, seuil:12, pr:500,  etat:'ok' },
-  { id:'p8',  em:'🧃', nm:'Jus Gingembre 50cl',    cat:'Boissons',    stock:18, seuil:12, pr:500,  etat:'ok' },
-  { id:'p9',  em:'🫘',  nm:'Haricot 1kg',          cat:'Épicerie',    stock:3,  seuil:8,  pr:700,  etat:'bas' },
-  { id:'p10', em:'🌽', nm:'Maïs concassé 1kg',     cat:'Épicerie',    stock:30, seuil:10, pr:650,  etat:'ok' },
-  { id:'p11', em:'☕', nm:'Café Robusta 250g',     cat:'Boissons',    stock:5,  seuil:6,  pr:1800, etat:'bas' },
-  { id:'p12', em:'🧇', nm:'Gari fin 1kg',          cat:'Épicerie',    stock:40, seuil:15, pr:550,  etat:'ok' },
-  { id:'p13', em:'🥛', nm:'Lait concentré (PÉRIMÉ)', cat:'Frais',     stock:8,  seuil:6,  pr:900,  etat:'ok', perime:true },
+  { id:'p1',  em:'🌾', nm:'Farine de blé',  pr:3500, max:30, cat:'mafro'   },
+  { id:'p2',  em:'🫙', nm:'Huile de palme', pr:1500, max:25, cat:'huile'   },
+  { id:'p3',  em:'🍚', nm:'Riz local',      pr:800,  max:50, cat:'mafro'   },
+  { id:'p4',  em:'🧂', nm:'Sucre 1kg',      pr:600,  max:40, cat:'divers'  },
+  { id:'p5',  em:'🧴', nm:'Savon Éclat',    pr:400,  max:20, cat:'divers'  },
+  { id:'p6',  em:'🍅', nm:'Tomate conc.',   pr:1200, max:20, cat:'divers'  },
+  { id:'p7',  em:'🥤', nm:'Jus Bissap',     pr:500,  max:48, cat:'boisson' },
+  { id:'p8',  em:'🧃', nm:'Jus Gingembre', pr:500,  max:30, cat:'boisson' },
+  { id:'p9',  em:'🫘', nm:'Haricot',        pr:700,  max:25, cat:'mafro'   },
+  { id:'p10', em:'🌽', nm:'Maïs concassé', pr:650,  max:60, cat:'mafro'   },
+  { id:'p11', em:'☕', nm:'Café Robusta',   pr:1800, max:20, cat:'boisson' },
+  { id:'p12', em:'🧆', nm:'Gari fin',      pr:550,  max:60, cat:'mafro'   },
 ];
 
-let activeTab = 'tous';
+const STOCK = {
+  b1: { p1:12, p2:8,  p3:20, p4:15, p5:0,  p6:6,  p7:24, p8:2,  p9:3,  p10:30, p11:5,  p12:40 },
+  b2: { p1:5,  p2:18, p3:8,  p4:22, p5:10, p6:0,  p7:12, p8:15, p9:8,  p10:15, p11:0,  p12:20 },
+  b3: { p1:3,  p2:0,  p3:14, p4:7,  p5:5,  p6:4,  p7:6,  p8:0,  p9:1,  p10:8,  p11:3,  p12:10 },
+};
+
+const PERIMES_DATA = [
+  { em:'🍅', nm:'Tomate conc.',  qty:4, dlc:'2025-04-23', status:'expired', boutique:'b1' },
+  { em:'☕', nm:'Café Robusta',  qty:2, dlc:'2025-05-01', status:'soon',    boutique:'b2' },
+  { em:'🥤', nm:'Jus Bissap',   qty:6, dlc:'2025-05-03', status:'soon',    boutique:'b1' },
+  { em:'🧴', nm:'Savon Éclat',  qty:10,dlc:'2025-08-20', status:'ok',      boutique:'b2' },
+  { em:'🌾', nm:'Farine de blé',qty:5, dlc:'2025-09-15', status:'ok',      boutique:'b3' },
+  { em:'🧃', nm:'Jus Gingembre',qty:3, dlc:'2025-04-28', status:'soon',    boutique:'b3' },
+];
+
+const TRANSFERTS_DATA = [
+  { em:'🌾', nm:'Farine de blé', qty:5,  from:'b1', to:'b2', status:'transit',  date:"Aujourd'hui · 10h30" },
+  { em:'🫙', nm:'Huile de palme',qty:10, from:'b1', to:'b3', status:'pending',  date:"Aujourd'hui · 09h15" },
+  { em:'🍚', nm:'Riz local',     qty:20, from:'b2', to:'b1', status:'done',     date:"Hier · 16h00"        },
+  { em:'🥤', nm:'Jus Bissap',    qty:12, from:'b1', to:'b2', status:'done',     date:"Hier · 11h45"        },
+  { em:'🧂', nm:'Sucre 1kg',     qty:8,  from:'b3', to:'b1', status:'rejected', date:"22 Avr · 14h20"      },
+];
+
+const PERTES_DATA = [
+  { em:'🍅', nm:'Tomate conc.',  qty:4, pr:1200, raison:'perime', icon:'⏰', date:"Aujourd'hui · 08h30", boutique:'b1' },
+  { em:'🥤', nm:'Jus Bissap',   qty:2, pr:500,  raison:'casse',  icon:'💥', date:"Hier · 17h00",        boutique:'b2' },
+  { em:'🧴', nm:'Savon Éclat',  qty:1, pr:400,  raison:'vol',    icon:'🚨', date:"23 Avr · 12h00",      boutique:'b1' },
+  { em:'🌾', nm:'Farine de blé',qty:3, pr:3500, raison:'qualite',icon:'❌', date:"22 Avr · 09h15",      boutique:'b3' },
+  { em:'☕', nm:'Café Robusta',  qty:1, pr:1800, raison:'perime', icon:'⏰', date:"21 Avr · 16h40",      boutique:'b2' },
+];
+
+const HISTORIQUE = [
+  { type:'entree', icon:'➕', em:'🌾', nm:'Farine de blé', qty:'+10', note:'Livraison fournisseur', time:"Aujourd'hui · 11h20", boutique:'b1' },
+  { type:'sortie', icon:'➖', em:'🫙', nm:'Huile de palme',qty:'−3',  note:'Vente caisse',          time:"Aujourd'hui · 10h45", boutique:'b1' },
+  { type:'entree', icon:'➕', em:'🍚', nm:'Riz local',     qty:'+20', note:'Livraison marché',      time:"Hier · 14h30",        boutique:'b2' },
+  { type:'sortie', icon:'➖', em:'🧂', nm:'Sucre 1kg',     qty:'−5',  note:'Vente caisse',          time:"Hier · 12h10",        boutique:'b3' },
+];
+
+const INV_SESSIONS = [
+  { id:'INV-018', date:'18 Avr 2025', by:'Kodjo S.',   boutique:'b1', total:12, ecarts:1 },
+  { id:'INV-017', date:'1 Avr 2025',  by:'Adjoua M.',  boutique:'b2', total:12, ecarts:0 },
+  { id:'INV-016', date:'15 Mar 2025', by:'Béatrice K.',boutique:'b3', total:12, ecarts:3 },
+];
+
+/* ════════════════════════════════════
+   STATE
+════════════════════════════════════ */
+let currentBoutique = 'all';
+let currentTab    = 0;
+let currentCat    = 'tous';
 let currentSearch = '';
+let sortByStock   = false;
+let currentProdId = null;
+let currentOp     = 'entree';
+let qtyRaw        = '';
+let invStarted    = false;
+let invBoutique   = 'b1';
+let invCounts     = {};
 
-function tick(){
-  const n = new Date();
-  const h = String(n.getHours()).padStart(2,'0');
-  const m = String(n.getMinutes()).padStart(2,'0');
-  document.getElementById('clock').textContent = `${h}:${m}`;
+const catLabel = { mafro:'🌾 MAFRO', huile:'🫙 Huiles', boisson:'🥤 Boissons', divers:'🧴 Divers' };
+
+/* ════════════════════════════════════
+   HELPERS STOCK
+════════════════════════════════════ */
+function getStock(bid, pid){ return (STOCK[bid]||{})[pid]||0; }
+function setStock(bid, pid, v){ if(!STOCK[bid]) STOCK[bid]={}; STOCK[bid][pid]=Math.max(0,v); }
+function totalStock(pid){ return ['b1','b2','b3'].reduce((s,b)=>s+getStock(b,pid),0); }
+function stockFor(bid, pid){ return bid==='all' ? totalStock(pid) : getStock(bid,pid); }
+function maxFor(p, bid){ return bid==='all' ? p.max*3 : p.max; }
+
+function level(stock, max){
+  if(stock===0) return 'rupture';
+  if(stock<=Math.max(2,Math.round(max*.1))) return 'crit';
+  if(stock<=Math.round(max*.25)) return 'low';
+  return 'ok';
 }
-tick(); setInterval(tick, 10000);
+function badgeCls(lvl){ return {ok:'sb-ok',low:'sb-low',crit:'sb-crit',rupture:'sb-rupt'}[lvl]||'sb-ok'; }
+function badgeTxt(lvl){ return {ok:'OK',low:'BAS',crit:'CRITIQUE',rupture:'RUPTURE'}[lvl]||''; }
+function gaugeCls(lvl){ return {ok:'gf-ok',low:'gf-low',crit:'gf-crit',rupture:'gf-crit'}[lvl]||'gf-ok'; }
+function numCls(lvl)  { return {ok:'gn-ok',low:'gn-low',crit:'gn-crit',rupture:'gn-crit'}[lvl]||'gn-ok'; }
 
-function render(){
-  const list = document.getElementById('list');
-  let items = PRODUITS;
-  if (activeTab === 'bas') items = items.filter(p => p.etat === 'bas');
-  else if (activeTab === 'rupture') items = items.filter(p => p.etat === 'rupture');
-  else if (activeTab === 'perime') items = items.filter(p => p.perime);
-  if (currentSearch) {
-    const q = currentSearch.toLowerCase();
-    items = items.filter(p => p.nm.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q));
-  }
-  if (!items.length) {
-    list.innerHTML = `<div style="text-align:center;padding:48px 0;color:var(--mu2);font-size:12px">Aucun produit trouvé</div>`;
-    return;
-  }
-  list.innerHTML = items.map(p => {
-    let stockClass = '';
-    let cardClass = '';
-    if (p.etat === 'bas')     { stockClass = 'bas'; cardClass = 'bas'; }
-    if (p.etat === 'rupture') { stockClass = 'rupture'; cardClass = 'rupture'; }
-    if (p.perime && activeTab === 'perime') cardClass = 'perime';
+/* ════════════════════════════════════
+   BOUTIQUE SWITCHER
+════════════════════════════════════ */
+function toggleDD(){
+  const drop = document.getElementById('bdrop');
+  const arr  = document.getElementById('bsw-arr');
+  const open = drop.classList.toggle('open');
+  arr.classList.toggle('open', open);
+}
+function pickBoutique(bid){
+  currentBoutique = bid;
+  const b = BOUTIQUES[bid];
+  const btn = document.getElementById('bsw-btn');
+  document.getElementById('bsw-name').textContent = b.name;
+  document.getElementById('bsw-dot').style.background = b.color;
+  btn.className = 'bswitch-btn' + (bid==='all'?' all':'');
+  document.querySelectorAll('.bopt').forEach((el,i)=>{
+    const ids = ['all','b1','b2','b3'];
+    el.classList.toggle('sel', ids[i]===bid);
+  });
+  document.getElementById('bdrop').classList.remove('open');
+  document.getElementById('bsw-arr').classList.remove('open');
+  document.getElementById('consol-banner').classList.toggle('show', bid==='all');
+  document.getElementById('hdr-sub').textContent = bid==='all'
+    ? '3 boutiques · Vue consolidée'
+    : b.fullName + ' · ' + b.manager;
+  refreshAll();
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#bswitch')){ document.getElementById('bdrop').classList.remove('open'); document.getElementById('bsw-arr').classList.remove('open'); }
+});
 
-    let alertTag = '';
-    if (p.etat === 'rupture') alertTag = `<span class="alert-tag">🚨 Rupture</span>`;
-    else if (p.etat === 'bas') alertTag = `<span class="alert-tag warn">⚠️ Stock bas (seuil: ${p.seuil})</span>`;
-    if (p.perime) alertTag += ` <span class="alert-tag">⏰ Périmé</span>`;
+/* ════════════════════════════════════
+   TABS
+════════════════════════════════════ */
+function switchTab(n){
+  currentTab = n;
+  document.querySelectorAll('.tab-item').forEach((t,i)=>t.classList.toggle('on',i===n));
+  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('on',i===n));
+  if(n===1) renderAlertes();
+  if(n===2) renderPerimes();
+  if(n===3) renderInventaires();
+  if(n===4) renderTransferts();
+  if(n===5) renderPertes();
+}
 
-    return `
-      <div class="prod-card ${cardClass}" onclick="showToast('📝 Détail · ${p.nm}')">
-        <div class="prod-em">${p.em}</div>
-        <div class="prod-info">
-          <div class="prod-nm">${p.nm}</div>
-          <div class="prod-cat">${p.cat}</div>
-          <div class="prod-meta">
-            <span class="prod-stock ${stockClass}">${p.stock} en stock</span>
-            <span class="prod-pr"><b>${p.pr.toLocaleString('fr-FR')} F</b></span>
+function refreshAll(){
+  updateKPIs();
+  renderStock();
+  if(currentTab===1) renderAlertes();
+  if(currentTab===2) renderPerimes();
+  if(currentTab===3) renderInventaires();
+  if(currentTab===4) renderTransferts();
+  if(currentTab===5) renderPertes();
+}
+
+/* ════════════════════════════════════
+   KPIs
+════════════════════════════════════ */
+function updateKPIs(){
+  const bid = currentBoutique;
+  const bids = bid==='all' ? ['b1','b2','b3'] : [bid];
+  let alertCount = 0, valeur = 0, ruptures = 0;
+  PRODUITS.forEach(p=>{
+    const s = bid==='all' ? totalStock(p.id) : getStock(bid,p.id);
+    const m = bid==='all' ? p.max*3 : p.max;
+    const lvl = level(s,m);
+    valeur += p.pr * (bid==='all'? totalStock(p.id):getStock(bid,p.id));
+    if(lvl!=='ok') alertCount++;
+    if(lvl==='rupture') ruptures++;
+  });
+  const perimeCount = PERIMES_DATA.filter(p=>p.status!=='ok'&&(bid==='all'||p.boutique===bid)).length;
+
+  document.getElementById('kpi-row').innerHTML = `
+    <div class="kpi ok"><span class="kpi-icon">📦</span><div class="kpi-val">${PRODUITS.length}</div><div class="kpi-lbl">Produits</div></div>
+    <div class="kpi ${alertCount?'warn':'ok'}" onclick="switchTab(1)"><span class="kpi-icon">⚠️</span><div class="kpi-val">${alertCount}</div><div class="kpi-lbl">Alertes</div></div>
+    <div class="kpi purple"><span class="kpi-icon">💰</span><div class="kpi-val">${valeur>=1000000?(valeur/1000000).toFixed(1)+'M':Math.round(valeur/1000)+'k'}</div><div class="kpi-lbl">Valeur stock</div></div>`;
+
+  document.getElementById('badge-alertes').textContent = alertCount;
+  document.getElementById('badge-perimes').textContent = perimeCount;
+}
+
+/* ════════════════════════════════════
+   TAB 0 — VUE D'ENSEMBLE
+════════════════════════════════════ */
+function renderStock(){
+  const bid = currentBoutique;
+  let data = [...PRODUITS];
+  if(currentCat!=='tous') data=data.filter(p=>p.cat===currentCat);
+  if(currentSearch) data=data.filter(p=>p.nm.toLowerCase().includes(currentSearch.toLowerCase()));
+  if(sortByStock) data.sort((a,b)=>{
+    const sa = bid==='all'?totalStock(a.id):getStock(bid,a.id);
+    const sb = bid==='all'?totalStock(b.id):getStock(bid,b.id);
+    return sa-sb;
+  });
+
+  const el = document.getElementById('stock-list');
+  if(!data.length){ el.innerHTML=`<div class="empty-st"><div class="empty-st-icon">🔍</div><p>Aucun produit trouvé</p></div>`; return; }
+
+  if(bid==='all'){
+    el.innerHTML = `<div class="list-card">${data.map(p=>{
+      const stocks = { b1:getStock('b1',p.id), b2:getStock('b2',p.id), b3:getStock('b3',p.id) };
+      const total  = stocks.b1+stocks.b2+stocks.b3;
+      const maxT   = p.max*3;
+      const lvl    = level(total,maxT);
+      return `<div class="stock-item-consol" onclick="openEntreeModal('${p.id}')">
+        <div class="sic-top">
+          <div class="si-em">${p.em}</div>
+          <div class="sic-info">
+            <div class="sic-nm">${p.nm}</div>
+            <div class="sic-cat">${catLabel[p.cat]||''}</div>
           </div>
-          ${alertTag}
+          <div class="sic-right">
+            <div class="sic-total-val">${total}</div>
+            <div class="sic-total-lbl">u. au total</div>
+            <span class="si-badge ${badgeCls(lvl)}" style="margin-top:4px">${badgeTxt(lvl)}</span>
+          </div>
         </div>
-        <div class="prod-actions">
-          <div class="prod-act-btn" onclick="event.stopPropagation();showToast('➕ Réception · ${p.nm}')" title="Réception">
-            <svg viewBox="0 0 16 16"><path d="M8 2v12M2 8h12"/></svg>
-          </div>
-          <div class="prod-act-btn" onclick="event.stopPropagation();showToast('📊 Historique · ${p.nm}')" title="Historique">
-            <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l3 2"/></svg>
-          </div>
+        <div class="sic-breakdown">
+          ${['b1','b2','b3'].map(b=>{
+            const s = stocks[b]; const m = p.max;
+            const bl = level(s,m);
+            return `<div class="sic-b-item">
+              <div class="sic-b-dot" style="background:${BOUTIQUES[b].color}"></div>
+              <div class="sic-b-info">
+                <div class="sic-b-name">${BOUTIQUES[b].name}</div>
+                <div class="sic-b-qty">${s} / ${m}</div>
+              </div>
+              <span class="sic-b-badge ${badgeCls(bl)}">${badgeTxt(bl)}</span>
+            </div>`;
+          }).join('')}
         </div>
       </div>`;
+    }).join('')}</div>`;
+  } else {
+    el.innerHTML = `<div class="list-card">${data.map(p=>{
+      const s = getStock(bid,p.id); const m = p.max;
+      const lvl = level(s,m);
+      const pct = m?Math.min(100,Math.round(s/m*100)):0;
+      return `<div class="stock-item" onclick="openEntreeModal('${p.id}')">
+        <div class="si-em">${p.em}</div>
+        <div class="si-info">
+          <div class="si-nm">${p.nm}</div>
+          <div class="si-cat">${catLabel[p.cat]||''}</div>
+          <div class="si-gauge">
+            <div class="gauge-track"><div class="gauge-fill ${gaugeCls(lvl)}" style="width:${pct}%"></div></div>
+            <span class="gauge-num ${numCls(lvl)}">${s}/${m}</span>
+          </div>
+        </div>
+        <div class="si-right">
+          <span class="si-pu">${p.pr.toLocaleString('fr-FR')} F</span>
+          <span class="si-val">${(p.pr*s).toLocaleString('fr-FR')} F</span>
+          <span class="si-badge ${badgeCls(lvl)}">${badgeTxt(lvl)}</span>
+        </div>
+        <div class="si-plus" onclick="event.stopPropagation();openEntreeModal('${p.id}')">
+          <svg viewBox="0 0 16 16"><line x1="8" y1="3" x2="8" y2="13"/><line x1="3" y1="8" x2="13" y2="8"/></svg>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  }
+}
+function filterCat(cat,el){ currentCat=cat; document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('on')); el.classList.add('on'); renderStock(); }
+function filterSearch(v){ currentSearch=v; renderStock(); }
+function toggleSort(){ sortByStock=!sortByStock; document.getElementById('sort-btn').classList.toggle('on',sortByStock); renderStock(); }
+
+/* ════════════════════════════════════
+   TAB 1 — ALERTES
+════════════════════════════════════ */
+function renderAlertes(){
+  const bid  = currentBoutique;
+  const bids = bid==='all'?['b1','b2','b3']:[bid];
+
+  function alertsFor(filterFn){
+    return PRODUITS.map(p=>{
+      const byBoutique = bids.map(b=>({ b, s:getStock(b,p.id), m:p.max, lvl:level(getStock(b,p.id),p.max) }));
+      const relevant   = byBoutique.filter(x=>filterFn(x.lvl));
+      if(!relevant.length) return null;
+      return { p, relevant, totalS: bid==='all'?relevant.reduce((s,x)=>s+x.s,0):getStock(bid,p.id) };
+    }).filter(Boolean);
+  }
+
+  const ruptures = alertsFor(l=>l==='rupture');
+  const crits    = alertsFor(l=>l==='crit');
+  const lows     = alertsFor(l=>l==='low');
+
+  function row(item, chipCls, chipTxt){
+    const bkRow = currentBoutique==='all'
+      ? `<div class="ai-boutique-row">${item.relevant.map(x=>`
+          <div class="ai-b-pill">
+            <div class="ai-b-dot" style="background:${BOUTIQUES[x.b].color}"></div>
+            <span class="ai-b-txt">${BOUTIQUES[x.b].name}</span>
+            <span class="ai-b-qty">${x.s}/${x.m}</span>
+          </div>`).join('')}</div>` : '';
+    return `<div class="alert-item">
+      <div class="ai-em">${item.p.em}</div>
+      <div class="ai-left">
+        <div class="ai-nm">${item.p.nm}</div>
+        <div class="ai-sub"><span class="ai-chip ${chipCls}">${chipTxt}</span><span>${catLabel[item.p.cat]||''}</span></div>
+        ${bkRow}
+      </div>
+      <button class="alert-btn g" onclick="openEntreeModal('${item.p.id}')">+ Entrée</button>
+    </div>`;
+  }
+  function section(items,dot,lbl,chipCls,chipTxt){
+    if(!items.length) return '';
+    return `<div class="sec-hd"><div class="sec-dot" style="background:${dot}"></div><span class="sec-lbl">${lbl}</span><span class="sec-count">${items.length}</span></div><div class="list-card">${items.map(i=>row(i,chipCls,chipTxt)).join('')}</div>`;
+  }
+
+  let html = section(ruptures,'var(--ink)','Rupture de stock','ac-rupt','RUPTURE')
+           + section(crits,   'var(--r)',  'Stock critique',  'ac-crit','CRITIQUE')
+           + section(lows,    'var(--a)',  'Stock bas',       'ac-low', 'BAS');
+
+  if(!html) html = `<div class="empty-st"><div class="empty-st-icon">✅</div><p>Tous les stocks sont au niveau<br>— Aucune alerte active</p></div>`;
+  document.getElementById('alertes-list').innerHTML = html;
+}
+
+/* ════════════════════════════════════
+   TAB 2 — PÉRIMÉS
+════════════════════════════════════ */
+function renderPerimes(){
+  const bid  = currentBoutique;
+  const data = bid==='all' ? PERIMES_DATA : PERIMES_DATA.filter(p=>p.boutique===bid);
+  function dlcPill(p){ const d=new Date(p.dlc); const f=d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}); if(p.status==='expired') return `<span class="dlc-pill dlc-expired">⚠ Expiré le ${f}</span>`; if(p.status==='soon') return `<span class="dlc-pill dlc-soon">⏰ Expire le ${f}</span>`; return `<span class="dlc-pill dlc-ok">✓ ${f}</span>`; }
+  function row(p){ return `<div class="perime-item"><div class="pi-em">${p.em}</div><div class="pi-info"><div class="pi-nm">${p.nm}</div><div class="pi-boutique">${BOUTIQUES[p.boutique]?.name||''}</div><div style="margin-top:4px">${dlcPill(p)}</div></div><div class="pi-right"><span class="pi-qty">${p.qty} u.</span>${p.status!=='ok'?`<button class="pi-btn" onclick="signalerPerte('${p.nm}',${p.qty},'${p.boutique}')">→ Perte</button>`:''}</div></div>`; }
+  function section(items,dot,lbl){ if(!items.length) return ''; return `<div class="sec-hd"><div class="sec-dot" style="background:${dot}"></div><span class="sec-lbl">${lbl}</span><span class="sec-count">${items.length}</span></div><div class="list-card">${items.map(row).join('')}</div>`; }
+  document.getElementById('perimes-list').innerHTML =
+    section(data.filter(p=>p.status==='expired'),'var(--r)','Expirés — retirer immédiatement') +
+    section(data.filter(p=>p.status==='soon'),   'var(--a)','Expire bientôt') +
+    section(data.filter(p=>p.status==='ok'),     'var(--g)','Date OK');
+}
+function signalerPerte(nm,qty,boutique){
+  PERTES_DATA.unshift({ em:'📦',nm,qty,pr:0,raison:'perime',icon:'⏰',date:"À l'instant",boutique });
+  showToast(`⏰ ${qty} × ${nm} signalé(s) en perte`);
+  if(currentTab===5) renderPertes();
+}
+
+/* ════════════════════════════════════
+   TAB 3 — INVENTAIRES
+════════════════════════════════════ */
+function renderInventaires(){
+  const bid  = currentBoutique;
+  const bids = bid==='all'?['b1','b2','b3']:[bid];
+  let html = '';
+
+  if(invStarted){
+    const done   = Object.values(invCounts).filter(v=>v.counted).length;
+    const total  = Object.keys(invCounts).length;
+    const pct    = total?Math.round(done/total*100):0;
+    html += `<div class="inv-session-card"><div class="inv-session-head"><div class="inv-session-icon">📋</div><div class="inv-session-info"><div class="inv-session-title">Inventaire en cours · ${BOUTIQUES[invBoutique].name}</div><div class="inv-session-sub">Démarré aujourd'hui · ${BOUTIQUES[invBoutique].manager}</div></div></div><div class="inv-progress-wrap"><div class="inv-progress-track"><div class="inv-progress-bar" style="width:${pct}%"></div></div><div class="inv-progress-lbl">${done} / ${total} produits comptés</div></div><div class="inv-session-footer"><button class="inv-btn inv-btn-primary" onclick="openInvModal()">▶ Continuer</button><button class="inv-btn inv-btn-secondary" onclick="annulerInventaire()">Annuler</button></div></div>`;
+  }
+
+  if(bid==='all'){
+    bids.forEach(b=>{
+      html += `<button class="inv-new-btn" style="background:${BOUTIQUES[b].color==='#FFB300'?'var(--a)':'var(--g)'}" onclick="demarrerInventaire('${b}')">📋 Inventaire ${BOUTIQUES[b].name}</button>`;
+    });
+  } else {
+    html += `<button class="inv-new-btn" onclick="demarrerInventaire('${bid}')">📋 Démarrer un inventaire · ${BOUTIQUES[bid].name}</button>`;
+  }
+
+  const sessions = bid==='all'? INV_SESSIONS : INV_SESSIONS.filter(s=>s.boutique===bid);
+  if(sessions.length){
+    html += `<div class="sec-hd" style="margin-top:8px"><div class="sec-dot" style="background:var(--mu2)"></div><span class="sec-lbl">Sessions passées</span><span class="sec-count">${sessions.length}</span></div>`;
+    html += `<div class="list-card">${sessions.map(s=>`<div class="inv-past-item"><div class="inv-past-icon">${s.ecarts>0?'⚠️':'✅'}</div><div class="inv-past-info"><div class="inv-past-title">${s.id}</div><div class="inv-past-meta">${s.date} · ${s.by} · ${BOUTIQUES[s.boutique]?.name||''}</div>${s.ecarts>0?`<div style="font-size:9px;color:var(--r);margin-top:2px;font-weight:700">${s.ecarts} écart${s.ecarts>1?'s':''}</div>`:'<div style="font-size:9px;color:var(--gd);margin-top:2px;font-weight:700">Aucun écart ✓</div>'}</div><div class="inv-past-stat"><strong>${s.total}</strong>produits</div></div>`).join('')}</div>`;
+  }
+  document.getElementById('inv-content').innerHTML = html;
+}
+
+function demarrerInventaire(bid){
+  invBoutique = bid; invStarted = true; invCounts = {};
+  PRODUITS.forEach(p=>{ invCounts[p.id]={ counted:false, qty:getStock(bid,p.id) }; });
+  document.getElementById('inv-modal-title').textContent = `📋 Inventaire · ${BOUTIQUES[bid].name}`;
+  renderInvChecklist(); renderInventaires();
+  document.getElementById('inv-modal').classList.add('open');
+}
+function annulerInventaire(){ invStarted=false; invCounts={}; renderInventaires(); showToast('❌ Inventaire annulé'); }
+function openInvModal(){ renderInvChecklist(); document.getElementById('inv-modal').classList.add('open'); }
+function closeInvModal(){ document.getElementById('inv-modal').classList.remove('open'); }
+
+function renderInvChecklist(){
+  const done  = Object.values(invCounts).filter(v=>v.counted).length;
+  const total = PRODUITS.length;
+  document.getElementById('inv-modal-bar').style.width = Math.round(done/total*100)+'%';
+  document.getElementById('inv-modal-lbl').textContent = `${done} / ${total} produits comptés`;
+  document.getElementById('inv-confirm-btn').disabled = done<total;
+  document.getElementById('inv-check-list').innerHTML = PRODUITS.map(p=>{
+    const state  = invCounts[p.id];
+    const isDone = state?.counted;
+    const qty    = state?.qty??0;
+    const system = getStock(invBoutique,p.id);
+    const diff   = qty-system;
+    const cls    = diff>0?'pos':diff<0?'neg':'zero';
+    const txt    = diff>0?`+${diff}`:diff<0?`${diff}`:'=';
+    return `<div class="inv-check-item ${isDone?'done':''}" id="icc-${p.id}">
+      <div class="inv-checkbox" id="icb-${p.id}" onclick="toggleInvItem('${p.id}')">${isDone?'✓':''}</div>
+      <div class="si-em" style="width:36px;height:36px;font-size:21px">${p.em}</div>
+      <div style="flex:1;min-width:0"><div class="si-nm">${p.nm}</div><div class="si-cat">Système: ${system} u.</div></div>
+      <div class="inv-qty-adj" onclick="event.stopPropagation()">
+        <button class="inv-qty-btn" onclick="adjInv('${p.id}',-1)">−</button>
+        <span class="inv-qty-val" id="iqv-${p.id}">${qty}</span>
+        <button class="inv-qty-btn" onclick="adjInv('${p.id}',1)">+</button>
+        <span class="inv-qty-diff ${cls}" id="iqdiff-${p.id}">${txt}</span>
+      </div>
+    </div>`;
   }).join('');
 }
-
-function filterTab(tab, el){
-  activeTab = tab;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
-  if (el && el.classList.contains('tab')) el.classList.add('on');
-  else {
-    const map = {tous:0, bas:1, rupture:2, perime:3};
-    const idx = map[tab];
-    if (idx !== undefined) document.querySelectorAll('.tab')[idx].classList.add('on');
-  }
-  render();
-}
-function filterSearch(v){ currentSearch = v; render(); }
-
-function showToast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(window._tt);
-  window._tt = setTimeout(()=>t.classList.remove('show'), 2200);
+function toggleInvItem(id){ invCounts[id].counted=!invCounts[id].counted; renderInvChecklist(); renderInventaires(); }
+function adjInv(id,d){ invCounts[id].qty=Math.max(0,invCounts[id].qty+d); const system=getStock(invBoutique,id); const diff=invCounts[id].qty-system; document.getElementById('iqv-'+id).textContent=invCounts[id].qty; const cls=diff>0?'pos':diff<0?'neg':'zero'; const txt=diff>0?`+${diff}`:diff<0?`${diff}`:'='; const el=document.getElementById('iqdiff-'+id); el.className='inv-qty-diff '+cls; el.textContent=txt; }
+function terminerInventaire(){
+  PRODUITS.forEach(p=>{ if(invCounts[p.id]) setStock(invBoutique,p.id,invCounts[p.id].qty); });
+  INV_SESSIONS.unshift({ id:'INV-'+Date.now().toString().slice(-3), date:"Aujourd'hui", by:BOUTIQUES[invBoutique].manager, boutique:invBoutique, total:PRODUITS.length, ecarts:Object.values(invCounts).filter((v,i)=>v.qty!==getStock(invBoutique,PRODUITS[i]?.id)).length });
+  invStarted=false;
+  closeInvModal(); updateKPIs(); renderStock(); renderInventaires();
+  showToast('✅ Inventaire terminé — stocks mis à jour');
 }
 
-render();
+/* ════════════════════════════════════
+   TAB 4 — TRANSFERTS
+════════════════════════════════════ */
+const TRANS_DATA = [...TRANSFERTS_DATA];
+function renderTransferts(){
+  const bid  = currentBoutique;
+  const data = bid==='all'? TRANS_DATA : TRANS_DATA.filter(t=>t.from===bid||t.to===bid);
+  const pending = data.filter(t=>t.status==='pending'||t.status==='transit');
+  const past    = data.filter(t=>t.status==='done'||t.status==='rejected');
+  const icons   = {pending:'🕐',transit:'🚚',done:'✅',rejected:'❌'};
+  const tiCls   = {pending:'ti-pending',transit:'ti-transit',done:'ti-done',rejected:'ti-rej'};
+  const tsCls   = {pending:'ts-pending',transit:'ts-transit',done:'ts-done',rejected:'ts-rejected'};
+  const tsTxt   = {pending:'En attente',transit:'En transit',done:'Effectué',rejected:'Refusé'};
+  function row(t){ return `<div class="trans-item"><div class="trans-icon ${tiCls[t.status]}">${icons[t.status]}</div><div class="trans-info"><div class="trans-nm">${t.em} ${t.nm}</div><div class="trans-route"><div class="sic-b-dot" style="background:${BOUTIQUES[t.from].color};width:7px;height:7px;border-radius:50%"></div>${BOUTIQUES[t.from].name}<svg viewBox="0 0 16 10"><line x1="0" y1="5" x2="14" y2="5"/><polyline points="9,1 14,5 9,9"/></svg>${BOUTIQUES[t.to].name}</div><div class="trans-meta">${t.date}</div></div><div class="trans-right"><div class="trans-qty">×${t.qty}</div><div class="trans-status ${tsCls[t.status]}">${tsTxt[t.status]}</div></div></div>`; }
+  function section(arr,dot,lbl){ if(!arr.length) return ''; return `<div class="sec-hd"><div class="sec-dot" style="background:${dot}"></div><span class="sec-lbl">${lbl}</span><span class="sec-count">${arr.length}</span></div><div class="list-card">${arr.map(row).join('')}</div>`; }
+  document.getElementById('trans-list').innerHTML = section(pending,'var(--a)','En cours') + section(past,'var(--mu2)','Historique') || `<div class="empty-st"><div class="empty-st-icon">🔄</div><p>Aucun transfert<br>pour cette boutique</p></div>`;
+}
+function openTransfertModal(){
+  document.getElementById('tf-prod').innerHTML = PRODUITS.map(p=>`<option value="${p.id}">${p.em} ${p.nm}</option>`).join('');
+  document.getElementById('tf-qty').value=''; document.getElementById('tf-note').value='';
+  document.getElementById('trans-modal').classList.add('open');
+}
+function closeTransfertModal(){ document.getElementById('trans-modal').classList.remove('open'); }
+function confirmerTransfert(){
+  const from=document.getElementById('tf-from').value, to=document.getElementById('tf-to').value;
+  const pid=document.getElementById('tf-prod').value, qty=parseInt(document.getElementById('tf-qty').value)||0;
+  if(!qty||!pid){ showToast('⚠ Remplissez tous les champs'); return; }
+  if(from===to){ showToast('⚠ Source et destination identiques'); return; }
+  const p=PRODUITS.find(x=>x.id===pid);
+  TRANS_DATA.unshift({ em:p.em, nm:p.nm, qty, from, to, status:'pending', date:"À l'instant" });
+  closeTransfertModal(); renderTransferts();
+  showToast(`🔄 Transfert de ${qty} × ${p.nm} envoyé`);
+}
+
+/* ════════════════════════════════════
+   TAB 5 — PERTES
+════════════════════════════════════ */
+function renderPertes(){
+  const bid  = currentBoutique;
+  const data = bid==='all'? PERTES_DATA : PERTES_DATA.filter(p=>p.boutique===bid);
+  document.getElementById('pq-prod').innerHTML = `<option value="">— Produit —</option>`+PRODUITS.map(p=>`<option value="${p.id}">${p.em} ${p.nm}</option>`).join('');
+  const totalQty = data.reduce((s,p)=>s+p.qty,0);
+  const totalVal = data.reduce((s,p)=>s+(p.pr*p.qty),0);
+  document.getElementById('pertes-summary').innerHTML = `<div class="ps-item"><div class="ps-val">${totalQty}</div><div class="ps-lbl">Unités perdues</div></div><div class="ps-sep"></div><div class="ps-item"><div class="ps-val">${data.length}</div><div class="ps-lbl">Signalements</div></div><div class="ps-sep"></div><div class="ps-item"><div class="ps-val">${totalVal>=1000?Math.round(totalVal/1000)+'k':totalVal} F</div><div class="ps-lbl">Valeur perdue</div></div>`;
+  const raisonLabel={casse:'Casse',perime:'Péremption',vol:'Vol',qualite:'Qualité',autre:'Autre'};
+  document.getElementById('pertes-list').innerHTML = data.length
+    ? `<div class="sec-hd"><div class="sec-dot" style="background:var(--r)"></div><span class="sec-lbl">Pertes enregistrées</span><span class="sec-count">${data.length}</span></div><div class="list-card">${data.map(p=>`<div class="perte-item"><div class="perte-icon">${p.icon}</div><div class="perte-info"><div class="perte-nm">${p.em} ${p.nm}</div><div class="perte-meta">${raisonLabel[p.raison]||p.raison} · ${BOUTIQUES[p.boutique]?.name||''} · ${p.date}</div></div><div class="perte-right"><div class="perte-qty">−${p.qty} u.</div><div class="perte-val">${p.pr>0?(p.pr*p.qty).toLocaleString('fr-FR')+' F':''}</div></div></div>`).join('')}</div>`
+    : `<div class="empty-st"><div class="empty-st-icon">✅</div><p>Aucune perte enregistrée</p></div>`;
+}
+function enregistrerPerte(){
+  const pid=document.getElementById('pq-prod').value, qty=parseInt(document.getElementById('pq-qty').value)||0, raison=document.getElementById('pq-reason').value;
+  const icons={casse:'💥',perime:'⏰',vol:'🚨',qualite:'❌',autre:'📝'};
+  if(!pid||!qty||!raison){ showToast('⚠ Remplissez tous les champs'); return; }
+  const p=PRODUITS.find(x=>x.id===pid);
+  const bid=currentBoutique==='all'?'b1':currentBoutique;
+  setStock(bid,pid,getStock(bid,pid)-qty);
+  PERTES_DATA.unshift({ em:p.em,nm:p.nm,qty,pr:p.pr,raison,icon:icons[raison]||'📝',date:"À l'instant",boutique:bid });
+  document.getElementById('pq-qty').value=''; document.getElementById('pq-prod').value=''; document.getElementById('pq-reason').value='';
+  updateKPIs(); renderStock(); renderPertes();
+  showToast(`🗑 Perte de ${qty} × ${p.nm} enregistrée`);
+}
+
+/* ════════════════════════════════════
+   MODAL ENTRÉE STOCK
+════════════════════════════════════ */
+function openEntreeModal(id){
+  currentProdId=id; qtyRaw=''; currentOp='entree';
+  const p=id?PRODUITS.find(x=>x.id===id):null;
+  const bid=currentBoutique==='all'?'b1':currentBoutique;
+  document.getElementById('entry-title').textContent=p?'📦 '+p.nm:'📦 Mouvement de stock';
+  document.getElementById('eh-em').textContent=p?p.em:'📦';
+  document.getElementById('eh-nm').textContent=p?p.nm:'—';
+  document.getElementById('eh-sub').textContent=p?(catLabel[p.cat]||'')+' · '+p.pr.toLocaleString('fr-FR')+' F/u. · '+BOUTIQUES[bid].name:'—';
+  const s=p?getStock(bid,p.id):0; const m=p?p.max:0;
+  const col=p?(level(s,m)==='ok'?'var(--g)':level(s,m)==='rupture'?'var(--r)':'var(--a)'):'var(--mu)';
+  document.getElementById('eh-sv').textContent=p?s:'—';
+  document.getElementById('eh-sv').style.color=col;
+  setOp('entree'); document.getElementById('entry-note').value='';
+  document.getElementById('entry-modal').classList.add('open');
+}
+function closeEntreeModal(){ document.getElementById('entry-modal').classList.remove('open'); }
+function setOp(op){
+  currentOp=op;
+  ['entree','sortie'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('on',t===op));
+  document.getElementById('qty-wrap').className='qty-display-wrap '+op;
+  document.getElementById('qty-sign').className='qty-sign '+op;
+  document.getElementById('qty-sign').textContent=op==='entree'?'+':'−';
+  const btn=document.getElementById('entry-confirm');
+  btn.className='confirm-btn '+op;
+  btn.textContent=op==='entree'?"✅ Valider l'entrée":"📤 Valider la sortie";
+  updateQtyDisplay();
+}
+function nk(v){
+  if(v==='+10'){ qtyRaw=String((parseInt(qtyRaw)||0)+10); }
+  else { if(qtyRaw.length>=4) return; if(!qtyRaw&&v==='0') return; qtyRaw+=v; qtyRaw=qtyRaw.replace(/^0+/,'')||'0'; }
+  updateQtyDisplay();
+}
+function nkDel(){ qtyRaw=qtyRaw.slice(0,-1); updateQtyDisplay(); }
+function updateQtyDisplay(){
+  const qty=parseInt(qtyRaw)||0;
+  document.getElementById('qty-num').textContent=qty.toLocaleString('fr-FR');
+  const bid=currentBoutique==='all'?'b1':currentBoutique;
+  const p=currentProdId?PRODUITS.find(x=>x.id===currentProdId):null;
+  if(p){ const s=getStock(bid,p.id); const after=currentOp==='entree'?s+qty:Math.max(0,s-qty); document.getElementById('qty-after').textContent=after+' unités'; }
+  else { document.getElementById('qty-after').textContent='—'; }
+  document.getElementById('entry-confirm').disabled=qty===0||!currentProdId;
+}
+function confirmerEntree(){
+  const p=PRODUITS.find(x=>x.id===currentProdId); const qty=parseInt(qtyRaw)||0;
+  if(!p||!qty) return;
+  const bid=currentBoutique==='all'?'b1':currentBoutique;
+  const prev=getStock(bid,p.id);
+  if(currentOp==='entree'){ setStock(bid,p.id,prev+qty); HISTORIQUE.unshift({type:'entree',icon:'➕',em:p.em,nm:p.nm,qty:'+'+qty,note:document.getElementById('entry-note').value||'Entrée manuelle',time:"À l'instant",boutique:bid}); showToast(`✅ +${qty} ${p.nm} · ${BOUTIQUES[bid].name}`); }
+  else { const rem=Math.min(qty,prev); setStock(bid,p.id,prev-rem); HISTORIQUE.unshift({type:'sortie',icon:'➖',em:p.em,nm:p.nm,qty:'−'+rem,note:document.getElementById('entry-note').value||'Sortie manuelle',time:"À l'instant",boutique:bid}); showToast(`📤 −${rem} ${p.nm} · ${BOUTIQUES[bid].name}`); }
+  closeEntreeModal(); updateKPIs(); renderStock();
+  if(currentTab===1) renderAlertes();
+}
+
+/* ════════════════════════════════════
+   MODAL HISTORIQUE
+════════════════════════════════════ */
+function openHistoModal(){
+  const bid=currentBoutique;
+  const data=bid==='all'?HISTORIQUE:HISTORIQUE.filter(h=>h.boutique===bid);
+  document.getElementById('hist-list').innerHTML=data.map(h=>`<div style="display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--brd)"><div style="width:34px;height:34px;border-radius:10px;background:${h.type==='entree'?'var(--gl)':h.type==='sortie'?'var(--rl)':'var(--al)'};display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${h.icon}</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;color:var(--ink)">${h.em} ${h.nm}</div><div style="font-size:9px;color:var(--mu);margin-top:2px">${h.note} · ${BOUTIQUES[h.boutique]?.name||''} · ${h.time}</div></div><div style="font-family:var(--fm);font-size:13px;font-weight:700;color:${h.type==='entree'?'var(--gd)':'var(--r)'}">${h.qty}</div></div>`).join('');
+  document.getElementById('hist-modal').classList.add('open');
+}
+function closeHistoModal(){ document.getElementById('hist-modal').classList.remove('open'); }
+
+/* ════════════════════════════════════
+   TOAST
+════════════════════════════════════ */
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+
+/* ════════════════════════════════════
+   INIT
+════════════════════════════════════ */
+document.getElementById('consol-banner').classList.add('show');
+updateKPIs();
+renderStock();
 </script>
-</body>
-</html>
+
+</body></html>
