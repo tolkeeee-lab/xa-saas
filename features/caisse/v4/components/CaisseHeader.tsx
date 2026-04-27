@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
 import type { Boutique } from '@/types/database';
-import type { ReactNode } from 'react';
 
 interface CaisseHeaderProps {
   boutiques: Boutique[];

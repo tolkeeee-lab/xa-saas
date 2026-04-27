@@ -111,12 +111,13 @@ export default function CaisseV4({
   // ── Footer expand state (collapsed by default on mobile) ─────────────────────
   const [footerExpanded, setFooterExpanded] = useState(true);
   useEffect(() => {
-    function checkMobile() {
-      setFooterExpanded(window.innerWidth >= 640);
+    const mq = window.matchMedia('(min-width: 640px)');
+    setFooterExpanded(mq.matches);
+    function handleChange(e: MediaQueryListEvent) {
+      setFooterExpanded(e.matches);
     }
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    mq.addEventListener('change', handleChange);
+    return () => mq.removeEventListener('change', handleChange);
   }, []);
 
   const showToast = useCallback((message: string, type: 'success' | 'error') => {
