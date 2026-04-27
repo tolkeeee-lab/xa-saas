@@ -48,7 +48,9 @@ export default function RetraitModal({
   }
 
   const initials = data.client
+    .trim()
     .split(' ')
+    .filter(Boolean)
     .map((w) => w[0] ?? '')
     .join('')
     .toUpperCase()

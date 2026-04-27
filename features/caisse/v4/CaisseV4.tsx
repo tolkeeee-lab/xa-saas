@@ -32,7 +32,18 @@ import './caisse-v4.css';
 const BOUTIQUE_STORAGE_KEY = 'xa-boutique-active';
 
 // Stub — no real retrait codes yet
+// TODO: Replace with real codes from the retraits module when implemented
 const STUB_RETRAIT_CODES: RetraitCommande[] = [];
+
+/** HTML-escape a value to prevent XSS when inserting into innerHTML */
+function esc(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
 
 interface CaisseV4Props {
   boutiques: Boutique[];
@@ -387,17 +398,17 @@ export default function CaisseV4({
     const lignesHTML = items
       .map(
         (i) =>
-          `<tr><td>${getCategoryEmoji(i.emoji ?? i.nom)} ${i.nom}</td><td style="text-align:right">${i.qty}</td><td style="text-align:right">${formatFCFA(i.prix_vente)}</td><td style="text-align:right">${formatFCFA(i.prix_vente * i.qty)}</td></tr>`,
+          `<tr><td>${esc(getCategoryEmoji(i.emoji ?? i.nom))} ${esc(i.nom)}</td><td style="text-align:right">${i.qty}</td><td style="text-align:right">${esc(formatFCFA(i.prix_vente))}</td><td style="text-align:right">${esc(formatFCFA(i.prix_vente * i.qty))}</td></tr>`,
       )
       .join('');
 
     return `<div style="font-family:'Courier New',monospace;max-width:320px;margin:0 auto;padding:16px">
       <div style="text-align:center;margin-bottom:12px">
         <div style="font-weight:900;font-size:20px;letter-spacing:2px">XÀ</div>
-        <div style="font-size:13px;font-weight:700">${boutique?.nom ?? 'Boutique'}</div>
-        ${boutique?.ville ? `<div style="font-size:11px;color:#666">${boutique.ville}</div>` : ''}
-        <div style="font-size:10px;color:#666;margin-top:4px">${new Date().toLocaleString('fr-FR')}</div>
-        ${resolvedCaissierNom ? `<div style="font-size:10px;color:#666">Caissier : ${resolvedCaissierNom}</div>` : ''}
+        <div style="font-size:13px;font-weight:700">${esc(boutique?.nom ?? 'Boutique')}</div>
+        ${boutique?.ville ? `<div style="font-size:11px;color:#666">${esc(boutique.ville)}</div>` : ''}
+        <div style="font-size:10px;color:#666;margin-top:4px">${esc(new Date().toLocaleString('fr-FR'))}</div>
+        ${resolvedCaissierNom ? `<div style="font-size:10px;color:#666">Caissier : ${esc(resolvedCaissierNom)}</div>` : ''}
       </div>
       <hr style="border:none;border-top:1px dashed #ccc;margin:8px 0"/>
       <table style="width:100%;border-collapse:collapse;font-size:11px">
@@ -405,8 +416,8 @@ export default function CaisseV4({
         <tbody>${lignesHTML}</tbody>
       </table>
       <hr style="border:none;border-top:1px dashed #ccc;margin:8px 0"/>
-      ${remisePct > 0 ? `<div style="display:flex;justify-content:space-between;font-size:11px"><span>Remise (${remisePct}%)</span><span>−${formatFCFA(remiseMontant)}</span></div>` : ''}
-      <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-top:4px"><span>TOTAL</span><span>${formatFCFA(total)}</span></div>
+      ${remisePct > 0 ? `<div style="display:flex;justify-content:space-between;font-size:11px"><span>Remise (${remisePct}%)</span><span>−${esc(formatFCFA(remiseMontant))}</span></div>` : ''}
+      <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-top:4px"><span>TOTAL</span><span>${esc(formatFCFA(total))}</span></div>
       <div style="text-align:center;margin-top:12px;font-size:9px;color:#999">Merci de votre confiance · xà</div>
     </div>`;
   }

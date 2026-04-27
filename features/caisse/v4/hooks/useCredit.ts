@@ -17,10 +17,12 @@ export function useCredit(total: number) {
   const pressKey = useCallback((digit: string) => {
     setVerseRaw((prev) => {
       if (prev.length >= 9) return prev;
+      // Prevent starting with a lone '0'
+      if (prev === '' && digit === '0') return prev;
       const next = prev + digit;
-      // Strip leading zeros
-      const stripped = String(parseInt(next, 10) || 0);
-      return stripped === '0' ? '' : stripped;
+      // Strip leading zeros, keeping the remaining digits
+      const stripped = next.replace(/^0+/, '');
+      return stripped;
     });
   }, []);
 

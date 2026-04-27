@@ -10,11 +10,21 @@ interface RecuModalProps {
   onNewSale: () => void;
 }
 
+/** HTML-escape a value to prevent XSS when inserting into innerHTML */
+function esc(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
 function buildTicketHTML(vente: VenteResult): string {
   const lignesHTML = vente.lignes
     .map(
       (l) =>
-        `<tr><td>${l.emoji ?? ''}${l.nom}</td><td style="text-align:right">${l.quantite}</td><td style="text-align:right">${formatFCFA(l.prix_unitaire)}</td><td style="text-align:right">${formatFCFA(l.sous_total)}</td></tr>`,
+        `<tr><td>${esc(l.emoji ?? '')}${esc(l.nom)}</td><td style="text-align:right">${l.quantite}</td><td style="text-align:right">${esc(formatFCFA(l.prix_unitaire))}</td><td style="text-align:right">${esc(formatFCFA(l.sous_total))}</td></tr>`,
     )
     .join('');
 
@@ -22,11 +32,11 @@ function buildTicketHTML(vente: VenteResult): string {
     <div style="font-family:'Courier New',monospace;max-width:320px;margin:0 auto;padding:16px">
       <div style="text-align:center;margin-bottom:12px">
         <div style="font-weight:900;font-size:20px;letter-spacing:2px">XÀ</div>
-        <div style="font-size:13px;font-weight:700">${vente.boutique_nom}</div>
-        ${vente.boutique_ville ? `<div style="font-size:11px;color:#666">${vente.boutique_ville}</div>` : ''}
-        <div style="font-size:10px;color:#666;margin-top:4px">${new Date(vente.created_at).toLocaleString('fr-FR')}</div>
-        <div style="font-size:10px;color:#666">N° ${vente.numero_facture}</div>
-        ${vente.caissier_nom ? `<div style="font-size:10px;color:#666">Caissier : ${vente.caissier_nom}</div>` : ''}
+        <div style="font-size:13px;font-weight:700">${esc(vente.boutique_nom)}</div>
+        ${vente.boutique_ville ? `<div style="font-size:11px;color:#666">${esc(vente.boutique_ville)}</div>` : ''}
+        <div style="font-size:10px;color:#666;margin-top:4px">${esc(new Date(vente.created_at).toLocaleString('fr-FR'))}</div>
+        <div style="font-size:10px;color:#666">N° ${esc(vente.numero_facture)}</div>
+        ${vente.caissier_nom ? `<div style="font-size:10px;color:#666">Caissier : ${esc(vente.caissier_nom)}</div>` : ''}
       </div>
       <hr style="border:none;border-top:1px dashed #ccc;margin:8px 0"/>
       <table style="width:100%;border-collapse:collapse;font-size:11px">

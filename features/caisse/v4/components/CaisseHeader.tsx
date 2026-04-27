@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 import type { Boutique } from '@/types/database';
 
@@ -20,7 +20,27 @@ export default function CaisseHeader({
   date,
 }: CaisseHeaderProps) {
   const [dropOpen, setDropOpen] = useState(false);
+  const switchRef = useRef<HTMLDivElement>(null);
   const activeBoutique = boutiques.find((b) => b.id === boutiqueActive);
+
+  // Close dropdown on outside click or Escape
+  useEffect(() => {
+    if (!dropOpen) return;
+    function handleOutside(e: MouseEvent) {
+      if (switchRef.current && !switchRef.current.contains(e.target as Node)) {
+        setDropOpen(false);
+      }
+    }
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setDropOpen(false);
+    }
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [dropOpen]);
 
   return (
     <div className="v4-header">
@@ -36,7 +56,7 @@ export default function CaisseHeader({
 
       <div className="v4-header-actions">
         {/* Boutique switcher */}
-        <div className="v4-bswitch">
+        <div className="v4-bswitch" ref={switchRef}>
           <button
             type="button"
             className="v4-bswitch-btn"
