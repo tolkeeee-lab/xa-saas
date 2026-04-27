@@ -54,13 +54,14 @@ export default function RetraitCodeBar({
           <span className="v4-retrait-hint">
             En attente :{' '}
             {pendingCodes.map((c) => (
-              <b
+              <button
                 key={c}
+                type="button"
                 onClick={() => onCodeChange(c)}
-                style={{ cursor: 'pointer' }}
+                className="v4-retrait-hint-code"
               >
                 {c}
-              </b>
+              </button>
             ))}
           </span>
         )}

@@ -48,10 +48,13 @@ type ToastData = {
   id: number;
 };
 
+type AuthUserMeta = { full_name?: string; nom_complet?: string };
+type AuthUserData = { email?: string; user_metadata?: AuthUserMeta } | null;
+
 export default function CaisseV4({
   boutiques,
   produits: initialProduits,
-  userId: _userId,
+  userId: _userId, // reserved for future permission checks
   caissierNom,
   employeId,
 }: CaisseV4Props) {
@@ -119,7 +122,7 @@ export default function CaisseV4({
       const supabase = createClient();
       supabase.auth
         .getUser()
-        .then((resp: { data: { user: { email?: string; user_metadata?: Record<string, string> } | null }; error: unknown }) => {
+        .then((resp: { data: { user: AuthUserData }; error: unknown }) => {
           const authUser = resp.data.user;
           const meta = authUser?.user_metadata;
           const nom =

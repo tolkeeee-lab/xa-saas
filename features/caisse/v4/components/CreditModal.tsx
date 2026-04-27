@@ -65,6 +65,7 @@ export default function CreditModal({
       aria-modal="true"
       aria-labelledby="v4-credit-title"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
     >
       <div className="v4-modal-sheet">
         <div className="v4-modal-handle" />

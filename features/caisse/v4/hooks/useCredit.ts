@@ -11,7 +11,7 @@ export function useCredit(total: number) {
   }, [verseRaw]);
 
   const solde = useMemo(() => {
-    return Math.max(0, total - Math.min(verse, total));
+    return Math.max(0, total - verse);
   }, [total, verse]);
 
   const pressKey = useCallback((digit: string) => {

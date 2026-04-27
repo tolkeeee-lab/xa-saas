@@ -88,6 +88,7 @@ export default function RecuModal({ vente, onClose, onNewSale }: RecuModalProps)
       aria-modal="true"
       aria-labelledby="v4-recu-title"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
     >
       <div className="v4-modal-sheet">
         {/* Handle */}
