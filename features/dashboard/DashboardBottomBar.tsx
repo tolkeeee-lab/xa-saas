@@ -10,7 +10,11 @@ import {
   TrendingUp,
   Wallet,
   BarChart3,
-  MoreHorizontal,
+  Users,
+  Store,
+  UserCircle,
+  Truck,
+  Settings,
 } from 'lucide-react';
 
 type MatchType = 'exact' | 'prefix' | 'group';
@@ -88,19 +92,36 @@ const NAV_ITEMS: NavItem[] = [
       '/dashboard/comparatif',
     ],
   },
+  // 5 items ex-Plus exposés directement
   {
-    href: '/dashboard/plus',
-    icon: MoreHorizontal,
-    label: 'Plus',
-    match: 'group',
-    groupRoutes: [
-      '/dashboard/plus',
-      '/dashboard/equipe',
-      '/dashboard/boutiques',
-      '/dashboard/clients',
-      '/dashboard/fournisseurs',
-      '/dashboard/settings',
-    ],
+    href: '/dashboard/equipe',
+    icon: Users,
+    label: 'Équipe',
+    match: 'prefix',
+  },
+  {
+    href: '/dashboard/boutiques',
+    icon: Store,
+    label: 'Boutiques',
+    match: 'prefix',
+  },
+  {
+    href: '/dashboard/clients',
+    icon: UserCircle,
+    label: 'Clients',
+    match: 'prefix',
+  },
+  {
+    href: '/dashboard/fournisseurs',
+    icon: Truck,
+    label: 'Fournisseurs',
+    match: 'prefix',
+  },
+  {
+    href: '/dashboard/settings',
+    icon: Settings,
+    label: 'Settings',
+    match: 'prefix',
   },
 ];
 
