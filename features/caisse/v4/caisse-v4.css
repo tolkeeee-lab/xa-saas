@@ -6,7 +6,7 @@
 /* Design tokens */
 .xa-caisse-v4 {
   --v4-g:    var(--xa-green);
-  --v4-gd:   #007A32;
+  --v4-gd:   #007A32; /* kept: dark green for text on light backgrounds (no exact --xa-* equivalent) */
   --v4-gl:   var(--xa-greenbg);
   --v4-r:    var(--xa-red);
   --v4-rl:   var(--xa-redbg);
@@ -22,8 +22,8 @@
   --v4-surf: var(--xa-bg2);
   --v4-bg:   var(--xa-bg);
   --v4-card: var(--xa-surface);
-  --v4-wa:   #25D366;
-  --v4-wad:  #075E54;
+  --v4-wa:   #25D366; /* WhatsApp official brand green — do not replace */
+  --v4-wad:  #075E54; /* WhatsApp official dark green — do not replace */
   --v4-f:    var(--font-familjen), 'Familjen Grotesk', sans-serif;
   --v4-fm:   var(--font-plex-mono), 'IBM Plex Mono', monospace;
 
