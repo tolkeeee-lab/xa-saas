@@ -43,7 +43,7 @@ export default function StockSearchBar({
           type="button"
           className="v4-sort-pill"
           onClick={cycleSort}
-          aria-label={`Trier par ${SORT_LABELS[sortMode]}`}
+          aria-label={`Changer le tri (actuellement : ${SORT_LABELS[sortMode]})`}
         >
           <ArrowUpDown size={10} />
           {SORT_LABELS[sortMode]}

@@ -33,9 +33,12 @@ const STATUT_LABELS: Record<ProduitAvecStatut['statut'], string> = {
   rupt: 'Rupture',
 };
 
+function getMaxStock(p: ProduitAvecStatut): number {
+  return Math.max((p.seuil_alerte ?? 0) * 2, p.stock_actuel, 1);
+}
+
 function getBarPct(p: ProduitAvecStatut): number {
-  const max = Math.max((p.seuil_alerte ?? 0) * 2, p.stock_actuel, 1);
-  return Math.min(100, Math.round((p.stock_actuel / max) * 100));
+  return Math.min(100, Math.round((p.stock_actuel / getMaxStock(p)) * 100));
 }
 
 function formatPrice(v: number): string {
@@ -144,7 +147,7 @@ export default function VueTab({
                     />
                   </div>
                   <div className="v4-pli-ratio">
-                    {p.stock_actuel}{p.unite ? ` ${p.unite}` : ''} / {Math.max((p.seuil_alerte ?? 0) * 2, p.stock_actuel)}
+                    {p.stock_actuel}{p.unite ? ` ${p.unite}` : ''} / {getMaxStock(p)}
                   </div>
                 </div>
 

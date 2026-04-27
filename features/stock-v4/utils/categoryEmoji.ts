@@ -10,6 +10,6 @@ export function getCategoryEmoji(cat: string | null | undefined): string {
   if (c.includes('pain') || c.includes('boulangerie')) return '🍞';
   if (c.includes('huile') || c.includes('oil')) return '🫒';
   if (c.includes('divers') || c.includes('autre')) return '🧴';
-  if (c.includes('mafro')) return '🥢';
+  if (c.includes('mafro')) return '🥢'; // catégorie produits africains MAFRO
   return '📦';
 }
