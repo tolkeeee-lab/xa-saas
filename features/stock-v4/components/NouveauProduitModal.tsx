@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { X } from 'lucide-react';
+import { detectCategorie } from '@/lib/detectCategorie';
 import {
   calcPrixUnitaireAchat,
   calcMarge,
@@ -29,6 +30,11 @@ export default function NouveauProduitModal({
   useEffect(() => {
     setTimeout(() => nomRef.current?.focus(), 80);
   }, []);
+
+  const [categorie, setCategorie] = useState('Général');
+  useEffect(() => {
+    if (nom.trim()) setCategorie(detectCategorie(nom));
+  }, [nom]);
 
   // ── Section 2 — Conditionnement ───────────────────────────────────────────────
   const [modeAchat, setModeAchat] = useState<ModeAchat>('lot');
@@ -118,6 +124,7 @@ export default function NouveauProduitModal({
       const body: Record<string, unknown> = {
         boutique_id: boutiqueId,
         nom: nom.trim(),
+        categorie: categorie.trim(),
         prix_vente: Number(prixVente),
         stock_actuel: Number(stockActuel),
         seuil_alerte: seuilAlerte !== '' ? Number(seuilAlerte) : Math.max(1, Math.round(Number(stockActuel) * 0.2)),
@@ -214,6 +221,30 @@ export default function NouveauProduitModal({
                 value={nom}
                 onChange={(e) => { setNom(e.target.value); setTouched(true); }}
               />
+            </div>
+
+            <div className="v4-np-field">
+              <label className="v4-np-label" htmlFor="np-categorie">Catégorie</label>
+              <select
+                id="np-categorie"
+                className="v4-np-input"
+                value={categorie}
+                onChange={(e) => setCategorie(e.target.value)}
+                aria-describedby="np-categorie-hint"
+              >
+                <option value="Général">📦 Général</option>
+                <option value="Boissons">🥤 Boissons</option>
+                <option value="Alimentaire">🍚 Alimentaire</option>
+                <option value="Hygiène">🧼 Hygiène</option>
+                <option value="Ménage">🏠 Ménage</option>
+                <option value="Cosmétique">💄 Cosmétique</option>
+                <option value="Santé">💊 Santé</option>
+                <option value="Bébé">🍼 Bébé</option>
+                <option value="Tabac">🚬 Tabac</option>
+                <option value="Électronique">📱 Électronique</option>
+                <option value="Vêtement">👗 Vêtement</option>
+              </select>
+              <p id="np-categorie-hint" className="v4-np-hint">Détectée automatiquement depuis le nom — modifiable</p>
             </div>
 
             <div className="v4-np-field">
