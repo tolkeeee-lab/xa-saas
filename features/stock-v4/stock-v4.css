@@ -1687,10 +1687,15 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
-  z-index: 200;
+  z-index: 9999;
   display: flex;
   align-items: flex-end;
   justify-content: center;
+}
+
+/* Hide floating theme toggle when the product modal is open */
+body:has(.v4-np-backdrop) .xa-theme-toggle-float {
+  display: none;
 }
 
 @media (min-width: 600px) {
@@ -2002,6 +2007,18 @@ select.v4-np-input {
   padding: 10px 12px;
   font-size: 13px;
   color: var(--v4-r);
+  font-weight: 500;
+}
+
+/* Hint (validation explanation shown above submit) */
+.v4-np-hint {
+  font-size: 12px;
+  color: var(--v4-a, #d97706);
+  background: var(--v4-al, #fef3c7);
+  border: 1px solid var(--v4-a, #d97706);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
   font-weight: 500;
 }
 

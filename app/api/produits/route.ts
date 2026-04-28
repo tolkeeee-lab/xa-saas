@@ -110,7 +110,36 @@ export async function POST(request: NextRequest) {
     .select('id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, mode_achat, qty_par_lot, lot_label, unite_label, created_at, updated_at')
     .single();
 
+  // If INSERT failed because the conditionnement columns don't exist yet (migration pending),
+  // fall back to a basic INSERT without those columns so the product can still be saved.
   if (error) {
+    // Postgres error code 42703 = "column does not exist"
+    if (error.code === '42703') {
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from('produits')
+        .insert({
+          boutique_id,
+          nom: nom.trim(),
+          categorie: categorie?.trim() ?? 'Général',
+          description: null,
+          prix_achat,
+          prix_vente,
+          stock_actuel: stock_actuel ?? 0,
+          seuil_alerte: seuil_alerte ?? 5,
+          unite: unite ?? unite_label ?? 'unité',
+          actif: true,
+        })
+        .select('id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, created_at, updated_at')
+        .single();
+
+      if (fallbackError) {
+        return NextResponse.json({ error: fallbackError.message }, { status: 500 });
+      }
+
+      revalidateUserCache(user.id, ['alertes-stock', 'stocks-consolides', 'peremptions']);
+      return NextResponse.json(fallbackData, { status: 201 });
+    }
+
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
