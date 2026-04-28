@@ -61,6 +61,7 @@ export default function NouveauProduitModal({
   // ── Section 4 — Stock ─────────────────────────────────────────────────────────
   const [stockActuel, setStockActuel] = useState<number | ''>('');
   const [seuilAlerte, setSeuilAlerte] = useState<number | ''>('');
+  const [datePeremption, setDatePeremption] = useState('');
 
   // Auto-fill seuil from stock
   useEffect(() => {
@@ -122,6 +123,7 @@ export default function NouveauProduitModal({
         seuil_alerte: seuilAlerte !== '' ? Number(seuilAlerte) : Math.max(1, Math.round(Number(stockActuel) * 0.2)),
         mode_achat: modeAchat,
         unite_label: uniteLabel.trim() || 'pièce',
+        date_peremption: datePeremption || null,
       };
 
       if (modeAchat === 'lot') {
@@ -533,6 +535,21 @@ export default function NouveauProduitModal({
                   }
                 />
                 <span className="v4-np-suffix">{uniteLabel || 'unités'}</span>
+              </div>
+            </div>
+
+            <div className="v4-np-field">
+              <label className="v4-np-label" htmlFor="np-date-peremption">
+                Date de péremption
+              </label>
+              <div className="v4-np-input-row">
+                <input
+                  id="np-date-peremption"
+                  type="date"
+                  className="v4-np-input"
+                  value={datePeremption}
+                  onChange={(e) => setDatePeremption(e.target.value)}
+                />
               </div>
             </div>
           </div>
