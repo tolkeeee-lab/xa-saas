@@ -29,7 +29,7 @@ const RULES: { categorie: string; keywords: string[] }[] = [
       'poivre', 'piment', 'oignon', 'ail', 'gingembre', 'biscuit',
       'chocolat', 'bonbon', 'confiture', 'miel', 'beurre', 'margarine',
       'mayonnaise', 'ketchup', 'moutarde', 'vinaigre', 'haricot', 'lentille',
-      'petit pois', 'poids', 'conserve', 'corned', 'saucisse',
+      'petit pois', 'pois', 'conserve', 'corned', 'saucisse',
       'selva', 'diari', 'bonjourne', 'sipa', 'avril',
     ],
   },

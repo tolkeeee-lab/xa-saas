@@ -84,9 +84,10 @@ export async function POST(request: NextRequest) {
   const effectiveModeAchat = mode_achat ?? 'unite';
 
   // Auto-detect category from product name if not explicitly provided
+  const categorieInput = categorie?.trim();
   const effectiveCategorie =
-    categorie?.trim() && categorie.trim() !== 'Général'
-      ? categorie.trim()
+    categorieInput && categorieInput !== 'Général'
+      ? categorieInput
       : detectCategorie(nom);
 
   let prix_achat: number;
