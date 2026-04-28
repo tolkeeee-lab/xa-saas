@@ -50,6 +50,9 @@ const RULES: { categorie: string; keywords: string[] }[] = [
       'seau', 'bassine', 'éponge', 'eponge', 'serpillière', 'serpilliere',
       'poubelle', 'sac poubelle', 'fil', 'ampoule', 'lampe', 'torche',
       'briquet', 'insecticide', 'moustique', 'raid', 'baygon',
+      'tapette', 'piège', 'piege', 'raticide', 'souricide', 'mort-aux-rats',
+      'désodorisant', 'desodorisant', 'naphtalène', 'naphtalene', 'antimite',
+      'brosse wc', 'déboucheur', 'deboucheur', 'ventouse',
     ],
   },
   {
