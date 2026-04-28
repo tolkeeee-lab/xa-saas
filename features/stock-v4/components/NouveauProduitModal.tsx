@@ -124,7 +124,7 @@ export default function NouveauProduitModal({
       if (effectiveQtyParLot <= 0) return false;
       if (prixLot === '' || Number(prixLot) <= 0) return false;
     } else {
-      if (prixAchatUnite === '' || Number(prixAchatUnite) < 0) return false;
+      if (prixAchatUnite === '' || Number(prixAchatUnite) <= 0) return false;
     }
     if (computedPrixUnitaire > 0 && Number(prixVente) <= computedPrixUnitaire) return false;
     return true;
