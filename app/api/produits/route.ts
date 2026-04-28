@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
     prix_lot_achat,
     lot_label,
     unite_label,
+    date_peremption,
   } = body;
 
   // Compute prix_achat (unit purchase price) from lot if needed
@@ -116,8 +117,9 @@ export async function POST(request: NextRequest) {
       prix_lot_achat: prix_lot_achat ?? null,
       lot_label: lot_label ?? null,
       unite_label: unite_label ?? null,
+      date_peremption: date_peremption ?? null,
     })
-    .select('id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, mode_achat, qty_par_lot, lot_label, unite_label, created_at, updated_at')
+    .select('id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, mode_achat, qty_par_lot, lot_label, unite_label, date_peremption, created_at, updated_at')
     .single();
 
   // If INSERT failed because the conditionnement columns don't exist yet (migration pending),
@@ -138,8 +140,9 @@ export async function POST(request: NextRequest) {
           seuil_alerte: seuil_alerte ?? 5,
           unite: unite ?? unite_label ?? 'unité',
           actif: true,
+          date_peremption: date_peremption ?? null,
         })
-        .select('id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, created_at, updated_at')
+        .select('id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, created_at, updated_at')
         .single();
 
       if (fallbackError) {
