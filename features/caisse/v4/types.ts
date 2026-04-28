@@ -1,4 +1,4 @@
-import type { CartItem } from '@/features/caisse/v3/useCart';
+import type { CartItem } from '@/features/caisse/v4/hooks/useCart';
 
 export type { CartItem };
 

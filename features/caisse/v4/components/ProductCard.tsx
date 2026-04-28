@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import type { ProduitPublic } from '@/types/database';
 import { formatFCFA } from '@/lib/format';
-import { getCategoryEmoji } from '@/features/caisse/v3/lib/categoryEmoji';
+import { getCategoryEmoji } from '@/features/caisse/v4/utils/categoryEmoji';
 
 interface ProductCardProps {
   produit: ProduitPublic;

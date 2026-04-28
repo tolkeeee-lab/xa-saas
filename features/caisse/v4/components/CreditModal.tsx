@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import type { CartItem } from '@/features/caisse/v3/useCart';
+import type { CartItem } from '@/features/caisse/v4/hooks/useCart';
 import { useCredit } from '../hooks/useCredit';
 import { formatFCFA } from '@/lib/format';
 
