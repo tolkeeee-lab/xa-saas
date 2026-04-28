@@ -5,8 +5,6 @@ import { X } from 'lucide-react';
 import {
   calcPrixUnitaireAchat,
   calcMarge,
-  suggestLotLabel,
-  suggestUniteLabel,
   decompose,
 } from '../utils/produitCalculs';
 
@@ -25,21 +23,8 @@ export default function NouveauProduitModal({
   onClose,
   onSuccess,
 }: NouveauProduitModalProps) {
-  // ── Categories ────────────────────────────────────────────────────────────────
-  const [categories, setCategories] = useState<string[]>([]);
-  useEffect(() => {
-    if (!boutiqueId) return;
-    fetch(`/api/produits/categories?boutique_id=${encodeURIComponent(boutiqueId)}`)
-      .then((r) => r.json())
-      .then((data: string[]) => {
-        if (Array.isArray(data)) setCategories(data);
-      })
-      .catch(() => {});
-  }, [boutiqueId]);
-
   // ── Section 1 — Identification ────────────────────────────────────────────────
   const [nom, setNom] = useState('');
-  const [categorie, setCategorie] = useState('');
   const nomRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     setTimeout(() => nomRef.current?.focus(), 80);
@@ -54,14 +39,6 @@ export default function NouveauProduitModal({
   const [showCustomQty, setShowCustomQty] = useState(false);
   const [prixLot, setPrixLot] = useState<number | ''>('');
   const [prixAchatUnite, setPrixAchatUnite] = useState<number | ''>('');
-
-  // Auto-suggest lot/unit labels when category changes
-  useEffect(() => {
-    if (!categorie) return;
-    setLotLabel(suggestLotLabel(categorie));
-    setUniteLabel(suggestUniteLabel(lotLabel, categorie));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categorie]);
 
   const effectiveQtyParLot: number =
     showCustomQty ? (Number(qtyCustom) || 0) : (Number(qtyParLot) || 0);
@@ -104,7 +81,6 @@ export default function NouveauProduitModal({
   // ── Validation ────────────────────────────────────────────────────────────────
   const getValidationHint = useCallback((): string => {
     if (!nom.trim()) return 'Saisissez un nom de produit';
-    if (!categorie.trim()) return 'Sélectionnez une catégorie';
     if (modeAchat === 'lot' && effectiveQtyParLot <= 0) return 'Saisissez la quantité par lot';
     if (modeAchat === 'lot' && (prixLot === '' || Number(prixLot) <= 0)) return 'Saisissez le prix d\'achat du lot';
     if (modeAchat === 'unite' && (prixAchatUnite === '' || Number(prixAchatUnite) <= 0)) return 'Saisissez le prix d\'achat unitaire';
@@ -113,11 +89,10 @@ export default function NouveauProduitModal({
     if (computedPrixUnitaire > 0 && Number(prixVente) <= computedPrixUnitaire)
       return `Prix de vente trop bas — doit être > ${formatF(computedPrixUnitaire)} (prix achat unitaire)`;
     return '';
-  }, [nom, categorie, modeAchat, effectiveQtyParLot, prixLot, prixAchatUnite, prixVente, stockActuel, computedPrixUnitaire]);
+  }, [nom, modeAchat, effectiveQtyParLot, prixLot, prixAchatUnite, prixVente, stockActuel, computedPrixUnitaire]);
 
   const isValid = useCallback(() => {
     if (!nom.trim()) return false;
-    if (!categorie.trim()) return false;
     if (prixVente === '' || Number(prixVente) <= 0) return false;
     if (stockActuel === '') return false;
     if (modeAchat === 'lot') {
@@ -128,7 +103,7 @@ export default function NouveauProduitModal({
     }
     if (computedPrixUnitaire > 0 && Number(prixVente) <= computedPrixUnitaire) return false;
     return true;
-  }, [nom, categorie, prixVente, stockActuel, modeAchat, effectiveQtyParLot, prixLot, prixAchatUnite, computedPrixUnitaire]);
+  }, [nom, prixVente, stockActuel, modeAchat, effectiveQtyParLot, prixLot, prixAchatUnite, computedPrixUnitaire]);
 
   // ── Submit ────────────────────────────────────────────────────────────────────
   const [submitting, setSubmitting] = useState(false);
@@ -142,7 +117,6 @@ export default function NouveauProduitModal({
       const body: Record<string, unknown> = {
         boutique_id: boutiqueId,
         nom: nom.trim(),
-        categorie: categorie.trim(),
         prix_vente: Number(prixVente),
         stock_actuel: Number(stockActuel),
         seuil_alerte: seuilAlerte !== '' ? Number(seuilAlerte) : Math.max(1, Math.round(Number(stockActuel) * 0.2)),
@@ -238,32 +212,6 @@ export default function NouveauProduitModal({
                 value={nom}
                 onChange={(e) => { setNom(e.target.value); setTouched(true); }}
               />
-            </div>
-
-            <div className="v4-np-field">
-              <label className="v4-np-label" htmlFor="np-cat">Catégorie *</label>
-              <select
-                id="np-cat"
-                className="v4-np-input"
-                value={categorie}
-                onChange={(e) => { setCategorie(e.target.value); setTouched(true); }}
-              >
-                <option value="">— Choisir une catégorie —</option>
-                {categories.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-                {/* fallback if list is empty */}
-                {categories.length === 0 && (
-                  <>
-                    <option value="Boissons">🥤 Boissons</option>
-                    <option value="Alimentaire">🍎 Alimentaire</option>
-                    <option value="Hygiène">🧼 Hygiène</option>
-                    <option value="Huiles">🫒 Huiles</option>
-                    <option value="Céréales">🌾 Céréales</option>
-                    <option value="Divers">📦 Divers</option>
-                  </>
-                )}
-              </select>
             </div>
 
             <div className="v4-np-field">
