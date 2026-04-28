@@ -98,17 +98,33 @@ export default function NouveauProduitModal({
       ? decompose(Number(stockActuel), effectiveQtyParLot)
       : null;
 
+  // ── Touched (show hints only after user interacts) ────────────────────────────
+  const [touched, setTouched] = useState(false);
+
   // ── Validation ────────────────────────────────────────────────────────────────
+  const getValidationHint = useCallback((): string => {
+    if (!nom.trim()) return 'Saisissez un nom de produit';
+    if (!categorie.trim()) return 'Sélectionnez une catégorie';
+    if (modeAchat === 'lot' && effectiveQtyParLot <= 0) return 'Saisissez la quantité par lot';
+    if (modeAchat === 'lot' && (prixLot === '' || Number(prixLot) <= 0)) return 'Saisissez le prix d\'achat du lot';
+    if (modeAchat === 'unite' && (prixAchatUnite === '' || Number(prixAchatUnite) <= 0)) return 'Saisissez le prix d\'achat unitaire';
+    if (prixVente === '' || Number(prixVente) <= 0) return 'Saisissez un prix de vente positif';
+    if (stockActuel === '') return 'Saisissez le stock initial (0 si vide)';
+    if (computedPrixUnitaire > 0 && Number(prixVente) <= computedPrixUnitaire)
+      return `Prix de vente trop bas — doit être > ${formatF(computedPrixUnitaire)} (prix achat unitaire)`;
+    return '';
+  }, [nom, categorie, modeAchat, effectiveQtyParLot, prixLot, prixAchatUnite, prixVente, stockActuel, computedPrixUnitaire]);
+
   const isValid = useCallback(() => {
     if (!nom.trim()) return false;
     if (!categorie.trim()) return false;
     if (prixVente === '' || Number(prixVente) <= 0) return false;
-    if (stockActuel === '' || Number(stockActuel) < 0) return false;
+    if (stockActuel === '') return false;
     if (modeAchat === 'lot') {
       if (effectiveQtyParLot <= 0) return false;
-      if (prixLot === '' || Number(prixLot) < 0) return false;
+      if (prixLot === '' || Number(prixLot) <= 0) return false;
     } else {
-      if (prixAchatUnite === '' || Number(prixAchatUnite) < 0) return false;
+      if (prixAchatUnite === '' || Number(prixAchatUnite) <= 0) return false;
     }
     if (computedPrixUnitaire > 0 && Number(prixVente) <= computedPrixUnitaire) return false;
     return true;
@@ -220,7 +236,7 @@ export default function NouveauProduitModal({
                 className="v4-np-input"
                 placeholder="ex: Coca-Cola 33cl"
                 value={nom}
-                onChange={(e) => setNom(e.target.value)}
+                onChange={(e) => { setNom(e.target.value); setTouched(true); }}
               />
             </div>
 
@@ -230,7 +246,7 @@ export default function NouveauProduitModal({
                 id="np-cat"
                 className="v4-np-input"
                 value={categorie}
-                onChange={(e) => setCategorie(e.target.value)}
+                onChange={(e) => { setCategorie(e.target.value); setTouched(true); }}
               >
                 <option value="">— Choisir une catégorie —</option>
                 {categories.map((c) => (
@@ -292,14 +308,14 @@ export default function NouveauProduitModal({
               <button
                 type="button"
                 className={`v4-np-radio-pill${modeAchat === 'unite' ? ' v4-np-radio-pill--active' : ''}`}
-                onClick={() => setModeAchat('unite')}
+                onClick={() => { setModeAchat('unite'); setTouched(true); }}
               >
                 ⭕ À l&apos;unité
               </button>
               <button
                 type="button"
                 className={`v4-np-radio-pill${modeAchat === 'lot' ? ' v4-np-radio-pill--active' : ''}`}
-                onClick={() => setModeAchat('lot')}
+                onClick={() => { setModeAchat('lot'); setTouched(true); }}
               >
                 🔘 En lot / carton
               </button>
@@ -402,9 +418,10 @@ export default function NouveauProduitModal({
                       className="v4-np-input"
                       placeholder="ex: 8000"
                       value={prixLot}
-                      onChange={(e) =>
-                        setPrixLot(e.target.value === '' ? '' : Number(e.target.value))
-                      }
+                      onChange={(e) => {
+                        setPrixLot(e.target.value === '' ? '' : Number(e.target.value));
+                        setTouched(true);
+                      }}
                     />
                     <span className="v4-np-suffix">F</span>
                   </div>
@@ -459,9 +476,10 @@ export default function NouveauProduitModal({
                       className="v4-np-input"
                       placeholder="ex: 333"
                       value={prixAchatUnite}
-                      onChange={(e) =>
-                        setPrixAchatUnite(e.target.value === '' ? '' : Number(e.target.value))
-                      }
+                      onChange={(e) => {
+                        setPrixAchatUnite(e.target.value === '' ? '' : Number(e.target.value));
+                        setTouched(true);
+                      }}
                     />
                     <span className="v4-np-suffix">F</span>
                   </div>
@@ -486,9 +504,10 @@ export default function NouveauProduitModal({
                   className="v4-np-input"
                   placeholder="ex: 400"
                   value={prixVente}
-                  onChange={(e) =>
-                    setPrixVente(e.target.value === '' ? '' : Number(e.target.value))
-                  }
+                  onChange={(e) => {
+                    setPrixVente(e.target.value === '' ? '' : Number(e.target.value));
+                    setTouched(true);
+                  }}
                 />
                 <span className="v4-np-suffix">F / {uniteLabel || 'unité'}</span>
               </div>
@@ -532,9 +551,10 @@ export default function NouveauProduitModal({
                   className="v4-np-input"
                   placeholder="0"
                   value={stockActuel}
-                  onChange={(e) =>
-                    setStockActuel(e.target.value === '' ? '' : Number(e.target.value))
-                  }
+                  onChange={(e) => {
+                    setStockActuel(e.target.value === '' ? '' : Number(e.target.value));
+                    setTouched(true);
+                  }}
                 />
                 <span className="v4-np-suffix">{uniteLabel || 'unités'}</span>
               </div>
@@ -574,6 +594,9 @@ export default function NouveauProduitModal({
 
         {/* ── Sticky footer ───────────────────────────────── */}
         <div className="v4-np-footer">
+          {touched && !isValid() && (
+            <div className="v4-np-hint">{getValidationHint()}</div>
+          )}
           <button
             type="button"
             className="v4-np-submit"

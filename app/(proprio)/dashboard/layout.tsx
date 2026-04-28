@@ -22,7 +22,7 @@ export default async function DashboardLayout({
     <NotifProvider>
       <OfflineBanner />
       {/* Floating theme toggle — toujours visible sur toutes les pages dashboard */}
-      <div className="fixed top-3 right-3 z-50">
+      <div className="fixed top-3 right-3 z-50 xa-theme-toggle-float">
         <ThemeToggle />
       </div>
       <div className="xa-dashboard-content">{children}</div>
