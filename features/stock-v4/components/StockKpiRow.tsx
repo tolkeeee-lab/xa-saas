@@ -1,6 +1,6 @@
 'use client';
 
-import { Package, AlertTriangle, DollarSign } from 'lucide-react';
+import { Package, AlertTriangle, Banknote } from 'lucide-react';
 import type { StockKpis } from '../types';
 
 interface StockKpiRowProps {
@@ -9,9 +9,9 @@ interface StockKpiRowProps {
 }
 
 function formatValeur(v: number): string {
-  if (v >= 1_000_000) return `${Math.round(v / 1_000_000)}M`;
-  if (v >= 1_000) return `${Math.round(v / 1_000)}k`;
-  return String(Math.round(v));
+  if (v >= 1_000_000) return `${Math.round(v / 1_000_000)}M F`;
+  if (v >= 1_000) return `${Math.round(v / 1_000)}k F`;
+  return `${Math.round(v)} F`;
 }
 
 export default function StockKpiRow({ kpis, loading }: StockKpiRowProps) {
@@ -38,7 +38,7 @@ export default function StockKpiRow({ kpis, loading }: StockKpiRowProps) {
         <span className="v4-kpi-label">ALERTES</span>
       </div>
       <div className="v4-kpi-card v4-kpi-card--purple">
-        <DollarSign size={14} className="v4-kpi-icon" />
+        <Banknote size={14} className="v4-kpi-icon" />
         <span className="v4-kpi-value">{formatValeur(kpis.valeurStock)}</span>
         <span className="v4-kpi-label">VALEUR STOCK</span>
       </div>
