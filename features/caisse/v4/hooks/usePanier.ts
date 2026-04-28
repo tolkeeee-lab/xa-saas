@@ -1,2 +1,2 @@
-export { useCart } from '@/features/caisse/v3/useCart';
-export type { CartItem } from '@/features/caisse/v3/useCart';
+export { useCart } from '@/features/caisse/v4/hooks/useCart';
+export type { CartItem } from '@/features/caisse/v4/hooks/useCart';

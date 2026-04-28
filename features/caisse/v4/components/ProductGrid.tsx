@@ -1,7 +1,7 @@
 'use client';
 
 import type { ProduitPublic } from '@/types/database';
-import type { CartItem } from '@/features/caisse/v3/useCart';
+import type { CartItem } from '@/features/caisse/v4/hooks/useCart';
 import ProductCard from './ProductCard';
 
 interface ProductGridProps {

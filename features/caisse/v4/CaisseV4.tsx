@@ -10,7 +10,7 @@ import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { enqueueSale, saveProduits, loadProduits } from '@/lib/offline/offlineQueue';
 import type { OfflineSale } from '@/lib/offline/offlineQueue';
 import { formatFCFA } from '@/lib/format';
-import { getCategoryEmoji } from '@/features/caisse/v3/lib/categoryEmoji';
+import { getCategoryEmoji } from '@/features/caisse/v4/utils/categoryEmoji';
 import type { VenteResult } from './types';
 
 type PayMode = 'especes' | 'momo' | 'carte' | 'credit';

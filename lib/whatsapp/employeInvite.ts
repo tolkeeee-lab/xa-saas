@@ -1,7 +1,7 @@
 /**
  * WhatsApp message builder for employee invite links.
  */
-import { buildWhatsAppUrl } from '@/features/caisse/v3/lib/whatsappMessage';
+import { buildWhatsAppUrl } from '@/lib/notifications/whatsapp-message';
 
 export function buildEmployeInviteMessage({
   prenom,
