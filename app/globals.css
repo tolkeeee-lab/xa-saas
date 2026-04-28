@@ -2233,6 +2233,12 @@ body {
   padding: .25rem .6rem; border-radius: 20px;
   white-space: nowrap; flex-shrink: 0;
 }
+.xa-home-header__right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
 .xa-home-header__sync--ok { background: var(--xa-greenbg); color: var(--xa-green); }
 .xa-home-header__sync--pending { background: var(--xa-amberbg); color: var(--xa-amber); }
 .xa-home-header__sync-dot {

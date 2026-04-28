@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import type { Boutique } from '@/types/database';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 function formatDateFR(date: Date): string {
   return date.toLocaleDateString('fr-FR', {
@@ -45,9 +46,12 @@ export default function DashboardHeader({ prenom, boutiques, boutique_id, synced
           </h1>
           <p className="xa-home-header__date">{formatDateFR(today)}</p>
         </div>
-        <div className={`xa-home-header__sync ${synced ? 'xa-home-header__sync--ok' : 'xa-home-header__sync--pending'}`}>
-          <span className="xa-home-header__sync-dot" />
-          <span className="xa-home-header__sync-label">{synced ? 'Synchronisé' : 'Hors ligne'}</span>
+        <div className="xa-home-header__right">
+          <div className={`xa-home-header__sync ${synced ? 'xa-home-header__sync--ok' : 'xa-home-header__sync--pending'}`}>
+            <span className="xa-home-header__sync-dot" />
+            <span className="xa-home-header__sync-label">{synced ? 'Synchronisé' : 'Hors ligne'}</span>
+          </div>
+          <ThemeToggle />
         </div>
       </div>
 
