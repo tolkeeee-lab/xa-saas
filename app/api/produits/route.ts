@@ -5,6 +5,7 @@ import { applyRateLimit } from '@/lib/rateLimit';
 import { validateBody } from '@/lib/schemas/validate';
 import { produitsPostSchema } from '@/lib/schemas/produits';
 import { revalidateUserCache } from '@/lib/revalidate';
+import { detectCategorie } from '@/lib/detectCategorie';
 
 /**
  * GET /api/produits?boutique_id=xxx
@@ -42,7 +43,8 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/produits
  * Creates a new product.
- * Body: { boutique_id, nom, categorie, prix_achat, prix_vente, stock_actuel, seuil_alerte, unite? }
+ * Body: { boutique_id, nom, prix_achat, prix_vente, stock_actuel, seuil_alerte, unite? }
+ * Note: categorie is auto-detected from nom if not provided or is 'Général'.
  */
 export async function POST(request: NextRequest) {
   const limited = await applyRateLimit(request);
@@ -80,6 +82,14 @@ export async function POST(request: NextRequest) {
 
   // Compute prix_achat (unit purchase price) from lot if needed
   const effectiveModeAchat = mode_achat ?? 'unite';
+
+  // Auto-detect category from product name if not explicitly provided
+  const categorieInput = categorie?.trim();
+  const effectiveCategorie =
+    categorieInput && categorieInput !== 'Général'
+      ? categorieInput
+      : detectCategorie(nom);
+
   let prix_achat: number;
   if (effectiveModeAchat === 'lot' && prix_lot_achat != null && qty_par_lot) {
     prix_achat = Math.round((prix_lot_achat / qty_par_lot) * 100) / 100;
@@ -93,7 +103,7 @@ export async function POST(request: NextRequest) {
     .insert({
       boutique_id,
       nom: nom.trim(),
-      categorie: categorie?.trim() ?? 'Général',
+      categorie: effectiveCategorie,
       description: null,
       prix_achat,
       prix_vente,
@@ -120,7 +130,7 @@ export async function POST(request: NextRequest) {
         .insert({
           boutique_id,
           nom: nom.trim(),
-          categorie: categorie?.trim() ?? 'Général',
+          categorie: effectiveCategorie,
           description: null,
           prix_achat,
           prix_vente,
