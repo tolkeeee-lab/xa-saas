@@ -16,6 +16,8 @@ export const produitsPostSchema = z
     prix_lot_achat: z.number().nonnegative().optional().nullable(),
     lot_label: z.string().optional().nullable(),
     unite_label: z.string().optional().nullable(),
+    // Péremption
+    date_peremption: z.string().date().optional().nullable(),
   })
   .refine(
     (data) => {
