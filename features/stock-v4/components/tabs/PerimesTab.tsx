@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import type { ProduitAvecStatut, BoutiqueActiveId } from '../../types';
 import type { Boutique } from '@/types/database';
 import RetireStockModal from '../RetireStockModal';
+import PeremptionDateModal from '../PeremptionDateModal';
 import { getCategoryEmoji } from '../../utils/categoryEmoji';
 
 interface PerimesTabProps {
@@ -50,9 +51,15 @@ export default function PerimesTab({
   onRefresh,
 }: PerimesTabProps) {
   const [retireModal, setRetireModal] = useState<RetireModal | null>(null);
+  const [editDateModal, setEditDateModal] = useState<{ produit: ProduitAvecStatut } | null>(null);
 
   const handleRetireSuccess = useCallback(() => {
     setRetireModal(null);
+    onRefresh();
+  }, [onRefresh]);
+
+  const handleEditDateSuccess = useCallback(() => {
+    setEditDateModal(null);
     onRefresh();
   }, [onRefresh]);
 
@@ -115,6 +122,14 @@ export default function PerimesTab({
                 <button
                   type="button"
                   className="v4-pi-btn"
+                  aria-label={`Modifier la date de péremption de ${p.nom}`}
+                  onClick={() => setEditDateModal({ produit: p })}
+                >
+                  📅
+                </button>
+                <button
+                  type="button"
+                  className="v4-pi-btn"
                   aria-label={`Retirer ${p.nom} du stock`}
                   onClick={() => setRetireModal({ produit: p, boutiqueId })}
                 >
@@ -132,6 +147,14 @@ export default function PerimesTab({
           boutiqueId={retireModal.boutiqueId}
           onClose={() => setRetireModal(null)}
           onSuccess={handleRetireSuccess}
+        />
+      )}
+
+      {editDateModal && (
+        <PeremptionDateModal
+          produit={editDateModal.produit}
+          onClose={() => setEditDateModal(null)}
+          onSuccess={handleEditDateSuccess}
         />
       )}
     </>

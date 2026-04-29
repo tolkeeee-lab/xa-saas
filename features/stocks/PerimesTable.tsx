@@ -47,6 +47,8 @@ export default function PerimesTable({ produits: initialProduits }: PerimesTable
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [batchLoading, setBatchLoading] = useState(false);
   const [filter, setFilter] = useState<FilterType>('tous');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingDate, setEditingDate] = useState('');
 
   const expires = produits.filter((p) => p.jours_restants < 0).length;
   const expiresSoon7 = produits.filter(
@@ -164,6 +166,40 @@ export default function PerimesTable({ produits: initialProduits }: PerimesTable
     } else {
       const err = await res.json();
       showToast(err.error ?? 'Erreur lors de la promotion.', 'error');
+    }
+  }
+
+  async function handleSaveDatePeremption(id: string) {
+    setLoading((l) => ({ ...l, [id]: true }));
+    const res = await fetch(`/api/produits/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date_peremption: editingDate || null }),
+    });
+    setLoading((l) => ({ ...l, [id]: false }));
+
+    if (res.ok) {
+      const updated = await res.json();
+      const newDate: string = updated.date_peremption ?? '';
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const dlcDate = newDate ? new Date(newDate) : null;
+      dlcDate?.setHours(0, 0, 0, 0);
+      const joursRestants = dlcDate
+        ? Math.round((dlcDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+        : 0;
+      setProduits((prev) =>
+        prev.map((p) =>
+          p.id === id
+            ? { ...p, date_peremption: newDate, jours_restants: joursRestants }
+            : p,
+        ),
+      );
+      setEditingId(null);
+      showToast('Date de péremption mise à jour.', 'success');
+    } else {
+      const err = await res.json();
+      showToast(err.error ?? 'Erreur lors de la mise à jour.', 'error');
     }
   }
 
@@ -309,8 +345,46 @@ export default function PerimesTable({ produits: initialProduits }: PerimesTable
                     <td className="px-4 py-3 text-xa-text">
                       {p.stock_actuel} {p.unite}
                     </td>
-                    <td className="px-4 py-3 text-xa-muted whitespace-nowrap">
-                      {p.date_peremption ? formatDate(p.date_peremption) : '—'}
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {editingId === p.id ? (
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="date"
+                            value={editingDate}
+                            onChange={(e) => setEditingDate(e.target.value)}
+                            className="text-xs border border-xa-border rounded px-1 py-0.5 bg-xa-surface text-xa-text"
+                          />
+                          <button
+                            onClick={() => handleSaveDatePeremption(p.id)}
+                            disabled={loading[p.id]}
+                            className="px-2 py-0.5 rounded bg-xa-primary text-white text-xs font-semibold hover:opacity-90 disabled:opacity-40"
+                          >
+                            {loading[p.id] ? '…' : '✓'}
+                          </button>
+                          <button
+                            onClick={() => setEditingId(null)}
+                            className="px-2 py-0.5 rounded bg-xa-surface border border-xa-border text-xa-text text-xs font-semibold hover:bg-xa-bg"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xa-muted">
+                            {p.date_peremption ? formatDate(p.date_peremption) : '—'}
+                          </span>
+                          <button
+                            onClick={() => {
+                              setEditingId(p.id);
+                              setEditingDate(p.date_peremption ? p.date_peremption.substring(0, 10) : '');
+                            }}
+                            className="text-xa-muted hover:text-xa-text transition-colors text-xs"
+                            title="Modifier la date de péremption"
+                          >
+                            ✏️
+                          </button>
+                        </div>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-xa-text">{p.jours_restants}</td>
                     <td className="px-4 py-3">{getStatusBadge(p.jours_restants)}</td>

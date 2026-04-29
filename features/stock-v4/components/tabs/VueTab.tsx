@@ -1,11 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import type { ProduitAvecStatut, ModalState, BoutiqueActiveId } from '../../types';
 import type { Boutique } from '@/types/database';
 import StockKpiRow from '../StockKpiRow';
 import StockSearchBar from '../StockSearchBar';
 import StockCatChips from '../StockCatChips';
+import PeremptionDateModal from '../PeremptionDateModal';
 import type { SortMode } from '../../types';
 import type { StockKpis } from '../../types';
 import { getCategoryEmoji } from '../../utils/categoryEmoji';
@@ -75,6 +77,7 @@ export default function VueTab({
   boutiques,
   onOpenModal,
 }: VueTabProps) {
+  const [editDateModal, setEditDateModal] = useState<{ produit: ProduitAvecStatut } | null>(null);
   return (
     <>
       <StockKpiRow kpis={kpis} loading={loading} />
@@ -161,6 +164,15 @@ export default function VueTab({
                   <button
                     type="button"
                     className="v4-pli-add-btn"
+                    aria-label={`Définir la date de péremption de ${p.nom}`}
+                    title="Date de péremption"
+                    onClick={() => setEditDateModal({ produit: p })}
+                  >
+                    📅
+                  </button>
+                  <button
+                    type="button"
+                    className="v4-pli-add-btn"
                     aria-label={`Ajouter du stock pour ${p.nom}`}
                     onClick={() =>
                       onOpenModal({ type: 'entree', produit: p, boutiqueId })
@@ -174,6 +186,14 @@ export default function VueTab({
           })
         )}
       </div>
+
+      {editDateModal && (
+        <PeremptionDateModal
+          produit={editDateModal.produit}
+          onClose={() => setEditDateModal(null)}
+          onSuccess={() => setEditDateModal(null)}
+        />
+      )}
     </>
   );
 }
