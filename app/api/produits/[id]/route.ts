@@ -46,7 +46,7 @@ export async function PATCH(
   const update: PatchBody = {};
   if (body.stock_actuel !== undefined) update.stock_actuel = body.stock_actuel;
   if (body.prix_vente !== undefined) update.prix_vente = body.prix_vente;
-  if (body.date_peremption !== undefined) update.date_peremption = body.date_peremption;
+  if ('date_peremption' in body) update.date_peremption = body.date_peremption ?? null;
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: 'Aucun champ à mettre à jour' }, { status: 400 });
