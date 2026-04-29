@@ -7,11 +7,14 @@ import { NextResponse } from 'next/server';
  * Returns `{ data, error: null }` on success or `{ data: null, error }` with a
  * 400 NextResponse on failure. The caller should return the `error` response
  * immediately when it is not null.
+ *
+ * Uses `z.ZodTypeAny` + `z.output<S>` so that schemas with chained `.refine()`
+ * (which wrap in ZodEffects) are correctly inferred.
  */
-export function validateBody<T>(
-  schema: z.ZodSchema<T>,
+export function validateBody<S extends z.ZodTypeAny>(
+  schema: S,
   body: unknown,
-): { data: T; error: null } | { data: null; error: NextResponse } {
+): { data: z.output<S>; error: null } | { data: null; error: NextResponse } {
   const result = schema.safeParse(body);
   if (!result.success) {
     return {
@@ -22,5 +25,5 @@ export function validateBody<T>(
       ),
     };
   }
-  return { data: result.data, error: null };
+  return { data: result.data as z.output<S>, error: null };
 }
