@@ -9,11 +9,12 @@ import { revalidateUserCache } from '@/lib/revalidate';
 type PatchBody = {
   stock_actuel?: number;
   prix_vente?: number;
+  date_peremption?: string | null;
 };
 
 /**
  * PATCH /api/produits/[id]
- * Updates stock_actuel and/or prix_vente for a product.
+ * Updates stock_actuel, prix_vente, and/or date_peremption for a product.
  * Only fields provided in the body are updated.
  */
 export async function PATCH(
@@ -45,6 +46,7 @@ export async function PATCH(
   const update: PatchBody = {};
   if (body.stock_actuel !== undefined) update.stock_actuel = body.stock_actuel;
   if (body.prix_vente !== undefined) update.prix_vente = body.prix_vente;
+  if (body.date_peremption !== undefined) update.date_peremption = body.date_peremption;
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: 'Aucun champ à mettre à jour' }, { status: 400 });

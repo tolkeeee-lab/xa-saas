@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from('produits')
     .select(
-      'id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, created_at, updated_at',
+      'id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, created_at, updated_at',
     )
     .eq('boutique_id', boutiqueId)
     .eq('actif', true)
