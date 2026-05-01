@@ -127,10 +127,9 @@ function HeatmapHeure({ txJour }: { txJour: Transaction[] }) {
       >
         {HOURS.map((h) => {
           const count = counts[h] ?? 0;
-          const opacity = count > 0 ? (count / max) * 0.75 + 0.15 : undefined;
           const bg =
             count > 0
-              ? `rgba(0, 200, 83, ${opacity})`
+              ? `rgba(0, 200, 83, ${(count / max) * 0.75 + 0.15})`
               : 'rgba(0,0,0,0.05)';
           return (
             <div key={h} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
