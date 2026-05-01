@@ -135,7 +135,7 @@ export default function VueTab({
                     <img
                       src={p.image_url}
                       alt={p.nom}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }}
+                      className="v4-product-image"
                     />
                   ) : (
                     emoji

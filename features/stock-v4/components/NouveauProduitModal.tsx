@@ -312,7 +312,7 @@ export default function NouveauProduitModal({
               />
               {imageUrl ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <img src={imageUrl} alt="Aperçu" style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8 }} />
+                  <img src={imageUrl} alt="Aperçu" className="v4-product-image--preview" />
                   <button type="button" className="v4-np-scan-btn" onClick={() => setImageUrl(null)}>✕ Supprimer</button>
                 </div>
               ) : (

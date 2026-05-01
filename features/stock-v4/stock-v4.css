@@ -1566,6 +1566,27 @@
   line-height: 1;
 }
 
+.v4-product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.v4-product-image--sm {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.v4-product-image--preview {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
 .v4-pli-info {
   flex: 1;
   min-width: 0;

@@ -77,7 +77,7 @@ export default function AlertesTab({
           <div key={`${p.id}-${p.boutique_id}`} className="v4-alert-item">
             <span className="v4-ai-em">
               {p.image_url ? (
-                <img src={p.image_url} alt={p.nom} style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 8 }} />
+                <img src={p.image_url} alt={p.nom} className="v4-product-image--sm" />
               ) : (
                 emoji
               )}
