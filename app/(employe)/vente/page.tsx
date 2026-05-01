@@ -28,7 +28,11 @@ export default async function EmployeVentePage() {
   const supabase = createAdminClient();
 
   // Fetch employe + boutique + KPIs en parallèle
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const now = new Date();
+  const today = now.toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
+  const tomorrow = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1))
+    .toISOString()
+    .slice(0, 10);
 
   const [
     { data: employe },
@@ -46,14 +50,15 @@ export default async function EmployeVentePage() {
       .select('id, nom, ville, couleur_theme')
       .eq('id', session.boutique_id)
       .single(),
-    // Transactions du jour (validées, non-credit)
+    // Transactions du jour validées (hors crédit)
     supabase
       .from('transactions')
       .select('id, montant_total, mode_paiement')
       .eq('boutique_id', session.boutique_id)
       .eq('statut', 'validee')
+      .neq('mode_paiement', 'credit')
       .gte('created_at', today + 'T00:00:00.000Z')
-      .lt('created_at', today + 'T23:59:59.999Z'),
+      .lt('created_at', tomorrow + 'T00:00:00.000Z'),
     // Dettes : transactions credit non soldées
     supabase
       .from('transactions')
@@ -68,9 +73,7 @@ export default async function EmployeVentePage() {
   }
 
   // Calculer KPIs
-  const caJour = (txJour ?? [])
-    .filter((t) => t.mode_paiement !== 'credit')
-    .reduce((s, t) => s + (t.montant_total ?? 0), 0);
+  const caJour = (txJour ?? []).reduce((s, t) => s + (t.montant_total ?? 0), 0);
 
   const nbVentesJour = (txJour ?? []).length;
 
