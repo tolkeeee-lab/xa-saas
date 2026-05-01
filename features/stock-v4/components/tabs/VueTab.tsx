@@ -130,7 +130,17 @@ export default function VueTab({
             return (
               <div key={`${p.id}-${p.boutique_id}`} className="v4-pli">
                 {/* Avatar */}
-                <div className="v4-pli-avatar">{emoji}</div>
+                <div className="v4-pli-avatar">
+                  {p.image_url ? (
+                    <img
+                      src={p.image_url}
+                      alt={p.nom}
+                      className="v4-product-image"
+                    />
+                  ) : (
+                    emoji
+                  )}
+                </div>
 
                 {/* Info col */}
                 <div className="v4-pli-info">

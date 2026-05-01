@@ -18,6 +18,8 @@ export const produitsPostSchema = z
     unite_label: z.string().optional().nullable(),
     // Péremption
     date_peremption: z.string().date().optional().nullable(),
+    // Image
+    image_url: z.string().url().optional().nullable(),
   })
   .refine(
     (data) => {
@@ -57,4 +59,5 @@ export const produitsPatchSchema = z.object({
   stock_actuel: z.number().int().nonnegative().optional(),
   prix_vente: z.number().positive().optional(),
   date_peremption: z.string().date().optional().nullable(),
+  image_url: z.string().url().optional().nullable(),
 });

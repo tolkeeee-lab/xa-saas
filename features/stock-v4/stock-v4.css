@@ -1557,12 +1557,34 @@
   border-radius: 12px;
   background: var(--v4-surf);
   border: 1px solid var(--v4-brd);
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 22px;
   flex-shrink: 0;
   line-height: 1;
+}
+
+.v4-product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.v4-product-image--sm {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.v4-product-image--preview {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .v4-pli-info {

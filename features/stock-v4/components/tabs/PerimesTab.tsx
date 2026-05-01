@@ -104,7 +104,13 @@ export default function PerimesTab({
 
           return (
             <div key={`${p.id}-${p.boutique_id}`} className="v4-perime-item">
-              <span className="v4-pi-em">{emoji}</span>
+              <span className="v4-pi-em">
+                {p.image_url ? (
+                  <img src={p.image_url} alt={p.nom} className="v4-product-image--sm" />
+                ) : (
+                  emoji
+                )}
+              </span>
 
               <div className="v4-pi-info">
                 <div className="v4-pi-nm">{p.nom}</div>
