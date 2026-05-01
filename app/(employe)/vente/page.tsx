@@ -12,26 +12,6 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'Vente — xà' };
 
-// ─── Raw Supabase row types (inline for page use only) ────────────────────────
-type RawTxLigne = {
-  produit_id: string | null;
-  nom_produit: string;
-  quantite: number | null;
-  prix_vente_unitaire: number | null;
-  sous_total: number | null;
-};
-type RawTx = {
-  id: string;
-  created_at: string;
-  montant_total: number | null;
-  benefice_total: number | null;
-  mode_paiement: string;
-  client_nom: string | null;
-  employe_id: string | null;
-  statut: string;
-  transaction_lignes: RawTxLigne[] | null;
-};
-
 export default async function EmployeVentePage() {
   const session = await getEmployeSession();
 
@@ -50,20 +30,23 @@ export default async function EmployeVentePage() {
 
   const now = new Date();
   const today = now.toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
-  const tomorrow = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1))
+  const tomorrow = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1),
+  )
     .toISOString()
     .slice(0, 10);
 
-  // 30j window for top produits
-  const since30j = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 29))
+  const since30j = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 29),
+  )
     .toISOString()
     .slice(0, 10);
 
-  // Fetch employe, boutique, today's transactions (with lignes), and credit dettes in parallel
+  // ── Step 1 : fetch employe, boutique, tx headers du jour, dettes (parallel) ──
   const [
     { data: employe },
     { data: boutique },
-    { data: txJourRaw },
+    { data: txJourHeaders },
     { data: dettes },
   ] = await Promise.all([
     supabase
@@ -76,16 +59,16 @@ export default async function EmployeVentePage() {
       .select('id, nom, ville, couleur_theme')
       .eq('id', session.boutique_id)
       .single(),
+    // Transactions du jour — sans lignes pour éviter SelectQueryError
     supabase
       .from('transactions')
-      .select(
-        'id, created_at, montant_total, benefice_total, mode_paiement, client_nom, employe_id, statut, transaction_lignes(produit_id, nom_produit, quantite, prix_vente_unitaire, sous_total)',
-      )
+      .select('id, created_at, montant_total, benefice_total, mode_paiement, client_nom, employe_id, statut')
       .eq('boutique_id', session.boutique_id)
       .eq('statut', 'validee')
       .gte('created_at', today + 'T00:00:00.000Z')
-      .lte('created_at', today + 'T23:59:59.999Z')
+      .lt('created_at', tomorrow + 'T00:00:00.000Z')
       .order('created_at', { ascending: false }),
+    // Dettes crédit
     supabase
       .from('transactions')
       .select('id, montant_total, montant_recu')
@@ -98,50 +81,43 @@ export default async function EmployeVentePage() {
     redirect('/login');
   }
 
-  // --- Top produits (30 jours) ---
-  // Step 1: get tx IDs from last 30 days
-  const { data: txIds30j } = await supabase
+  // ── Step 2 : fetch lignes du jour + lignes 30j (parallel) ──────────────────
+  const txJourIds = (txJourHeaders ?? []).map((t) => t.id);
+
+  const { data: txIds30jRaw } = await supabase
     .from('transactions')
     .select('id')
     .eq('boutique_id', session.boutique_id)
     .eq('statut', 'validee')
     .gte('created_at', since30j + 'T00:00:00.000Z')
-    .lte('created_at', today + 'T23:59:59.999Z');
+    .lt('created_at', tomorrow + 'T00:00:00.000Z');
 
-  let topProduits: TopProduit[] = [];
+  const all30jIds = (txIds30jRaw ?? []).map((t) => t.id);
 
-  if (txIds30j && txIds30j.length > 0) {
-    const ids = (txIds30j as Array<{ id: string }>).map((t) => t.id);
-    const { data: lignes30j } = await supabase
-      .from('transaction_lignes')
-      .select('produit_id, nom_produit, quantite, sous_total')
-      .in('transaction_id', ids);
+  const [{ data: lignesJour }, { data: lignes30j }] = await Promise.all([
+    txJourIds.length > 0
+      ? supabase
+          .from('transaction_lignes')
+          .select('transaction_id, produit_id, nom_produit, quantite, prix_vente_unitaire, sous_total')
+          .in('transaction_id', txJourIds)
+      : Promise.resolve({ data: [] }),
+    all30jIds.length > 0
+      ? supabase
+          .from('transaction_lignes')
+          .select('transaction_id, produit_id, nom_produit, quantite, sous_total')
+          .in('transaction_id', all30jIds)
+      : Promise.resolve({ data: [] }),
+  ]);
 
-    // Aggregate by nom_produit
-    const agg = new Map<string, { produit_id: string | null; total_qte: number; total_rev: number }>();
-    for (const l of lignes30j ?? []) {
-      const key = l.nom_produit;
-      const existing = agg.get(key);
-      if (existing) {
-        existing.total_qte += l.quantite ?? 0;
-        existing.total_rev += l.sous_total ?? 0;
-      } else {
-        agg.set(key, {
-          produit_id: l.produit_id ?? null,
-          total_qte: l.quantite ?? 0,
-          total_rev: l.sous_total ?? 0,
-        });
-      }
-    }
-
-    topProduits = Array.from(agg.entries())
-      .map(([nom_produit, v]) => ({ nom_produit, ...v }))
-      .sort((a, b) => b.total_rev - a.total_rev)
-      .slice(0, 5);
+  // ── Step 3 : assemble Transaction[] pour le jour ──────────────────────────
+  const lignesJourByTx = new Map<string, typeof lignesJour>();
+  for (const l of lignesJour ?? []) {
+    const txId = (l as { transaction_id: string }).transaction_id;
+    if (!lignesJourByTx.has(txId)) lignesJourByTx.set(txId, []);
+    lignesJourByTx.get(txId)!.push(l);
   }
 
-  // --- Map raw Supabase data to TypeScript types ---
-  const txJour: Transaction[] = ((txJourRaw ?? []) as RawTx[]).map((t) => ({
+  const txJour: Transaction[] = (txJourHeaders ?? []).map((t) => ({
     id: t.id,
     created_at: t.created_at,
     montant_total: t.montant_total ?? 0,
@@ -150,21 +126,46 @@ export default async function EmployeVentePage() {
     client_nom: t.client_nom ?? null,
     employe_id: t.employe_id ?? null,
     statut: t.statut,
-    lignes: (t.transaction_lignes ?? []).map((l) => ({
-      produit_id: l.produit_id ?? null,
-      nom_produit: l.nom_produit,
-      quantite: l.quantite ?? 0,
-      prix_vente_unitaire: l.prix_vente_unitaire ?? 0,
-      sous_total: l.sous_total ?? 0,
+    lignes: (lignesJourByTx.get(t.id) ?? []).map((l) => ({
+      produit_id: (l as { produit_id: string | null }).produit_id ?? null,
+      nom_produit: (l as { nom_produit: string }).nom_produit,
+      quantite: (l as { quantite: number | null }).quantite ?? 0,
+      prix_vente_unitaire: (l as { prix_vente_unitaire: number | null }).prix_vente_unitaire ?? 0,
+      sous_total: (l as { sous_total: number | null }).sous_total ?? 0,
     })),
   }));
 
-  // --- KPIs ---
+  // ── Step 4 : agrégation top produits 30j ─────────────────────────────────
+  const agg = new Map<string, { produit_id: string | null; total_qte: number; total_rev: number }>();
+  for (const l of lignes30j ?? []) {
+    const row = l as {
+      nom_produit: string;
+      produit_id: string | null;
+      quantite: number | null;
+      sous_total: number | null;
+    };
+    const existing = agg.get(row.nom_produit);
+    if (existing) {
+      existing.total_qte += row.quantite ?? 0;
+      existing.total_rev += row.sous_total ?? 0;
+    } else {
+      agg.set(row.nom_produit, {
+        produit_id: row.produit_id ?? null,
+        total_qte: row.quantite ?? 0,
+        total_rev: row.sous_total ?? 0,
+      });
+    }
+  }
+
+  const topProduits: TopProduit[] = Array.from(agg.entries())
+    .map(([nom_produit, v]) => ({ nom_produit, ...v }))
+    .sort((a, b) => b.total_rev - a.total_rev)
+    .slice(0, 5);
+
+  // ── KPIs ─────────────────────────────────────────────────────────────────
   const caJour = txJour
     .filter((t) => t.mode_paiement !== 'credit')
     .reduce((s, t) => s + t.montant_total, 0);
-
-  const nbVentesJour = txJour.length;
 
   const totalDettes = (dettes ?? []).reduce(
     (s, t) => s + Math.max(0, (t.montant_total ?? 0) - (t.montant_recu ?? 0)),
@@ -177,7 +178,7 @@ export default async function EmployeVentePage() {
 
   const kpi = {
     ca_jour: caJour,
-    nb_ventes_jour: nbVentesJour,
+    nb_ventes_jour: txJour.length,
     total_dettes: totalDettes,
     ca_mois: 0,
   };
@@ -185,7 +186,14 @@ export default async function EmployeVentePage() {
   return (
     <VenteView
       kpi={kpi}
-      boutique={boutique ?? { id: session.boutique_id, nom: 'Boutique', ville: null, couleur_theme: null }}
+      boutique={
+        boutique ?? {
+          id: session.boutique_id,
+          nom: 'Boutique',
+          ville: null,
+          couleur_theme: null,
+        }
+      }
       employe={employe}
       nbDettes={nbDettes}
       txJour={txJour}
@@ -193,4 +201,3 @@ export default async function EmployeVentePage() {
     />
   );
 }
-
