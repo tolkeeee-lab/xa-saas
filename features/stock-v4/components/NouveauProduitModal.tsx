@@ -8,6 +8,7 @@ import {
   calcMarge,
   decompose,
 } from '../utils/produitCalculs';
+import { compressImage } from '@/lib/compressImage';
 
 interface NouveauProduitModalProps {
   boutiqueId: string;
@@ -48,8 +49,16 @@ export default function NouveauProduitModal({
     setImageError('');
     setImageUploading(true);
     try {
+      // Compress before upload: resize to 200×200 WebP ~30 KB
+      let uploadFile: Blob;
+      try {
+        uploadFile = await compressImage(file);
+      } catch {
+        uploadFile = file;
+      }
+
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', uploadFile, 'photo.webp');
       const res = await fetch('/api/produits/upload-image', {
         method: 'POST',
         body: formData,
