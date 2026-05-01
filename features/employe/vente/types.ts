@@ -49,3 +49,10 @@ export interface TopProduit {
 }
 
 export type PeriodeKey = '7j' | '30j' | 'mois' | 'annee';
+
+export interface TransactionGroupe {
+  label: string;
+  transactions: Transaction[];
+  total_ca: number;
+  nb_ventes: number;
+}
