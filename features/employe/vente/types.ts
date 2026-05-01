@@ -20,3 +20,32 @@ export interface EmployeInfo {
 }
 
 export type VenteTab = 'ventes' | 'historique' | 'dettes';
+
+export interface TransactionLigne {
+  produit_id: string | null;
+  nom_produit: string;
+  quantite: number;
+  prix_vente_unitaire: number;
+  sous_total: number;
+}
+
+export interface Transaction {
+  id: string;
+  created_at: string;
+  montant_total: number;
+  benefice_total: number;
+  mode_paiement: string;
+  client_nom: string | null;
+  employe_id: string | null;
+  statut: string;
+  lignes: TransactionLigne[];
+}
+
+export interface TopProduit {
+  produit_id: string | null;
+  nom_produit: string;
+  total_qte: number;
+  total_rev: number;
+}
+
+export type PeriodeKey = '7j' | '30j' | 'mois' | 'annee';
