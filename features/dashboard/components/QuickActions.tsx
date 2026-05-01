@@ -11,9 +11,9 @@ type QuickAction = {
 };
 
 const ACTIONS: QuickAction[] = [
-  { label: 'Nouvelle vente', href: '/caisse', icon: ShoppingCart, color: 'green' },
+  { label: 'Nouvelle vente', href: '/dashboard/caisse', icon: ShoppingCart, color: 'green' },
   { label: 'Ajouter charge', href: '/dashboard/charges', icon: Plus, color: 'blue' },
-  { label: 'Voir stock', href: '/dashboard/stock', icon: Package, color: 'amber' },
+  { label: 'Voir stock', href: '/dashboard/stocks', icon: Package, color: 'amber' },
   { label: 'Clôture du jour', href: '/dashboard/cloture', icon: ClipboardCheck, color: 'purple' },
 ];
 
