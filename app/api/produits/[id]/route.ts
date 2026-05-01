@@ -10,6 +10,7 @@ type PatchBody = {
   stock_actuel?: number;
   prix_vente?: number;
   date_peremption?: string | null;
+  image_url?: string | null;
 };
 
 /**
@@ -47,6 +48,7 @@ export async function PATCH(
   if (body.stock_actuel !== undefined) update.stock_actuel = body.stock_actuel;
   if (body.prix_vente !== undefined) update.prix_vente = body.prix_vente;
   if ('date_peremption' in body) update.date_peremption = body.date_peremption ?? null;
+  if ('image_url' in body) update.image_url = body.image_url ?? null;
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: 'Aucun champ à mettre à jour' }, { status: 400 });
@@ -58,7 +60,7 @@ export async function PATCH(
     .from('produits')
     .update(update)
     .eq('id', id)
-    .select('id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, created_at, updated_at')
+    .select('id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, image_url, created_at, updated_at')
     .single();
 
   if (error) {

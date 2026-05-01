@@ -43,6 +43,7 @@ Ce fichier documente l'historique des migrations et identifie les migrations pot
 | `20260426_admin_mafro_audit_log.sql` | Table `audit_log` — journal des actions admin MAFRO (validation commandes, dispatch livraisons, etc.) | PR 2.10 |
 | `20260427_produits_demandes.sql` | Table `produits_demandes` — produits demandés par les clients mais non vendus + RLS owner-scoped + trigger `updated_at` | PR feat(stock-v4): Demandes tab |
 | `20260427_produits_conditionnement.sql` | Colonnes conditionnement sur `produits` : `mode_achat`, `qty_par_lot`, `prix_lot_achat`, `lot_label`, `unite_label` | PR feat(stock-v4): NouveauProduitModal |
+| `20260501_produits_image_url.sql` | Colonne `image_url` sur `produits` — URL de la photo produit (stockée dans Supabase Storage bucket `produits`) | PR feat(stock-v4): images produits |
 
 ---
 

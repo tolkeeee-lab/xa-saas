@@ -55,7 +55,7 @@ export function useStockData(
     const { data } = await supabase
       .from('produits')
       .select(
-        'id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, created_at, updated_at',
+        'id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, image_url, created_at, updated_at',
       )
       .in('boutique_id', activeBoutiqueIds)
       .eq('actif', true)

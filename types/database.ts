@@ -77,6 +77,8 @@ export type Produit = {
   prix_lot_achat: number | null;
   lot_label: string | null;
   unite_label: string | null;
+  // Image (migration 20260501_produits_image_url)
+  image_url: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -575,7 +577,8 @@ type ProduitOptionalKeys =
   | 'qty_par_lot'
   | 'prix_lot_achat'
   | 'lot_label'
-  | 'unite_label';
+  | 'unite_label'
+  | 'image_url';
 
 export type Database = {
   public: {

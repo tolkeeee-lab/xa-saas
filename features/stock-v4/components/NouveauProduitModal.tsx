@@ -36,6 +36,39 @@ export default function NouveauProduitModal({
     if (nom.trim()) setCategorie(detectCategorie(nom));
   }, [nom]);
 
+  // ── Image upload ──────────────────────────────────────────────────────────────
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageError, setImageError] = useState('');
+
+  async function handleImageChange(e: { target: HTMLInputElement }) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageError('');
+    setImageUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/produits/upload-image', {
+        method: 'POST',
+        body: formData,
+      });
+      const json = await res.json() as { url?: string; error?: string };
+      if (!res.ok) {
+        setImageError(json.error ?? 'Erreur upload');
+      } else {
+        setImageUrl(json.url ?? null);
+      }
+    } catch {
+      setImageError('Erreur réseau — réessayez');
+    } finally {
+      setImageUploading(false);
+      // Reset file input so selecting the same file again triggers onChange
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }
+
   // ── Section 2 — Conditionnement ───────────────────────────────────────────────
   const [modeAchat, setModeAchat] = useState<ModeAchat>('lot');
   const [lotLabel, setLotLabel] = useState('carton');
@@ -131,6 +164,7 @@ export default function NouveauProduitModal({
         mode_achat: modeAchat,
         unite_label: uniteLabel.trim() || 'pièce',
         date_peremption: datePeremption || null,
+        image_url: imageUrl ?? null,
       };
 
       if (modeAchat === 'lot') {
@@ -269,14 +303,29 @@ export default function NouveauProduitModal({
 
             <div className="v4-np-field">
               <label className="v4-np-label">Photo</label>
-              <button
-                type="button"
-                className="v4-np-photo-btn"
-                disabled
-                title="Bientôt disponible"
-              >
-                📷 Ajouter une photo
-              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                style={{ display: 'none' }}
+                onChange={handleImageChange}
+              />
+              {imageUrl ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <img src={imageUrl} alt="Aperçu" style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8 }} />
+                  <button type="button" className="v4-np-scan-btn" onClick={() => setImageUrl(null)}>✕ Supprimer</button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="v4-np-photo-btn"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={imageUploading}
+                >
+                  {imageUploading ? '⏳ Upload…' : '📷 Ajouter une photo'}
+                </button>
+              )}
+              {imageError && <p className="v4-np-hint" style={{ color: 'var(--v4-r)' }}>{imageError}</p>}
             </div>
           </div>
 

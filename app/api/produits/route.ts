@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from('produits')
     .select(
-      'id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, created_at, updated_at',
+      'id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, image_url, created_at, updated_at',
     )
     .eq('boutique_id', boutiqueId)
     .eq('actif', true)
@@ -79,6 +79,7 @@ export async function POST(request: NextRequest) {
     lot_label,
     unite_label,
     date_peremption,
+    image_url,
   } = body;
 
   // Compute prix_achat (unit purchase price) from lot if needed
@@ -118,8 +119,9 @@ export async function POST(request: NextRequest) {
       lot_label: lot_label ?? null,
       unite_label: unite_label ?? null,
       date_peremption: date_peremption ?? null,
+      image_url: image_url ?? null,
     })
-    .select('id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, mode_achat, qty_par_lot, lot_label, unite_label, date_peremption, created_at, updated_at')
+    .select('id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, mode_achat, qty_par_lot, lot_label, unite_label, date_peremption, image_url, created_at, updated_at')
     .single();
 
   // If INSERT failed because the conditionnement columns don't exist yet (migration pending),
@@ -142,7 +144,7 @@ export async function POST(request: NextRequest) {
           actif: true,
           date_peremption: date_peremption ?? null,
         })
-        .select('id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, created_at, updated_at')
+        .select('id, boutique_id, nom, categorie, description, prix_vente, stock_actuel, seuil_alerte, unite, actif, date_peremption, image_url, created_at, updated_at')
         .single();
 
       if (fallbackError) {

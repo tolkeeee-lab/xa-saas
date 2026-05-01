@@ -1557,6 +1557,7 @@
   border-radius: 12px;
   background: var(--v4-surf);
   border: 1px solid var(--v4-brd);
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
