@@ -153,6 +153,28 @@ export default async function EmployeVentePage() {
     })),
   }));
 
+  // ── Step 3b : fetch 30-day history for TabHistorique ─────────────────────
+  const { data: txHistRaw } = await supabase
+    .from('transactions')
+    .select('id, created_at, montant_total, benefice_total, mode_paiement, client_nom, employe_id, statut')
+    .eq('boutique_id', session.boutique_id)
+    .eq('statut', 'validee')
+    .gte('created_at', since30j + 'T00:00:00.000Z')
+    .lt('created_at', tomorrow + 'T00:00:00.000Z')
+    .order('created_at', { ascending: false });
+
+  const txHistorique: Transaction[] = (txHistRaw ?? []).map((t) => ({
+    id: t.id,
+    created_at: t.created_at,
+    montant_total: t.montant_total ?? 0,
+    benefice_total: t.benefice_total ?? 0,
+    mode_paiement: t.mode_paiement,
+    client_nom: t.client_nom ?? null,
+    employe_id: t.employe_id ?? null,
+    statut: t.statut,
+    lignes: [],
+  }));
+
   // ── Step 4 : agrégation top produits 30j ─────────────────────────────────
   const agg = new Map<string, { produit_id: string | null; total_qte: number; total_rev: number }>();
   for (const l of lignes30j) {
@@ -210,6 +232,7 @@ export default async function EmployeVentePage() {
       nbDettes={nbDettes}
       txJour={txJour}
       topProduits={topProduits}
+      transactions={txHistorique}
     />
   );
 }
