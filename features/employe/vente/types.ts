@@ -56,3 +56,12 @@ export interface TransactionGroupe {
   total_ca: number;
   nb_ventes: number;
 }
+
+export interface DetteFiche {
+  id: string;
+  client_nom: string;
+  montant_total: number;
+  montant_recu: number;
+  reste_a_payer: number;
+  created_at: string;
+}

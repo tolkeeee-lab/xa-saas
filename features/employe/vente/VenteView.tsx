@@ -5,7 +5,8 @@ import VenteTopbar from './VenteTopbar';
 import VenteTabs from './VenteTabs';
 import TabVentes from './TabVentes';
 import TabHistorique from './TabHistorique';
-import type { VenteKpi, BoutiqueInfo, EmployeInfo, VenteTab, Transaction, TopProduit } from './types';
+import TabDettes from './TabDettes';
+import type { VenteKpi, BoutiqueInfo, EmployeInfo, VenteTab, Transaction, TopProduit, DetteFiche } from './types';
 
 interface Props {
   kpi: VenteKpi;
@@ -15,9 +16,10 @@ interface Props {
   txJour: Transaction[];
   topProduits: TopProduit[];
   transactions: Transaction[];
+  dettes: DetteFiche[];
 }
 
-export default function VenteView({ kpi, boutique, employe, nbDettes, txJour, topProduits, transactions }: Props) {
+export default function VenteView({ kpi, boutique, employe, nbDettes, txJour, topProduits, transactions, dettes }: Props) {
   const [tab, setTab] = useState<VenteTab>('ventes');
 
   return (
@@ -42,20 +44,7 @@ export default function VenteView({ kpi, boutique, employe, nbDettes, txJour, to
           <TabHistorique transactions={transactions} />
         )}
         {tab === 'dettes' && (
-          <div style={{
-            background: 'var(--xa-surface)', borderRadius: 16,
-            border: '1px solid var(--xa-border)', padding: 24,
-            textAlign: 'center',
-          }}>
-            <div style={{ fontSize: 32, marginBottom: 8 }}>⚠️</div>
-            <div style={{
-              fontFamily: 'var(--font-familjen, system-ui)',
-              fontSize: 14, fontWeight: 700, color: 'var(--xa-ink)',
-            }}>Dettes en cours de construction</div>
-            <div style={{ fontSize: 12, color: 'var(--xa-muted)', marginTop: 4 }}>
-              PR 4/4 — Créances + Modal paiement
-            </div>
-          </div>
+          <TabDettes dettes={dettes} />
         )}
       </div>
     </div>
