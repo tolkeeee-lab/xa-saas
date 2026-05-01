@@ -7,7 +7,7 @@ import {
 } from '@/lib/employe-session-server';
 import { createAdminClient } from '@/lib/supabase-admin';
 import VenteView from '@/features/employe/vente/VenteView';
-import type { Transaction, TopProduit } from '@/features/employe/vente/types';
+import type { Transaction, TopProduit, DetteFiche } from '@/features/employe/vente/types';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'Vente — xà' };
@@ -87,7 +87,7 @@ export default async function EmployeVentePage() {
       .order('created_at', { ascending: false }),
     supabase
       .from('transactions')
-      .select('id, montant_total, montant_recu')
+      .select('id, montant_total, montant_recu, client_nom, created_at')
       .eq('boutique_id', session.boutique_id)
       .eq('mode_paiement', 'credit')
       .eq('statut', 'validee'),
@@ -210,6 +210,17 @@ export default async function EmployeVentePage() {
     (t) => (t.montant_total ?? 0) - (t.montant_recu ?? 0) > 0,
   ).length;
 
+  const detteFiches: DetteFiche[] = (dettes ?? [])
+    .map((t) => ({
+      id: t.id,
+      client_nom: t.client_nom ?? 'Client inconnu',
+      montant_total: t.montant_total ?? 0,
+      montant_recu: t.montant_recu ?? 0,
+      reste_a_payer: Math.max(0, (t.montant_total ?? 0) - (t.montant_recu ?? 0)),
+      created_at: t.created_at,
+    }))
+    .sort((a, b) => b.reste_a_payer - a.reste_a_payer);
+
   const kpi = {
     ca_jour: caJour,
     nb_ventes_jour: txJour.length,
@@ -233,6 +244,7 @@ export default async function EmployeVentePage() {
       txJour={txJour}
       topProduits={topProduits}
       transactions={txHistorique}
+      dettes={detteFiches}
     />
   );
 }
