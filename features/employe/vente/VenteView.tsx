@@ -3,16 +3,19 @@
 import { useState } from 'react';
 import VenteTopbar from './VenteTopbar';
 import VenteTabs from './VenteTabs';
-import type { VenteKpi, BoutiqueInfo, EmployeInfo, VenteTab } from './types';
+import TabVentes from './TabVentes';
+import type { VenteKpi, BoutiqueInfo, EmployeInfo, VenteTab, Transaction, TopProduit } from './types';
 
 interface Props {
   kpi: VenteKpi;
   boutique: BoutiqueInfo;
   employe: EmployeInfo;
   nbDettes: number;
+  txJour: Transaction[];
+  topProduits: TopProduit[];
 }
 
-export default function VenteView({ kpi, boutique, employe, nbDettes }: Props) {
+export default function VenteView({ kpi, boutique, employe, nbDettes, txJour, topProduits }: Props) {
   const [tab, setTab] = useState<VenteTab>('ventes');
 
   return (
@@ -31,20 +34,7 @@ export default function VenteView({ kpi, boutique, employe, nbDettes }: Props) {
         display: 'flex', flexDirection: 'column', gap: 12,
       }}>
         {tab === 'ventes' && (
-          <div style={{
-            background: 'var(--xa-surface)', borderRadius: 16,
-            border: '1px solid var(--xa-border)', padding: 24,
-            textAlign: 'center',
-          }}>
-            <div style={{ fontSize: 32, marginBottom: 8 }}>📊</div>
-            <div style={{
-              fontFamily: 'var(--font-familjen, system-ui)',
-              fontSize: 14, fontWeight: 700, color: 'var(--xa-ink)',
-            }}>Graphique en cours de construction</div>
-            <div style={{ fontSize: 12, color: 'var(--xa-muted)', marginTop: 4 }}>
-              PR 2/4 — Évolution + Heatmap + Top produits
-            </div>
-          </div>
+          <TabVentes txJour={txJour} topProduits={topProduits} />
         )}
         {tab === 'historique' && (
           <div style={{
