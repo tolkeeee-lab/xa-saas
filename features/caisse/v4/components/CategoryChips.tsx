@@ -1,5 +1,7 @@
 'use client';
 
+import { getCategoryEmoji } from '../utils/categoryEmoji';
+
 interface CategoryChipsProps {
   categories: string[];
   active: string;
@@ -23,7 +25,7 @@ export default function CategoryChips({
           onClick={() => onChange(cat)}
           style={{ minHeight: 44 }}
         >
-          {cat}
+          {cat === 'Tout' ? '🏪 Tout' : `${getCategoryEmoji(cat)} ${cat}`}
         </button>
       ))}
     </div>
